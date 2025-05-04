@@ -25,14 +25,14 @@ const SignIn = () => {
             <div className="">
               <label className="email-input" htmlFor="">
                 E-mail Address
-                <input type="email" placeholder="example@gmail.com" className="w-full p-3 mt-4 border rounded bg-gray-700 placeholder:font-bold placeholder:text-gray-300"/>
+                <input type="email" placeholder="example@gmail.com" className="w-full p-3 mt-4 border rounded bg-gray-700 placeholder:font-bold placeholder:text-gray-300 invalid:border-red-300 invalid:text-red-400 focus:outline focus:outline-sky-500 focus:invalid:border-red-300 focus:invalid:outline-red-300   "/>
               </label>
             </div>
 
             <div className="mt-20">
               <label className="pass-input" htmlFor="">
                 Password
-                <input type="password" placeholder="min 8 characters" className="w-full p-3 mt-4  border rounded bg-gray-700 placeholder:font-bold placeholder:text-gray-300" />
+                <input type="password" placeholder="min 8 characters" className="w-full p-3 mt-4  border rounded bg-gray-700 placeholder:font-bold placeholder:text-gray-300 focus:outline focus:outline-sky-500" />
               </label>
               <p className="text-right font-bold text-green-500 cursor-pointer">Forgot your password?</p>
             </div>

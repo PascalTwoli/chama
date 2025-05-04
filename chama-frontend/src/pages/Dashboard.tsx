@@ -1,9 +1,11 @@
-import Card from "primereact/card"
+import Membership from "../compnents/membership"
+
 
 export default function Dashboard() {
     return (
         <div className="">
-            <h4 className="font-bold">Twoli AC's group members</h4>
+            <Membership/>
+            {/* <h4 className="font-bold">Twoli AC's group members</h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div title="">
                     <h4>Total Contributions</h4>
@@ -17,7 +19,7 @@ export default function Dashboard() {
                     <h4>Upcoming Payments</h4>
                     <p className="text-2xl font-bold">KSh 5,000</p>
                 </div>
-            </div>
+            </div> */}
         </div>
     )
 }
