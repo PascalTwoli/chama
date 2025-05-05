@@ -48,6 +48,7 @@
   max-width: 300px;
   position: relative;
   /* transition: .5s ease-in-out; */
+  /* justify-content: space-between; */
   
 }
 
@@ -65,8 +66,13 @@
 .sidebar-nav{
   border-bottom: 2px solid rgb(100, 100, 100, 0.3);
 }
-.sidebar-nav .bi{
+/* .sidebar-nav .bi{
   height: 30px;
+} */
+
+
+.sidebar-icon {
+  height: 24.5px !important;
 }
 
 
@@ -171,4 +177,11 @@
   margin-top: 50px;
   width: 180px; */
 }
+
+
+/* -------membership-container------ */
+
+.membership-container {}
+
+.membership-container  {}
 

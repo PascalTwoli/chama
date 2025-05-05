@@ -17,23 +17,23 @@ const SignUp = () => {
             <div className="flex gap-6">
               <label htmlFor="">
                 First Name
-                <input type="text" placeholder="First Name" className="w-full p-3 mt-2 border rounded bg-gray-700" />
+                <input type="text" placeholder="First Name" className="w-full p-3 mt-2 border rounded bg-gray-700 focus:outline focus:outline-sky-500" />
               </label>
               <label htmlFor="">
                 Last Name
-                <input type="text" placeholder="Last Name" className="w-full p-3 mt-2 border rounded bg-gray-700" />
+                <input type="text" placeholder="Last Name" className="w-full p-3 mt-2 border rounded bg-gray-700 focus:outline focus:outline-sky-500" />
               </label>
             </div>
             <div className="mt-14">
               <label htmlFor="email">
                 Email address
-                <input type="email" placeholder="Email" className="w-full p-3 mt-2 border rounded bg-gray-700" />
+                <input type="email" placeholder="Email" className="w-full p-3 mt-4 border rounded bg-gray-700 placeholder:font-bold placeholder:text-gray-400 invalid:border-red-300 invalid:text-red-400 focus:outline focus:outline-sky-500 focus:invalid:border-red-300 focus:invalid:outline-red-300   " />
               </label>
             </div>
             <div className="mt-14">
               <label htmlFor="">
                 Password
-                <input type="password" placeholder="Password" className="w-full p-3 mt-2 border rounded bg-gray-700" />
+                <input type="password" placeholder="Password" className="w-full p-3 mt-2 border rounded bg-gray-700 focus:outline focus:outline-sky-500" />
               </label>
             </div>
             <p className="text-gray-400 mt-14 font-normal">By creating an account, you agree to our <a href="" className="text-white">Terms</a> and <a href="" className="text-white">privacy policy</a></p>
