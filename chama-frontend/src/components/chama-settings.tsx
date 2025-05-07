@@ -1,11 +1,9 @@
-
 import React, { useRef, useState } from "react";
 import { Menu } from "primereact/menu";
 import { Toast } from "primereact/toast";
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
-
 type Role = "Chair" | "Secretary" | "Treasurer"
 
 
@@ -29,7 +27,7 @@ function ChamaSettings() {
     const renderRoleProfile = (role: Role) => (
       <div className="flex flex-col items-center gap-2 text-center text-gray-400">
         <label htmlFor={`${role}-upload`} className="cursor-pointer">
-          <div className="w-36 h-36 bg-gray-800 rounded-full flex items-center justify-center overflow-hidden">
+          <div className="w-36 h-36 bg-gray-800 border-2 border-gray-600 hover:border-blue-400 transition-all duration-200 rounded-full flex items-center justify-center overflow-hidden">
             {roleProfile[role] ? (
               <img
                 src={roleProfile[role]!}
@@ -122,13 +120,16 @@ function ChamaSettings() {
     <>
     <Toast ref={toast}/>
     <h1 className="font-bold text-lg mb-4">Twoli Contribution's Settings</h1>
-    <div className="flex gap-2">
-        <div className="card  min-w-[200px]">
-          <Toast ref={toast} />
-          <Menu  model={menuItems} className="" style={{background: ""}}/>
+    <div className="flex gap-4">
+        <div className="bg-gray-800 rounded-lg shadow-lg min-w-[220px] overflow-hidden">
+          <Menu model={menuItems} className="w-full" pt={{
+            root: { className: 'bg-gray-800 border-none' },
+            menu: { className: 'bg-gray-800 text-white' },
+            menuitem: { className: 'hover:bg-gray-700 transition-colors duration-200' }
+          }} />
         </div>
 
-        <div className="flex-1 bg-gray-700 p-4 mr-6 rounded-lg">
+        <div className="flex-1 bg-gray-700 p-6 mr-6 rounded-lg shadow-lg">
           {activeTab === "Account" && (
             <>
             <div className="pr-4">
@@ -136,20 +137,20 @@ function ChamaSettings() {
                 <div className="flex flex-2 flex-col gap-4 flex-1">
                   <div>
                     <label className="block mb-2 font-semibold">Name</label>
-                    <InputText placeholder="Chama Name" className="w-full p-2 bg-gray-800" />
+                    <InputText placeholder="Chama Name" className="w-full p-inputtext-sm bg-gray-800 border border-gray-600 rounded-md transition-all duration-200 hover:border-blue-400 focus:border-blue-500" />
                   </div>
                   <div>
                     <label className="block mb-2 font-semibold">About</label>
                     <InputTextarea
                       placeholder="Description of the Group"
-                      className="w-full p-2 bg-gray-800"
+                      className="w-full p-inputtextarea bg-gray-800 border border-gray-600 rounded-md transition-all duration-200 hover:border-blue-400 focus:border-blue-500"
                       rows={3}
                     />
                   </div>
                 </div>
                 <div className="flex flex-2 flex-col items-center justify-center text-center text-gray-400">
                   <label htmlFor="upload" className="cursor-pointer">
-                    <div className="w-40 h-40 bg-gray-800 rounded-full flex items-center justify-center overflow-hidden">
+                    <div className="w-40 h-40 bg-gray-800 border-2 border-gray-600 hover:border-blue-400 transition-all duration-200 rounded-full flex items-center justify-center overflow-hidden">
                       {selectedImage ? (
                         <img
                           src={selectedImage}
@@ -164,7 +165,7 @@ function ChamaSettings() {
                   <input
                     id="upload"
                     type="file"
-                    accept="image/"
+                    accept="image/*"
                     className="hidden"
                     onChange={handleImageUpload}
                   />
@@ -173,7 +174,7 @@ function ChamaSettings() {
               </div>
 
                 <div className="text-right">
-                      <Button label="Update Chama" className="mt-4 w-40 p-2 border border-blue-400 border-2 text-blue-400" />
+                      <Button label="Update Chama" icon="pi pi-check" className="mt-6 p-button p-button-outlined p-button-info" style={{ width: '12rem', height: '2.5rem' }} />
                 </div>
             </div>
             </>
@@ -228,7 +229,7 @@ function ChamaSettings() {
           {activeTab === "Danger Zone" && (
             <div className=" mr-10 rounded p-4">
                 <div className="text-center font-bold">
-                    <h3 className="underline font-bold text-xl mb-4">Reset your cahama/group</h3>
+                    <h3 className="font-bold text-xl mb-4 pb-2 border-b border-gray-600">Reset your chama/group</h3>
                     <div className="text-left text-gray-400">
                         <p> Initiate a fresh start with the removal of all the existing. Please  be aware that the following data will be permanently removed</p>
                         <ul className="ml-10 m-3 list-disc">
@@ -239,7 +240,7 @@ function ChamaSettings() {
                         </ul>
                         <p>Only wallet balances will be retained</p>
                         <div className="text-right">
-                            <button className=" border border-yellow-400 text-yellow-400 rounded  p-2 border-2" >Reset Twoli Contribution's account</button>
+                            <Button icon="pi pi-refresh" className="p-button p-button-warning p-button-outlined mt-4" label="Reset Twoli Contribution's account" style={{ height: '2.5rem' }} />
                         </div>
                     </div>
                 </div>
@@ -248,7 +249,7 @@ function ChamaSettings() {
 
                 <div className="font-bold">
                     <div className="text-center">
-                        <h1 className="underline font-bold text-xl mb-4">
+                        <h1 className="font-bold text-xl mb-4 pb-2 border-b border-gray-600">
                             Delete Chama/Group: Twoli contributions
                         </h1>
                     </div>
@@ -270,7 +271,7 @@ function ChamaSettings() {
                         </ul>
                     </div>
                     <div className="text-right">
-                        <button className=" border border-red-500 text-red-500 rounded  p-2 border-2" >Delete Twoli Contribution's account</button>
+                        <Button icon="pi pi-trash" className="p-button p-button-danger p-button-outlined mt-4" label="Delete Twoli Contribution's account" style={{ height: '2.5rem' }} />
                     </div>
                 </div>
             </div>
