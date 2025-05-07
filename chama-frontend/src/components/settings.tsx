@@ -1,7 +1,9 @@
+import ChamaSettings from "./chama-settings";
+
 function Settings () {
     return (
         <>
-            <p>This is settings page</p>
+            <ChamaSettings/>
         </>
     )
 }

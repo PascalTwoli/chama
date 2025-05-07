@@ -3,12 +3,12 @@ import Layout from "../layout/Layout";
 import Dashboard from "../pages/Dashboard";
 import Signin from "../pages/signin";
 import Signup from "../pages/signup";
-import Softloans from "../compnents/softloans";
-import Meetings from "../compnents/meetings";
-import Shares from "../compnents/shares";
-import Notifications from "../compnents/notifications";
-import Mpesa from "../compnents/mpesa";
-import Settings from "../compnents/settings";
+import Softloans from "../components/softloans";
+import Meetings from "../components/meetings";
+import Shares from "../components/shares";
+import Notifications from "../components/notifications";
+import Mpesa from "../components/mpesa";
+import Settings from "../components/settings";
 
 
 const AppRoutes = () => {

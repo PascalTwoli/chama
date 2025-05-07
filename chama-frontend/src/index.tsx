@@ -1,5 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+
+// Import PrimeReact styles in the correct order
+import 'primereact/resources/primereact.min.css'; // PrimeReact core CSS
+import 'primereact/resources/themes/lara-dark-indigo/theme.css'; // Theme
+import 'primeicons/primeicons.css'; // PrimeIcons
+import 'primeflex/primeflex.css'; // PrimeFlex for layout
+
+// Import custom styles last
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';

@@ -1,4 +1,4 @@
-import Membership from "../compnents/membership"
+import Membership from "../components/membership"
 
 
 export default function Dashboard() {

@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
-import Navbar from "../compnents/Navbar";
-import Sidebar from "../compnents/Sidebar";
+import Navbar from "../components/Navbar";
+import Sidebar from "../components/Sidebar";
 
 const Layout = () => {
 
@@ -9,7 +9,7 @@ const Layout = () => {
             <Navbar />
             <div className="flex main-section  bg-[#1f2937] h-screen">
               <Sidebar /> 
-              <div className="flex-1 flex bg-gray-700 ml-3 rounded-xl">
+              <div className="flex-1 flex  ml-3 rounded-xl"> {/* bg-gray-700 */}
                 <main className="p-6 h-full w-full">
                   <Outlet />
                 </main>
