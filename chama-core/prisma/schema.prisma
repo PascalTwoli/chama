@@ -1,0 +1,185 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// Enums
+
+/// Roles that users can have within the system or within a Chama
+enum UserRole {
+  ADMIN
+  MEMBER
+  TREASURER
+  SECRETARY
+
+  @@map("user_role")
+}
+
+/// Status of a contribution before/after processing
+enum ContributionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+/// Supported payment methods (expand as needed)
+enum PaymentMethod {
+  MPESA
+  BANK_TRANSFER
+  CASH
+}
+
+/// Status of an individual payment record
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+/// Delivery channels for notifications (in-app, email, SMS)
+enum DeliveryMethod {
+  IN_APP
+  EMAIL
+  SMS
+}
+
+/// Models
+
+model User {
+  id           String   @id @default(uuid())
+  name         String?
+  email        String?  @unique
+  phone        String?  @unique
+  passwordHash String?  @map("password_hash")
+  role         UserRole @default(MEMBER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  memberships   Membership[]
+  contributions Contribution[]
+  notifications Notification[]
+  uiSettings    UiSettings?
+  Chama         Chama[]
+
+  @@map("user")
+}
+
+model Chama {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  rules       String?
+  createdById String   @map("created_by")
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  memberships   Membership[]
+  contributions Contribution[]
+  invites       Invite[]
+
+  @@map("chama")
+}
+
+model Membership {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id])
+  chamaId   String   @map("chama_id")
+  chama     Chama    @relation(fields: [chamaId], references: [id])
+  role      UserRole @default(MEMBER)
+  joinedAt  DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("membership")
+}
+
+model Invite {
+  id          String    @id @default(uuid())
+  chamaId     String    @map("chama_id")
+  chama       Chama     @relation(fields: [chamaId], references: [id])
+  token       String    @unique
+  sentToEmail String    @map("sent_to_email")
+  expiresAt   DateTime  @map("expires_at")
+  usedAt      DateTime? @map("used_at")
+  createdAt   DateTime  @default(now())
+
+  @@map("invite")
+}
+
+model Contribution {
+  id        String             @id @default(uuid())
+  chamaId   String             @map("chama_id")
+  chama     Chama              @relation(fields: [chamaId], references: [id])
+  userId    String             @map("user_id")
+  user      User               @relation(fields: [userId], references: [id])
+  amount    Decimal            @db.Decimal(10, 2)
+  currency  String
+  status    ContributionStatus @default(PENDING)
+  date      DateTime           @default(now())
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  payments Payment[]
+
+  @@map("contribution")
+}
+
+model Payment {
+  id             String        @id @default(uuid())
+  contributionId String        @map("contribution_id")
+  contribution   Contribution  @relation(fields: [contributionId], references: [id])
+  method         PaymentMethod @default(MPESA)
+  externalRef    String?       @map("external_ref")
+  status         PaymentStatus @default(PENDING)
+  processedAt    DateTime?     @map("processed_at")
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@map("payment")
+}
+
+model NotificationType {
+  id              Int            @id @default(autoincrement())
+  name            String         @unique
+  description     String?
+  defaultDelivery DeliveryMethod @map("default_delivery")
+
+  notifications Notification[]
+
+  @@map("notification_type")
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String           @map("user_id")
+  user      User             @relation(fields: [userId], references: [id])
+  typeId    Int              @map("type_id")
+  type      NotificationType @relation(fields: [typeId], references: [id])
+  title     String
+  body      String
+  readAt    DateTime?        @map("read_at")
+  sentAt    DateTime?        @map("sent_at")
+  createdAt DateTime         @default(now())
+
+  @@map("notification")
+}
+
+model UiSettings {
+  userId          String  @id @map("user_id")
+  user            User    @relation(fields: [userId], references: [id])
+  showTutorial    Boolean @default(true) @map("show_tutorial")
+  theme           String? @default("default")
+  lastSeenWidgets Json?   @map("last_seen_widgets")
+
+  @@map("ui_settings")
+}
