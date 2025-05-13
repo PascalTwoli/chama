@@ -8,7 +8,7 @@
     font-size: theme('fontSize.base');
     @apply bg-gray-900 text-gray-100;
   }
-  
+
   body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -18,7 +18,7 @@
     -moz-osx-font-smoothing: grayscale;
     @apply bg-gray-900;
   }
-  
+
   code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
       monospace;
@@ -29,46 +29,80 @@
 @layer components {
   /* Menu component */
   .p-menu {
-    @apply bg-gray-800 border-gray-700 !important;
+    @apply bg-red-900 border-blue-500;
   }
-  
+
+  .p-submenu-header {
+    @apply bg-inherit;
+  }
+
   .p-menu .p-menuitem-link {
-    @apply text-gray-200 !important;
+    @apply text-gray-200;
   }
-  
+
   .p-menu .p-menuitem-link:hover {
-    @apply bg-gray-700 !important;
+    @apply bg-gray-700;
   }
-  
+
   /* Toast component */
   .p-toast {
-    @apply opacity-100 !important;
+    @apply opacity-100;
   }
-  
+
   .p-toast .p-toast-message {
-    @apply border-0 rounded-md shadow-lg !important;
+    @apply border-0 rounded-md shadow-lg;
   }
-  
+
   /* Button component */
   .p-button {
-    @apply transition-all duration-200 !important;
+    @apply transition-all duration-200;
   }
-  
+
   .p-button.p-button-outlined {
-    @apply border-2 !important;
+    @apply border-2;
   }
-  
+
   /* Input components */
   .p-inputtext, .p-inputtextarea {
-    @apply bg-gray-800 border border-gray-600 text-white !important;
+    @apply bg-gray-800 border border-gray-600 text-white;
   }
-  
+
   .p-inputtext:hover, .p-inputtextarea:hover {
-    @apply border-blue-400 !important;
+    @apply border-blue-400;
+  }
+
+  .p-inputtext:focus, .p-inputtextarea:focus {
+    @apply border-blue-500 shadow-none;
+    box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.5);
+  }
+ /* dropdown components */
+  .p-dropdown{
+    @apply bg-white  ;
+  }
+
+  .p-dropdown .focus{
+    @apply bg-yellow-700
+  }
+
+  .membership-dropdown .p-dropdown-label {
+    @apply p-1.5
   }
   
-  .p-inputtext:focus, .p-inputtextarea:focus {
-    @apply border-blue-500 shadow-none !important;
-    box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.5) !important;
+  .p-dropdown-label {
+    @apply  bg-inherit w-fit;
   }
+
+  .p-inputtext {
+    @apply text-black; 
+  }
+
+  .p-dropdown-trigger {
+    @apply text-black;
+  }
+
+  .p-dropdown-items {
+    
+  }
+
+  
 }

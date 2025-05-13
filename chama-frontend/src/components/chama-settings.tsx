@@ -17,15 +17,19 @@ function ChamaSettings() {
         Treasurer: null
     });
     
+    const [roleNames, setRoleNames] = useState<Record<Role, string>>({
+      Chair: "Agustine",
+      Secretary: "Pascal",
+      Treasurer: "Daniel",
+    });
 
-    const roleNames: Record <Role, string> = {
-      Chair: "Pascal Twoli",
-      Secretary: "Augustine Wetsuli",
-      Treasurer: "Daniel Khaemba"
-    }
+    const handleNameChange = (role: Role, newName: string) => {
+      setRoleNames(prev => ({ ...prev, [role]: newName }));
+    };
 
     const renderRoleProfile = (role: Role) => (
-      <div className="flex flex-col items-center gap-2 text-center text-gray-400">
+      <div className="flex flex-col items-center gap-2 text-center text-gray-400 p-2">
+        <p className="text-lg w-full border-b border-b-2 border-b-gray-500 pb-2 mb-2 font-bold">{role}</p>
         <label htmlFor={`${role}-upload`} className="cursor-pointer">
           <div className="w-36 h-36 bg-gray-800 border-2 border-gray-600 hover:border-blue-400 transition-all duration-200 rounded-full flex items-center justify-center overflow-hidden">
             {roleProfile[role] ? (
@@ -46,8 +50,11 @@ function ChamaSettings() {
           className="hidden"
           onChange={(e) => handleRoleImageUpload(e, role)}
         />
-        <span className="text-xs">{role}</span>
-        <p className="text-xl text-white ">{roleNames[role]}</p>
+        <InputText
+          value={roleNames[role]}
+          onChange={(e) => handleNameChange(role, e.target.value)}
+          className="text-center text-xl font-semibold text-white bg-transparent border-none rounded"
+        />
       </div>
     );
     
@@ -120,16 +127,16 @@ function ChamaSettings() {
     <>
     <Toast ref={toast}/>
     <h1 className="font-bold text-lg mb-4">Twoli Contribution's Settings</h1>
-    <div className="flex gap-4">
+    <div className="flex gap-3">
         <div className="bg-gray-800 rounded-lg shadow-lg min-w-[220px] overflow-hidden">
           <Menu model={menuItems} className="w-full" pt={{
-            root: { className: 'bg-gray-800 border-none' },
+            root: { className: 'bg-gray-900 border-none' },
             menu: { className: 'bg-gray-800 text-white' },
             menuitem: { className: 'hover:bg-gray-700 transition-colors duration-200' }
           }} />
         </div>
 
-        <div className="flex-1 bg-gray-700 p-6 mr-6 rounded-lg shadow-lg">
+        <div className="flex-1 bg-gray-900 mr-2 rounded-lg shadow-lg pr-3 pl-3">
           {activeTab === "Account" && (
             <>
             <div className="pr-4">
@@ -174,55 +181,24 @@ function ChamaSettings() {
               </div>
 
                 <div className="text-right">
-                      <Button label="Update Chama" icon="pi pi-check" className="mt-6 p-button p-button-outlined p-button-info" style={{ width: '12rem', height: '2.5rem' }} />
+                      <Button type="button" label="Update Chama" icon="pi pi-check" className="mt-6 p-button p-button-outlined p-button-info" style={{ width: '12rem', height: '2.5rem' }} />
                 </div>
             </div>
             </>
           )}
 
           {activeTab === "Leadership" && (
-            <div>
+            <div className="">
                 <div className="text-center">
                     <h2 className="text-xl font-semibold mb-3 p-3 border-b border-b-2 border-b-gray-500 ">
                         Twoli Contribution Leadership
                     </h2>
                 </div>
-                <div className="flex gap-4 grid grid-cols-3 ">
+                <div className="flex grid grid-cols-3 justify-between">
                     {renderRoleProfile("Chair")}
                     {renderRoleProfile("Secretary")}
                     {renderRoleProfile("Treasurer")}
                 </div>
-                {/* <div className="grid grid-cols-3 gap-6 mt-4 ">
-                    {["Chair", "Secretary", "Treasurer"].map((role) => (
-                    <div key={role} className="flex flex-col items-center">
-                         <div className="flex flex-col items-center justify-center text-center text-gray-400">
-                            <label htmlFor="upload" className="cursor-pointer">
-                            <div className="w-40 h-40 bg-gray-800 rounded-full flex items-center justify-center overflow-hidden">
-                                {roleProfile ? (
-                                <img
-                                    src={roleProfile}
-                                    alt="Uploaded"
-                                    className="object-cover w-full h-full"
-                                />
-                                ) : (
-                                <span>Upload Image</span>
-                                )}
-                            </div>
-                            </label>
-                            <input
-                            id="upload"
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            onChange={handleRoleImageUpload}
-                            />
-                        </div> 
-
-                        <h3 className="mt-4 font-semibold">{role}</h3>
-                        <p>Twoli Augustine</p> 
-                    </div>
-                    ))}
-                </div> */}
             </div>
           )}
 
