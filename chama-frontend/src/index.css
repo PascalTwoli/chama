@@ -64,7 +64,7 @@
 
   /* Input components */
   .p-inputtext, .p-inputtextarea {
-    @apply bg-gray-800 border border-gray-600 text-white;
+    @apply bg-gray-800 border border-gray-600 text-gray-300;
   }
 
   .p-inputtext:hover, .p-inputtextarea:hover {
@@ -93,7 +93,7 @@
   }
 
   .p-inputtext {
-    @apply text-black; 
+    @apply text-gray-400; 
   }
 
   .p-dropdown-trigger {

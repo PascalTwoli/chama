@@ -6,7 +6,7 @@ function Sidebar () {
 
 
    return (
-      <div className={`flex flex-col justify-between  sidebar w-1/2 h-full  text-white ${isCollapsed? 'w-fit p-2': 'w-fit pl-6 pr-6'} transition-all duration-500 ease-in-out`}> {/**bg-[#19222C] */}
+      <div className={`flex flex-col justify-between  sidebar w-1/2  text-white ${isCollapsed? 'w-fit p-2': 'w-fit pl-6 pr-6'} transition-all duration-500 ease-in-out`}> {/**bg-[#19222C] */}
 
          <div 
             className={``}>
@@ -60,7 +60,7 @@ function Sidebar () {
                
                {/* Settings */}
                <div className={` ${isCollapsed ? '' : 'pl-2'}`}>
-                  <NavLink to={'/settings'} 
+                  <NavLink to={'/chama_settings'} 
                      className= {({ isActive }) =>
                      `flex items-center gap-x-4 py-3 px-2 rounded transition-all duration-300 hover:bg-gray-700  no-underline ${
                      isCollapsed ? 'justify-center' : ''

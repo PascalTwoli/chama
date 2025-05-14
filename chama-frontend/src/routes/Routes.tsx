@@ -8,7 +8,8 @@ import Meetings from "../components/meetings";
 import Shares from "../components/shares";
 import Notifications from "../components/notifications";
 import Mpesa from "../components/mpesa";
-import Settings from "../components/settings";
+import Settings from "../components/settings/settings";
+import AccountSettings from "../components/settings/account-settings";
 
 
 const AppRoutes = () => {
@@ -24,7 +25,8 @@ const AppRoutes = () => {
           <Route path="shares" element={<Shares/>}/>
           <Route path="notifications" element={<Notifications/>}/>
           <Route path="mpesa" element={<Mpesa/>}/>
-          <Route path="settings" element={<Settings/>}/>
+          <Route path="chama_settings" element={<Settings/>}/>
+          <Route path="account_settings" element={<AccountSettings/>}/>
           {/* <Route path="chamas" element={<ChamaList />} />
           <Route path="chamas/:id" element={<ChamaDetails />} /> */}
         </Route>      

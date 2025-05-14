@@ -13,7 +13,7 @@ function Membership () {
         {label: "Disabled", value: "disabled"}
     ]
     return (
-    <>
+    <div className="bg-[#242E3B] p-3 ">
     {/* membership header */}
         <div className="flex justify-between items-center rounded-md">
             {/* Title */}
@@ -26,7 +26,7 @@ function Membership () {
                     type="button"
                     label="Add Member"
                     icon="pi bi-person-plus"
-                    className=" flex gap-3 p-button-outlined p-button-sm text-[#4084B9] border-[#4084B9] border-solid border rounded-xl p-2"
+                    className=" flex gap-3 p-button-outlined p-button-info text-[#4084B9]  border-solid border rounded-xl p-2"
                 />
 
                 {/* Filter Label + Dropdown */}
@@ -72,7 +72,7 @@ function Membership () {
         </div>
 
         <MembersTable/>
-    </>
+    </div>
     )
 }
 

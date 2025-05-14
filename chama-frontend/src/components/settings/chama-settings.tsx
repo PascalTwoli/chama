@@ -71,7 +71,6 @@ function ChamaSettings() {
             });
             return;
           }
-    
           const reader = new FileReader();
           reader.onloadend = () => {
             setRoleProfile(prev => ({
@@ -99,7 +98,7 @@ function ChamaSettings() {
             reader.onloadend = () => {
                 setSelectedImage(reader.result as string);
             };
-        reader.readAsDataURL(file);
+            reader.readAsDataURL(file);
         }
     };
 
@@ -130,16 +129,15 @@ function ChamaSettings() {
     <div className="flex gap-3">
         <div className="bg-gray-800 rounded-lg shadow-lg min-w-[220px] overflow-hidden">
           <Menu model={menuItems} className="w-full" pt={{
-            root: { className: 'bg-gray-900 border-none' },
-            menu: { className: 'bg-gray-800 text-white' },
+            root: { className: 'bg-[#242E3B] border-none' },
+            menu: { className: 'text-white' },
             menuitem: { className: 'hover:bg-gray-700 transition-colors duration-200' }
           }} />
         </div>
 
-        <div className="flex-1 bg-gray-900 mr-2 rounded-lg shadow-lg pr-3 pl-3">
+        <div className="flex-1 rounded-lg shadow-lg p-0">
           {activeTab === "Account" && (
-            <>
-            <div className="pr-4">
+            <div className="p-4 bg-[#242E3B] rounded-lg shadow-lg">
               <div className="flex gap-8  pl-4">
                 <div className="flex flex-2 flex-col gap-4 flex-1">
                   <div>
@@ -181,16 +179,15 @@ function ChamaSettings() {
               </div>
 
                 <div className="text-right">
-                      <Button type="button" label="Update Chama" icon="pi pi-check" className="mt-6 p-button p-button-outlined p-button-info" style={{ width: '12rem', height: '2.5rem' }} />
+                      <Button type="button" label="Update Chama" icon="pi pi-check" className="mt-6 p-button p-button-outlined p-button-info text-[#4084B9] " style={{ width: '12rem', height: '2.5rem' }} />
                 </div>
             </div>
-            </>
           )}
 
           {activeTab === "Leadership" && (
-            <div className="">
+            <div className=" bg-[#242E3B] rounded-lg shadow-lg">
                 <div className="text-center">
-                    <h2 className="text-xl font-semibold mb-3 p-3 border-b border-b-2 border-b-gray-500 ">
+                    <h2 className="text-xl font-semibold mb-3 mt-0 p-3 border-b border-b-2 border-b-gray-500 ">
                         Twoli Contribution Leadership
                     </h2>
                 </div>
@@ -203,9 +200,9 @@ function ChamaSettings() {
           )}
 
           {activeTab === "Danger Zone" && (
-            <div className=" mr-10 rounded p-4">
-                <div className="text-center font-bold">
-                    <h3 className="font-bold text-xl mb-4 pb-2 border-b border-gray-600">Reset your chama/group</h3>
+            <div className="rounded ">
+                <div className="text-center font-bold bg-[#242E3B] rounded-lg shadow-lg px-5 py-3">
+                    <h3 className="font-bold text-xl mb-4 pb-2 border-b border-gray-600 mt-0">Reset your chama/group</h3>
                     <div className="text-left text-gray-400">
                         <p> Initiate a fresh start with the removal of all the existing. Please  be aware that the following data will be permanently removed</p>
                         <ul className="ml-10 m-3 list-disc">
@@ -220,12 +217,10 @@ function ChamaSettings() {
                         </div>
                     </div>
                 </div>
-                <div className="h-3 bg-gray-800 mt-6 mb-8">
-                </div>
 
-                <div className="font-bold">
+                <div className="font-bold bg-[#242E3B] rounded-lg shadow-lg mt-6 px-5 py-3">
                     <div className="text-center">
-                        <h1 className="font-bold text-xl mb-4 pb-2 border-b border-gray-600">
+                        <h1 className="font-bold text-xl mb-4 pb-2 border-b border-gray-600 mt-0">
                             Delete Chama/Group: Twoli contributions
                         </h1>
                     </div>
