@@ -9,8 +9,8 @@ const Layout = () => {
             <Navbar />
             <div className="flex main-section"> {/**bg-[#1f2937] */}
               <Sidebar /> 
-              <div className="flex-1 flex  ml-3 rounded-xl h-full bg-[#242E3B] mt-2 ml-2 "> {/* bg-gray-700 */}
-                <main className="p-6 h-full w-full">
+              <div className="flex-1 flex rounded-xl ml-1 overflow-auto"> {/* bg-gray-700 */}
+                <main className="p-4 w-full">
                   <Outlet />
                 </main>
               </div>

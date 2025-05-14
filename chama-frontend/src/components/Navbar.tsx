@@ -1,3 +1,5 @@
+import { NavLink } from "react-router-dom";
+
 const Navbar = () => {
     return (
         <div className="navbar flex justify-between" >
@@ -9,10 +11,13 @@ const Navbar = () => {
             </div>
             <div className="flex gap-x-4">
                 <i className="bi bi-bell"></i>
-                <div className="flex">
+                <NavLink 
+                    className="flex" 
+                    to={'/account_settings'}
+                    >
                     <span>Agustine</span>
                     <i className="bi bi-chevron-down"></i>
-                </div>
+                </NavLink>
             </div>
         </div>
     )
