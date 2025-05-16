@@ -64,20 +64,22 @@
 
   /* Input components */
   .p-inputtext, .p-inputtextarea {
-    @apply bg-gray-800 border border-gray-600 text-gray-300;
+    @apply bg-inherit border border-gray-600 text-gray-300;
   }
 
   .p-inputtext:hover, .p-inputtextarea:hover {
-    @apply border-blue-400;
+    @apply border-blue-300;
   }
 
   .p-inputtext:focus, .p-inputtextarea:focus {
-    @apply border-blue-500 shadow-none;
-    box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.5);
+    @apply shadow-none ;
+    /* box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.5); */
+    border: 2px solid rgba(64, 132, 185, 0.5)
+
   }
  /* dropdown components */
   .p-dropdown{
-    @apply bg-white  ;
+    @apply bg-white text-blue-900;
   }
 
   .p-dropdown .focus{
