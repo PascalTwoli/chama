@@ -1,11 +1,11 @@
-/* @import "tailwindcss"; */
 
-.App {
-  /* text-align: center; */
-  /* font-family: rubik; */
-  
-
+:root {
+  --gray-400:  #a0aec0;
+  --info-btn: #4084B9;
 }
+
+
+.App {}
 
 .layout {
   height: 100vh;
@@ -189,3 +189,27 @@
 
 .membership-container  {}
 
+/* Account settings  */
+.profile-edit-btn {
+  border-radius: 30px;
+}
+
+
+
+/* Leadeership and roles */
+.leadership h4{
+
+}
+
+.leadership-roles h4, .leadership h4 {
+  border-bottom: solid 2px var(--gray-400);
+}
+
+.profileEditing {
+  border: solid 2px  var(--gray-400) ;
+}
+
+.profileEditing:hover {
+  border: solid 2px var(--info-btn);
+  scale: 1.05;
+}
