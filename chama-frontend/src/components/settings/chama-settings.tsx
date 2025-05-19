@@ -139,7 +139,7 @@ function ChamaSettings() {
 				Twoli Contribution's Settings
 			</h1>
 			<div className="flex gap-3">
-				<div className="bg-gray-800 rounded-lg shadow-lg min-w-[220px] overflow-hidden">
+				<div className="rounded-lg shadow-lg min-w-[220px] h-40">
 					<Menu
 						model={menuItems}
 						className="w-full"

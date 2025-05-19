@@ -213,3 +213,15 @@
   border: solid 2px var(--info-btn);
   scale: 1.05;
 }
+
+
+
+/* create chama  */
+
+.create-chama-features {
+  border: solid 1px gray ;
+}
+
+.create-chama-features .bi {
+  font-size: 45px;
+}
