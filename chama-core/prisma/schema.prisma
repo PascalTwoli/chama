@@ -1,3 +1,34 @@
+// datasource db {
+//   provider = "postgresql"
+//   url      = env("DATABASE_URL")
+// }
+
+// generator client {
+//   provider = "prisma-client-js"
+// }
+
+// model Chama {
+//   id          String        @id @default(uuid())
+//   name        String
+//   description String?
+//   createdAt   DateTime      @default(now())
+//   updatedAt   DateTime      @updatedAt
+//   userId      String        // Firebase user ID
+//   members     ChamaMember[]
+//   // Add more fields as needed
+// }
+
+// model ChamaMember {
+//   id        String   @id @default(uuid())
+//   chamaId   String
+//   userId    String   // Firebase user ID
+//   role      String   // e.g., ADMIN, MEMBER
+//   joinedAt  DateTime @default(now())
+//   chama     Chama    @relation(fields: [chamaId], references: [id])
+
+//   @@unique([chamaId, userId])
+// }
+
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
@@ -77,8 +108,8 @@ model Chama {
   name        String
   description String?
   rules       String?
-  createdById String   @map("created_by")
-  createdBy   User     @relation(fields: [createdById], references: [id])
+  userId String   @map("created_by") // User who created the Chama  Firebase user ID
+  createdBy   User     @relation(fields: [userId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
