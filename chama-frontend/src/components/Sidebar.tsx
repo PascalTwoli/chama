@@ -1,12 +1,15 @@
 import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useParams } from "react-router-dom";
 
 function Sidebar () {
    const[isCollapsed, setIsCollapsed] = useState(false)
+   const { chamaId } = useParams();
+   const baselink = `/chamas/${chamaId}`
+   
 
 
    return (
-      <div className={`flex flex-col justify-between  sidebar w-1/2  text-white ${isCollapsed? 'w-fit p-2': 'w-fit pl-6 pr-6'} transition-all duration-500 ease-in-out`}> {/**bg-[#19222C] */}
+      <div className={`flex flex-col justify-between  sidebar text-white ${isCollapsed? 'w-fit p-2': 'w-[350px] pl-6 pr-6'} transition-all duration-500 ease-in-out`}> {/**bg-[#19222C] */}
 
          <div 
             className={``}>
@@ -28,7 +31,7 @@ function Sidebar () {
                   {!isCollapsed &&                
                   <div className={`flex flex-col text-center `}>
                      <p className="text-gray-400 m-0">Chama name</p>
-                     <h3 className="font-bold m-0">Twoli contribution  group</h3>
+                     <h3 className="font-bold m-0">Chama {chamaId} contribution  group</h3>
                   </div>}
                </div>
 
@@ -37,16 +40,20 @@ function Sidebar () {
                   <h4 className={`flex mb-2 ${isCollapsed ? 'justify-center' : ''}`}>Main</h4>
 
                   {[
-                     ['bi-people-fill', 'Membership', '/'],
-                     ['bi-newspaper', 'Soft loans', '/softloans'],
-                     ['bi-house-check', 'Meetings', '/meetings'],
-                     ['bi-graph-up', 'Shares', '/shares'],
-                     ['bi-bell', 'Notifications', '/notifications'],
-                     ['bi-diagram-2', 'Mpesa', '/mpesa'],
-                  ].map(([icon, label, path]) => (
+                     ['bi-people-fill', 'Membership', `${baselink}`],
+                     ['bi-newspaper', 'Soft loans', `${baselink}/softloans`],
+                     ['bi-house-check', 'Meetings', `${baselink}/meetings`],
+                     ['bi-graph-up', 'Shares', `${baselink}/shares`],
+                     ['bi-bell', 'Notifications', `${baselink}/notifications`],
+                     ['bi-diagram-2', 'Mpesa', `${baselink}/mpesa`],
+                  ].map(([icon, label, path]) => {
+                     const isMembership = label === "Membership"
+                     
+                     return (
                      <NavLink
                         key={label}
                         to={path}
+                        end={isMembership}
                         className={({ isActive }) =>
                         `flex items-center gap-x-4 py-3 px-2 rounded transition-all duration-300 hover:bg-gray-700 no-underline ${
                            isCollapsed ? 'justify-center' : ''
@@ -55,12 +62,13 @@ function Sidebar () {
                         <i className={`bi ${icon} sidebar-icon text-xl text-gray-300`}></i>
                         {!isCollapsed && <p className="p-0 m-0">{label}</p>}
                      </NavLink>
-                  ))}
+                     )
+                  })}
                </div>
-               
+                
                {/* Settings */}
                <div className={` ${isCollapsed ? '' : 'pl-2'}`}>
-                  <NavLink to={'/chama_settings'} 
+                  <NavLink to={`${baselink}/chama_settings`} 
                      className= {({ isActive }) =>
                      `flex items-center gap-x-4 py-3 px-2 rounded transition-all duration-300 hover:bg-gray-700  no-underline ${
                      isCollapsed ? 'justify-center' : ''
