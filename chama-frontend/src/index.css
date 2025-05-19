@@ -41,7 +41,7 @@
   }
 
   .p-menu .p-menuitem-link:hover {
-    @apply bg-gray-700;
+    
   }
 
   /* Toast component */
