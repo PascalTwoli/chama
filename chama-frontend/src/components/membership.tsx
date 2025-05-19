@@ -4,7 +4,11 @@ import {Dropdown} from "primereact/dropdown"
 import React, { useState } from "react";
 import MembersTable from "./membership.table";
 
-function Membership () {
+type MembershipProps = {
+    chamaId?: string;
+}
+
+function Membership ({chamaId}: MembershipProps) {
 
     const [selectedFilter, setSelectedFilter] = useState("all")
     const filters = [
@@ -17,7 +21,7 @@ function Membership () {
     {/* membership header */}
         <div className="flex justify-between items-center rounded-md">
             {/* Title */}
-            <h2 className="text-white text-xl font-bold">Twoli AC’s group members</h2>
+            <h2 className="text-white text-xl font-bold"> Chama {chamaId} group members</h2>
 
             {/* Actions */}
             <div className="flex items-center gap-4">
@@ -54,13 +58,6 @@ function Membership () {
                             }} 
                         />
                     </div>
-
-{/* 
-                    <div className="card flex justify-content-center">
-                        <Dropdown value={selectedFilter} onChange={(e) => setSelectedFilter(e.value)} options={filters} optionLabel="name" 
-                            placeholder="Select a filter" className="w-full md:w-14rem" checkmark={true} highlightOnSelect={false} 
-                        />
-                    </div> */}
                 </div>
             </div>
         </div>
