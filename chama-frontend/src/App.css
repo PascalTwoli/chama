@@ -2,6 +2,7 @@
 :root {
   --gray-400:  #a0aec0;
   --info-btn: #4084B9;
+  --gray-500: rgb(158, 158, 158, 0.5) ;
 }
 
 
@@ -219,7 +220,7 @@
 /* create chama  */
 
 .create-chama-features {
-  border: solid 1px gray ;
+  border: solid 1px var(--gray-500) ;
 }
 
 .create-chama-features .bi {
