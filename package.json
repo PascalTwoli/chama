@@ -1,5 +1,10 @@
 {
   "dependencies": {
-    "primeflex": "^4.0.0"
+    "primeflex": "^4.0.0",
+    "primereact": "^10.9.5",
+    "react-router-dom": "^7.6.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.4"
   }
 }
