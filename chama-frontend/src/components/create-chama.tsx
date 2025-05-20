@@ -62,53 +62,53 @@ function CreateChama() {
       case 1:
         return  (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-y-12 gap-x-14  bg-[#242E3B] p-8 pb-18 rounded-xl ">
-            <div className='create-chama-features flex gap-2 p-2 rounded text-gray-300'>
+            <div className='create-chama-features flex gap-2 p-3 rounded text-gray-400'>
               <div><i className="bi bi-person-circle w-24"></i></div>
               <div className='flex-1 '>
                 <h4 className='m-0 font-bold'>Membership</h4>
-                <p className='m-0'>Manage, add, remove and disable group</p>
+                <p className='m-0'>Manage, add, remove and disable group...</p>
               </div>
             </div>
-            <div className='create-chama-features flex gap-2 p-2 rounded text-gray-300'>
-              <div><i className="bi bi-person-circle w-24"></i></div>
+            <div className='create-chama-features flex gap-2 p-3 rounded text-gray-400'>
+              <div><i className="bi bi-coin"></i></div>
               <div className='flex-1 '>
-                <h4 className='m-0 font-bold'>Membership</h4>
-                <p className='m-0'>Manage, add, remove and disable group</p>
+                <h4 className='m-0 font-bold'>Softloans</h4>
+                <p className='m-0'>Enables a group to give to members a...</p>
               </div>
             </div>
-            <div className='create-chama-features flex gap-2 p-2 rounded text-gray-300'>
-              <div><i className="bi bi-person-circle w-24"></i></div>
+            <div className='create-chama-features flex gap-2 p-3 rounded text-gray-400'>
+              <div><i className="bi bi-pie-chart-fill"></i></div>
               <div className='flex-1 '>
-                <h4 className='m-0 font-bold'>Membership</h4>
-                <p className='m-0'>Manage, add, remove and disable group</p>
+                <h4 className='m-0 font-bold'>Shares</h4>
+                <p className='m-0'>Members are able to contribute towards...</p>
               </div>
             </div>
-            <div className='create-chama-features flex gap-2 p-2 rounded text-gray-300'>
-              <div><i className="bi bi-person-circle w-24"></i></div>
-              <div className='flex-1 '>
-                <h4 className='m-0 font-bold'>Membership</h4>
-                <p className='m-0'>Manage, add, remove and disable group</p>
+            <div className='create-chama-features flex gap-2 p-3 rounded text-gray-400'>
+              <div><i className="bi bi-snow3"></i></div>
+              <div className='flex-1 overflow-hidden'>
+                <h4 className='m-0 font-bold'>Meetings</h4>
+                <p className='m-0'>Ability to manage meetings, have minutes...</p>
               </div>
             </div>
-            <div className='create-chama-features flex gap-2 p-2 rounded text-gray-300'>
-              <div><i className="bi bi-person-circle w-24"></i></div>
-              <div className='flex-1 '>
-                <h4 className='m-0 font-bold'>Membership</h4>
-                <p className='m-0'>Manage, add, remove and disable group</p>
+            <div className='create-chama-features flex gap-2 p-3 rounded text-gray-400'>
+              <div><i className="bi bi-bell"></i></div>
+              <div className='flex-1 overflow-hidden'>
+                <h4 className='m-0 font-bold'>Notifications</h4>
+                <p className='m-0'>Gives a way to reach members of the gro...</p>
               </div>
             </div>
-            <div className='create-chama-features flex gap-2 p-2 rounded text-gray-300'>
-              <div><i className="bi bi-person-circle w-24"></i></div>
-              <div className='flex-1 '>
-                <h4 className='m-0 font-bold'>Membership</h4>
-                <p className='m-0'>Manage, add, remove and disable group</p>
+            <div className='create-chama-features flex gap-2 p-3 rounded text-gray-400'>
+              <div><i className="bi bi-wallet-fill"></i></div>
+              <div className='flex-1 overflow-hidden h-74'>
+                <h4 className='m-0 font-bold'>M-pesa</h4>
+                <p className='m-0'>Receive payments directly from the group...</p>
               </div>
             </div>
-            <div className='create-chama-features flex gap-2 p-2 rounded text-gray-300'>
-              <div><i className="bi bi-person-circle w-24"></i></div>
-              <div className='flex-1 '>
-                <h4 className='m-0 font-bold'>Membership</h4>
-                <p className='m-0'>Manage, add, remove and disable group</p>
+            <div className='create-chama-features flex gap-2 p-3 rounded text-gray-400'>
+              <div><i className="bi bi-person-gear"></i></div>
+              <div className='flex-1 overflow-hidden h-74'>
+                <h4 className='m-0 font-bold'>Accounts</h4>
+                <p className='m-0'>To manage money flow in the group</p>
               </div>
             </div>
             
