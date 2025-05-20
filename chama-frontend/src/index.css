@@ -8,7 +8,6 @@
     font-size: theme('fontSize.base');
     @apply bg-gray-900 text-gray-100;
   }
-
   body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -18,7 +17,6 @@
     -moz-osx-font-smoothing: grayscale;
     @apply bg-gray-900;
   }
-
   code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
       monospace;
