@@ -8,11 +8,16 @@ import Meetings from "../components/meetings";
 import Shares from "../components/shares";
 import Notifications from "../components/notifications";
 import Mpesa from "../components/mpesa";
+<<<<<<< HEAD
+import Settings from "../components/settings";
+
+=======
 import Settings from "../components/settings/settings";
 import AccountSettings from "../components/settings/account-settings";
 import NavbarOnlyLayout from "../layout/navbar-only-layout";
 import CreateChama from "../components/create-chama";
 import ChamaListView from "../components/chama-list-view";
+>>>>>>> ce20d2743780764f6a81f7a2766e452bf9d24b44
 
 const AppRoutes = () => {
   return (
