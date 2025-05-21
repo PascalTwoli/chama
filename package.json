@@ -1,4 +1,11 @@
 {
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "build": "webpack --mode production",
+    "test": "jest",
+    "lint": "eslint ."
+  },
   "dependencies": {
     "primeflex": "^4.0.0"
   }
