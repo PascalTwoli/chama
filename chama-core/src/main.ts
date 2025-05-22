@@ -18,6 +18,21 @@ async function bootstrap() {
   // Set global API prefix
   app.setGlobalPrefix('api');
 
+  // Enable CORS for frontend requests
+  app.enableCors({
+    origin: [
+      'http://localhost:3000', 
+      'http://127.0.0.1:3000',
+      'http://localhost:5500',
+      'http://127.0.0.1:5500'
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    exposedHeaders: ['Authorization'],
+    maxAge: 86400, // 24 hours in seconds
+  });
+
   const config = new DocumentBuilder()
     .setTitle('Chama Api')
     .setDescription('The API details for the chama management system backend')
@@ -59,6 +74,6 @@ async function bootstrap() {
     process.exit(1); // Exit the application on Firebase initialization error
   }
 
-  await app.listen(process.env.PORT || 3000);
+  await app.listen(process.env.PORT || 5500);
 }
 bootstrap();
