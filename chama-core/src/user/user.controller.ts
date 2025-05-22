@@ -10,6 +10,7 @@ import {
   ValidationPipe,
   UseGuards,
   Query,
+  Version,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -19,7 +20,7 @@ import { RegisterUserDto } from './dto/register-user.dto';
 import { LoginDto } from './dto/login.dto';
 import { AuthGuard } from 'src/guards/auth.guard';
 
-ApiTags('User');
+@ApiTags('User')
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
