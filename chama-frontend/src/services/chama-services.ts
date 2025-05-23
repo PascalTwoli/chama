@@ -10,7 +10,7 @@
 
 import axios from 'axios';
 
-const API_BASE = '/api/chamas'; // Adjust if needed
+const API_BASE = '/api/chamas'; 
 
 export const getUserChamas = async () => {
   const res = await axios.get(`${API_BASE}/user`);
