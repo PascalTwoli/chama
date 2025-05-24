@@ -1,5 +1,5 @@
-import axios, { AxiosError, AxiosResponse } from "axios";
-import apiClient from "../config/axios-config";
+import { AxiosError, AxiosResponse } from "axios";
+import apiClient, { API_BASE } from "../config/axios-config";
 
 
 
@@ -61,18 +61,18 @@ export class AuthService {
    * @param email Email to check
    * @returns Promise indicating if email exists
    */
-  // static async checkEmailExists(email: string): Promise<boolean> {
-  //   try {
-  //     const response: AxiosResponse = await axios.post(
-  //       `${API_URL}/user/check-email`,
-  //       { email }
-  //     );
-  //     return response.data.exists;
-  //   } catch (error) {
-  //     // If there's an error, assume the email doesn't exist
-  //     return false;
-  //   }
-  // }
+  static async checkEmailExists(email: string): Promise<boolean> {
+    try {
+      const response: AxiosResponse = await apiClient.post(
+        `/user/check-email`,
+        { email }
+      );
+      return response.data.exists;
+    } catch (error) {
+      // If there's an error, assume the email doesn't exist
+      return false;
+    }
+  }
 }
 
 export default AuthService;
