@@ -2,7 +2,7 @@ import Membership from "../components/membership"
 import { useParams } from "react-router-dom";
 
 
-export default function Dashboard() {
+export default function AdminDashboard() {
 
     const { chamaId } = useParams();
     return (
