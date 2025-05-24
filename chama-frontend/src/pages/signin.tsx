@@ -1,3 +1,4 @@
+import { Button } from "primereact/button";
 import signinimage from "./assets/signinimage.png"
 
 import { useNavigate } from "react-router-dom";
@@ -37,16 +38,15 @@ const SignIn = () => {
               <p className="text-right font-bold text-green-500 cursor-pointer">Forgot your password?</p>
             </div>
             
-            <div>
-              <p></p>
-              <button className="w-full p-2 mt-20 mb-10 text-white bg-green-500 rounded hover:bg-green-400 transition duration-300" onClick={handleLogin}>
+            <div className="">
+              <button className="w-full p-2 mt-20 mb-10 text-white bg-green-500 rounded hover:bg-green-400 transition duration-300 border-0 text-center" onClick={handleLogin}>
                 Sign In
               </button>
             </div>
 
             <div className="flex items-center my-6 mb-10">
               <div className="flex-grow border-t border-gray-700"></div>
-              <button className=" google-login bg-gray-700 p-2 rounded flex justify-around ml-4 mr-4 gap-4 hover:bg-gray-600 transition duration-300">
+              <button className=" google-login bg-gray-700 p-2 rounded flex justify-around ml-4 mr-4 gap-4 hover:bg-gray-600 transition duration-300 border-0">
                 <img className="google-logo" src="/assets/Google__G__logo.svg.webp" alt="Google" />
                 <span>Sign in with Google</span>
               </button>

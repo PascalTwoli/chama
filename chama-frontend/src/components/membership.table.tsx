@@ -67,7 +67,7 @@ function MembersTable () {
         const mockData = [
             {
                 id: 1,
-                profilepic: '/avatar1.png', // Updated path - will be resolved by the template function
+                profilepic: '/signinimage.png', // Updated path - will be resolved by the template function
                 name: 'Alice Wanjiru',
                 email: 'alice@example.com',
                 phonenumber: '0712345678',
