@@ -1,11 +1,37 @@
-import { useState } from "react";
-import { NavLink, useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { NavLink, useParams, useNavigate } from "react-router-dom";
+import logoutUser from "../services/auth/logout";
 
 function Sidebar () {
-   const[isCollapsed, setIsCollapsed] = useState(false)
+   const [isCollapsed, setIsCollapsed] = useState(false);
    const { chamaId } = useParams();
-   const baselink = `/chamas/${chamaId}`
+   const navigate = useNavigate();
+   const [userRole, setUserRole] = useState<string | null>(null);
+
+   useEffect(() => {
+      // Get user role from localStorage
+      const role = localStorage.getItem('userRole');
+      setUserRole(role);
+   }, []);
+
+   // Set the base link according to user role
+   const baselink = userRole === 'admin' 
+      ? `/admin/chamas/${chamaId}`
+      : `/member/chamas/${chamaId}`;
    
+   const handleLogout = async () => {
+      try {
+         await logoutUser();
+         // The logoutUser function now handles the navigation
+      } catch (error) {
+         console.error("Logout failed:", error);
+         // If logout fails, try to clear localStorage and redirect anyway
+         localStorage.clear();
+         navigate('/signin');
+      }
+   };
+
+   if (!userRole) return null; // Don't render sidebar until we know the user role
 
 
    return (
@@ -85,7 +111,9 @@ function Sidebar () {
             </div>
          </div>
          <div className={`flex gap-x-4 text-red-300 font-bold py-3 px-2 hover:bg-gray-700 rounded cursor-pointer pl-4
-            ${isCollapsed ? 'justify-center' : 'ml-2 '}`}>
+            ${isCollapsed ? 'justify-center' : 'ml-2 '}`}
+            onClick={handleLogout}
+         >
             <i className="bi bi-box-arrow-right"></i>
             {!isCollapsed && <span>Log Out</span>}
          </div>
