@@ -1,6 +1,6 @@
 import { FormEvent, useState } from "react";
-import { SignInFormData, FormErrors } from "../interfaces/form-interfaces";
-import { AuthService, SignInCredentials, SignInResponse } from "../services/auth/signin-service";
+import { FormErrors, SignInCredentials, SignInResponse} from "../models/user";
+import { AuthService,  } from "../services/auth/signin-service";
 
 import { useNavigate } from "react-router-dom";
 
@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 const SignIn = () => {
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState<SignInFormData>({
+  const [formData, setFormData] = useState<SignInCredentials>({
     email: "",
     password: ""
   });
