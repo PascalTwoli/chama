@@ -1,32 +1,7 @@
 import { AxiosError, AxiosResponse } from "axios";
 import apiClient, { API_BASE } from "../../config/axios-config";
+import { SignupRequest, SignupResponse, ApiErrorResponse } from "../../models/user";
 
-// Request interfaces
-export interface SignupRequest {
-	firstName: string;
-	lastName: string;
-	email: string;
-	phoneNumber: string;
-	password: string;
-}
-
-// Response interfaces
-export interface SignupResponse {
-	id?: string;
-	firstName: string;
-	lastName: string;
-	email: string;
-	message?: string;
-	token?: string;
-}
-
-// API error response interface
-export interface ApiErrorResponse {
-	message: string | string[];
-	statusCode?: number;
-	error?: string;
-	errors?: Array<{ message: string; field?: string }>;  // For validation errors
-}
 
 
  // Service class for authentication related API calls
