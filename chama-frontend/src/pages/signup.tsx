@@ -1,14 +1,14 @@
 import { useNavigate } from "react-router-dom";
 import { useState, FormEvent, ChangeEvent } from "react";
 import AuthService, {
-	SignupRequest,
-	SignupResponse,
-} from "../services/auth/signup-service";
-import { FormData, FormErrors } from "../interfaces/form-interfaces";
+	
+}
+from "../services/auth/signup-service";
+import {SignupRequest, SignupResponse, FormErrors } from "../models/user"
 
 const SignUp = () => {
 	const navigate = useNavigate();
-	const [formData, setFormData] = useState<FormData>({
+	const [formData, setFormData] = useState<SignupRequest>({
 		firstName: "",
 		lastName: "",
 		email: "",
