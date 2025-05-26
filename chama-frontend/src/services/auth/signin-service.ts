@@ -1,39 +1,12 @@
 import {AxiosError, AxiosResponse } from 'axios';
 import apiClient, { setAuthHeader } from '../../config/axios-config';
-
-interface ErrorResponse {
-    message: string | string[];  // Handle both single message or array of messages
-    error?: string;
-    statusCode?: number;
-    errors?: Array<{ message: string; field?: string }>;  // Handle structured validation errors
-}
-
-export interface SignInCredentials {
-    email: string;
-    password: string;
-}
-
-export interface SignInResponse {
-    token: string;
-    refreshToken: string;  // Add refresh token to the response
-    user: {
-        id: string;
-        firstName: string;
-        lastName: string;
-        email: string;
-        phoneNumber: string;
-        role: 'admin' | 'member'; 
-    };
-}
-
-// These token management functions are now handled by axios-config.ts
+import { ApiErrorResponse, SignInCredentials, SignInResponse } from '../../models/user';
 
 export class AuthService {
     static async signIn(credentials: SignInCredentials): Promise<SignInResponse> {
         try {
-            // Use the correct login endpoint instead of signin
             const response: AxiosResponse<SignInResponse> = await apiClient.post('/auth/login', credentials);
-            // Save tokens to local storage
+            //save tokens to local storage
             localStorage.setItem('authToken', response.data.token);
             localStorage.setItem('refreshToken', response.data.refreshToken);
             
@@ -51,7 +24,7 @@ export class AuthService {
                 throw new Error("network: Could not connect to the server. Please check your internet connection and try again.");
             }
             
-            const axiosError = error as AxiosError<ErrorResponse>;
+            const axiosError = error as AxiosError<ApiErrorResponse>;
             
             // Check for specific status codes
             const statusCode = axiosError.response?.status;
