@@ -4,13 +4,9 @@ import { SignupRequest, SignupResponse, ApiErrorResponse } from "../../models/us
 
 
 
- // Service class for authentication related API calls
+ // service class for authentication related API calls
  
 export class AuthService {
-	
-	 //* Register a new user
-	 //* @param userData User registration data
-	 //* @returns Promise with the API response
 	 
 	static async signup(userData: SignupRequest): Promise<SignupResponse> {
 		try {

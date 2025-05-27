@@ -3,7 +3,7 @@ import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 
 
-const Layout = () => {
+const MemberLayout = () => {
 
   const navigate = useNavigate();
   const location =  useLocation();
@@ -42,4 +42,4 @@ const Layout = () => {
   );
 }
 
-export default Layout;
+export default MemberLayout;

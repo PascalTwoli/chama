@@ -4,7 +4,7 @@ import AuthService, {
 	
 }
 from "../services/auth/signup-service";
-import {SignupRequest, SignupResponse, FormErrors } from "../models/user"
+import {SignupRequest, FormErrors } from "../models/user"
 
 const SignUp = () => {
 	const navigate = useNavigate();
@@ -79,7 +79,7 @@ const SignUp = () => {
 		setIsLoading(true);
 
 		try {
-			const response: SignupResponse = await AuthService.signup(
+			await AuthService.signup(
 				formData as SignupRequest
 			);
 			setApiSuccess("Registration successful! Redirecting to login...");
@@ -94,10 +94,10 @@ const SignUp = () => {
 			// Check if error is related to email already existing
 			if (error instanceof Error && 
 			    (error.message.includes("Email is already registered") || 
-			     error.message.toLowerCase().includes("email") && 
-			     (error.message.toLowerCase().includes("exist") || 
-                  error.message.toLowerCase().includes("taken") || 
-                  error.message.toLowerCase().includes("already")))) {
+			     (error.message.toLowerCase().includes("email") && 
+			      (error.message.toLowerCase().includes("exist") || 
+                   error.message.toLowerCase().includes("taken") || 
+                   error.message.toLowerCase().includes("already"))))) {
 				
 				setErrors({
 					...errors,
@@ -261,13 +261,17 @@ const SignUp = () => {
 							</div>
 							<p className="text-gray-400 mt-8 font-normal">
 								By creating an account, you agree to our{" "}
-								<a href="" className="text-white">
+								<button 
+									onClick={() => {/* TODO: Add terms page navigation */}} 
+									className="text-white bg-transparent border-0 p-0 cursor-pointer underline">
 									Terms
-								</a>{" "}
+								</button>{" "}
 								and{" "}
-								<a href="" className="text-white">
+								<button 
+									onClick={() => {/* TODO: Add privacy policy page navigation */}} 
+									className="text-white bg-transparent border-0 p-0 cursor-pointer underline">
 									privacy policy
-								</a>
+								</button>
 							</p>
 							<button
 								type="submit"

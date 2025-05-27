@@ -1,7 +1,11 @@
 
 import { Outlet } from "react-router-dom";
 
-export default function NavbarOnlyLayout() {
+interface NavbarOnlyLayoutProps {
+  children?: React.ReactNode;
+}
+
+export default function NavbarOnlyLayout({ children }: NavbarOnlyLayoutProps) {
   return (
     <div className="flex flex-col min-h-screen">
         <div className="navbar flex justify-between items-center bg-gray-900 text-white">
@@ -31,7 +35,7 @@ export default function NavbarOnlyLayout() {
                 </div>
             </div>
         </div>
-      <main className="flex-1 p-4">{/* no Sidebar */}<Outlet /></main>
+      <main className="flex-1 p-4">{/* no Sidebar */}{children}</main>
     </div>
   );
 }

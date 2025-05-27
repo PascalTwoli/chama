@@ -6,3 +6,5 @@ function MemberDashboard () {
         </div>
     )
 }
+
+export default MemberDashboard;
