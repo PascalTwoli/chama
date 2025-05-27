@@ -65,12 +65,28 @@ const SignIn = () => {
       await AuthService.signIn(
         formData as SignInCredentials
       );
-      setApiSuccess("Login successful! Redirecting to dashboard...");
+      
+      // Check user status after successful login
+      const isFirstLogin = localStorage.getItem('isFirstLogin') === 'true';
+      const userRole = localStorage.getItem('userRole');
+      
+      let redirectPath = '/chose-user';
+      
+      // If user has a role and it's not their first login, redirect to appropriate dashboard
+      if (!isFirstLogin && userRole) {
+        if (userRole === 'admin') {
+          redirectPath = '/admin/chamas/1';
+        } else if (userRole === 'member') {
+          redirectPath = '/chama-list-view';
+        }
+      }
+      
+      setApiSuccess(`Login successful! Redirecting${isFirstLogin ? ' to role selection' : ' to dashboard'}...`);
       
       setTimeout(() => {
         setIsLoading(false);
-        // Navigate to dashboard on successful login
-        navigate("/");
+        // Navigate based on user status
+        navigate(redirectPath);
       }, 1000);
       
     } catch (error) {
@@ -129,7 +145,7 @@ const SignIn = () => {
   return (
     <div className="bg-gray-900 flex justify-center min-h-screen items-center">
       <div className="signin-container flex flex-row justify-center items-center rounded-xl">
-<div className="signin-image flex-1" style={{backgroundImage: "url('/assets/images/signinimage.png')", backgroundSize: "cover"}}>
+<div className="signin-image flex-1" style={{backgroundImage: "url('/assets/signinimage.png')", backgroundSize: "cover"}}>
           <div className=" flex flex-col justify-center signin-image-overlay text-center p-14">
             <p className="font-bold welcome-p">Welcome Back To Chama System</p>
             <p className="font-bold text-4xl p-7 text-left">We provide easy-to-use tools for managing  group finances and working together efficiently!</p>
@@ -203,7 +219,7 @@ const SignIn = () => {
                   className="google-login bg-gray-700 p-2 rounded flex justify-around ml-4 mr-4 gap-4 hover:bg-gray-600 transition duration-300 border-0"
                   aria-label="Sign in with Google"
                 >
-                  <img className="google-logo" src="/assets/images/Google__G__logo.svg.webp" alt="Google" />
+                  <img className="google-logo" src="/assets/Google__G__logo.svg.webp" alt="Google" />
                   <span>Sign in with Google</span>
                 </button>
                 <div className="flex-grow border-t border-gray-700"></div>
