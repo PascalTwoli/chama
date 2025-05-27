@@ -13,8 +13,8 @@ import NavbarOnlyLayout from "../layout/navbar-only-layout";
 import CreateChama from "../components/create-chama";
 import ChamaListView from "../components/chama-list-view";
 import AdminDashboard from "../pages/AdminDashboard";
-import { ChamaUserRole } from "../components/user-role";
-import { UserRole } from "../data/user-role";
+import { ChamaUserType } from "../components/user-role";
+import { UserType } from "../data/user-role";
 import MemberLayout from "../layout/Member-layout";
 import MemberDashboard from "../pages/MemberDashboard";
 
@@ -27,25 +27,25 @@ const AppRoutes = () => {
   // Function to check if user should be redirected to role selection
   const shouldRedirectToRoleSelection = () => {
     const isFirstLogin = localStorage.getItem('isFirstLogin') === 'true';
-    const hasRole = localStorage.getItem('userRole');
+    const hasRole = localStorage.getItem('userType');
     return isFirstLogin || !hasRole;
   };
 
-  // Function to get default route based on user role
+  // Function to get default route based on user type
   const getDefaultRoute = () => {
     const authToken = localStorage.getItem('authToken');
-    const userRole = localStorage.getItem('userRole');
+    const userType = localStorage.getItem('userType');
     const isFirstLogin = localStorage.getItem('isFirstLogin') === 'true';
 
     if (!authToken) return '/signin';
-    if (isFirstLogin || !userRole) return '/chose-user';
-    if (userRole === 'admin') return '/admin/chamas/1';
+    if (isFirstLogin || !userType) return '/chose-user';
+    if (userType === 'admin') return '/admin/chamas/1';
     return '/member/chamas/1';
   };
 
   // Protected route component
   const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRole }) => {
-    const userRole = localStorage.getItem('userRole');
+    const userType = localStorage.getItem('userType');
     const authToken = localStorage.getItem('authToken');
     const isFirstLogin = localStorage.getItem('isFirstLogin') === 'true';
 
@@ -53,13 +53,13 @@ const AppRoutes = () => {
       return <Navigate to="/signin" replace />;
     }
 
-    if (isFirstLogin || !userRole) {
+    if (isFirstLogin || !userType) {
       return <Navigate to="/chose-user" replace />;
     }
 
-    if (allowedRole && userRole !== allowedRole) {
+    if (allowedRole && userType !== allowedRole) {
       // Redirect to the appropriate dashboard based on actual role
-      return <Navigate to={userRole === 'admin' ? '/admin/chamas/1' : '/member/chamas/1'} replace />;
+      return <Navigate to={userType === 'admin' ? '/admin/chamas/1' : '/member/chamas/1'} replace />;
     }
 
     return children;
@@ -74,7 +74,7 @@ const AppRoutes = () => {
         {/* Public routes */}
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
-        <Route path="/chose-user" element={<ChamaUserRole role={UserRole.MEMBER} />} />
+        <Route path="/chose-user" element={<ChamaUserType role={UserType.MEMBER} />} />
 
         {/* Admin routes */}
         <Route path="/create-chama" element={

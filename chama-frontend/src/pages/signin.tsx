@@ -68,15 +68,15 @@ const SignIn = () => {
       
       // Check user status after successful login
       const isFirstLogin = localStorage.getItem('isFirstLogin') === 'true';
-      const userRole = localStorage.getItem('userRole');
+      const userType = localStorage.getItem('userType');
       
       let redirectPath = '/chose-user';
       
       // If user has a role and it's not their first login, redirect to appropriate dashboard
-      if (!isFirstLogin && userRole) {
-        if (userRole === 'admin') {
+      if (!isFirstLogin && userType) {
+        if (userType === 'admin') {
           redirectPath = '/admin/chamas/1';
-        } else if (userRole === 'member') {
+        } else if (userType === 'member') {
           redirectPath = '/chama-list-view';
         }
       }
