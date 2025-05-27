@@ -1,4 +1,4 @@
-import { UserRole } from "../data/user-role";
+import { UserType } from "../data/user-role";
 
 export interface User {
 	id: string;
@@ -6,7 +6,7 @@ export interface User {
 	lastName: string;
 	email: string;
 	phoneNumber: string;
-	role: UserRole
+	role: UserType
 };
 
 export interface SignInCredentials {

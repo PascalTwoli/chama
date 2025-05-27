@@ -1,22 +1,16 @@
-//  export const UserRole = {
-//     ADMIN: "admin" as const,
-//     MEMBER: "member" as const,
-//     GUEST: "guest" as const,
-// };
-// export type UserRole = (typeof UserRole)[keyof typeof UserRole];   
-
-import { UserRole } from "../data/user-role";
+  
+import { UserType } from "../data/user-role";
 import { RadioButton } from "primereact/radiobutton";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 
-export function ChamaUserRole({ role }: { role: UserRole | string }): React.ReactElement {
-    const [userRole, setUserRole] = useState<UserRole | string>(role);
+export function ChamaUserType({ role }: { role: UserType | string }): React.ReactElement {
+    const [userType, setUserType] = useState<UserType | string>(role);
     const navigate = useNavigate();
 
     useEffect(() => {
-        const storedUserRole = localStorage.getItem("userRole");
+        const storedUserType = localStorage.getItem("userType");
         const isFirstLogin = localStorage.getItem("isFirstLogin");
         const authToken = localStorage.getItem("authToken");
 
@@ -27,25 +21,25 @@ export function ChamaUserRole({ role }: { role: UserRole | string }): React.Reac
         }
 
         // If user already has a role and it's not their first login, redirect accordingly
-        if (storedUserRole && isFirstLogin === "false") {
-            if (storedUserRole === UserRole.ADMIN.toString()) {
+        if (storedUserType && isFirstLogin === "false") {
+            if (storedUserType === UserType.ADMIN.toString()) {
                 navigate("/admin/chamas/1");
-            } else if (storedUserRole === UserRole.MEMBER.toString()) {
+            } else if (storedUserType === UserType.MEMBER.toString()) {
                 navigate("/chama-list-view");
             }
             return;
         }
 
         // Set initial role if stored
-        if (storedUserRole) {
-            setUserRole(storedUserRole);
+        if (storedUserType) {
+            setUserType(storedUserType);
         }
     }, [navigate]);
 
     // Function to get the display name for a role
-    const getRoleDisplayName = (roleValue: UserRole | string): string => {
-        if (roleValue === UserRole.ADMIN) return "Administrator";
-        if (roleValue === UserRole.MEMBER) return "Member";
+    const getRoleDisplayName = (roleValue: UserType | string): string => {
+        if (roleValue === UserType.ADMIN) return "Administrator";
+        if (roleValue === UserType.MEMBER) return "Member";
         return String(roleValue);
     };
 
@@ -53,13 +47,13 @@ export function ChamaUserRole({ role }: { role: UserRole | string }): React.Reac
         event.preventDefault();
         
         // Save the selected role
-        localStorage.setItem("userRole", userRole as string);
+        localStorage.setItem("userType", userType as string);
         localStorage.setItem("isFirstLogin", "false");
         
         // Navigate based on selected role
-        if (userRole === UserRole.ADMIN || userRole === UserRole.ADMIN.toString()) {
+        if (userType === UserType.ADMIN || userType === UserType.ADMIN.toString()) {
             navigate("/create-chama");
-        } else if (userRole === UserRole.MEMBER || userRole === UserRole.MEMBER.toString()) {
+        } else if (userType === UserType.MEMBER || userType === UserType.MEMBER.toString()) {
             navigate("/chama-list-view");
         }
     };
@@ -70,7 +64,7 @@ export function ChamaUserRole({ role }: { role: UserRole | string }): React.Reac
                 <div className="text-center mb-6">
                     <h4 className="text-2xl font-bold text-white mb-2">Choose Your Role</h4>
                     <p className="text-gray-400">Please select a role to continue</p>
-                    <p className="text-gray-300 mt-2">Current selection: {getRoleDisplayName(userRole)}</p>
+                    <p className="text-gray-300 mt-2">Current selection: {getRoleDisplayName(userType)}</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -79,9 +73,9 @@ export function ChamaUserRole({ role }: { role: UserRole | string }): React.Reac
                             <RadioButton 
                                 inputId="admin" 
                                 name="role" 
-                                value={UserRole.ADMIN} 
-                                onChange={(e) => setUserRole(e.value)} 
-                                checked={userRole === UserRole.ADMIN} 
+                                value={UserType.ADMIN} 
+                                onChange={(e) => setUserType(e.value)} 
+                                checked={userType === UserType.ADMIN} 
                             />
                             <label htmlFor="admin" className="text-white cursor-pointer flex-1">Administrator</label>
                         </div>
@@ -89,9 +83,9 @@ export function ChamaUserRole({ role }: { role: UserRole | string }): React.Reac
                             <RadioButton 
                                 inputId="member" 
                                 name="role" 
-                                value={UserRole.MEMBER} 
-                                onChange={(e) => setUserRole(e.value)} 
-                                checked={userRole === UserRole.MEMBER} 
+                                value={UserType.MEMBER} 
+                                onChange={(e) => setUserType(e.value)} 
+                                checked={userType === UserType.MEMBER} 
                             />
                             <label htmlFor="member" className="text-white cursor-pointer flex-1">Member</label>
                         </div>
@@ -110,7 +104,7 @@ export function ChamaUserRole({ role }: { role: UserRole | string }): React.Reac
 
 }
 
-export function ChamaUserRoleBadge({ role }: { role: string }): React.ReactElement {
+export function ChamaUserTypeBadge({ role }: { role: string }): React.ReactElement {
   switch (role) {
     case "admin":
       return <span className="badge badge-primary">Admin</span>;
@@ -120,7 +114,7 @@ export function ChamaUserRoleBadge({ role }: { role: string }): React.ReactEleme
       return <span className="badge badge-light">Unknown Role</span>;
   }
 }
-export function ChamaUserRoleIcon({ role }: { role: string }): React.ReactElement {
+export function ChamaUserTypeIcon({ role }: { role: string }): React.ReactElement {
   switch (role) {
     case "admin":
       return <i className="bi bi-shield-lock-fill text-primary"></i>;
@@ -130,7 +124,7 @@ export function ChamaUserRoleIcon({ role }: { role: string }): React.ReactElemen
       return <i className="bi bi-question-circle-fill text-light"></i>;
   }
 }
-export function ChamaUserRoleColor({ role }: { role: string }): string {
+export function ChamaUserTypeColor({ role }: { role: string }): string {
   switch (role) {
     case "admin":
       return "text-primary";
@@ -140,7 +134,7 @@ export function ChamaUserRoleColor({ role }: { role: string }): string {
       return "text-light";
   }
 }
-export function ChamaUserRoleClassName(role: string): string {
+export function ChamaUserTypeClassName(role: string): string {
   switch (role) {
     case "admin":
       return "bg-primary text-white";
