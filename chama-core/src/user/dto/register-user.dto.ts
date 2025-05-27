@@ -1,23 +1,28 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString, Length } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString, Length, Matches } from 'class-validator';
 export class RegisterUserDto {
-  @ApiProperty({ description: "The user's first name" })
   @IsNotEmpty()
   @IsString()
+  @ApiProperty({ description: "The user's first name" })
   firstName: string;
 
-  @ApiProperty({ description: "The user's last name" })
-  @IsNotEmpty()
+
+  @IsOptional()
   @IsString()
-  lastName: string;
-  @ApiProperty({ description: "The user's email address" })
+  @ApiProperty({ description: "The user's last name" })
+  lastName?: string;
+ 
   @IsNotEmpty()
   @IsEmail()
+  @ApiProperty({ description: "The user's email address" })
   email: string;
 
+  @IsOptional()
+  @Matches(/^\+[1-9]\d{7,14}$/, {
+    message: 'Phone number must be in E.164 format (e.g., +254712345678). It must start with + followed by country code and number.'
+  })
   @ApiProperty({ description: "The user's phone number" })
-  @IsNotEmpty()
-  phoneNumber: string;
+  phoneNumber?: string;
   
   @ApiProperty({ description: "The user's password" })
   @IsNotEmpty()
