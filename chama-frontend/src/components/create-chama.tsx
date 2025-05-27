@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { Button } from 'primereact/button'; 
+import { useNavigate, useParams } from 'react-router-dom';
+
 
 const tabs = ['Basic', 'Features', 'Terms'];
 
@@ -11,6 +13,7 @@ interface ChamaFormData {
   image: File | null;
 }
 
+
 function CreateChama() {
   const [activeStep, setActiveStep] = useState(0);
   const [formData, setFormData] = useState<ChamaFormData>({
@@ -19,6 +22,8 @@ function CreateChama() {
     image: null,
   });
 
+  const navigate = useNavigate();
+  const chamaId = useParams().chamaId || 'new'; // Default to 'new' if chamaId is not provided
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -154,7 +159,12 @@ function CreateChama() {
           </Button>
         )}
         {activeStep === tabs.length - 1 && (
-          <Button className="bg-green-500 hover:bg-green-600">Submit</Button>
+          <Button 
+          className="bg-green-500 hover:bg-green-600"
+          onClick={() => {
+            navigate(`/admin/chamas/1`);
+          }}
+          >Submit</Button>
         )}
       </div>
     </div>

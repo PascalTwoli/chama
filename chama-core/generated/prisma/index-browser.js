@@ -130,7 +130,8 @@ exports.Prisma.UserScalarFieldEnum = {
   passwordHash: 'passwordHash',
   role: 'role',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  activeUserType: 'activeUserType'
 };
 
 exports.Prisma.ChamaScalarFieldEnum = {
@@ -241,6 +242,11 @@ exports.UserRole = exports.$Enums.UserRole = {
   MEMBER: 'MEMBER',
   TREASURER: 'TREASURER',
   SECRETARY: 'SECRETARY'
+};
+
+exports.UserType = exports.$Enums.UserType = {
+  ADMIM: 'ADMIM',
+  MEMBER: 'MEMBER'
 };
 
 exports.ContributionStatus = exports.$Enums.ContributionStatus = {

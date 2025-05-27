@@ -1,37 +1,3 @@
-// datasource db {
-//   provider = "postgresql"
-//   url      = env("DATABASE_URL")
-// }
-
-// generator client {
-//   provider = "prisma-client-js"
-// }
-
-// model Chama {
-//   id          String        @id @default(uuid())
-//   name        String
-//   description String?
-//   createdAt   DateTime      @default(now())
-//   updatedAt   DateTime      @updatedAt
-//   userId      String        // Firebase user ID
-//   members     ChamaMember[]
-//   // Add more fields as needed
-// }
-
-// model ChamaMember {
-//   id        String   @id @default(uuid())
-//   chamaId   String
-//   userId    String   // Firebase user ID
-//   role      String   // e.g., ADMIN, MEMBER
-//   joinedAt  DateTime @default(now())
-//   chama     Chama    @relation(fields: [chamaId], references: [id])
-
-//   @@unique([chamaId, userId])
-// }
-
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
@@ -94,11 +60,12 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  memberships   Membership[]
-  contributions Contribution[]
-  notifications Notification[]
-  uiSettings    UiSettings?
-  Chama         Chama[]
+  memberships    Membership[]
+  contributions  Contribution[]
+  notifications  Notification[]
+  uiSettings     UiSettings?
+  Chama          Chama[]
+  activeUserType UserType?      @map("active_user_type")
 
   @@map("user")
 }
@@ -213,4 +180,9 @@ model UiSettings {
   lastSeenWidgets Json?   @map("last_seen_widgets")
 
   @@map("ui_settings")
+}
+
+enum UserType {
+  ADMIM
+  MEMBER
 }

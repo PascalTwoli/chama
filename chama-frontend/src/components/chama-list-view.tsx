@@ -2,6 +2,8 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { useEffect, useState } from 'react';
 import { ColumnBodyOptions } from 'primereact/column';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Button } from 'primereact/button';
 
 const profileTemplate = (rowData: any, options: ColumnBodyOptions) => {
     <img src={rowData.profilepic} alt="profile" className="w-10 h-10 rounded-full" />
@@ -16,7 +18,9 @@ const actionsTemplate = (rowData: any, options: ColumnBodyOptions) => (
 
 const ChamaListView = ()  => {
 
-
+    const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     const [members, setMembers] = useState([]);
 
     const columns = [
@@ -27,6 +31,8 @@ const ChamaListView = ()  => {
         {field: 'shares', header: 'Share', width: '15%'},
         {field: 'actions', header: 'Actions', width: '15%'},
     ]
+
+    const chamaId = useParams().chamaId;
 
                 // test data
                 useEffect (() => {
@@ -266,6 +272,15 @@ const ChamaListView = ()  => {
                         ))}
                     </DataTable>
                 </div>
+
+            <div className='mt-10 flex justify-end'>
+                <Button className="p-button-success" onClick={
+                    () => navigate(`/chama/${chamaId}/join`)
+                    
+                    }>
+                    Join Chama {chamaId}
+                </Button>
+            </div>
         </>
     )
 }
