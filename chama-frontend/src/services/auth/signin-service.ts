@@ -10,6 +10,17 @@ export class AuthService {
             localStorage.setItem('authToken', response.data.token);
             localStorage.setItem('refreshToken', response.data.refreshToken);
             
+            // Check if user has a role already
+            const existingRole = localStorage.getItem('userRole');
+            
+            // Only set isFirstLogin to true if the user doesn't have a role
+            if (!existingRole) {
+                localStorage.setItem('isFirstLogin', 'true');
+            } else {
+                // If user has a role, they're not a first-time user
+                localStorage.setItem('isFirstLogin', 'false');
+            }
+            
             // Update the Authorization header
             setAuthHeader(apiClient, response.data.token);
             console.log('Sign-in successful:', response.data);
