@@ -1,12 +1,31 @@
 import { AxiosError, AxiosResponse } from "axios";
 import apiClient, { API_BASE } from "../../config/axios-config";
-import { SignupRequest, SignupResponse, ApiErrorResponse } from "../../models/user";
+import { SignupRequest, SignupResponse, ApiErrorResponse, User } from "../../models/user";
+import { UserType } from "../../data/user-type";
 
+/**
+ * Interface for onboarding status information
+ */
+interface OnboardingStatus {
+    needsUserType: boolean;
+    needsChama: boolean;
+    userType: UserType | null;
+}
 
-
- // service class for authentication related API calls
- 
+// service class for authentication related API calls
 export class AuthService {
+    /**
+     * Normalize user type to consistent enum format
+     * @param userType The user type to normalize
+     * @returns Normalized UserType enum or null if invalid
+     */
+    static normalizeUserType(userType: UserType | string | null): UserType | null {
+        if (!userType) return null;
+        
+        const typeStr = userType.toString().toUpperCase();
+        return typeStr === UserType.ADMIN.toString() ? UserType.ADMIN :
+               typeStr === UserType.MEMBER.toString() ? UserType.MEMBER : null;
+    }
 	 
 	static async signup(userData: SignupRequest): Promise<SignupResponse> {
 		try {
@@ -103,6 +122,198 @@ export class AuthService {
 			// If there's an error, assume the email doesn't exist
 			return false;
 		}
+	}
+
+	/**
+	 * Update user type (admin or member)
+	 * @param userType The user type to set
+	 * @returns Promise with updated user data
+	 */
+	static async updateUserType(userType: UserType): Promise<User> {
+		try {
+			const token = localStorage.getItem('authToken');
+			if (!token) {
+				throw new Error("Authentication required. Please sign in.");
+			}
+
+			// Extract user ID from token or get from localStorage
+			const userId = localStorage.getItem('userId');
+			if (!userId) {
+				throw new Error("User ID not found. Please sign in again.");
+			}
+
+			console.log(`Updating user type to ${userType} for user ${userId}`);
+			
+			// Ensure we're sending the correct enum value to match backend expectations
+			// The backend might be expecting just "ADMIN" or "MEMBER" without lowercase conversion
+			
+			// Use the correct path without /api/v1 since it's already in API_BASE
+			const response: AxiosResponse<User> = await apiClient.patch(
+				`/user/${userId}/update-type`,
+				{ userType }, // Send the enum value directly, which should match the backend DTO
+				{
+					headers: {
+						Authorization: `Bearer ${token}`
+					}
+				}
+			);
+			
+			// Store userType in localStorage for client-side usage
+			localStorage.setItem("userType", userType.toString());
+			
+			return response.data;
+		} catch (error) {
+			console.error('Error updating user type:', error);
+			
+			if (!(error as AxiosError).response) {
+				throw new Error("Could not connect to the server. Please check your internet connection and try again.");
+			}
+			
+			const axiosError = error as AxiosError<ApiErrorResponse>;
+			const statusCode = axiosError.response?.status;
+			const errorResponse = axiosError.response?.data;
+			
+			let errorMessage = 'Failed to update user type. Please try again.';
+			
+			if (errorResponse && typeof errorResponse.message === 'string') {
+				errorMessage = errorResponse.message;
+			} else if (errorResponse && Array.isArray(errorResponse.message)) {
+				errorMessage = errorResponse.message[0] || errorMessage;
+			}
+			
+			if (statusCode === 401 || statusCode === 403) {
+				throw new Error("Authentication required. Please sign in again.");
+			} else if (statusCode === 400) {
+				throw new Error(`Invalid user type: ${errorMessage}`);
+			} else if (statusCode === 500) {
+				throw new Error("Server error occurred. Please try again later.");
+			}
+			
+			throw new Error(errorMessage);
+		}
+	}
+
+	/**
+	 * Get current user's type
+	 * @param forceCheck Whether to force checking with the server instead of using cached value
+	 * @returns Promise with user type or null if not set
+	 */
+	static async getUserType(forceCheck: boolean = false): Promise<UserType | null> {
+		try {
+			// First try to get from localStorage if not forcing check
+			if (!forceCheck) {
+				const cachedUserType = localStorage.getItem("userType");
+				if (cachedUserType) {
+					const normalizedType = this.normalizeUserType(cachedUserType);
+					if (normalizedType) {
+						return normalizedType;
+					}
+				}
+			}
+
+			const token = localStorage.getItem('authToken');
+			if (!token) {
+				return null;
+			}
+
+			const response: AxiosResponse<{ userType: UserType }> = await apiClient.get(
+				"/user/type",
+				{
+					headers: {
+						Authorization: `Bearer ${token}`
+					}
+				}
+			);
+			
+			const userType = response.data.userType;
+			const normalizedUserType = this.normalizeUserType(userType);
+			
+			// Update localStorage with the normalized user type
+			if (normalizedUserType) {
+				localStorage.setItem("userType", normalizedUserType.toString());
+			}
+			
+			return normalizedUserType;
+		} catch (error) {
+			console.error('Error fetching user type:', error);
+			
+			// For this method, we'll return null on error since it might be
+			// called during app initialization and shouldn't break the app flow
+			return null;
+		}
+	}
+	
+	/**
+	 * Check user's onboarding status
+	 * @returns Object with details about onboarding status
+	 */
+	static checkOnboardingStatus(): OnboardingStatus {
+		const userType = localStorage.getItem("userType");
+		const isFirstLogin = localStorage.getItem("isFirstLogin") !== "false";
+		const hasCreatedChama = localStorage.getItem("hasCreatedChama") === "true";
+		const hasJoinedChama = localStorage.getItem("hasJoinedChama") === "true";
+
+		return {
+			needsUserType: !userType || isFirstLogin,
+			needsChama: userType ? (
+				userType === UserType.ADMIN.toString() ? !hasCreatedChama : !hasJoinedChama
+			) : false,
+			userType: userType ? this.normalizeUserType(userType) : null
+		};
+	}
+	
+	/**
+	 * Get the appropriate redirect path based on user's onboarding status
+	 * @returns The path to redirect the user to
+	 */
+	static getRedirectPath(): string {
+		// Check authentication
+		const authToken = localStorage.getItem('authToken');
+		if (!authToken) {
+			return "/signin";
+		}
+		
+		const status = this.checkOnboardingStatus();
+		
+		if (status.needsUserType) {
+			return "/chose-user";
+		}
+		
+		if (status.userType === UserType.ADMIN) {
+			if (!localStorage.getItem("hasCreatedChama") || localStorage.getItem("hasCreatedChama") !== "true") {
+				return "/create-chama";
+			}
+			const activeChamaId = localStorage.getItem("activeChamaId") || "1";
+			return `/admin/chamas/${activeChamaId}`;
+		}
+		
+		if (status.userType === UserType.MEMBER) {
+			if (!localStorage.getItem("hasJoinedChama") || localStorage.getItem("hasJoinedChama") !== "true") {
+				return "/chama-list-view";
+			}
+			const activeChamaId = localStorage.getItem("activeChamaId") || "1";
+			return `/member/chamas/${activeChamaId}`;
+		}
+		
+		return "/signin";
+	}
+	
+	/**
+	 * Mark chama creation as complete for admin users
+	 * @param chamaId ID of the created chama
+	 */
+	static markChamaCreationComplete(chamaId: string): void {
+		localStorage.setItem("hasCreatedChama", "true");
+		localStorage.setItem("activeChamaId", chamaId);
+	}
+	
+	/**
+	 * Mark chama joining as complete for member users
+	 * @param chamaId ID of the joined chama
+	 */
+	static markChamaJoiningComplete(chamaId: string): void {
+		localStorage.setItem("hasJoinedChama", "true");
+		localStorage.setItem("activeChamaId", chamaId);
 	}
 }
 
