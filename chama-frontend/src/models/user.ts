@@ -1,4 +1,4 @@
-import { UserType } from "../data/user-role";
+import { UserType } from "../data/user-type";
 
 export interface User {
 	id: string;
@@ -6,20 +6,19 @@ export interface User {
 	lastName: string;
 	email: string;
 	phoneNumber: string;
-	role: UserType
-};
+	role: UserType;
+}
 
 export interface SignInCredentials {
-    email: string;
-    password: string;
+	email: string;
+	password: string;
 }
 
 export interface SignInResponse {
-    token: string;
-    refreshToken: string; 
-    user: User
+	token: string;
+	refreshToken: string;
+	user: User;
 }
-
 
 //Signup request interfaces
 export interface SignupRequest {
@@ -50,14 +49,10 @@ export interface FormErrors {
 	[key: string]: string | undefined;
 }
 
-
 // API error response interface
 export interface ApiErrorResponse {
 	message: string | string[];
 	statusCode?: number;
 	error?: string;
-	errors?: Array<{ message: string; field?: string }>;  //handle structured validation errors
+	errors?: Array<{ message: string; field?: string }>; //handle structured validation errors
 }
-
-
-

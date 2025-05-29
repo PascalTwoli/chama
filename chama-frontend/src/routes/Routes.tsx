@@ -13,118 +13,148 @@ import NavbarOnlyLayout from "../layout/navbar-only-layout";
 import CreateChama from "../components/create-chama";
 import ChamaListView from "../components/chama-list-view";
 import AdminDashboard from "../pages/AdminDashboard";
-import { ChamaUserType } from "../components/user-role";
-import { UserType } from "../data/user-role";
+import { ChamaUserType } from "../components/user-type";
+import { UserType } from "../data/user-type";
 import MemberLayout from "../layout/Member-layout";
 import MemberDashboard from "../pages/MemberDashboard";
+import AuthService from "../services/auth/signup-service";
 
 interface ProtectedRouteProps {
-  children: React.ReactElement;
-  allowedRole: 'admin' | 'member';
+	children: React.ReactElement;
+	allowedRole: "admin" | "member";
 }
 
 const AppRoutes = () => {
-  // Function to check if user should be redirected to role selection
-  const shouldRedirectToRoleSelection = () => {
-    const isFirstLogin = localStorage.getItem('isFirstLogin') === 'true';
-    const hasRole = localStorage.getItem('userType');
-    return isFirstLogin || !hasRole;
-  };
+	/**
+	 * Function to check if user should be redirected to role selection
+	 * @returns True if user should be redirected to role selection
+	 */
+	const shouldRedirectToRoleSelection = (): boolean => {
+		const status = AuthService.checkOnboardingStatus();
+		return status.needsUserType;
+	};
 
-  // Function to get default route based on user type
-  const getDefaultRoute = () => {
-    const authToken = localStorage.getItem('authToken');
-    const userType = localStorage.getItem('userType');
-    const isFirstLogin = localStorage.getItem('isFirstLogin') === 'true';
+	/**
+	 * Function to get default route based on user type and onboarding status
+	 * @returns The path to redirect to
+	 */
+	const getDefaultRoute = (): string => {
+		return AuthService.getRedirectPath();
+	};
 
-    if (!authToken) return '/signin';
-    if (isFirstLogin || !userType) return '/chose-user';
-    if (userType === 'admin') return '/admin/chamas/1';
-    return '/member/chamas/1';
-  };
+	/**
+	 * Protected route component - only allows access to users with specified role
+	 */
+	const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+		children,
+		allowedRole,
+	}) => {
+		// Use the AuthService to check authentication and user type
+		const authToken = localStorage.getItem("authToken");
+		if (!authToken) {
+			return <Navigate to="/signin" replace />;
+		}
 
-  // Protected route component
-  const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRole }) => {
-    const userType = localStorage.getItem('userType');
-    const authToken = localStorage.getItem('authToken');
-    const isFirstLogin = localStorage.getItem('isFirstLogin') === 'true';
+		// Get full onboarding status
+		const status = AuthService.checkOnboardingStatus();
+		
+		// If user needs to select a type, redirect to user type selection
+		if (status.needsUserType) {
+			return <Navigate to="/chose-user" replace />;
+		}
 
-    if (!authToken) {
-      return <Navigate to="/signin" replace />;
-    }
+		// If user doesn't have the allowed role, redirect based on their actual role
+		const normalizedUserType = AuthService.normalizeUserType(status.userType);
+		const normalizedAllowedRole = AuthService.normalizeUserType(allowedRole);
+		
+		if (normalizedUserType !== normalizedAllowedRole) {
+			// Get the appropriate redirect path based on user's status
+			return <Navigate to={AuthService.getRedirectPath()} replace />;
+		}
 
-    if (isFirstLogin || !userType) {
-      return <Navigate to="/chose-user" replace />;
-    }
+		// User has the correct role, render the children
+		return children;
+	};
 
-    if (allowedRole && userType !== allowedRole) {
-      // Redirect to the appropriate dashboard based on actual role
-      return <Navigate to={userType === 'admin' ? '/admin/chamas/1' : '/member/chamas/1'} replace />;
-    }
+	return (
+		<BrowserRouter>
+			<Routes>
+				{/* Default redirect */}
+				<Route
+					path="/"
+					element={<Navigate to={getDefaultRoute()} replace />}
+				/>
 
-    return children;
-  };
+				{/* Public routes */}
+				<Route path="/signin" element={<SignIn />} />
+				<Route path="/signup" element={<SignUp />} />
+				<Route
+					path="/chose-user"
+					element={<ChamaUserType role={UserType.MEMBER} />}
+				/>
 
-  return (
-    <BrowserRouter>
-      <Routes>
-        {/* Default redirect */}
-        <Route path="/" element={<Navigate to={getDefaultRoute()} replace />} />
+				{/* Admin routes */}
+				<Route
+					path="/create-chama"
+					element={
+						<ProtectedRoute allowedRole="admin">
+							<NavbarOnlyLayout children={<CreateChama />} />
+						</ProtectedRoute>
+					}
+				/>
 
-        {/* Public routes */}
-        <Route path="/signin" element={<SignIn />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/chose-user" element={<ChamaUserType role={UserType.MEMBER} />} />
+				<Route
+					path="/admin/chamas/:chamaId/*"
+					element={
+						<ProtectedRoute allowedRole="admin">
+							<AdminLayout />
+						</ProtectedRoute>
+					}>
+					<Route index element={<AdminDashboard />} />
+					<Route path="softloans" element={<Softloans />} />
+					<Route path="meetings" element={<Meetings />} />
+					<Route path="shares" element={<Shares />} />
+					<Route path="notifications" element={<Notifications />} />
+					<Route path="mpesa" element={<Mpesa />} />
+					<Route path="chama_settings" element={<Settings />} />
+					<Route path="account_settings" element={<AccountSettings />} />
+				</Route>
 
-        {/* Admin routes */}
-        <Route path="/create-chama" element={
-          <ProtectedRoute allowedRole="admin">
-            <NavbarOnlyLayout children={<CreateChama />} />
-          </ProtectedRoute>
-        } />
+				{/* Member routes */}
+				<Route
+					path="/chama-list-view"
+					element={
+						<ProtectedRoute allowedRole="member">
+							<NavbarOnlyLayout children={<ChamaListView />} />
+						</ProtectedRoute>
+					}
+				/>
 
-        <Route path="/admin/chamas/:chamaId/*" element={
-          <ProtectedRoute allowedRole="admin">
-            <AdminLayout />
-          </ProtectedRoute>
-        }>
-          <Route index element={<AdminDashboard />} />
-          <Route path="softloans" element={<Softloans />} />
-          <Route path="meetings" element={<Meetings />} />
-          <Route path="shares" element={<Shares />} />
-          <Route path="notifications" element={<Notifications />} />
-          <Route path="mpesa" element={<Mpesa />} />
-          <Route path="chama_settings" element={<Settings />} />
-          <Route path="account_settings" element={<AccountSettings />} />
-        </Route>
+				<Route
+					path="/member/chamas/:chamaId/*"
+					element={
+						<ProtectedRoute allowedRole="member">
+							<MemberLayout />
+						</ProtectedRoute>
+					}>
+					<Route index element={<MemberDashboard />} />
+					<Route path="softloans" element={<Softloans />} />
+					<Route path="meetings" element={<Meetings />} />
+					<Route path="shares" element={<Shares />} />
+					<Route path="notifications" element={<Notifications />} />
+					<Route path="mpesa" element={<Mpesa />} />
+					<Route path="chama_settings" element={<Settings />} />
+					<Route path="account_settings" element={<AccountSettings />} />
+				</Route>
 
-        {/* Member routes */}
-        <Route path="/chama-list-view" element={
-          <ProtectedRoute allowedRole="member">
-            <NavbarOnlyLayout children={<ChamaListView />} />
-          </ProtectedRoute>
-        } />
-
-        <Route path="/member/chamas/:chamaId/*" element={
-          <ProtectedRoute allowedRole="member">
-            <MemberLayout />
-          </ProtectedRoute>
-        }>
-          <Route index element= {<MemberDashboard/>} />
-          <Route path="softloans" element={<Softloans />} />
-          <Route path="meetings" element={<Meetings />} />
-          <Route path="shares" element={<Shares />} />
-          <Route path="notifications" element={<Notifications />} />
-          <Route path="mpesa" element={<Mpesa />} />
-          <Route path="chama_settings" element={<Settings />} />
-          <Route path="account_settings" element={<AccountSettings />} />
-        </Route>
-        
-        {/* Catch all route */}
-        <Route path="*" element={<Navigate to={getDefaultRoute()} replace />} />
-      </Routes>
-    </BrowserRouter>
-  );
+				{/* Catch all route */}
+				<Route
+					path="*"
+					element={<Navigate to={getDefaultRoute()} replace />}
+				/>
+			</Routes>
+		</BrowserRouter>
+	);
 };
 
 export default AppRoutes;
