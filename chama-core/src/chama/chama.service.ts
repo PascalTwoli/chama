@@ -24,6 +24,7 @@ export class ChamaService {
           email: firebaseUser.email,
           phone: firebaseUser.phoneNumber,
           role: 'MEMBER', // Default role in the system
+          activeUserType: 'MEMBER', // Default to MEMBER user type
         },
       });
     }

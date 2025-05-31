@@ -6,6 +6,7 @@ import * as firebaseAdmin from 'firebase-admin';
 import { LoginDto } from './dto/login.dto';
 import axios from 'axios';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { UserType } from 'generated/prisma';
 
 // Interface for pagination parameters
 export interface PaginationParams {
@@ -83,6 +84,7 @@ export class UserService {
         email: registerUser.email,
         password: registerUser.password,
         phoneNumber: registerUser.phoneNumber,
+      
       });
       console.log('Firebase User Record:', userRecord);
 
@@ -95,12 +97,7 @@ export class UserService {
             email: registerUser.email,
             name: `${registerUser.firstName} ${registerUser.lastName}`,
             phone: registerUser.phoneNumber || '',
-            // Store additional metadata in passwordHash
-            passwordHash: JSON.stringify({
-              firebaseUid: userRecord.uid,
-              // We don't need to store these separately anymore since we have 'name'
-              registrationDate: new Date().toISOString()
-            }),
+            activeUserType: registerUser.activeUserType ?? UserType.MEMBER
           }
         });
         
@@ -350,11 +347,7 @@ async findOne(uid: string): Promise<{firebaseUser: firebaseAdmin.auth.UserRecord
             email: firebaseUser.email || '',
             name: firebaseUser.displayName || '',
             phone: firebaseUser.phoneNumber || '',
-            passwordHash: JSON.stringify({ 
-              firebaseUid: firebaseUser.uid,
-              importedFromFirebase: true,
-              importDate: new Date().toISOString()
-            }),
+            activeUserType: 'MEMBER', // Default to MEMBER user type
           }
         });
         
