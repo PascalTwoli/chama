@@ -245,7 +245,7 @@ exports.UserRole = exports.$Enums.UserRole = {
 };
 
 exports.UserType = exports.$Enums.UserType = {
-  ADMIM: 'ADMIM',
+  ADMIN: 'ADMIN',
   MEMBER: 'MEMBER'
 };
 
