@@ -45,6 +45,7 @@ export const CurrentUser = createParamDecorator(
           data: {
             email: decodedToken.email,
             name: decodedToken.name || decodedToken.email.split('@')[0],
+            activeUserType: 'MEMBER', // Default to MEMBER user type
           },
         });
       }
