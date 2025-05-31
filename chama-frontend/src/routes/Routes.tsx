@@ -90,7 +90,7 @@ const AppRoutes = () => {
 				<Route path="/signup" element={<SignUp />} />
 				<Route
 					path="/chose-user"
-					element={<ChamaUserType role={UserType.MEMBER} />}
+					element={<ChamaUserType type={UserType.MEMBER} />}
 				/>
 
 				{/* Admin routes */}

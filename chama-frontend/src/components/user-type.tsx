@@ -2,23 +2,23 @@ import { UserType } from "../data/user-type";
 import { RadioButton } from "primereact/radiobutton";
 import { Toast } from "primereact/toast";
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import {useNavigate } from "react-router-dom";
 import AuthService from "../services/auth/signup-service";
 
 /**
  * Props for the ChamaUserType component
  */
 interface ChamaUserTypeProps {
-	role: UserType | string;
+type: UserType | string;
 }
 
 /**
  * Component for selecting user type (admin or member)
  */
 export function ChamaUserType({
-	role,
+	type,
 }: ChamaUserTypeProps): React.ReactElement {
-	const [userType, setUserType] = useState<UserType | string>(role);
+	const [userType, setUserType] = useState<UserType | string>(type);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [error, setError] = useState<string | null>(null);
 	const toast = useRef<Toast>(null);
@@ -103,9 +103,6 @@ export function ChamaUserType({
 			
 			// Use API to update the user type
 			await AuthService.updateUserType(normalizedType);
-			
-			// API call was successful - no need to set isFirstLogin flag here as the
-			// updateUserType method in AuthService already does that
 			
 			// Use AuthService to determine the correct redirect path
 			const redirectPath = AuthService.getRedirectPath();
