@@ -149,7 +149,7 @@ export class AuthService {
 			
 			// Use the correct path without /api/v1 since it's already in API_BASE
 			const response: AxiosResponse<User> = await apiClient.patch(
-				`/user/${userId}/update-type`,
+				`/user/${userId}`,
 				{ userType }, // Send the enum value directly, which should match the backend DTO
 				{
 					headers: {

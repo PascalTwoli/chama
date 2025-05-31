@@ -6,7 +6,7 @@ export interface User {
 	lastName: string;
 	email: string;
 	phoneNumber: string;
-	role: UserType;
+	type: UserType;
 }
 
 export interface SignInCredentials {
