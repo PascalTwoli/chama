@@ -1,11 +1,12 @@
-/*
-  Warnings:
-
-  - Added the required column `active_user_type` to the `user` table without a default value. This is not possible if the table is not empty.
-
-*/
 -- CreateEnum
-CREATE TYPE "UserType" AS ENUM ('ADMIM', 'MEMBER');
+CREATE TYPE "UserType" AS ENUM ('ADMIN', 'MEMBER');
 
 -- AlterTable
-ALTER TABLE "user" ADD COLUMN     "active_user_type" "UserType" NOT NULL;
+-- Step 1: Add the column as nullable
+ALTER TABLE "user" ADD COLUMN "active_user_type" "UserType";
+
+-- Step 2: Set default value for existing records
+UPDATE "user" SET "active_user_type" = 'MEMBER';
+
+-- Step 3: Make the column non-nullable
+ALTER TABLE "user" ALTER COLUMN "active_user_type" SET NOT NULL;

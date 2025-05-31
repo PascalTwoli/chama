@@ -57,11 +57,14 @@ export class InviteService {
       }
 
       // Verify the requesting user is an admin of the chama
-      const isChamaAdmin = chama.memberships.some(
+      // Note: memberships array is already filtered to only include the requesting user's memberships from the query above
+      const isUserAdmin = chama.memberships.some(
         (membership) => membership.role === UserRole.ADMIN
       );
-
-      if (!isChamaAdmin && chama.userId !== requestUserId) {
+      
+      this.logger.debug(`Invite permission check for user ${requestUserId} in chama ${chamaId}: isAdmin=${isUserAdmin}`);
+      
+      if (!isUserAdmin) {
         throw new UnauthorizedException('Only chama admins can send invites');
       }
 
