@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsOptional, IsString, Length, Matches } from 'class-validator';
+import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, Length, Matches } from 'class-validator';
+import { UserType } from 'generated/prisma';
 export class RegisterUserDto {
   @IsNotEmpty()
   @IsString()
@@ -28,4 +29,9 @@ export class RegisterUserDto {
   @IsNotEmpty()
   @Length(8, 20)
   password: string;
+
+  @ApiProperty({ enum: UserType })
+  @IsOptional()
+  @IsEnum(UserType)
+  activeUserType?: UserType;
 }
