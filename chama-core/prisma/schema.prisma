@@ -185,6 +185,6 @@ model UiSettings {
 }
 
 enum UserType {
-  ADMIM
+  ADMIN
   MEMBER
 }
