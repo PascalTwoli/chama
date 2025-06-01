@@ -48,6 +48,28 @@ enum DeliveryMethod {
   SMS
 }
 
+/// Transaction types for financial operations
+enum TransactionType {
+  CONTRIBUTION
+  WITHDRAWAL
+  LOAN
+  LOAN_REPAYMENT
+  INVESTMENT
+  RETURN
+  EXPENSE
+
+  @@map("transaction_type")
+}
+
+/// Status of a transaction
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+
+  @@map("transaction_status")
+}
+
 /// Models
 
 model User {
@@ -65,6 +87,7 @@ model User {
   notifications  Notification[]
   uiSettings     UiSettings?
   Chama          Chama[]
+  transactions   Transaction[]
   activeUserType UserType?      @map("active_user_type")
 
   @@map("user")
@@ -83,6 +106,7 @@ model Chama {
   memberships   Membership[]
   contributions Contribution[]
   invites       Invite[]
+  transactions  Transaction[]
 
   @@map("chama")
 }
@@ -185,4 +209,21 @@ model UiSettings {
 enum UserType {
   ADMIN
   MEMBER
+}
+
+model Transaction {
+  id          String            @id @default(uuid())
+  type        TransactionType
+  amount      Decimal           @db.Decimal(10, 2)
+  chamaId     String            @map("chama_id")
+  chama       Chama             @relation(fields: [chamaId], references: [id])
+  userId      String            @map("user_id")
+  user        User              @relation(fields: [userId], references: [id])
+  description String?
+  reference   String?
+  status      TransactionStatus @default(COMPLETED)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@map("transaction")
 }
