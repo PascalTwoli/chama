@@ -11,6 +11,7 @@ import { LoginDto } from './dto/login.dto';
 import axios from 'axios';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserType } from 'generated/prisma';
+import { UserEntity, FirebaseUserEntity, UserResponseEntity } from './entities/user.entity';
 
 // Interface for pagination parameters
 export interface PaginationParams {
@@ -22,6 +23,12 @@ export interface PaginationParams {
 export interface UserListResponse {
   users: firebaseAdmin.auth.UserRecord[];
   pageToken?: string;
+}
+
+// Enhanced interface for user response matching our entity
+export interface EnhancedUserResponse {
+  firebaseUser: firebaseAdmin.auth.UserRecord | null;
+  localUser: UserEntity;
 }
 
 // Interface for enhanced login response
@@ -306,17 +313,17 @@ export class UserService {
     }
   }
 
-  async findOne(
-    uid: string,
-  ): Promise<{
-    firebaseUser: firebaseAdmin.auth.UserRecord | null;
-    localUser: any;
-  }> {
+  /**
+   * Find a user by their Firebase UID and return both Firebase and local user data
+   * @param uid The Firebase UID of the user
+   * @returns Combined user data in a format matching UserResponseEntity
+   */
+  async findOne(uid: string): Promise<EnhancedUserResponse> {
     try {
       // Get the Firebase user
       const firebaseUser = await firebaseAdmin.auth().getUser(uid);
 
-      // Get the local user data
+      // Get the local user data with all fields needed for UserEntity
       const localUser = await this.databaseService.user.findFirst({
         where: {
           OR: [
@@ -324,6 +331,17 @@ export class UserService {
             ...(firebaseUser.email ? [{ email: firebaseUser.email }] : []),
           ],
         },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+          passwordHash: true,
+          role: true,
+          createdAt: true,
+          updatedAt: true,
+          activeUserType: true
+        }
       });
 
       // If local user doesn't exist but Firebase user does,
@@ -337,17 +355,45 @@ export class UserService {
             phone: firebaseUser.phoneNumber || '',
             activeUserType: 'MEMBER', // Default to MEMBER user type
           },
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+            passwordHash: true,
+            role: true,
+            createdAt: true,
+            updatedAt: true,
+            activeUserType: true
+          }
         });
 
-        return { firebaseUser, localUser: newLocalUser };
+        return { 
+          firebaseUser, 
+          localUser: newLocalUser as UserEntity 
+        };
       }
 
-      return { firebaseUser, localUser };
+      return { 
+        firebaseUser, 
+        localUser: localUser as UserEntity 
+      };
     } catch (error) {
       if (error.code === 'auth/user-not-found') {
         // If Firebase user not found, check if local user exists
         const localUser = await this.databaseService.user.findUnique({
           where: { id: uid },
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+            passwordHash: true,
+            role: true,
+            createdAt: true,
+            updatedAt: true,
+            activeUserType: true
+          }
         });
 
         if (localUser) {
@@ -355,7 +401,7 @@ export class UserService {
           console.warn(`Local user ${uid} exists but Firebase user is missing`);
           return {
             firebaseUser: null,
-            localUser,
+            localUser: localUser as UserEntity,
           };
         }
 
@@ -369,7 +415,13 @@ export class UserService {
     }
   }
 
-  async update(uid: string, updateUserDto: UpdateUserDto) {
+  /**
+   * Update a user's information in both Firebase and local database
+   * @param uid The Firebase UID of the user to update
+   * @param updateUserDto The data to update
+   * @returns Updated Firebase user record
+   */
+  async update(uid: string, updateUserDto: UpdateUserDto): Promise<firebaseAdmin.auth.UserRecord> {
     try {
       // First update Firebase user
       // Create a Firebase-compatible update object
@@ -416,13 +468,30 @@ export class UserService {
    * @param uid Firebase user ID
    * @param updateData Data to update
    */
-  async updateLocalUser(uid: string, updateData: Partial<UpdateUserDto>) {
+  /**
+   * Updates the local user record in the database
+   * @param uid Firebase user ID
+   * @param updateData Data to update
+   * @returns Updated local user record
+   */
+  async updateLocalUser(uid: string, updateData: Partial<UpdateUserDto>): Promise<UserEntity> {
     try {
       // First check if user exists in local database
       const existingUser = await this.databaseService.user.findFirst({
         where: {
           id: uid,
         },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+          passwordHash: true,
+          role: true,
+          createdAt: true,
+          updatedAt: true,
+          activeUserType: true
+        }
       });
 
       if (!existingUser) {
@@ -471,11 +540,22 @@ export class UserService {
           return prisma.user.update({
             where: { id: existingUser.id },
             data: updateFields,
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              phone: true,
+              passwordHash: true,
+              role: true,
+              createdAt: true,
+              updatedAt: true,
+              activeUserType: true
+            }
           });
         },
       );
 
-      return updatedUser;
+      return updatedUser as UserEntity;
     } catch (error) {
       console.error(`Error updating local user with ID ${uid}:`, error);
 
@@ -489,7 +569,12 @@ export class UserService {
     }
   }
 
-  async remove(uid: string) {
+  /**
+   * Remove a user from both Firebase and the local database
+   * @param uid The Firebase UID of the user to remove
+   * @returns Success message
+   */
+  async remove(uid: string): Promise<{ success: boolean; message: string }> {
     try {
       // Use a transaction to delete both Firebase and local user
       await this.databaseService.$transaction(async (prisma) => {
@@ -498,6 +583,9 @@ export class UserService {
           where: {
             id: uid,
           },
+          select: {
+            id: true
+          }
         });
 
         if (localUser) {

@@ -13,6 +13,8 @@ import { CreateInviteDto } from './dto/create-invite.dto';
 import { randomBytes } from 'crypto';
 import { Invite, Membership, UserRole, User } from '../../generated/prisma';
 import * as firebaseAdmin from 'firebase-admin';
+import { InviteEntity } from './entities/invite.entity';
+import { MembershipEntity } from './entities/membership.entity';
 
 @Injectable()
 export class InviteService {
@@ -121,7 +123,13 @@ export class InviteService {
           expiresAt,
         },
         include: {
-          chama: true,
+          chama: {
+            select: {
+              id: true,
+              name: true,
+              description: true
+            }
+          },
         },
       });
 
@@ -173,7 +181,15 @@ export class InviteService {
       // Find the invite by token
       const invite = await this.prisma.invite.findUnique({
         where: { token },
-        include: { chama: true },
+        include: { 
+          chama: {
+            select: {
+              id: true,
+              name: true,
+              description: true
+            }
+          } 
+        },
       });
 
       if (!invite) {
@@ -237,12 +253,22 @@ export class InviteService {
             role: UserRole.MEMBER,
           },
           include: {
-            chama: true,
+            chama: {
+              select: {
+                id: true,
+                name: true,
+                description: true
+              }
+            },
             user: {
               select: {
                 id: true,
                 email: true,
-                name: true
+                name: true,
+                phone: true,
+                createdAt: true,
+                updatedAt: true,
+                activeUserType: true
               }
             }
           },
@@ -311,6 +337,15 @@ export class InviteService {
           gt: new Date(),
         },
       },
+      include: {
+        chama: {
+          select: {
+            id: true,
+            name: true,
+            description: true
+          }
+        }
+      },
       orderBy: {
         createdAt: 'desc',
       },
@@ -332,7 +367,13 @@ export class InviteService {
         },
       },
       include: {
-        chama: true,
+        chama: {
+          select: {
+            id: true,
+            name: true,
+            description: true
+          }
+        },
       },
       orderBy: {
         createdAt: 'desc',
