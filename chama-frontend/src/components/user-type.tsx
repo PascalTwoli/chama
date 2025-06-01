@@ -102,11 +102,35 @@ export function ChamaUserType({
 			}
 			
 			// Use API to update the user type
-			await AuthService.updateUserType(normalizedType);
+			const userData = await AuthService.updateUserType(normalizedType);
 			
-			// Use AuthService to determine the correct redirect path
-			const redirectPath = AuthService.getRedirectPath();
-			navigate(redirectPath);
+			// Store userType in localStorage after successful API update
+			// (Note: This is already done in AuthService.updateUserType, but doing it here
+			// makes the flow more explicit and ensures it only happens after success)
+			localStorage.setItem("userType", normalizedType.toString());
+			
+			// Show success message
+			if (toast.current) {
+				toast.current.show({
+					severity: 'success',
+					summary: 'Success',
+					detail: `User type updated to ${getRoleDisplayName(normalizedType)}`,
+					life: 3000
+				});
+			}
+			
+			// Explicitly redirect based on user type
+			if (normalizedType === UserType.ADMIN) {
+				// Admin goes to create-chama page
+				navigate("/create-chama");
+			} else if (normalizedType === UserType.MEMBER) {
+				// Member goes to chama-list-view page
+				navigate("/chama-list-view");
+			} else {
+				// Fallback to service redirect logic for unknown types
+				const redirectPath = AuthService.getRedirectPath();
+				navigate(redirectPath);
+			}
 		} catch (err) {
 			// Handle API errors
 			setError(err instanceof Error ? err.message : "Failed to update user type. Please try again.");
