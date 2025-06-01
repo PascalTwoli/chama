@@ -58,6 +58,11 @@ export type Notification = $Result.DefaultSelection<Prisma.$NotificationPayload>
  * 
  */
 export type UiSettings = $Result.DefaultSelection<Prisma.$UiSettingsPayload>
+/**
+ * Model Transaction
+ * 
+ */
+export type Transaction = $Result.DefaultSelection<Prisma.$TransactionPayload>
 
 /**
  * Enums
@@ -71,14 +76,6 @@ export namespace $Enums {
 };
 
 export type UserRole = (typeof UserRole)[keyof typeof UserRole]
-
-
-export const UserType: {
-  ADMIN: 'ADMIN',
-  MEMBER: 'MEMBER'
-};
-
-export type UserType = (typeof UserType)[keyof typeof UserType]
 
 
 export const ContributionStatus: {
@@ -116,15 +113,41 @@ export const DeliveryMethod: {
 
 export type DeliveryMethod = (typeof DeliveryMethod)[keyof typeof DeliveryMethod]
 
+
+export const TransactionType: {
+  CONTRIBUTION: 'CONTRIBUTION',
+  WITHDRAWAL: 'WITHDRAWAL',
+  LOAN: 'LOAN',
+  LOAN_REPAYMENT: 'LOAN_REPAYMENT',
+  INVESTMENT: 'INVESTMENT',
+  RETURN: 'RETURN',
+  EXPENSE: 'EXPENSE'
+};
+
+export type TransactionType = (typeof TransactionType)[keyof typeof TransactionType]
+
+
+export const TransactionStatus: {
+  PENDING: 'PENDING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED'
+};
+
+export type TransactionStatus = (typeof TransactionStatus)[keyof typeof TransactionStatus]
+
+
+export const UserType: {
+  ADMIN: 'ADMIN',
+  MEMBER: 'MEMBER'
+};
+
+export type UserType = (typeof UserType)[keyof typeof UserType]
+
 }
 
 export type UserRole = $Enums.UserRole
 
 export const UserRole: typeof $Enums.UserRole
-
-export type UserType = $Enums.UserType
-
-export const UserType: typeof $Enums.UserType
 
 export type ContributionStatus = $Enums.ContributionStatus
 
@@ -142,9 +165,21 @@ export type DeliveryMethod = $Enums.DeliveryMethod
 
 export const DeliveryMethod: typeof $Enums.DeliveryMethod
 
+export type TransactionType = $Enums.TransactionType
+
+export const TransactionType: typeof $Enums.TransactionType
+
+export type TransactionStatus = $Enums.TransactionStatus
+
+export const TransactionStatus: typeof $Enums.TransactionStatus
+
+export type UserType = $Enums.UserType
+
+export const UserType: typeof $Enums.UserType
+
 /**
  * ##  Prisma Client ʲˢ
- * 
+ *
  * Type-safe database client for TypeScript & Node.js
  * @example
  * ```
@@ -153,7 +188,7 @@ export const DeliveryMethod: typeof $Enums.DeliveryMethod
  * const users = await prisma.user.findMany()
  * ```
  *
- * 
+ *
  * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client).
  */
 export class PrismaClient<
@@ -165,7 +200,7 @@ export class PrismaClient<
 
     /**
    * ##  Prisma Client ʲˢ
-   * 
+   *
    * Type-safe database client for TypeScript & Node.js
    * @example
    * ```
@@ -174,12 +209,12 @@ export class PrismaClient<
    * const users = await prisma.user.findMany()
    * ```
    *
-   * 
+   *
    * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client).
    */
 
   constructor(optionsArg ?: Prisma.Subset<ClientOptions, Prisma.PrismaClientOptions>);
-  $on<V extends U>(eventType: V, callback: (event: V extends 'query' ? Prisma.QueryEvent : Prisma.LogEvent) => void): void;
+  $on<V extends U>(eventType: V, callback: (event: V extends 'query' ? Prisma.QueryEvent : Prisma.LogEvent) => void): PrismaClient;
 
   /**
    * Connect with the database
@@ -204,7 +239,7 @@ export class PrismaClient<
    * ```
    * const result = await prisma.$executeRaw`UPDATE User SET cool = ${true} WHERE email = ${'user@email.com'};`
    * ```
-   * 
+   *
    * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
    */
   $executeRaw<T = unknown>(query: TemplateStringsArray | Prisma.Sql, ...values: any[]): Prisma.PrismaPromise<number>;
@@ -216,7 +251,7 @@ export class PrismaClient<
    * ```
    * const result = await prisma.$executeRawUnsafe('UPDATE User SET cool = $1 WHERE email = $2 ;', true, 'user@email.com')
    * ```
-   * 
+   *
    * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
    */
   $executeRawUnsafe<T = unknown>(query: string, ...values: any[]): Prisma.PrismaPromise<number>;
@@ -227,7 +262,7 @@ export class PrismaClient<
    * ```
    * const result = await prisma.$queryRaw`SELECT * FROM User WHERE id = ${1} OR email = ${'user@email.com'};`
    * ```
-   * 
+   *
    * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
    */
   $queryRaw<T = unknown>(query: TemplateStringsArray | Prisma.Sql, ...values: any[]): Prisma.PrismaPromise<T>;
@@ -239,7 +274,7 @@ export class PrismaClient<
    * ```
    * const result = await prisma.$queryRawUnsafe('SELECT * FROM User WHERE id = $1 OR email = $2;', 1, 'user@email.com')
    * ```
-   * 
+   *
    * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
    */
   $queryRawUnsafe<T = unknown>(query: string, ...values: any[]): Prisma.PrismaPromise<T>;
@@ -263,7 +298,9 @@ export class PrismaClient<
   $transaction<R>(fn: (prisma: Omit<PrismaClient, runtime.ITXClientDenyList>) => $Utils.JsPromise<R>, options?: { maxWait?: number, timeout?: number, isolationLevel?: Prisma.TransactionIsolationLevel }): $Utils.JsPromise<R>
 
 
-  $extends: $Extensions.ExtendsHook<"extends", Prisma.TypeMapCb, ExtArgs>
+  $extends: $Extensions.ExtendsHook<"extends", Prisma.TypeMapCb<ClientOptions>, ExtArgs, $Utils.Call<Prisma.TypeMapCb<ClientOptions>, {
+    extArgs: ExtArgs
+  }>>
 
       /**
    * `prisma.user`: Exposes CRUD operations for the **User** model.
@@ -273,7 +310,7 @@ export class PrismaClient<
     * const users = await prisma.user.findMany()
     * ```
     */
-  get user(): Prisma.UserDelegate<ExtArgs>;
+  get user(): Prisma.UserDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.chama`: Exposes CRUD operations for the **Chama** model.
@@ -283,7 +320,7 @@ export class PrismaClient<
     * const chamas = await prisma.chama.findMany()
     * ```
     */
-  get chama(): Prisma.ChamaDelegate<ExtArgs>;
+  get chama(): Prisma.ChamaDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.membership`: Exposes CRUD operations for the **Membership** model.
@@ -293,7 +330,7 @@ export class PrismaClient<
     * const memberships = await prisma.membership.findMany()
     * ```
     */
-  get membership(): Prisma.MembershipDelegate<ExtArgs>;
+  get membership(): Prisma.MembershipDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.invite`: Exposes CRUD operations for the **Invite** model.
@@ -303,7 +340,7 @@ export class PrismaClient<
     * const invites = await prisma.invite.findMany()
     * ```
     */
-  get invite(): Prisma.InviteDelegate<ExtArgs>;
+  get invite(): Prisma.InviteDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.contribution`: Exposes CRUD operations for the **Contribution** model.
@@ -313,7 +350,7 @@ export class PrismaClient<
     * const contributions = await prisma.contribution.findMany()
     * ```
     */
-  get contribution(): Prisma.ContributionDelegate<ExtArgs>;
+  get contribution(): Prisma.ContributionDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.payment`: Exposes CRUD operations for the **Payment** model.
@@ -323,7 +360,7 @@ export class PrismaClient<
     * const payments = await prisma.payment.findMany()
     * ```
     */
-  get payment(): Prisma.PaymentDelegate<ExtArgs>;
+  get payment(): Prisma.PaymentDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.notificationType`: Exposes CRUD operations for the **NotificationType** model.
@@ -333,7 +370,7 @@ export class PrismaClient<
     * const notificationTypes = await prisma.notificationType.findMany()
     * ```
     */
-  get notificationType(): Prisma.NotificationTypeDelegate<ExtArgs>;
+  get notificationType(): Prisma.NotificationTypeDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.notification`: Exposes CRUD operations for the **Notification** model.
@@ -343,7 +380,7 @@ export class PrismaClient<
     * const notifications = await prisma.notification.findMany()
     * ```
     */
-  get notification(): Prisma.NotificationDelegate<ExtArgs>;
+  get notification(): Prisma.NotificationDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.uiSettings`: Exposes CRUD operations for the **UiSettings** model.
@@ -353,7 +390,17 @@ export class PrismaClient<
     * const uiSettings = await prisma.uiSettings.findMany()
     * ```
     */
-  get uiSettings(): Prisma.UiSettingsDelegate<ExtArgs>;
+  get uiSettings(): Prisma.UiSettingsDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.transaction`: Exposes CRUD operations for the **Transaction** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Transactions
+    * const transactions = await prisma.transaction.findMany()
+    * ```
+    */
+  get transaction(): Prisma.TransactionDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -374,7 +421,6 @@ export namespace Prisma {
   export import PrismaClientRustPanicError = runtime.PrismaClientRustPanicError
   export import PrismaClientInitializationError = runtime.PrismaClientInitializationError
   export import PrismaClientValidationError = runtime.PrismaClientValidationError
-  export import NotFoundError = runtime.NotFoundError
 
   /**
    * Re-export of sql-template-tag
@@ -395,7 +441,7 @@ export namespace Prisma {
   export type DecimalJsLike = runtime.DecimalJsLike
 
   /**
-   * Metrics 
+   * Metrics
    */
   export type Metrics = runtime.Metrics
   export type Metric<T> = runtime.Metric<T>
@@ -413,14 +459,14 @@ export namespace Prisma {
   export import Exact = $Public.Exact
 
   /**
-   * Prisma Client JS version: 5.22.0
-   * Query Engine version: 605197351a3c8bdd595af2d2a9bc3025bca48ea2
+   * Prisma Client JS version: 6.8.2
+   * Query Engine version: 2060c79ba17c6bb9f5823312b6f6b7f4a845738e
    */
   export type PrismaVersion = {
     client: string
   }
 
-  export const prismaVersion: PrismaVersion 
+  export const prismaVersion: PrismaVersion
 
   /**
    * Utility Types
@@ -436,15 +482,15 @@ export namespace Prisma {
 
   /**
    * Types of the values used to represent different kinds of `null` values when working with JSON fields.
-   * 
+   *
    * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
    */
   namespace NullTypes {
     /**
     * Type of `Prisma.DbNull`.
-    * 
+    *
     * You cannot use other instances of this class. Please use the `Prisma.DbNull` value.
-    * 
+    *
     * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
     */
     class DbNull {
@@ -454,9 +500,9 @@ export namespace Prisma {
 
     /**
     * Type of `Prisma.JsonNull`.
-    * 
+    *
     * You cannot use other instances of this class. Please use the `Prisma.JsonNull` value.
-    * 
+    *
     * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
     */
     class JsonNull {
@@ -466,9 +512,9 @@ export namespace Prisma {
 
     /**
     * Type of `Prisma.AnyNull`.
-    * 
+    *
     * You cannot use other instances of this class. Please use the `Prisma.AnyNull` value.
-    * 
+    *
     * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
     */
     class AnyNull {
@@ -479,21 +525,21 @@ export namespace Prisma {
 
   /**
    * Helper for filtering JSON entries that have `null` on the database (empty on the db)
-   * 
+   *
    * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
    */
   export const DbNull: NullTypes.DbNull
 
   /**
    * Helper for filtering JSON entries that have JSON `null` values (not empty on the db)
-   * 
+   *
    * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
    */
   export const JsonNull: NullTypes.JsonNull
 
   /**
    * Helper for filtering JSON entries that are `Prisma.DbNull` or `Prisma.JsonNull`
-   * 
+   *
    * @see https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-on-a-json-field
    */
   export const AnyNull: NullTypes.AnyNull
@@ -681,7 +727,7 @@ export namespace Prisma {
   type AtLeast<O extends object, K extends string> = NoExpand<
     O extends unknown
     ? | (K extends keyof O ? { [P in K]: O[P] } & O : O)
-      | {[P in keyof O as P extends K ? K : never]-?: O[P]} & O
+      | {[P in keyof O as P extends K ? P : never]-?: O[P]} & O
     : never>;
 
   type _Strict<U, _U = U> = U extends unknown ? U & OptionalFlat<_Record<Exclude<Keys<_U>, keyof U>, never>> : never;
@@ -803,7 +849,8 @@ export namespace Prisma {
     Payment: 'Payment',
     NotificationType: 'NotificationType',
     Notification: 'Notification',
-    UiSettings: 'UiSettings'
+    UiSettings: 'UiSettings',
+    Transaction: 'Transaction'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -813,13 +860,16 @@ export namespace Prisma {
     db?: Datasource
   }
 
-  interface TypeMapCb extends $Utils.Fn<{extArgs: $Extensions.InternalArgs, clientOptions: PrismaClientOptions }, $Utils.Record<string, any>> {
-    returns: Prisma.TypeMap<this['params']['extArgs'], this['params']['clientOptions']>
+  interface TypeMapCb<ClientOptions = {}> extends $Utils.Fn<{extArgs: $Extensions.InternalArgs }, $Utils.Record<string, any>> {
+    returns: Prisma.TypeMap<this['params']['extArgs'], ClientOptions extends { omit: infer OmitOptions } ? OmitOptions : {}>
   }
 
-  export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
+  export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> = {
+    globalOmitOptions: {
+      omit: GlobalOmitOptions
+    }
     meta: {
-      modelProps: "user" | "chama" | "membership" | "invite" | "contribution" | "payment" | "notificationType" | "notification" | "uiSettings"
+      modelProps: "user" | "chama" | "membership" | "invite" | "contribution" | "payment" | "notificationType" | "notification" | "uiSettings" | "transaction"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -874,6 +924,10 @@ export namespace Prisma {
           updateMany: {
             args: Prisma.UserUpdateManyArgs<ExtArgs>
             result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.UserUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UserPayload>[]
           }
           upsert: {
             args: Prisma.UserUpsertArgs<ExtArgs>
@@ -945,6 +999,10 @@ export namespace Prisma {
             args: Prisma.ChamaUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
+          updateManyAndReturn: {
+            args: Prisma.ChamaUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ChamaPayload>[]
+          }
           upsert: {
             args: Prisma.ChamaUpsertArgs<ExtArgs>
             result: $Utils.PayloadToResult<Prisma.$ChamaPayload>
@@ -1014,6 +1072,10 @@ export namespace Prisma {
           updateMany: {
             args: Prisma.MembershipUpdateManyArgs<ExtArgs>
             result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.MembershipUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MembershipPayload>[]
           }
           upsert: {
             args: Prisma.MembershipUpsertArgs<ExtArgs>
@@ -1085,6 +1147,10 @@ export namespace Prisma {
             args: Prisma.InviteUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
+          updateManyAndReturn: {
+            args: Prisma.InviteUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InvitePayload>[]
+          }
           upsert: {
             args: Prisma.InviteUpsertArgs<ExtArgs>
             result: $Utils.PayloadToResult<Prisma.$InvitePayload>
@@ -1154,6 +1220,10 @@ export namespace Prisma {
           updateMany: {
             args: Prisma.ContributionUpdateManyArgs<ExtArgs>
             result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ContributionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContributionPayload>[]
           }
           upsert: {
             args: Prisma.ContributionUpsertArgs<ExtArgs>
@@ -1225,6 +1295,10 @@ export namespace Prisma {
             args: Prisma.PaymentUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
+          updateManyAndReturn: {
+            args: Prisma.PaymentUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentPayload>[]
+          }
           upsert: {
             args: Prisma.PaymentUpsertArgs<ExtArgs>
             result: $Utils.PayloadToResult<Prisma.$PaymentPayload>
@@ -1294,6 +1368,10 @@ export namespace Prisma {
           updateMany: {
             args: Prisma.NotificationTypeUpdateManyArgs<ExtArgs>
             result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.NotificationTypeUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationTypePayload>[]
           }
           upsert: {
             args: Prisma.NotificationTypeUpsertArgs<ExtArgs>
@@ -1365,6 +1443,10 @@ export namespace Prisma {
             args: Prisma.NotificationUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
+          updateManyAndReturn: {
+            args: Prisma.NotificationUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NotificationPayload>[]
+          }
           upsert: {
             args: Prisma.NotificationUpsertArgs<ExtArgs>
             result: $Utils.PayloadToResult<Prisma.$NotificationPayload>
@@ -1435,6 +1517,10 @@ export namespace Prisma {
             args: Prisma.UiSettingsUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
+          updateManyAndReturn: {
+            args: Prisma.UiSettingsUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UiSettingsPayload>[]
+          }
           upsert: {
             args: Prisma.UiSettingsUpsertArgs<ExtArgs>
             result: $Utils.PayloadToResult<Prisma.$UiSettingsPayload>
@@ -1450,6 +1536,80 @@ export namespace Prisma {
           count: {
             args: Prisma.UiSettingsCountArgs<ExtArgs>
             result: $Utils.Optional<UiSettingsCountAggregateOutputType> | number
+          }
+        }
+      }
+      Transaction: {
+        payload: Prisma.$TransactionPayload<ExtArgs>
+        fields: Prisma.TransactionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TransactionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TransactionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TransactionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TransactionPayload>
+          }
+          findFirst: {
+            args: Prisma.TransactionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TransactionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TransactionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TransactionPayload>
+          }
+          findMany: {
+            args: Prisma.TransactionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TransactionPayload>[]
+          }
+          create: {
+            args: Prisma.TransactionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TransactionPayload>
+          }
+          createMany: {
+            args: Prisma.TransactionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.TransactionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TransactionPayload>[]
+          }
+          delete: {
+            args: Prisma.TransactionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TransactionPayload>
+          }
+          update: {
+            args: Prisma.TransactionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TransactionPayload>
+          }
+          deleteMany: {
+            args: Prisma.TransactionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TransactionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.TransactionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TransactionPayload>[]
+          }
+          upsert: {
+            args: Prisma.TransactionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TransactionPayload>
+          }
+          aggregate: {
+            args: Prisma.TransactionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTransaction>
+          }
+          groupBy: {
+            args: Prisma.TransactionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TransactionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TransactionCountArgs<ExtArgs>
+            result: $Utils.Optional<TransactionCountAggregateOutputType> | number
           }
         }
       }
@@ -1520,8 +1680,34 @@ export namespace Prisma {
       timeout?: number
       isolationLevel?: Prisma.TransactionIsolationLevel
     }
+    /**
+     * Global configuration for omitting model fields by default.
+     * 
+     * @example
+     * ```
+     * const prisma = new PrismaClient({
+     *   omit: {
+     *     user: {
+     *       password: true
+     *     }
+     *   }
+     * })
+     * ```
+     */
+    omit?: Prisma.GlobalOmitConfig
   }
-
+  export type GlobalOmitConfig = {
+    user?: UserOmit
+    chama?: ChamaOmit
+    membership?: MembershipOmit
+    invite?: InviteOmit
+    contribution?: ContributionOmit
+    payment?: PaymentOmit
+    notificationType?: NotificationTypeOmit
+    notification?: NotificationOmit
+    uiSettings?: UiSettingsOmit
+    transaction?: TransactionOmit
+  }
 
   /* Types for Logging */
   export type LogLevel = 'info' | 'query' | 'warn' | 'error'
@@ -1562,6 +1748,7 @@ export namespace Prisma {
     | 'createManyAndReturn'
     | 'update'
     | 'updateMany'
+    | 'updateManyAndReturn'
     | 'upsert'
     | 'delete'
     | 'deleteMany'
@@ -1618,6 +1805,7 @@ export namespace Prisma {
     contributions: number
     notifications: number
     Chama: number
+    transactions: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -1625,6 +1813,7 @@ export namespace Prisma {
     contributions?: boolean | UserCountOutputTypeCountContributionsArgs
     notifications?: boolean | UserCountOutputTypeCountNotificationsArgs
     Chama?: boolean | UserCountOutputTypeCountChamaArgs
+    transactions?: boolean | UserCountOutputTypeCountTransactionsArgs
   }
 
   // Custom InputTypes
@@ -1666,6 +1855,13 @@ export namespace Prisma {
     where?: ChamaWhereInput
   }
 
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountTransactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TransactionWhereInput
+  }
+
 
   /**
    * Count Type ChamaCountOutputType
@@ -1675,12 +1871,14 @@ export namespace Prisma {
     memberships: number
     contributions: number
     invites: number
+    transactions: number
   }
 
   export type ChamaCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     memberships?: boolean | ChamaCountOutputTypeCountMembershipsArgs
     contributions?: boolean | ChamaCountOutputTypeCountContributionsArgs
     invites?: boolean | ChamaCountOutputTypeCountInvitesArgs
+    transactions?: boolean | ChamaCountOutputTypeCountTransactionsArgs
   }
 
   // Custom InputTypes
@@ -1713,6 +1911,13 @@ export namespace Prisma {
    */
   export type ChamaCountOutputTypeCountInvitesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: InviteWhereInput
+  }
+
+  /**
+   * ChamaCountOutputType without action
+   */
+  export type ChamaCountOutputTypeCountTransactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TransactionWhereInput
   }
 
 
@@ -1983,10 +2188,23 @@ export namespace Prisma {
     notifications?: boolean | User$notificationsArgs<ExtArgs>
     uiSettings?: boolean | User$uiSettingsArgs<ExtArgs>
     Chama?: boolean | User$ChamaArgs<ExtArgs>
+    transactions?: boolean | User$transactionsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    email?: boolean
+    phone?: boolean
+    passwordHash?: boolean
+    role?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    activeUserType?: boolean
+  }, ExtArgs["result"]["user"]>
+
+  export type UserSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
     email?: boolean
@@ -2010,15 +2228,18 @@ export namespace Prisma {
     activeUserType?: boolean
   }
 
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "phone" | "passwordHash" | "role" | "createdAt" | "updatedAt" | "activeUserType", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     memberships?: boolean | User$membershipsArgs<ExtArgs>
     contributions?: boolean | User$contributionsArgs<ExtArgs>
     notifications?: boolean | User$notificationsArgs<ExtArgs>
     uiSettings?: boolean | User$uiSettingsArgs<ExtArgs>
     Chama?: boolean | User$ChamaArgs<ExtArgs>
+    transactions?: boolean | User$transactionsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type UserIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
   export type $UserPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "User"
@@ -2028,6 +2249,7 @@ export namespace Prisma {
       notifications: Prisma.$NotificationPayload<ExtArgs>[]
       uiSettings: Prisma.$UiSettingsPayload<ExtArgs> | null
       Chama: Prisma.$ChamaPayload<ExtArgs>[]
+      transactions: Prisma.$TransactionPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -2045,12 +2267,12 @@ export namespace Prisma {
 
   type UserGetPayload<S extends boolean | null | undefined | UserDefaultArgs> = $Result.GetResult<Prisma.$UserPayload, S>
 
-  type UserCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<UserFindManyArgs, 'select' | 'include' | 'distinct'> & {
+  type UserCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<UserFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
       select?: UserCountAggregateInputType | true
     }
 
-  export interface UserDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+  export interface UserDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
     [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['User'], meta: { name: 'User' } }
     /**
      * Find zero or one User that matches the filter.
@@ -2063,10 +2285,10 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUnique<T extends UserFindUniqueArgs>(args: SelectSubset<T, UserFindUniqueArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends UserFindUniqueArgs>(args: SelectSubset<T, UserFindUniqueArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find one User that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one User that matches the filter or throw an error with `error.code='P2025'`
      * if no matches were found.
      * @param {UserFindUniqueOrThrowArgs} args - Arguments to find a User
      * @example
@@ -2077,7 +2299,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUniqueOrThrow<T extends UserFindUniqueOrThrowArgs>(args: SelectSubset<T, UserFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends UserFindUniqueOrThrowArgs>(args: SelectSubset<T, UserFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Find the first User that matches the filter.
@@ -2092,7 +2314,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirst<T extends UserFindFirstArgs>(args?: SelectSubset<T, UserFindFirstArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends UserFindFirstArgs>(args?: SelectSubset<T, UserFindFirstArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
      * Find the first User that matches the filter or
@@ -2108,7 +2330,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirstOrThrow<T extends UserFindFirstOrThrowArgs>(args?: SelectSubset<T, UserFindFirstOrThrowArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends UserFindFirstOrThrowArgs>(args?: SelectSubset<T, UserFindFirstOrThrowArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Find zero or more Users that matches the filter.
@@ -2126,7 +2348,7 @@ export namespace Prisma {
      * const userWithIdOnly = await prisma.user.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends UserFindManyArgs>(args?: SelectSubset<T, UserFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends UserFindManyArgs>(args?: SelectSubset<T, UserFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
     /**
      * Create a User.
@@ -2140,7 +2362,7 @@ export namespace Prisma {
      * })
      * 
      */
-    create<T extends UserCreateArgs>(args: SelectSubset<T, UserCreateArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends UserCreateArgs>(args: SelectSubset<T, UserCreateArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Create many Users.
@@ -2168,7 +2390,7 @@ export namespace Prisma {
      * })
      * 
      * // Create many Users and only return the `id`
-     * const userWithIdOnly = await prisma.user.createManyAndReturn({ 
+     * const userWithIdOnly = await prisma.user.createManyAndReturn({
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -2178,7 +2400,7 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends UserCreateManyAndReturnArgs>(args?: SelectSubset<T, UserCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends UserCreateManyAndReturnArgs>(args?: SelectSubset<T, UserCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
     /**
      * Delete a User.
@@ -2192,7 +2414,7 @@ export namespace Prisma {
      * })
      * 
      */
-    delete<T extends UserDeleteArgs>(args: SelectSubset<T, UserDeleteArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends UserDeleteArgs>(args: SelectSubset<T, UserDeleteArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Update one User.
@@ -2209,7 +2431,7 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends UserUpdateArgs>(args: SelectSubset<T, UserUpdateArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends UserUpdateArgs>(args: SelectSubset<T, UserUpdateArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Delete zero or more Users.
@@ -2245,6 +2467,36 @@ export namespace Prisma {
     updateMany<T extends UserUpdateManyArgs>(args: SelectSubset<T, UserUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
+     * Update zero or more Users and returns the data updated in the database.
+     * @param {UserUpdateManyAndReturnArgs} args - Arguments to update many Users.
+     * @example
+     * // Update many Users
+     * const user = await prisma.user.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Users and only return the `id`
+     * const userWithIdOnly = await prisma.user.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends UserUpdateManyAndReturnArgs>(args: SelectSubset<T, UserUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
      * Create or update one User.
      * @param {UserUpsertArgs} args - Arguments to update or create a User.
      * @example
@@ -2261,7 +2513,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    upsert<T extends UserUpsertArgs>(args: SelectSubset<T, UserUpsertArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends UserUpsertArgs>(args: SelectSubset<T, UserUpsertArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
     /**
@@ -2401,13 +2653,14 @@ export namespace Prisma {
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__UserClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__UserClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    memberships<T extends User$membershipsArgs<ExtArgs> = {}>(args?: Subset<T, User$membershipsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "findMany"> | Null>
-    contributions<T extends User$contributionsArgs<ExtArgs> = {}>(args?: Subset<T, User$contributionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ContributionPayload<ExtArgs>, T, "findMany"> | Null>
-    notifications<T extends User$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany"> | Null>
-    uiSettings<T extends User$uiSettingsArgs<ExtArgs> = {}>(args?: Subset<T, User$uiSettingsArgs<ExtArgs>>): Prisma__UiSettingsClient<$Result.GetResult<Prisma.$UiSettingsPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
-    Chama<T extends User$ChamaArgs<ExtArgs> = {}>(args?: Subset<T, User$ChamaArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChamaPayload<ExtArgs>, T, "findMany"> | Null>
+    memberships<T extends User$membershipsArgs<ExtArgs> = {}>(args?: Subset<T, User$membershipsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    contributions<T extends User$contributionsArgs<ExtArgs> = {}>(args?: Subset<T, User$contributionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ContributionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    notifications<T extends User$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    uiSettings<T extends User$uiSettingsArgs<ExtArgs> = {}>(args?: Subset<T, User$uiSettingsArgs<ExtArgs>>): Prisma__UiSettingsClient<$Result.GetResult<Prisma.$UiSettingsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    Chama<T extends User$ChamaArgs<ExtArgs> = {}>(args?: Subset<T, User$ChamaArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChamaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    transactions<T extends User$transactionsArgs<ExtArgs> = {}>(args?: Subset<T, User$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2435,7 +2688,7 @@ export namespace Prisma {
 
   /**
    * Fields of the User model
-   */ 
+   */
   interface UserFieldRefs {
     readonly id: FieldRef<"User", 'String'>
     readonly name: FieldRef<"User", 'String'>
@@ -2459,6 +2712,10 @@ export namespace Prisma {
      */
     select?: UserSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: UserInclude<ExtArgs> | null
@@ -2477,6 +2734,10 @@ export namespace Prisma {
      */
     select?: UserSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: UserInclude<ExtArgs> | null
@@ -2494,6 +2755,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the User
      */
     select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -2543,6 +2808,10 @@ export namespace Prisma {
      */
     select?: UserSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: UserInclude<ExtArgs> | null
@@ -2591,6 +2860,10 @@ export namespace Prisma {
      */
     select?: UserSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: UserInclude<ExtArgs> | null
@@ -2634,6 +2907,10 @@ export namespace Prisma {
      */
     select?: UserSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: UserInclude<ExtArgs> | null
@@ -2663,6 +2940,10 @@ export namespace Prisma {
      */
     select?: UserSelectCreateManyAndReturn<ExtArgs> | null
     /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
      * The data used to create many Users.
      */
     data: UserCreateManyInput | UserCreateManyInput[]
@@ -2677,6 +2958,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the User
      */
     select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -2703,6 +2988,36 @@ export namespace Prisma {
      * Filter which Users to update
      */
     where?: UserWhereInput
+    /**
+     * Limit how many Users to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * User updateManyAndReturn
+   */
+  export type UserUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * The data used to update Users.
+     */
+    data: XOR<UserUpdateManyMutationInput, UserUncheckedUpdateManyInput>
+    /**
+     * Filter which Users to update
+     */
+    where?: UserWhereInput
+    /**
+     * Limit how many Users to update.
+     */
+    limit?: number
   }
 
   /**
@@ -2713,6 +3028,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the User
      */
     select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -2740,6 +3059,10 @@ export namespace Prisma {
      */
     select?: UserSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: UserInclude<ExtArgs> | null
@@ -2757,6 +3080,10 @@ export namespace Prisma {
      * Filter which Users to delete
      */
     where?: UserWhereInput
+    /**
+     * Limit how many Users to delete.
+     */
+    limit?: number
   }
 
   /**
@@ -2767,6 +3094,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the Membership
      */
     select?: MembershipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Membership
+     */
+    omit?: MembershipOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -2788,6 +3119,10 @@ export namespace Prisma {
      */
     select?: ContributionSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Contribution
+     */
+    omit?: ContributionOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ContributionInclude<ExtArgs> | null
@@ -2807,6 +3142,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the Notification
      */
     select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -2828,6 +3167,10 @@ export namespace Prisma {
      */
     select?: UiSettingsSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the UiSettings
+     */
+    omit?: UiSettingsOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: UiSettingsInclude<ExtArgs> | null
@@ -2843,6 +3186,10 @@ export namespace Prisma {
      */
     select?: ChamaSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Chama
+     */
+    omit?: ChamaOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ChamaInclude<ExtArgs> | null
@@ -2855,6 +3202,30 @@ export namespace Prisma {
   }
 
   /**
+   * User.transactions
+   */
+  export type User$transactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Transaction
+     */
+    select?: TransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Transaction
+     */
+    omit?: TransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TransactionInclude<ExtArgs> | null
+    where?: TransactionWhereInput
+    orderBy?: TransactionOrderByWithRelationInput | TransactionOrderByWithRelationInput[]
+    cursor?: TransactionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TransactionScalarFieldEnum | TransactionScalarFieldEnum[]
+  }
+
+  /**
    * User without action
    */
   export type UserDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2862,6 +3233,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the User
      */
     select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -3053,10 +3428,22 @@ export namespace Prisma {
     memberships?: boolean | Chama$membershipsArgs<ExtArgs>
     contributions?: boolean | Chama$contributionsArgs<ExtArgs>
     invites?: boolean | Chama$invitesArgs<ExtArgs>
+    transactions?: boolean | Chama$transactionsArgs<ExtArgs>
     _count?: boolean | ChamaCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["chama"]>
 
   export type ChamaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    rules?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    createdBy?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["chama"]>
+
+  export type ChamaSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
     description?: boolean
@@ -3077,14 +3464,19 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
+  export type ChamaOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "rules" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["chama"]>
   export type ChamaInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     createdBy?: boolean | UserDefaultArgs<ExtArgs>
     memberships?: boolean | Chama$membershipsArgs<ExtArgs>
     contributions?: boolean | Chama$contributionsArgs<ExtArgs>
     invites?: boolean | Chama$invitesArgs<ExtArgs>
+    transactions?: boolean | Chama$transactionsArgs<ExtArgs>
     _count?: boolean | ChamaCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type ChamaIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    createdBy?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type ChamaIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     createdBy?: boolean | UserDefaultArgs<ExtArgs>
   }
 
@@ -3095,6 +3487,7 @@ export namespace Prisma {
       memberships: Prisma.$MembershipPayload<ExtArgs>[]
       contributions: Prisma.$ContributionPayload<ExtArgs>[]
       invites: Prisma.$InvitePayload<ExtArgs>[]
+      transactions: Prisma.$TransactionPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -3110,12 +3503,12 @@ export namespace Prisma {
 
   type ChamaGetPayload<S extends boolean | null | undefined | ChamaDefaultArgs> = $Result.GetResult<Prisma.$ChamaPayload, S>
 
-  type ChamaCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<ChamaFindManyArgs, 'select' | 'include' | 'distinct'> & {
+  type ChamaCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ChamaFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
       select?: ChamaCountAggregateInputType | true
     }
 
-  export interface ChamaDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+  export interface ChamaDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
     [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Chama'], meta: { name: 'Chama' } }
     /**
      * Find zero or one Chama that matches the filter.
@@ -3128,10 +3521,10 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUnique<T extends ChamaFindUniqueArgs>(args: SelectSubset<T, ChamaFindUniqueArgs<ExtArgs>>): Prisma__ChamaClient<$Result.GetResult<Prisma.$ChamaPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends ChamaFindUniqueArgs>(args: SelectSubset<T, ChamaFindUniqueArgs<ExtArgs>>): Prisma__ChamaClient<$Result.GetResult<Prisma.$ChamaPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find one Chama that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one Chama that matches the filter or throw an error with `error.code='P2025'`
      * if no matches were found.
      * @param {ChamaFindUniqueOrThrowArgs} args - Arguments to find a Chama
      * @example
@@ -3142,7 +3535,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUniqueOrThrow<T extends ChamaFindUniqueOrThrowArgs>(args: SelectSubset<T, ChamaFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ChamaClient<$Result.GetResult<Prisma.$ChamaPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends ChamaFindUniqueOrThrowArgs>(args: SelectSubset<T, ChamaFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ChamaClient<$Result.GetResult<Prisma.$ChamaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Find the first Chama that matches the filter.
@@ -3157,7 +3550,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirst<T extends ChamaFindFirstArgs>(args?: SelectSubset<T, ChamaFindFirstArgs<ExtArgs>>): Prisma__ChamaClient<$Result.GetResult<Prisma.$ChamaPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends ChamaFindFirstArgs>(args?: SelectSubset<T, ChamaFindFirstArgs<ExtArgs>>): Prisma__ChamaClient<$Result.GetResult<Prisma.$ChamaPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
      * Find the first Chama that matches the filter or
@@ -3173,7 +3566,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirstOrThrow<T extends ChamaFindFirstOrThrowArgs>(args?: SelectSubset<T, ChamaFindFirstOrThrowArgs<ExtArgs>>): Prisma__ChamaClient<$Result.GetResult<Prisma.$ChamaPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends ChamaFindFirstOrThrowArgs>(args?: SelectSubset<T, ChamaFindFirstOrThrowArgs<ExtArgs>>): Prisma__ChamaClient<$Result.GetResult<Prisma.$ChamaPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Find zero or more Chamas that matches the filter.
@@ -3191,7 +3584,7 @@ export namespace Prisma {
      * const chamaWithIdOnly = await prisma.chama.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends ChamaFindManyArgs>(args?: SelectSubset<T, ChamaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChamaPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends ChamaFindManyArgs>(args?: SelectSubset<T, ChamaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChamaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
     /**
      * Create a Chama.
@@ -3205,7 +3598,7 @@ export namespace Prisma {
      * })
      * 
      */
-    create<T extends ChamaCreateArgs>(args: SelectSubset<T, ChamaCreateArgs<ExtArgs>>): Prisma__ChamaClient<$Result.GetResult<Prisma.$ChamaPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends ChamaCreateArgs>(args: SelectSubset<T, ChamaCreateArgs<ExtArgs>>): Prisma__ChamaClient<$Result.GetResult<Prisma.$ChamaPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Create many Chamas.
@@ -3233,7 +3626,7 @@ export namespace Prisma {
      * })
      * 
      * // Create many Chamas and only return the `id`
-     * const chamaWithIdOnly = await prisma.chama.createManyAndReturn({ 
+     * const chamaWithIdOnly = await prisma.chama.createManyAndReturn({
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -3243,7 +3636,7 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends ChamaCreateManyAndReturnArgs>(args?: SelectSubset<T, ChamaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChamaPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends ChamaCreateManyAndReturnArgs>(args?: SelectSubset<T, ChamaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChamaPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
     /**
      * Delete a Chama.
@@ -3257,7 +3650,7 @@ export namespace Prisma {
      * })
      * 
      */
-    delete<T extends ChamaDeleteArgs>(args: SelectSubset<T, ChamaDeleteArgs<ExtArgs>>): Prisma__ChamaClient<$Result.GetResult<Prisma.$ChamaPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends ChamaDeleteArgs>(args: SelectSubset<T, ChamaDeleteArgs<ExtArgs>>): Prisma__ChamaClient<$Result.GetResult<Prisma.$ChamaPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Update one Chama.
@@ -3274,7 +3667,7 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends ChamaUpdateArgs>(args: SelectSubset<T, ChamaUpdateArgs<ExtArgs>>): Prisma__ChamaClient<$Result.GetResult<Prisma.$ChamaPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends ChamaUpdateArgs>(args: SelectSubset<T, ChamaUpdateArgs<ExtArgs>>): Prisma__ChamaClient<$Result.GetResult<Prisma.$ChamaPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Delete zero or more Chamas.
@@ -3310,6 +3703,36 @@ export namespace Prisma {
     updateMany<T extends ChamaUpdateManyArgs>(args: SelectSubset<T, ChamaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
+     * Update zero or more Chamas and returns the data updated in the database.
+     * @param {ChamaUpdateManyAndReturnArgs} args - Arguments to update many Chamas.
+     * @example
+     * // Update many Chamas
+     * const chama = await prisma.chama.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Chamas and only return the `id`
+     * const chamaWithIdOnly = await prisma.chama.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ChamaUpdateManyAndReturnArgs>(args: SelectSubset<T, ChamaUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChamaPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
      * Create or update one Chama.
      * @param {ChamaUpsertArgs} args - Arguments to update or create a Chama.
      * @example
@@ -3326,7 +3749,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    upsert<T extends ChamaUpsertArgs>(args: SelectSubset<T, ChamaUpsertArgs<ExtArgs>>): Prisma__ChamaClient<$Result.GetResult<Prisma.$ChamaPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends ChamaUpsertArgs>(args: SelectSubset<T, ChamaUpsertArgs<ExtArgs>>): Prisma__ChamaClient<$Result.GetResult<Prisma.$ChamaPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
     /**
@@ -3466,12 +3889,13 @@ export namespace Prisma {
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__ChamaClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__ChamaClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    createdBy<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
-    memberships<T extends Chama$membershipsArgs<ExtArgs> = {}>(args?: Subset<T, Chama$membershipsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "findMany"> | Null>
-    contributions<T extends Chama$contributionsArgs<ExtArgs> = {}>(args?: Subset<T, Chama$contributionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ContributionPayload<ExtArgs>, T, "findMany"> | Null>
-    invites<T extends Chama$invitesArgs<ExtArgs> = {}>(args?: Subset<T, Chama$invitesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvitePayload<ExtArgs>, T, "findMany"> | Null>
+    createdBy<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    memberships<T extends Chama$membershipsArgs<ExtArgs> = {}>(args?: Subset<T, Chama$membershipsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    contributions<T extends Chama$contributionsArgs<ExtArgs> = {}>(args?: Subset<T, Chama$contributionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ContributionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    invites<T extends Chama$invitesArgs<ExtArgs> = {}>(args?: Subset<T, Chama$invitesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvitePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    transactions<T extends Chama$transactionsArgs<ExtArgs> = {}>(args?: Subset<T, Chama$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3499,7 +3923,7 @@ export namespace Prisma {
 
   /**
    * Fields of the Chama model
-   */ 
+   */
   interface ChamaFieldRefs {
     readonly id: FieldRef<"Chama", 'String'>
     readonly name: FieldRef<"Chama", 'String'>
@@ -3521,6 +3945,10 @@ export namespace Prisma {
      */
     select?: ChamaSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Chama
+     */
+    omit?: ChamaOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ChamaInclude<ExtArgs> | null
@@ -3539,6 +3967,10 @@ export namespace Prisma {
      */
     select?: ChamaSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Chama
+     */
+    omit?: ChamaOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ChamaInclude<ExtArgs> | null
@@ -3556,6 +3988,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the Chama
      */
     select?: ChamaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Chama
+     */
+    omit?: ChamaOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -3605,6 +4041,10 @@ export namespace Prisma {
      */
     select?: ChamaSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Chama
+     */
+    omit?: ChamaOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ChamaInclude<ExtArgs> | null
@@ -3653,6 +4093,10 @@ export namespace Prisma {
      */
     select?: ChamaSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Chama
+     */
+    omit?: ChamaOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ChamaInclude<ExtArgs> | null
@@ -3696,6 +4140,10 @@ export namespace Prisma {
      */
     select?: ChamaSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Chama
+     */
+    omit?: ChamaOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ChamaInclude<ExtArgs> | null
@@ -3725,6 +4173,10 @@ export namespace Prisma {
      */
     select?: ChamaSelectCreateManyAndReturn<ExtArgs> | null
     /**
+     * Omit specific fields from the Chama
+     */
+    omit?: ChamaOmit<ExtArgs> | null
+    /**
      * The data used to create many Chamas.
      */
     data: ChamaCreateManyInput | ChamaCreateManyInput[]
@@ -3743,6 +4195,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the Chama
      */
     select?: ChamaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Chama
+     */
+    omit?: ChamaOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -3769,6 +4225,40 @@ export namespace Prisma {
      * Filter which Chamas to update
      */
     where?: ChamaWhereInput
+    /**
+     * Limit how many Chamas to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Chama updateManyAndReturn
+   */
+  export type ChamaUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Chama
+     */
+    select?: ChamaSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Chama
+     */
+    omit?: ChamaOmit<ExtArgs> | null
+    /**
+     * The data used to update Chamas.
+     */
+    data: XOR<ChamaUpdateManyMutationInput, ChamaUncheckedUpdateManyInput>
+    /**
+     * Filter which Chamas to update
+     */
+    where?: ChamaWhereInput
+    /**
+     * Limit how many Chamas to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ChamaIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -3779,6 +4269,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the Chama
      */
     select?: ChamaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Chama
+     */
+    omit?: ChamaOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -3806,6 +4300,10 @@ export namespace Prisma {
      */
     select?: ChamaSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Chama
+     */
+    omit?: ChamaOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ChamaInclude<ExtArgs> | null
@@ -3823,6 +4321,10 @@ export namespace Prisma {
      * Filter which Chamas to delete
      */
     where?: ChamaWhereInput
+    /**
+     * Limit how many Chamas to delete.
+     */
+    limit?: number
   }
 
   /**
@@ -3833,6 +4335,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the Membership
      */
     select?: MembershipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Membership
+     */
+    omit?: MembershipOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -3854,6 +4360,10 @@ export namespace Prisma {
      */
     select?: ContributionSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Contribution
+     */
+    omit?: ContributionOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ContributionInclude<ExtArgs> | null
@@ -3874,6 +4384,10 @@ export namespace Prisma {
      */
     select?: InviteSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Invite
+     */
+    omit?: InviteOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: InviteInclude<ExtArgs> | null
@@ -3886,6 +4400,30 @@ export namespace Prisma {
   }
 
   /**
+   * Chama.transactions
+   */
+  export type Chama$transactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Transaction
+     */
+    select?: TransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Transaction
+     */
+    omit?: TransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TransactionInclude<ExtArgs> | null
+    where?: TransactionWhereInput
+    orderBy?: TransactionOrderByWithRelationInput | TransactionOrderByWithRelationInput[]
+    cursor?: TransactionWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TransactionScalarFieldEnum | TransactionScalarFieldEnum[]
+  }
+
+  /**
    * Chama without action
    */
   export type ChamaDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3893,6 +4431,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the Chama
      */
     select?: ChamaSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Chama
+     */
+    omit?: ChamaOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -4096,6 +4638,18 @@ export namespace Prisma {
     chama?: boolean | ChamaDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["membership"]>
 
+  export type MembershipSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    chamaId?: boolean
+    role?: boolean
+    joinedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    chama?: boolean | ChamaDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["membership"]>
+
   export type MembershipSelectScalar = {
     id?: boolean
     userId?: boolean
@@ -4106,11 +4660,16 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
+  export type MembershipOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "chamaId" | "role" | "joinedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["membership"]>
   export type MembershipInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     chama?: boolean | ChamaDefaultArgs<ExtArgs>
   }
   export type MembershipIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    chama?: boolean | ChamaDefaultArgs<ExtArgs>
+  }
+  export type MembershipIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     chama?: boolean | ChamaDefaultArgs<ExtArgs>
   }
@@ -4135,12 +4694,12 @@ export namespace Prisma {
 
   type MembershipGetPayload<S extends boolean | null | undefined | MembershipDefaultArgs> = $Result.GetResult<Prisma.$MembershipPayload, S>
 
-  type MembershipCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<MembershipFindManyArgs, 'select' | 'include' | 'distinct'> & {
+  type MembershipCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<MembershipFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
       select?: MembershipCountAggregateInputType | true
     }
 
-  export interface MembershipDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+  export interface MembershipDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
     [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Membership'], meta: { name: 'Membership' } }
     /**
      * Find zero or one Membership that matches the filter.
@@ -4153,10 +4712,10 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUnique<T extends MembershipFindUniqueArgs>(args: SelectSubset<T, MembershipFindUniqueArgs<ExtArgs>>): Prisma__MembershipClient<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends MembershipFindUniqueArgs>(args: SelectSubset<T, MembershipFindUniqueArgs<ExtArgs>>): Prisma__MembershipClient<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find one Membership that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one Membership that matches the filter or throw an error with `error.code='P2025'`
      * if no matches were found.
      * @param {MembershipFindUniqueOrThrowArgs} args - Arguments to find a Membership
      * @example
@@ -4167,7 +4726,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUniqueOrThrow<T extends MembershipFindUniqueOrThrowArgs>(args: SelectSubset<T, MembershipFindUniqueOrThrowArgs<ExtArgs>>): Prisma__MembershipClient<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends MembershipFindUniqueOrThrowArgs>(args: SelectSubset<T, MembershipFindUniqueOrThrowArgs<ExtArgs>>): Prisma__MembershipClient<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Find the first Membership that matches the filter.
@@ -4182,7 +4741,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirst<T extends MembershipFindFirstArgs>(args?: SelectSubset<T, MembershipFindFirstArgs<ExtArgs>>): Prisma__MembershipClient<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends MembershipFindFirstArgs>(args?: SelectSubset<T, MembershipFindFirstArgs<ExtArgs>>): Prisma__MembershipClient<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
      * Find the first Membership that matches the filter or
@@ -4198,7 +4757,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirstOrThrow<T extends MembershipFindFirstOrThrowArgs>(args?: SelectSubset<T, MembershipFindFirstOrThrowArgs<ExtArgs>>): Prisma__MembershipClient<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends MembershipFindFirstOrThrowArgs>(args?: SelectSubset<T, MembershipFindFirstOrThrowArgs<ExtArgs>>): Prisma__MembershipClient<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Find zero or more Memberships that matches the filter.
@@ -4216,7 +4775,7 @@ export namespace Prisma {
      * const membershipWithIdOnly = await prisma.membership.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends MembershipFindManyArgs>(args?: SelectSubset<T, MembershipFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends MembershipFindManyArgs>(args?: SelectSubset<T, MembershipFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
     /**
      * Create a Membership.
@@ -4230,7 +4789,7 @@ export namespace Prisma {
      * })
      * 
      */
-    create<T extends MembershipCreateArgs>(args: SelectSubset<T, MembershipCreateArgs<ExtArgs>>): Prisma__MembershipClient<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends MembershipCreateArgs>(args: SelectSubset<T, MembershipCreateArgs<ExtArgs>>): Prisma__MembershipClient<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Create many Memberships.
@@ -4258,7 +4817,7 @@ export namespace Prisma {
      * })
      * 
      * // Create many Memberships and only return the `id`
-     * const membershipWithIdOnly = await prisma.membership.createManyAndReturn({ 
+     * const membershipWithIdOnly = await prisma.membership.createManyAndReturn({
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -4268,7 +4827,7 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends MembershipCreateManyAndReturnArgs>(args?: SelectSubset<T, MembershipCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends MembershipCreateManyAndReturnArgs>(args?: SelectSubset<T, MembershipCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
     /**
      * Delete a Membership.
@@ -4282,7 +4841,7 @@ export namespace Prisma {
      * })
      * 
      */
-    delete<T extends MembershipDeleteArgs>(args: SelectSubset<T, MembershipDeleteArgs<ExtArgs>>): Prisma__MembershipClient<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends MembershipDeleteArgs>(args: SelectSubset<T, MembershipDeleteArgs<ExtArgs>>): Prisma__MembershipClient<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Update one Membership.
@@ -4299,7 +4858,7 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends MembershipUpdateArgs>(args: SelectSubset<T, MembershipUpdateArgs<ExtArgs>>): Prisma__MembershipClient<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends MembershipUpdateArgs>(args: SelectSubset<T, MembershipUpdateArgs<ExtArgs>>): Prisma__MembershipClient<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Delete zero or more Memberships.
@@ -4335,6 +4894,36 @@ export namespace Prisma {
     updateMany<T extends MembershipUpdateManyArgs>(args: SelectSubset<T, MembershipUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
+     * Update zero or more Memberships and returns the data updated in the database.
+     * @param {MembershipUpdateManyAndReturnArgs} args - Arguments to update many Memberships.
+     * @example
+     * // Update many Memberships
+     * const membership = await prisma.membership.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Memberships and only return the `id`
+     * const membershipWithIdOnly = await prisma.membership.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends MembershipUpdateManyAndReturnArgs>(args: SelectSubset<T, MembershipUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
      * Create or update one Membership.
      * @param {MembershipUpsertArgs} args - Arguments to update or create a Membership.
      * @example
@@ -4351,7 +4940,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    upsert<T extends MembershipUpsertArgs>(args: SelectSubset<T, MembershipUpsertArgs<ExtArgs>>): Prisma__MembershipClient<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends MembershipUpsertArgs>(args: SelectSubset<T, MembershipUpsertArgs<ExtArgs>>): Prisma__MembershipClient<$Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
     /**
@@ -4491,10 +5080,10 @@ export namespace Prisma {
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__MembershipClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__MembershipClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
-    chama<T extends ChamaDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ChamaDefaultArgs<ExtArgs>>): Prisma__ChamaClient<$Result.GetResult<Prisma.$ChamaPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    chama<T extends ChamaDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ChamaDefaultArgs<ExtArgs>>): Prisma__ChamaClient<$Result.GetResult<Prisma.$ChamaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4522,7 +5111,7 @@ export namespace Prisma {
 
   /**
    * Fields of the Membership model
-   */ 
+   */
   interface MembershipFieldRefs {
     readonly id: FieldRef<"Membership", 'String'>
     readonly userId: FieldRef<"Membership", 'String'>
@@ -4544,6 +5133,10 @@ export namespace Prisma {
      */
     select?: MembershipSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Membership
+     */
+    omit?: MembershipOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: MembershipInclude<ExtArgs> | null
@@ -4562,6 +5155,10 @@ export namespace Prisma {
      */
     select?: MembershipSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Membership
+     */
+    omit?: MembershipOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: MembershipInclude<ExtArgs> | null
@@ -4579,6 +5176,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the Membership
      */
     select?: MembershipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Membership
+     */
+    omit?: MembershipOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -4628,6 +5229,10 @@ export namespace Prisma {
      */
     select?: MembershipSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Membership
+     */
+    omit?: MembershipOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: MembershipInclude<ExtArgs> | null
@@ -4676,6 +5281,10 @@ export namespace Prisma {
      */
     select?: MembershipSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Membership
+     */
+    omit?: MembershipOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: MembershipInclude<ExtArgs> | null
@@ -4719,6 +5328,10 @@ export namespace Prisma {
      */
     select?: MembershipSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Membership
+     */
+    omit?: MembershipOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: MembershipInclude<ExtArgs> | null
@@ -4748,6 +5361,10 @@ export namespace Prisma {
      */
     select?: MembershipSelectCreateManyAndReturn<ExtArgs> | null
     /**
+     * Omit specific fields from the Membership
+     */
+    omit?: MembershipOmit<ExtArgs> | null
+    /**
      * The data used to create many Memberships.
      */
     data: MembershipCreateManyInput | MembershipCreateManyInput[]
@@ -4766,6 +5383,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the Membership
      */
     select?: MembershipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Membership
+     */
+    omit?: MembershipOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -4792,6 +5413,40 @@ export namespace Prisma {
      * Filter which Memberships to update
      */
     where?: MembershipWhereInput
+    /**
+     * Limit how many Memberships to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Membership updateManyAndReturn
+   */
+  export type MembershipUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Membership
+     */
+    select?: MembershipSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Membership
+     */
+    omit?: MembershipOmit<ExtArgs> | null
+    /**
+     * The data used to update Memberships.
+     */
+    data: XOR<MembershipUpdateManyMutationInput, MembershipUncheckedUpdateManyInput>
+    /**
+     * Filter which Memberships to update
+     */
+    where?: MembershipWhereInput
+    /**
+     * Limit how many Memberships to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MembershipIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -4802,6 +5457,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the Membership
      */
     select?: MembershipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Membership
+     */
+    omit?: MembershipOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -4829,6 +5488,10 @@ export namespace Prisma {
      */
     select?: MembershipSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Membership
+     */
+    omit?: MembershipOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: MembershipInclude<ExtArgs> | null
@@ -4846,6 +5509,10 @@ export namespace Prisma {
      * Filter which Memberships to delete
      */
     where?: MembershipWhereInput
+    /**
+     * Limit how many Memberships to delete.
+     */
+    limit?: number
   }
 
   /**
@@ -4856,6 +5523,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the Membership
      */
     select?: MembershipSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Membership
+     */
+    omit?: MembershipOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -5057,6 +5728,17 @@ export namespace Prisma {
     chama?: boolean | ChamaDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["invite"]>
 
+  export type InviteSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    chamaId?: boolean
+    token?: boolean
+    sentToEmail?: boolean
+    expiresAt?: boolean
+    usedAt?: boolean
+    createdAt?: boolean
+    chama?: boolean | ChamaDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["invite"]>
+
   export type InviteSelectScalar = {
     id?: boolean
     chamaId?: boolean
@@ -5067,10 +5749,14 @@ export namespace Prisma {
     createdAt?: boolean
   }
 
+  export type InviteOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "chamaId" | "token" | "sentToEmail" | "expiresAt" | "usedAt" | "createdAt", ExtArgs["result"]["invite"]>
   export type InviteInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     chama?: boolean | ChamaDefaultArgs<ExtArgs>
   }
   export type InviteIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    chama?: boolean | ChamaDefaultArgs<ExtArgs>
+  }
+  export type InviteIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     chama?: boolean | ChamaDefaultArgs<ExtArgs>
   }
 
@@ -5093,12 +5779,12 @@ export namespace Prisma {
 
   type InviteGetPayload<S extends boolean | null | undefined | InviteDefaultArgs> = $Result.GetResult<Prisma.$InvitePayload, S>
 
-  type InviteCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<InviteFindManyArgs, 'select' | 'include' | 'distinct'> & {
+  type InviteCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<InviteFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
       select?: InviteCountAggregateInputType | true
     }
 
-  export interface InviteDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+  export interface InviteDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
     [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Invite'], meta: { name: 'Invite' } }
     /**
      * Find zero or one Invite that matches the filter.
@@ -5111,10 +5797,10 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUnique<T extends InviteFindUniqueArgs>(args: SelectSubset<T, InviteFindUniqueArgs<ExtArgs>>): Prisma__InviteClient<$Result.GetResult<Prisma.$InvitePayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends InviteFindUniqueArgs>(args: SelectSubset<T, InviteFindUniqueArgs<ExtArgs>>): Prisma__InviteClient<$Result.GetResult<Prisma.$InvitePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find one Invite that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one Invite that matches the filter or throw an error with `error.code='P2025'`
      * if no matches were found.
      * @param {InviteFindUniqueOrThrowArgs} args - Arguments to find a Invite
      * @example
@@ -5125,7 +5811,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUniqueOrThrow<T extends InviteFindUniqueOrThrowArgs>(args: SelectSubset<T, InviteFindUniqueOrThrowArgs<ExtArgs>>): Prisma__InviteClient<$Result.GetResult<Prisma.$InvitePayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends InviteFindUniqueOrThrowArgs>(args: SelectSubset<T, InviteFindUniqueOrThrowArgs<ExtArgs>>): Prisma__InviteClient<$Result.GetResult<Prisma.$InvitePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Find the first Invite that matches the filter.
@@ -5140,7 +5826,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirst<T extends InviteFindFirstArgs>(args?: SelectSubset<T, InviteFindFirstArgs<ExtArgs>>): Prisma__InviteClient<$Result.GetResult<Prisma.$InvitePayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends InviteFindFirstArgs>(args?: SelectSubset<T, InviteFindFirstArgs<ExtArgs>>): Prisma__InviteClient<$Result.GetResult<Prisma.$InvitePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
      * Find the first Invite that matches the filter or
@@ -5156,7 +5842,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirstOrThrow<T extends InviteFindFirstOrThrowArgs>(args?: SelectSubset<T, InviteFindFirstOrThrowArgs<ExtArgs>>): Prisma__InviteClient<$Result.GetResult<Prisma.$InvitePayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends InviteFindFirstOrThrowArgs>(args?: SelectSubset<T, InviteFindFirstOrThrowArgs<ExtArgs>>): Prisma__InviteClient<$Result.GetResult<Prisma.$InvitePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Find zero or more Invites that matches the filter.
@@ -5174,7 +5860,7 @@ export namespace Prisma {
      * const inviteWithIdOnly = await prisma.invite.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends InviteFindManyArgs>(args?: SelectSubset<T, InviteFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvitePayload<ExtArgs>, T, "findMany">>
+    findMany<T extends InviteFindManyArgs>(args?: SelectSubset<T, InviteFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvitePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
     /**
      * Create a Invite.
@@ -5188,7 +5874,7 @@ export namespace Prisma {
      * })
      * 
      */
-    create<T extends InviteCreateArgs>(args: SelectSubset<T, InviteCreateArgs<ExtArgs>>): Prisma__InviteClient<$Result.GetResult<Prisma.$InvitePayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends InviteCreateArgs>(args: SelectSubset<T, InviteCreateArgs<ExtArgs>>): Prisma__InviteClient<$Result.GetResult<Prisma.$InvitePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Create many Invites.
@@ -5216,7 +5902,7 @@ export namespace Prisma {
      * })
      * 
      * // Create many Invites and only return the `id`
-     * const inviteWithIdOnly = await prisma.invite.createManyAndReturn({ 
+     * const inviteWithIdOnly = await prisma.invite.createManyAndReturn({
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -5226,7 +5912,7 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends InviteCreateManyAndReturnArgs>(args?: SelectSubset<T, InviteCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvitePayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends InviteCreateManyAndReturnArgs>(args?: SelectSubset<T, InviteCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvitePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
     /**
      * Delete a Invite.
@@ -5240,7 +5926,7 @@ export namespace Prisma {
      * })
      * 
      */
-    delete<T extends InviteDeleteArgs>(args: SelectSubset<T, InviteDeleteArgs<ExtArgs>>): Prisma__InviteClient<$Result.GetResult<Prisma.$InvitePayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends InviteDeleteArgs>(args: SelectSubset<T, InviteDeleteArgs<ExtArgs>>): Prisma__InviteClient<$Result.GetResult<Prisma.$InvitePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Update one Invite.
@@ -5257,7 +5943,7 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends InviteUpdateArgs>(args: SelectSubset<T, InviteUpdateArgs<ExtArgs>>): Prisma__InviteClient<$Result.GetResult<Prisma.$InvitePayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends InviteUpdateArgs>(args: SelectSubset<T, InviteUpdateArgs<ExtArgs>>): Prisma__InviteClient<$Result.GetResult<Prisma.$InvitePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Delete zero or more Invites.
@@ -5293,6 +5979,36 @@ export namespace Prisma {
     updateMany<T extends InviteUpdateManyArgs>(args: SelectSubset<T, InviteUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
+     * Update zero or more Invites and returns the data updated in the database.
+     * @param {InviteUpdateManyAndReturnArgs} args - Arguments to update many Invites.
+     * @example
+     * // Update many Invites
+     * const invite = await prisma.invite.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Invites and only return the `id`
+     * const inviteWithIdOnly = await prisma.invite.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends InviteUpdateManyAndReturnArgs>(args: SelectSubset<T, InviteUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InvitePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
      * Create or update one Invite.
      * @param {InviteUpsertArgs} args - Arguments to update or create a Invite.
      * @example
@@ -5309,7 +6025,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    upsert<T extends InviteUpsertArgs>(args: SelectSubset<T, InviteUpsertArgs<ExtArgs>>): Prisma__InviteClient<$Result.GetResult<Prisma.$InvitePayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends InviteUpsertArgs>(args: SelectSubset<T, InviteUpsertArgs<ExtArgs>>): Prisma__InviteClient<$Result.GetResult<Prisma.$InvitePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
     /**
@@ -5449,9 +6165,9 @@ export namespace Prisma {
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__InviteClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__InviteClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    chama<T extends ChamaDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ChamaDefaultArgs<ExtArgs>>): Prisma__ChamaClient<$Result.GetResult<Prisma.$ChamaPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    chama<T extends ChamaDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ChamaDefaultArgs<ExtArgs>>): Prisma__ChamaClient<$Result.GetResult<Prisma.$ChamaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5479,7 +6195,7 @@ export namespace Prisma {
 
   /**
    * Fields of the Invite model
-   */ 
+   */
   interface InviteFieldRefs {
     readonly id: FieldRef<"Invite", 'String'>
     readonly chamaId: FieldRef<"Invite", 'String'>
@@ -5501,6 +6217,10 @@ export namespace Prisma {
      */
     select?: InviteSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Invite
+     */
+    omit?: InviteOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: InviteInclude<ExtArgs> | null
@@ -5519,6 +6239,10 @@ export namespace Prisma {
      */
     select?: InviteSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Invite
+     */
+    omit?: InviteOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: InviteInclude<ExtArgs> | null
@@ -5536,6 +6260,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the Invite
      */
     select?: InviteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invite
+     */
+    omit?: InviteOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -5585,6 +6313,10 @@ export namespace Prisma {
      */
     select?: InviteSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Invite
+     */
+    omit?: InviteOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: InviteInclude<ExtArgs> | null
@@ -5633,6 +6365,10 @@ export namespace Prisma {
      */
     select?: InviteSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Invite
+     */
+    omit?: InviteOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: InviteInclude<ExtArgs> | null
@@ -5676,6 +6412,10 @@ export namespace Prisma {
      */
     select?: InviteSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Invite
+     */
+    omit?: InviteOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: InviteInclude<ExtArgs> | null
@@ -5705,6 +6445,10 @@ export namespace Prisma {
      */
     select?: InviteSelectCreateManyAndReturn<ExtArgs> | null
     /**
+     * Omit specific fields from the Invite
+     */
+    omit?: InviteOmit<ExtArgs> | null
+    /**
      * The data used to create many Invites.
      */
     data: InviteCreateManyInput | InviteCreateManyInput[]
@@ -5723,6 +6467,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the Invite
      */
     select?: InviteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invite
+     */
+    omit?: InviteOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -5749,6 +6497,40 @@ export namespace Prisma {
      * Filter which Invites to update
      */
     where?: InviteWhereInput
+    /**
+     * Limit how many Invites to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Invite updateManyAndReturn
+   */
+  export type InviteUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Invite
+     */
+    select?: InviteSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invite
+     */
+    omit?: InviteOmit<ExtArgs> | null
+    /**
+     * The data used to update Invites.
+     */
+    data: XOR<InviteUpdateManyMutationInput, InviteUncheckedUpdateManyInput>
+    /**
+     * Filter which Invites to update
+     */
+    where?: InviteWhereInput
+    /**
+     * Limit how many Invites to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InviteIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -5759,6 +6541,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the Invite
      */
     select?: InviteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invite
+     */
+    omit?: InviteOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -5786,6 +6572,10 @@ export namespace Prisma {
      */
     select?: InviteSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Invite
+     */
+    omit?: InviteOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: InviteInclude<ExtArgs> | null
@@ -5803,6 +6593,10 @@ export namespace Prisma {
      * Filter which Invites to delete
      */
     where?: InviteWhereInput
+    /**
+     * Limit how many Invites to delete.
+     */
+    limit?: number
   }
 
   /**
@@ -5813,6 +6607,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the Invite
      */
     select?: InviteSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Invite
+     */
+    omit?: InviteOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -6070,6 +6868,20 @@ export namespace Prisma {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["contribution"]>
 
+  export type ContributionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    chamaId?: boolean
+    userId?: boolean
+    amount?: boolean
+    currency?: boolean
+    status?: boolean
+    date?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    chama?: boolean | ChamaDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["contribution"]>
+
   export type ContributionSelectScalar = {
     id?: boolean
     chamaId?: boolean
@@ -6082,6 +6894,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
+  export type ContributionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "chamaId" | "userId" | "amount" | "currency" | "status" | "date" | "createdAt" | "updatedAt", ExtArgs["result"]["contribution"]>
   export type ContributionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     chama?: boolean | ChamaDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -6089,6 +6902,10 @@ export namespace Prisma {
     _count?: boolean | ContributionCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type ContributionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    chama?: boolean | ChamaDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type ContributionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     chama?: boolean | ChamaDefaultArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -6116,12 +6933,12 @@ export namespace Prisma {
 
   type ContributionGetPayload<S extends boolean | null | undefined | ContributionDefaultArgs> = $Result.GetResult<Prisma.$ContributionPayload, S>
 
-  type ContributionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<ContributionFindManyArgs, 'select' | 'include' | 'distinct'> & {
+  type ContributionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ContributionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
       select?: ContributionCountAggregateInputType | true
     }
 
-  export interface ContributionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+  export interface ContributionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
     [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Contribution'], meta: { name: 'Contribution' } }
     /**
      * Find zero or one Contribution that matches the filter.
@@ -6134,10 +6951,10 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUnique<T extends ContributionFindUniqueArgs>(args: SelectSubset<T, ContributionFindUniqueArgs<ExtArgs>>): Prisma__ContributionClient<$Result.GetResult<Prisma.$ContributionPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends ContributionFindUniqueArgs>(args: SelectSubset<T, ContributionFindUniqueArgs<ExtArgs>>): Prisma__ContributionClient<$Result.GetResult<Prisma.$ContributionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find one Contribution that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one Contribution that matches the filter or throw an error with `error.code='P2025'`
      * if no matches were found.
      * @param {ContributionFindUniqueOrThrowArgs} args - Arguments to find a Contribution
      * @example
@@ -6148,7 +6965,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUniqueOrThrow<T extends ContributionFindUniqueOrThrowArgs>(args: SelectSubset<T, ContributionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ContributionClient<$Result.GetResult<Prisma.$ContributionPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends ContributionFindUniqueOrThrowArgs>(args: SelectSubset<T, ContributionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ContributionClient<$Result.GetResult<Prisma.$ContributionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Find the first Contribution that matches the filter.
@@ -6163,7 +6980,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirst<T extends ContributionFindFirstArgs>(args?: SelectSubset<T, ContributionFindFirstArgs<ExtArgs>>): Prisma__ContributionClient<$Result.GetResult<Prisma.$ContributionPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends ContributionFindFirstArgs>(args?: SelectSubset<T, ContributionFindFirstArgs<ExtArgs>>): Prisma__ContributionClient<$Result.GetResult<Prisma.$ContributionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
      * Find the first Contribution that matches the filter or
@@ -6179,7 +6996,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirstOrThrow<T extends ContributionFindFirstOrThrowArgs>(args?: SelectSubset<T, ContributionFindFirstOrThrowArgs<ExtArgs>>): Prisma__ContributionClient<$Result.GetResult<Prisma.$ContributionPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends ContributionFindFirstOrThrowArgs>(args?: SelectSubset<T, ContributionFindFirstOrThrowArgs<ExtArgs>>): Prisma__ContributionClient<$Result.GetResult<Prisma.$ContributionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Find zero or more Contributions that matches the filter.
@@ -6197,7 +7014,7 @@ export namespace Prisma {
      * const contributionWithIdOnly = await prisma.contribution.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends ContributionFindManyArgs>(args?: SelectSubset<T, ContributionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ContributionPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends ContributionFindManyArgs>(args?: SelectSubset<T, ContributionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ContributionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
     /**
      * Create a Contribution.
@@ -6211,7 +7028,7 @@ export namespace Prisma {
      * })
      * 
      */
-    create<T extends ContributionCreateArgs>(args: SelectSubset<T, ContributionCreateArgs<ExtArgs>>): Prisma__ContributionClient<$Result.GetResult<Prisma.$ContributionPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends ContributionCreateArgs>(args: SelectSubset<T, ContributionCreateArgs<ExtArgs>>): Prisma__ContributionClient<$Result.GetResult<Prisma.$ContributionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Create many Contributions.
@@ -6239,7 +7056,7 @@ export namespace Prisma {
      * })
      * 
      * // Create many Contributions and only return the `id`
-     * const contributionWithIdOnly = await prisma.contribution.createManyAndReturn({ 
+     * const contributionWithIdOnly = await prisma.contribution.createManyAndReturn({
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -6249,7 +7066,7 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends ContributionCreateManyAndReturnArgs>(args?: SelectSubset<T, ContributionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ContributionPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends ContributionCreateManyAndReturnArgs>(args?: SelectSubset<T, ContributionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ContributionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
     /**
      * Delete a Contribution.
@@ -6263,7 +7080,7 @@ export namespace Prisma {
      * })
      * 
      */
-    delete<T extends ContributionDeleteArgs>(args: SelectSubset<T, ContributionDeleteArgs<ExtArgs>>): Prisma__ContributionClient<$Result.GetResult<Prisma.$ContributionPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends ContributionDeleteArgs>(args: SelectSubset<T, ContributionDeleteArgs<ExtArgs>>): Prisma__ContributionClient<$Result.GetResult<Prisma.$ContributionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Update one Contribution.
@@ -6280,7 +7097,7 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends ContributionUpdateArgs>(args: SelectSubset<T, ContributionUpdateArgs<ExtArgs>>): Prisma__ContributionClient<$Result.GetResult<Prisma.$ContributionPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends ContributionUpdateArgs>(args: SelectSubset<T, ContributionUpdateArgs<ExtArgs>>): Prisma__ContributionClient<$Result.GetResult<Prisma.$ContributionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Delete zero or more Contributions.
@@ -6316,6 +7133,36 @@ export namespace Prisma {
     updateMany<T extends ContributionUpdateManyArgs>(args: SelectSubset<T, ContributionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
+     * Update zero or more Contributions and returns the data updated in the database.
+     * @param {ContributionUpdateManyAndReturnArgs} args - Arguments to update many Contributions.
+     * @example
+     * // Update many Contributions
+     * const contribution = await prisma.contribution.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Contributions and only return the `id`
+     * const contributionWithIdOnly = await prisma.contribution.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ContributionUpdateManyAndReturnArgs>(args: SelectSubset<T, ContributionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ContributionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
      * Create or update one Contribution.
      * @param {ContributionUpsertArgs} args - Arguments to update or create a Contribution.
      * @example
@@ -6332,7 +7179,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    upsert<T extends ContributionUpsertArgs>(args: SelectSubset<T, ContributionUpsertArgs<ExtArgs>>): Prisma__ContributionClient<$Result.GetResult<Prisma.$ContributionPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends ContributionUpsertArgs>(args: SelectSubset<T, ContributionUpsertArgs<ExtArgs>>): Prisma__ContributionClient<$Result.GetResult<Prisma.$ContributionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
     /**
@@ -6472,11 +7319,11 @@ export namespace Prisma {
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__ContributionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__ContributionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    chama<T extends ChamaDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ChamaDefaultArgs<ExtArgs>>): Prisma__ChamaClient<$Result.GetResult<Prisma.$ChamaPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
-    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
-    payments<T extends Contribution$paymentsArgs<ExtArgs> = {}>(args?: Subset<T, Contribution$paymentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findMany"> | Null>
+    chama<T extends ChamaDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ChamaDefaultArgs<ExtArgs>>): Prisma__ChamaClient<$Result.GetResult<Prisma.$ChamaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    payments<T extends Contribution$paymentsArgs<ExtArgs> = {}>(args?: Subset<T, Contribution$paymentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6504,7 +7351,7 @@ export namespace Prisma {
 
   /**
    * Fields of the Contribution model
-   */ 
+   */
   interface ContributionFieldRefs {
     readonly id: FieldRef<"Contribution", 'String'>
     readonly chamaId: FieldRef<"Contribution", 'String'>
@@ -6528,6 +7375,10 @@ export namespace Prisma {
      */
     select?: ContributionSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Contribution
+     */
+    omit?: ContributionOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ContributionInclude<ExtArgs> | null
@@ -6546,6 +7397,10 @@ export namespace Prisma {
      */
     select?: ContributionSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Contribution
+     */
+    omit?: ContributionOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ContributionInclude<ExtArgs> | null
@@ -6563,6 +7418,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the Contribution
      */
     select?: ContributionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Contribution
+     */
+    omit?: ContributionOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -6612,6 +7471,10 @@ export namespace Prisma {
      */
     select?: ContributionSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Contribution
+     */
+    omit?: ContributionOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ContributionInclude<ExtArgs> | null
@@ -6660,6 +7523,10 @@ export namespace Prisma {
      */
     select?: ContributionSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Contribution
+     */
+    omit?: ContributionOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ContributionInclude<ExtArgs> | null
@@ -6703,6 +7570,10 @@ export namespace Prisma {
      */
     select?: ContributionSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Contribution
+     */
+    omit?: ContributionOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ContributionInclude<ExtArgs> | null
@@ -6732,6 +7603,10 @@ export namespace Prisma {
      */
     select?: ContributionSelectCreateManyAndReturn<ExtArgs> | null
     /**
+     * Omit specific fields from the Contribution
+     */
+    omit?: ContributionOmit<ExtArgs> | null
+    /**
      * The data used to create many Contributions.
      */
     data: ContributionCreateManyInput | ContributionCreateManyInput[]
@@ -6750,6 +7625,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the Contribution
      */
     select?: ContributionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Contribution
+     */
+    omit?: ContributionOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -6776,6 +7655,40 @@ export namespace Prisma {
      * Filter which Contributions to update
      */
     where?: ContributionWhereInput
+    /**
+     * Limit how many Contributions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Contribution updateManyAndReturn
+   */
+  export type ContributionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Contribution
+     */
+    select?: ContributionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Contribution
+     */
+    omit?: ContributionOmit<ExtArgs> | null
+    /**
+     * The data used to update Contributions.
+     */
+    data: XOR<ContributionUpdateManyMutationInput, ContributionUncheckedUpdateManyInput>
+    /**
+     * Filter which Contributions to update
+     */
+    where?: ContributionWhereInput
+    /**
+     * Limit how many Contributions to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ContributionIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -6786,6 +7699,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the Contribution
      */
     select?: ContributionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Contribution
+     */
+    omit?: ContributionOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -6813,6 +7730,10 @@ export namespace Prisma {
      */
     select?: ContributionSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Contribution
+     */
+    omit?: ContributionOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: ContributionInclude<ExtArgs> | null
@@ -6830,6 +7751,10 @@ export namespace Prisma {
      * Filter which Contributions to delete
      */
     where?: ContributionWhereInput
+    /**
+     * Limit how many Contributions to delete.
+     */
+    limit?: number
   }
 
   /**
@@ -6840,6 +7765,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the Payment
      */
     select?: PaymentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Payment
+     */
+    omit?: PaymentOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -6860,6 +7789,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the Contribution
      */
     select?: ContributionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Contribution
+     */
+    omit?: ContributionOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -7070,6 +8003,18 @@ export namespace Prisma {
     contribution?: boolean | ContributionDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["payment"]>
 
+  export type PaymentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    contributionId?: boolean
+    method?: boolean
+    externalRef?: boolean
+    status?: boolean
+    processedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    contribution?: boolean | ContributionDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["payment"]>
+
   export type PaymentSelectScalar = {
     id?: boolean
     contributionId?: boolean
@@ -7081,10 +8026,14 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
+  export type PaymentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "contributionId" | "method" | "externalRef" | "status" | "processedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["payment"]>
   export type PaymentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     contribution?: boolean | ContributionDefaultArgs<ExtArgs>
   }
   export type PaymentIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    contribution?: boolean | ContributionDefaultArgs<ExtArgs>
+  }
+  export type PaymentIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     contribution?: boolean | ContributionDefaultArgs<ExtArgs>
   }
 
@@ -7108,12 +8057,12 @@ export namespace Prisma {
 
   type PaymentGetPayload<S extends boolean | null | undefined | PaymentDefaultArgs> = $Result.GetResult<Prisma.$PaymentPayload, S>
 
-  type PaymentCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<PaymentFindManyArgs, 'select' | 'include' | 'distinct'> & {
+  type PaymentCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PaymentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
       select?: PaymentCountAggregateInputType | true
     }
 
-  export interface PaymentDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+  export interface PaymentDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
     [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Payment'], meta: { name: 'Payment' } }
     /**
      * Find zero or one Payment that matches the filter.
@@ -7126,10 +8075,10 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUnique<T extends PaymentFindUniqueArgs>(args: SelectSubset<T, PaymentFindUniqueArgs<ExtArgs>>): Prisma__PaymentClient<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends PaymentFindUniqueArgs>(args: SelectSubset<T, PaymentFindUniqueArgs<ExtArgs>>): Prisma__PaymentClient<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find one Payment that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one Payment that matches the filter or throw an error with `error.code='P2025'`
      * if no matches were found.
      * @param {PaymentFindUniqueOrThrowArgs} args - Arguments to find a Payment
      * @example
@@ -7140,7 +8089,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUniqueOrThrow<T extends PaymentFindUniqueOrThrowArgs>(args: SelectSubset<T, PaymentFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PaymentClient<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends PaymentFindUniqueOrThrowArgs>(args: SelectSubset<T, PaymentFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PaymentClient<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Find the first Payment that matches the filter.
@@ -7155,7 +8104,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirst<T extends PaymentFindFirstArgs>(args?: SelectSubset<T, PaymentFindFirstArgs<ExtArgs>>): Prisma__PaymentClient<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends PaymentFindFirstArgs>(args?: SelectSubset<T, PaymentFindFirstArgs<ExtArgs>>): Prisma__PaymentClient<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
      * Find the first Payment that matches the filter or
@@ -7171,7 +8120,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirstOrThrow<T extends PaymentFindFirstOrThrowArgs>(args?: SelectSubset<T, PaymentFindFirstOrThrowArgs<ExtArgs>>): Prisma__PaymentClient<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends PaymentFindFirstOrThrowArgs>(args?: SelectSubset<T, PaymentFindFirstOrThrowArgs<ExtArgs>>): Prisma__PaymentClient<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Find zero or more Payments that matches the filter.
@@ -7189,7 +8138,7 @@ export namespace Prisma {
      * const paymentWithIdOnly = await prisma.payment.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends PaymentFindManyArgs>(args?: SelectSubset<T, PaymentFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends PaymentFindManyArgs>(args?: SelectSubset<T, PaymentFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
     /**
      * Create a Payment.
@@ -7203,7 +8152,7 @@ export namespace Prisma {
      * })
      * 
      */
-    create<T extends PaymentCreateArgs>(args: SelectSubset<T, PaymentCreateArgs<ExtArgs>>): Prisma__PaymentClient<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends PaymentCreateArgs>(args: SelectSubset<T, PaymentCreateArgs<ExtArgs>>): Prisma__PaymentClient<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Create many Payments.
@@ -7231,7 +8180,7 @@ export namespace Prisma {
      * })
      * 
      * // Create many Payments and only return the `id`
-     * const paymentWithIdOnly = await prisma.payment.createManyAndReturn({ 
+     * const paymentWithIdOnly = await prisma.payment.createManyAndReturn({
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -7241,7 +8190,7 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends PaymentCreateManyAndReturnArgs>(args?: SelectSubset<T, PaymentCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends PaymentCreateManyAndReturnArgs>(args?: SelectSubset<T, PaymentCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
     /**
      * Delete a Payment.
@@ -7255,7 +8204,7 @@ export namespace Prisma {
      * })
      * 
      */
-    delete<T extends PaymentDeleteArgs>(args: SelectSubset<T, PaymentDeleteArgs<ExtArgs>>): Prisma__PaymentClient<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends PaymentDeleteArgs>(args: SelectSubset<T, PaymentDeleteArgs<ExtArgs>>): Prisma__PaymentClient<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Update one Payment.
@@ -7272,7 +8221,7 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends PaymentUpdateArgs>(args: SelectSubset<T, PaymentUpdateArgs<ExtArgs>>): Prisma__PaymentClient<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends PaymentUpdateArgs>(args: SelectSubset<T, PaymentUpdateArgs<ExtArgs>>): Prisma__PaymentClient<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Delete zero or more Payments.
@@ -7308,6 +8257,36 @@ export namespace Prisma {
     updateMany<T extends PaymentUpdateManyArgs>(args: SelectSubset<T, PaymentUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
+     * Update zero or more Payments and returns the data updated in the database.
+     * @param {PaymentUpdateManyAndReturnArgs} args - Arguments to update many Payments.
+     * @example
+     * // Update many Payments
+     * const payment = await prisma.payment.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Payments and only return the `id`
+     * const paymentWithIdOnly = await prisma.payment.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends PaymentUpdateManyAndReturnArgs>(args: SelectSubset<T, PaymentUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
      * Create or update one Payment.
      * @param {PaymentUpsertArgs} args - Arguments to update or create a Payment.
      * @example
@@ -7324,7 +8303,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    upsert<T extends PaymentUpsertArgs>(args: SelectSubset<T, PaymentUpsertArgs<ExtArgs>>): Prisma__PaymentClient<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends PaymentUpsertArgs>(args: SelectSubset<T, PaymentUpsertArgs<ExtArgs>>): Prisma__PaymentClient<$Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
     /**
@@ -7464,9 +8443,9 @@ export namespace Prisma {
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__PaymentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__PaymentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    contribution<T extends ContributionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ContributionDefaultArgs<ExtArgs>>): Prisma__ContributionClient<$Result.GetResult<Prisma.$ContributionPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    contribution<T extends ContributionDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ContributionDefaultArgs<ExtArgs>>): Prisma__ContributionClient<$Result.GetResult<Prisma.$ContributionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7494,7 +8473,7 @@ export namespace Prisma {
 
   /**
    * Fields of the Payment model
-   */ 
+   */
   interface PaymentFieldRefs {
     readonly id: FieldRef<"Payment", 'String'>
     readonly contributionId: FieldRef<"Payment", 'String'>
@@ -7517,6 +8496,10 @@ export namespace Prisma {
      */
     select?: PaymentSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Payment
+     */
+    omit?: PaymentOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: PaymentInclude<ExtArgs> | null
@@ -7535,6 +8518,10 @@ export namespace Prisma {
      */
     select?: PaymentSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Payment
+     */
+    omit?: PaymentOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: PaymentInclude<ExtArgs> | null
@@ -7552,6 +8539,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the Payment
      */
     select?: PaymentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Payment
+     */
+    omit?: PaymentOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -7601,6 +8592,10 @@ export namespace Prisma {
      */
     select?: PaymentSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Payment
+     */
+    omit?: PaymentOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: PaymentInclude<ExtArgs> | null
@@ -7649,6 +8644,10 @@ export namespace Prisma {
      */
     select?: PaymentSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Payment
+     */
+    omit?: PaymentOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: PaymentInclude<ExtArgs> | null
@@ -7692,6 +8691,10 @@ export namespace Prisma {
      */
     select?: PaymentSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Payment
+     */
+    omit?: PaymentOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: PaymentInclude<ExtArgs> | null
@@ -7721,6 +8724,10 @@ export namespace Prisma {
      */
     select?: PaymentSelectCreateManyAndReturn<ExtArgs> | null
     /**
+     * Omit specific fields from the Payment
+     */
+    omit?: PaymentOmit<ExtArgs> | null
+    /**
      * The data used to create many Payments.
      */
     data: PaymentCreateManyInput | PaymentCreateManyInput[]
@@ -7739,6 +8746,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the Payment
      */
     select?: PaymentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Payment
+     */
+    omit?: PaymentOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -7765,6 +8776,40 @@ export namespace Prisma {
      * Filter which Payments to update
      */
     where?: PaymentWhereInput
+    /**
+     * Limit how many Payments to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Payment updateManyAndReturn
+   */
+  export type PaymentUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Payment
+     */
+    select?: PaymentSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Payment
+     */
+    omit?: PaymentOmit<ExtArgs> | null
+    /**
+     * The data used to update Payments.
+     */
+    data: XOR<PaymentUpdateManyMutationInput, PaymentUncheckedUpdateManyInput>
+    /**
+     * Filter which Payments to update
+     */
+    where?: PaymentWhereInput
+    /**
+     * Limit how many Payments to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -7775,6 +8820,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the Payment
      */
     select?: PaymentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Payment
+     */
+    omit?: PaymentOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -7802,6 +8851,10 @@ export namespace Prisma {
      */
     select?: PaymentSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Payment
+     */
+    omit?: PaymentOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: PaymentInclude<ExtArgs> | null
@@ -7819,6 +8872,10 @@ export namespace Prisma {
      * Filter which Payments to delete
      */
     where?: PaymentWhereInput
+    /**
+     * Limit how many Payments to delete.
+     */
+    limit?: number
   }
 
   /**
@@ -7829,6 +8886,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the Payment
      */
     select?: PaymentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Payment
+     */
+    omit?: PaymentOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -8037,6 +9098,13 @@ export namespace Prisma {
     defaultDelivery?: boolean
   }, ExtArgs["result"]["notificationType"]>
 
+  export type NotificationTypeSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    defaultDelivery?: boolean
+  }, ExtArgs["result"]["notificationType"]>
+
   export type NotificationTypeSelectScalar = {
     id?: boolean
     name?: boolean
@@ -8044,11 +9112,13 @@ export namespace Prisma {
     defaultDelivery?: boolean
   }
 
+  export type NotificationTypeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "defaultDelivery", ExtArgs["result"]["notificationType"]>
   export type NotificationTypeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     notifications?: boolean | NotificationType$notificationsArgs<ExtArgs>
     _count?: boolean | NotificationTypeCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type NotificationTypeIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type NotificationTypeIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
   export type $NotificationTypePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "NotificationType"
@@ -8066,12 +9136,12 @@ export namespace Prisma {
 
   type NotificationTypeGetPayload<S extends boolean | null | undefined | NotificationTypeDefaultArgs> = $Result.GetResult<Prisma.$NotificationTypePayload, S>
 
-  type NotificationTypeCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<NotificationTypeFindManyArgs, 'select' | 'include' | 'distinct'> & {
+  type NotificationTypeCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<NotificationTypeFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
       select?: NotificationTypeCountAggregateInputType | true
     }
 
-  export interface NotificationTypeDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+  export interface NotificationTypeDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
     [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['NotificationType'], meta: { name: 'NotificationType' } }
     /**
      * Find zero or one NotificationType that matches the filter.
@@ -8084,10 +9154,10 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUnique<T extends NotificationTypeFindUniqueArgs>(args: SelectSubset<T, NotificationTypeFindUniqueArgs<ExtArgs>>): Prisma__NotificationTypeClient<$Result.GetResult<Prisma.$NotificationTypePayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends NotificationTypeFindUniqueArgs>(args: SelectSubset<T, NotificationTypeFindUniqueArgs<ExtArgs>>): Prisma__NotificationTypeClient<$Result.GetResult<Prisma.$NotificationTypePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find one NotificationType that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one NotificationType that matches the filter or throw an error with `error.code='P2025'`
      * if no matches were found.
      * @param {NotificationTypeFindUniqueOrThrowArgs} args - Arguments to find a NotificationType
      * @example
@@ -8098,7 +9168,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUniqueOrThrow<T extends NotificationTypeFindUniqueOrThrowArgs>(args: SelectSubset<T, NotificationTypeFindUniqueOrThrowArgs<ExtArgs>>): Prisma__NotificationTypeClient<$Result.GetResult<Prisma.$NotificationTypePayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends NotificationTypeFindUniqueOrThrowArgs>(args: SelectSubset<T, NotificationTypeFindUniqueOrThrowArgs<ExtArgs>>): Prisma__NotificationTypeClient<$Result.GetResult<Prisma.$NotificationTypePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Find the first NotificationType that matches the filter.
@@ -8113,7 +9183,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirst<T extends NotificationTypeFindFirstArgs>(args?: SelectSubset<T, NotificationTypeFindFirstArgs<ExtArgs>>): Prisma__NotificationTypeClient<$Result.GetResult<Prisma.$NotificationTypePayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends NotificationTypeFindFirstArgs>(args?: SelectSubset<T, NotificationTypeFindFirstArgs<ExtArgs>>): Prisma__NotificationTypeClient<$Result.GetResult<Prisma.$NotificationTypePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
      * Find the first NotificationType that matches the filter or
@@ -8129,7 +9199,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirstOrThrow<T extends NotificationTypeFindFirstOrThrowArgs>(args?: SelectSubset<T, NotificationTypeFindFirstOrThrowArgs<ExtArgs>>): Prisma__NotificationTypeClient<$Result.GetResult<Prisma.$NotificationTypePayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends NotificationTypeFindFirstOrThrowArgs>(args?: SelectSubset<T, NotificationTypeFindFirstOrThrowArgs<ExtArgs>>): Prisma__NotificationTypeClient<$Result.GetResult<Prisma.$NotificationTypePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Find zero or more NotificationTypes that matches the filter.
@@ -8147,7 +9217,7 @@ export namespace Prisma {
      * const notificationTypeWithIdOnly = await prisma.notificationType.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends NotificationTypeFindManyArgs>(args?: SelectSubset<T, NotificationTypeFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationTypePayload<ExtArgs>, T, "findMany">>
+    findMany<T extends NotificationTypeFindManyArgs>(args?: SelectSubset<T, NotificationTypeFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationTypePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
     /**
      * Create a NotificationType.
@@ -8161,7 +9231,7 @@ export namespace Prisma {
      * })
      * 
      */
-    create<T extends NotificationTypeCreateArgs>(args: SelectSubset<T, NotificationTypeCreateArgs<ExtArgs>>): Prisma__NotificationTypeClient<$Result.GetResult<Prisma.$NotificationTypePayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends NotificationTypeCreateArgs>(args: SelectSubset<T, NotificationTypeCreateArgs<ExtArgs>>): Prisma__NotificationTypeClient<$Result.GetResult<Prisma.$NotificationTypePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Create many NotificationTypes.
@@ -8189,7 +9259,7 @@ export namespace Prisma {
      * })
      * 
      * // Create many NotificationTypes and only return the `id`
-     * const notificationTypeWithIdOnly = await prisma.notificationType.createManyAndReturn({ 
+     * const notificationTypeWithIdOnly = await prisma.notificationType.createManyAndReturn({
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -8199,7 +9269,7 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends NotificationTypeCreateManyAndReturnArgs>(args?: SelectSubset<T, NotificationTypeCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationTypePayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends NotificationTypeCreateManyAndReturnArgs>(args?: SelectSubset<T, NotificationTypeCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationTypePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
     /**
      * Delete a NotificationType.
@@ -8213,7 +9283,7 @@ export namespace Prisma {
      * })
      * 
      */
-    delete<T extends NotificationTypeDeleteArgs>(args: SelectSubset<T, NotificationTypeDeleteArgs<ExtArgs>>): Prisma__NotificationTypeClient<$Result.GetResult<Prisma.$NotificationTypePayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends NotificationTypeDeleteArgs>(args: SelectSubset<T, NotificationTypeDeleteArgs<ExtArgs>>): Prisma__NotificationTypeClient<$Result.GetResult<Prisma.$NotificationTypePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Update one NotificationType.
@@ -8230,7 +9300,7 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends NotificationTypeUpdateArgs>(args: SelectSubset<T, NotificationTypeUpdateArgs<ExtArgs>>): Prisma__NotificationTypeClient<$Result.GetResult<Prisma.$NotificationTypePayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends NotificationTypeUpdateArgs>(args: SelectSubset<T, NotificationTypeUpdateArgs<ExtArgs>>): Prisma__NotificationTypeClient<$Result.GetResult<Prisma.$NotificationTypePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Delete zero or more NotificationTypes.
@@ -8266,6 +9336,36 @@ export namespace Prisma {
     updateMany<T extends NotificationTypeUpdateManyArgs>(args: SelectSubset<T, NotificationTypeUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
+     * Update zero or more NotificationTypes and returns the data updated in the database.
+     * @param {NotificationTypeUpdateManyAndReturnArgs} args - Arguments to update many NotificationTypes.
+     * @example
+     * // Update many NotificationTypes
+     * const notificationType = await prisma.notificationType.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more NotificationTypes and only return the `id`
+     * const notificationTypeWithIdOnly = await prisma.notificationType.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends NotificationTypeUpdateManyAndReturnArgs>(args: SelectSubset<T, NotificationTypeUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationTypePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
      * Create or update one NotificationType.
      * @param {NotificationTypeUpsertArgs} args - Arguments to update or create a NotificationType.
      * @example
@@ -8282,7 +9382,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    upsert<T extends NotificationTypeUpsertArgs>(args: SelectSubset<T, NotificationTypeUpsertArgs<ExtArgs>>): Prisma__NotificationTypeClient<$Result.GetResult<Prisma.$NotificationTypePayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends NotificationTypeUpsertArgs>(args: SelectSubset<T, NotificationTypeUpsertArgs<ExtArgs>>): Prisma__NotificationTypeClient<$Result.GetResult<Prisma.$NotificationTypePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
     /**
@@ -8422,9 +9522,9 @@ export namespace Prisma {
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__NotificationTypeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__NotificationTypeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    notifications<T extends NotificationType$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, NotificationType$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany"> | Null>
+    notifications<T extends NotificationType$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, NotificationType$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8452,7 +9552,7 @@ export namespace Prisma {
 
   /**
    * Fields of the NotificationType model
-   */ 
+   */
   interface NotificationTypeFieldRefs {
     readonly id: FieldRef<"NotificationType", 'Int'>
     readonly name: FieldRef<"NotificationType", 'String'>
@@ -8470,6 +9570,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the NotificationType
      */
     select?: NotificationTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NotificationType
+     */
+    omit?: NotificationTypeOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -8489,6 +9593,10 @@ export namespace Prisma {
      */
     select?: NotificationTypeSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the NotificationType
+     */
+    omit?: NotificationTypeOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: NotificationTypeInclude<ExtArgs> | null
@@ -8506,6 +9614,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the NotificationType
      */
     select?: NotificationTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NotificationType
+     */
+    omit?: NotificationTypeOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -8555,6 +9667,10 @@ export namespace Prisma {
      */
     select?: NotificationTypeSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the NotificationType
+     */
+    omit?: NotificationTypeOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: NotificationTypeInclude<ExtArgs> | null
@@ -8603,6 +9719,10 @@ export namespace Prisma {
      */
     select?: NotificationTypeSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the NotificationType
+     */
+    omit?: NotificationTypeOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: NotificationTypeInclude<ExtArgs> | null
@@ -8646,6 +9766,10 @@ export namespace Prisma {
      */
     select?: NotificationTypeSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the NotificationType
+     */
+    omit?: NotificationTypeOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: NotificationTypeInclude<ExtArgs> | null
@@ -8675,6 +9799,10 @@ export namespace Prisma {
      */
     select?: NotificationTypeSelectCreateManyAndReturn<ExtArgs> | null
     /**
+     * Omit specific fields from the NotificationType
+     */
+    omit?: NotificationTypeOmit<ExtArgs> | null
+    /**
      * The data used to create many NotificationTypes.
      */
     data: NotificationTypeCreateManyInput | NotificationTypeCreateManyInput[]
@@ -8689,6 +9817,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the NotificationType
      */
     select?: NotificationTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NotificationType
+     */
+    omit?: NotificationTypeOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -8715,6 +9847,36 @@ export namespace Prisma {
      * Filter which NotificationTypes to update
      */
     where?: NotificationTypeWhereInput
+    /**
+     * Limit how many NotificationTypes to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * NotificationType updateManyAndReturn
+   */
+  export type NotificationTypeUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NotificationType
+     */
+    select?: NotificationTypeSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the NotificationType
+     */
+    omit?: NotificationTypeOmit<ExtArgs> | null
+    /**
+     * The data used to update NotificationTypes.
+     */
+    data: XOR<NotificationTypeUpdateManyMutationInput, NotificationTypeUncheckedUpdateManyInput>
+    /**
+     * Filter which NotificationTypes to update
+     */
+    where?: NotificationTypeWhereInput
+    /**
+     * Limit how many NotificationTypes to update.
+     */
+    limit?: number
   }
 
   /**
@@ -8725,6 +9887,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the NotificationType
      */
     select?: NotificationTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NotificationType
+     */
+    omit?: NotificationTypeOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -8752,6 +9918,10 @@ export namespace Prisma {
      */
     select?: NotificationTypeSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the NotificationType
+     */
+    omit?: NotificationTypeOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: NotificationTypeInclude<ExtArgs> | null
@@ -8769,6 +9939,10 @@ export namespace Prisma {
      * Filter which NotificationTypes to delete
      */
     where?: NotificationTypeWhereInput
+    /**
+     * Limit how many NotificationTypes to delete.
+     */
+    limit?: number
   }
 
   /**
@@ -8779,6 +9953,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the Notification
      */
     select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -8799,6 +9977,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the NotificationType
      */
     select?: NotificationTypeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NotificationType
+     */
+    omit?: NotificationTypeOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -9045,6 +10227,19 @@ export namespace Prisma {
     type?: boolean | NotificationTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["notification"]>
 
+  export type NotificationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    typeId?: boolean
+    title?: boolean
+    body?: boolean
+    readAt?: boolean
+    sentAt?: boolean
+    createdAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    type?: boolean | NotificationTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["notification"]>
+
   export type NotificationSelectScalar = {
     id?: boolean
     userId?: boolean
@@ -9056,11 +10251,16 @@ export namespace Prisma {
     createdAt?: boolean
   }
 
+  export type NotificationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "typeId" | "title" | "body" | "readAt" | "sentAt" | "createdAt", ExtArgs["result"]["notification"]>
   export type NotificationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     type?: boolean | NotificationTypeDefaultArgs<ExtArgs>
   }
   export type NotificationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+    type?: boolean | NotificationTypeDefaultArgs<ExtArgs>
+  }
+  export type NotificationIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     type?: boolean | NotificationTypeDefaultArgs<ExtArgs>
   }
@@ -9086,12 +10286,12 @@ export namespace Prisma {
 
   type NotificationGetPayload<S extends boolean | null | undefined | NotificationDefaultArgs> = $Result.GetResult<Prisma.$NotificationPayload, S>
 
-  type NotificationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<NotificationFindManyArgs, 'select' | 'include' | 'distinct'> & {
+  type NotificationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<NotificationFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
       select?: NotificationCountAggregateInputType | true
     }
 
-  export interface NotificationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+  export interface NotificationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
     [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Notification'], meta: { name: 'Notification' } }
     /**
      * Find zero or one Notification that matches the filter.
@@ -9104,10 +10304,10 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUnique<T extends NotificationFindUniqueArgs>(args: SelectSubset<T, NotificationFindUniqueArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends NotificationFindUniqueArgs>(args: SelectSubset<T, NotificationFindUniqueArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find one Notification that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one Notification that matches the filter or throw an error with `error.code='P2025'`
      * if no matches were found.
      * @param {NotificationFindUniqueOrThrowArgs} args - Arguments to find a Notification
      * @example
@@ -9118,7 +10318,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUniqueOrThrow<T extends NotificationFindUniqueOrThrowArgs>(args: SelectSubset<T, NotificationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends NotificationFindUniqueOrThrowArgs>(args: SelectSubset<T, NotificationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Find the first Notification that matches the filter.
@@ -9133,7 +10333,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirst<T extends NotificationFindFirstArgs>(args?: SelectSubset<T, NotificationFindFirstArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends NotificationFindFirstArgs>(args?: SelectSubset<T, NotificationFindFirstArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
      * Find the first Notification that matches the filter or
@@ -9149,7 +10349,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirstOrThrow<T extends NotificationFindFirstOrThrowArgs>(args?: SelectSubset<T, NotificationFindFirstOrThrowArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends NotificationFindFirstOrThrowArgs>(args?: SelectSubset<T, NotificationFindFirstOrThrowArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Find zero or more Notifications that matches the filter.
@@ -9167,7 +10367,7 @@ export namespace Prisma {
      * const notificationWithIdOnly = await prisma.notification.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends NotificationFindManyArgs>(args?: SelectSubset<T, NotificationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends NotificationFindManyArgs>(args?: SelectSubset<T, NotificationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
     /**
      * Create a Notification.
@@ -9181,7 +10381,7 @@ export namespace Prisma {
      * })
      * 
      */
-    create<T extends NotificationCreateArgs>(args: SelectSubset<T, NotificationCreateArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends NotificationCreateArgs>(args: SelectSubset<T, NotificationCreateArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Create many Notifications.
@@ -9209,7 +10409,7 @@ export namespace Prisma {
      * })
      * 
      * // Create many Notifications and only return the `id`
-     * const notificationWithIdOnly = await prisma.notification.createManyAndReturn({ 
+     * const notificationWithIdOnly = await prisma.notification.createManyAndReturn({
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -9219,7 +10419,7 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends NotificationCreateManyAndReturnArgs>(args?: SelectSubset<T, NotificationCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends NotificationCreateManyAndReturnArgs>(args?: SelectSubset<T, NotificationCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
     /**
      * Delete a Notification.
@@ -9233,7 +10433,7 @@ export namespace Prisma {
      * })
      * 
      */
-    delete<T extends NotificationDeleteArgs>(args: SelectSubset<T, NotificationDeleteArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends NotificationDeleteArgs>(args: SelectSubset<T, NotificationDeleteArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Update one Notification.
@@ -9250,7 +10450,7 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends NotificationUpdateArgs>(args: SelectSubset<T, NotificationUpdateArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends NotificationUpdateArgs>(args: SelectSubset<T, NotificationUpdateArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Delete zero or more Notifications.
@@ -9286,6 +10486,36 @@ export namespace Prisma {
     updateMany<T extends NotificationUpdateManyArgs>(args: SelectSubset<T, NotificationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
+     * Update zero or more Notifications and returns the data updated in the database.
+     * @param {NotificationUpdateManyAndReturnArgs} args - Arguments to update many Notifications.
+     * @example
+     * // Update many Notifications
+     * const notification = await prisma.notification.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Notifications and only return the `id`
+     * const notificationWithIdOnly = await prisma.notification.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends NotificationUpdateManyAndReturnArgs>(args: SelectSubset<T, NotificationUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
      * Create or update one Notification.
      * @param {NotificationUpsertArgs} args - Arguments to update or create a Notification.
      * @example
@@ -9302,7 +10532,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    upsert<T extends NotificationUpsertArgs>(args: SelectSubset<T, NotificationUpsertArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends NotificationUpsertArgs>(args: SelectSubset<T, NotificationUpsertArgs<ExtArgs>>): Prisma__NotificationClient<$Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
     /**
@@ -9442,10 +10672,10 @@ export namespace Prisma {
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__NotificationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__NotificationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
-    type<T extends NotificationTypeDefaultArgs<ExtArgs> = {}>(args?: Subset<T, NotificationTypeDefaultArgs<ExtArgs>>): Prisma__NotificationTypeClient<$Result.GetResult<Prisma.$NotificationTypePayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    type<T extends NotificationTypeDefaultArgs<ExtArgs> = {}>(args?: Subset<T, NotificationTypeDefaultArgs<ExtArgs>>): Prisma__NotificationTypeClient<$Result.GetResult<Prisma.$NotificationTypePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -9473,7 +10703,7 @@ export namespace Prisma {
 
   /**
    * Fields of the Notification model
-   */ 
+   */
   interface NotificationFieldRefs {
     readonly id: FieldRef<"Notification", 'String'>
     readonly userId: FieldRef<"Notification", 'String'>
@@ -9496,6 +10726,10 @@ export namespace Prisma {
      */
     select?: NotificationSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: NotificationInclude<ExtArgs> | null
@@ -9514,6 +10748,10 @@ export namespace Prisma {
      */
     select?: NotificationSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: NotificationInclude<ExtArgs> | null
@@ -9531,6 +10769,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the Notification
      */
     select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -9580,6 +10822,10 @@ export namespace Prisma {
      */
     select?: NotificationSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: NotificationInclude<ExtArgs> | null
@@ -9628,6 +10874,10 @@ export namespace Prisma {
      */
     select?: NotificationSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: NotificationInclude<ExtArgs> | null
@@ -9671,6 +10921,10 @@ export namespace Prisma {
      */
     select?: NotificationSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: NotificationInclude<ExtArgs> | null
@@ -9700,6 +10954,10 @@ export namespace Prisma {
      */
     select?: NotificationSelectCreateManyAndReturn<ExtArgs> | null
     /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
      * The data used to create many Notifications.
      */
     data: NotificationCreateManyInput | NotificationCreateManyInput[]
@@ -9718,6 +10976,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the Notification
      */
     select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -9744,6 +11006,40 @@ export namespace Prisma {
      * Filter which Notifications to update
      */
     where?: NotificationWhereInput
+    /**
+     * Limit how many Notifications to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Notification updateManyAndReturn
+   */
+  export type NotificationUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Notification
+     */
+    select?: NotificationSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
+     * The data used to update Notifications.
+     */
+    data: XOR<NotificationUpdateManyMutationInput, NotificationUncheckedUpdateManyInput>
+    /**
+     * Filter which Notifications to update
+     */
+    where?: NotificationWhereInput
+    /**
+     * Limit how many Notifications to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NotificationIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -9754,6 +11050,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the Notification
      */
     select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -9781,6 +11081,10 @@ export namespace Prisma {
      */
     select?: NotificationSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: NotificationInclude<ExtArgs> | null
@@ -9798,6 +11102,10 @@ export namespace Prisma {
      * Filter which Notifications to delete
      */
     where?: NotificationWhereInput
+    /**
+     * Limit how many Notifications to delete.
+     */
+    limit?: number
   }
 
   /**
@@ -9808,6 +11116,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the Notification
      */
     select?: NotificationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Notification
+     */
+    omit?: NotificationOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -9978,6 +11290,14 @@ export namespace Prisma {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["uiSettings"]>
 
+  export type UiSettingsSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    userId?: boolean
+    showTutorial?: boolean
+    theme?: boolean
+    lastSeenWidgets?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["uiSettings"]>
+
   export type UiSettingsSelectScalar = {
     userId?: boolean
     showTutorial?: boolean
@@ -9985,10 +11305,14 @@ export namespace Prisma {
     lastSeenWidgets?: boolean
   }
 
+  export type UiSettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"userId" | "showTutorial" | "theme" | "lastSeenWidgets", ExtArgs["result"]["uiSettings"]>
   export type UiSettingsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
   export type UiSettingsIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type UiSettingsIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
 
@@ -10008,12 +11332,12 @@ export namespace Prisma {
 
   type UiSettingsGetPayload<S extends boolean | null | undefined | UiSettingsDefaultArgs> = $Result.GetResult<Prisma.$UiSettingsPayload, S>
 
-  type UiSettingsCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<UiSettingsFindManyArgs, 'select' | 'include' | 'distinct'> & {
+  type UiSettingsCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<UiSettingsFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
       select?: UiSettingsCountAggregateInputType | true
     }
 
-  export interface UiSettingsDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+  export interface UiSettingsDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
     [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['UiSettings'], meta: { name: 'UiSettings' } }
     /**
      * Find zero or one UiSettings that matches the filter.
@@ -10026,10 +11350,10 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUnique<T extends UiSettingsFindUniqueArgs>(args: SelectSubset<T, UiSettingsFindUniqueArgs<ExtArgs>>): Prisma__UiSettingsClient<$Result.GetResult<Prisma.$UiSettingsPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends UiSettingsFindUniqueArgs>(args: SelectSubset<T, UiSettingsFindUniqueArgs<ExtArgs>>): Prisma__UiSettingsClient<$Result.GetResult<Prisma.$UiSettingsPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find one UiSettings that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one UiSettings that matches the filter or throw an error with `error.code='P2025'`
      * if no matches were found.
      * @param {UiSettingsFindUniqueOrThrowArgs} args - Arguments to find a UiSettings
      * @example
@@ -10040,7 +11364,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findUniqueOrThrow<T extends UiSettingsFindUniqueOrThrowArgs>(args: SelectSubset<T, UiSettingsFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UiSettingsClient<$Result.GetResult<Prisma.$UiSettingsPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends UiSettingsFindUniqueOrThrowArgs>(args: SelectSubset<T, UiSettingsFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UiSettingsClient<$Result.GetResult<Prisma.$UiSettingsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Find the first UiSettings that matches the filter.
@@ -10055,7 +11379,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirst<T extends UiSettingsFindFirstArgs>(args?: SelectSubset<T, UiSettingsFindFirstArgs<ExtArgs>>): Prisma__UiSettingsClient<$Result.GetResult<Prisma.$UiSettingsPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends UiSettingsFindFirstArgs>(args?: SelectSubset<T, UiSettingsFindFirstArgs<ExtArgs>>): Prisma__UiSettingsClient<$Result.GetResult<Prisma.$UiSettingsPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
      * Find the first UiSettings that matches the filter or
@@ -10071,7 +11395,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    findFirstOrThrow<T extends UiSettingsFindFirstOrThrowArgs>(args?: SelectSubset<T, UiSettingsFindFirstOrThrowArgs<ExtArgs>>): Prisma__UiSettingsClient<$Result.GetResult<Prisma.$UiSettingsPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends UiSettingsFindFirstOrThrowArgs>(args?: SelectSubset<T, UiSettingsFindFirstOrThrowArgs<ExtArgs>>): Prisma__UiSettingsClient<$Result.GetResult<Prisma.$UiSettingsPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Find zero or more UiSettings that matches the filter.
@@ -10089,7 +11413,7 @@ export namespace Prisma {
      * const uiSettingsWithUserIdOnly = await prisma.uiSettings.findMany({ select: { userId: true } })
      * 
      */
-    findMany<T extends UiSettingsFindManyArgs>(args?: SelectSubset<T, UiSettingsFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UiSettingsPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends UiSettingsFindManyArgs>(args?: SelectSubset<T, UiSettingsFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UiSettingsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
     /**
      * Create a UiSettings.
@@ -10103,7 +11427,7 @@ export namespace Prisma {
      * })
      * 
      */
-    create<T extends UiSettingsCreateArgs>(args: SelectSubset<T, UiSettingsCreateArgs<ExtArgs>>): Prisma__UiSettingsClient<$Result.GetResult<Prisma.$UiSettingsPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends UiSettingsCreateArgs>(args: SelectSubset<T, UiSettingsCreateArgs<ExtArgs>>): Prisma__UiSettingsClient<$Result.GetResult<Prisma.$UiSettingsPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Create many UiSettings.
@@ -10131,7 +11455,7 @@ export namespace Prisma {
      * })
      * 
      * // Create many UiSettings and only return the `userId`
-     * const uiSettingsWithUserIdOnly = await prisma.uiSettings.createManyAndReturn({ 
+     * const uiSettingsWithUserIdOnly = await prisma.uiSettings.createManyAndReturn({
      *   select: { userId: true },
      *   data: [
      *     // ... provide data here
@@ -10141,7 +11465,7 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends UiSettingsCreateManyAndReturnArgs>(args?: SelectSubset<T, UiSettingsCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UiSettingsPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends UiSettingsCreateManyAndReturnArgs>(args?: SelectSubset<T, UiSettingsCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UiSettingsPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
     /**
      * Delete a UiSettings.
@@ -10155,7 +11479,7 @@ export namespace Prisma {
      * })
      * 
      */
-    delete<T extends UiSettingsDeleteArgs>(args: SelectSubset<T, UiSettingsDeleteArgs<ExtArgs>>): Prisma__UiSettingsClient<$Result.GetResult<Prisma.$UiSettingsPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends UiSettingsDeleteArgs>(args: SelectSubset<T, UiSettingsDeleteArgs<ExtArgs>>): Prisma__UiSettingsClient<$Result.GetResult<Prisma.$UiSettingsPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Update one UiSettings.
@@ -10172,7 +11496,7 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends UiSettingsUpdateArgs>(args: SelectSubset<T, UiSettingsUpdateArgs<ExtArgs>>): Prisma__UiSettingsClient<$Result.GetResult<Prisma.$UiSettingsPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends UiSettingsUpdateArgs>(args: SelectSubset<T, UiSettingsUpdateArgs<ExtArgs>>): Prisma__UiSettingsClient<$Result.GetResult<Prisma.$UiSettingsPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
      * Delete zero or more UiSettings.
@@ -10208,6 +11532,36 @@ export namespace Prisma {
     updateMany<T extends UiSettingsUpdateManyArgs>(args: SelectSubset<T, UiSettingsUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
+     * Update zero or more UiSettings and returns the data updated in the database.
+     * @param {UiSettingsUpdateManyAndReturnArgs} args - Arguments to update many UiSettings.
+     * @example
+     * // Update many UiSettings
+     * const uiSettings = await prisma.uiSettings.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more UiSettings and only return the `userId`
+     * const uiSettingsWithUserIdOnly = await prisma.uiSettings.updateManyAndReturn({
+     *   select: { userId: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends UiSettingsUpdateManyAndReturnArgs>(args: SelectSubset<T, UiSettingsUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UiSettingsPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
      * Create or update one UiSettings.
      * @param {UiSettingsUpsertArgs} args - Arguments to update or create a UiSettings.
      * @example
@@ -10224,7 +11578,7 @@ export namespace Prisma {
      *   }
      * })
      */
-    upsert<T extends UiSettingsUpsertArgs>(args: SelectSubset<T, UiSettingsUpsertArgs<ExtArgs>>): Prisma__UiSettingsClient<$Result.GetResult<Prisma.$UiSettingsPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends UiSettingsUpsertArgs>(args: SelectSubset<T, UiSettingsUpsertArgs<ExtArgs>>): Prisma__UiSettingsClient<$Result.GetResult<Prisma.$UiSettingsPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
     /**
@@ -10364,9 +11718,9 @@ export namespace Prisma {
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__UiSettingsClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__UiSettingsClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -10394,7 +11748,7 @@ export namespace Prisma {
 
   /**
    * Fields of the UiSettings model
-   */ 
+   */
   interface UiSettingsFieldRefs {
     readonly userId: FieldRef<"UiSettings", 'String'>
     readonly showTutorial: FieldRef<"UiSettings", 'Boolean'>
@@ -10412,6 +11766,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the UiSettings
      */
     select?: UiSettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UiSettings
+     */
+    omit?: UiSettingsOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -10431,6 +11789,10 @@ export namespace Prisma {
      */
     select?: UiSettingsSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the UiSettings
+     */
+    omit?: UiSettingsOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: UiSettingsInclude<ExtArgs> | null
@@ -10448,6 +11810,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the UiSettings
      */
     select?: UiSettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UiSettings
+     */
+    omit?: UiSettingsOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -10497,6 +11863,10 @@ export namespace Prisma {
      */
     select?: UiSettingsSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the UiSettings
+     */
+    omit?: UiSettingsOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: UiSettingsInclude<ExtArgs> | null
@@ -10545,6 +11915,10 @@ export namespace Prisma {
      */
     select?: UiSettingsSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the UiSettings
+     */
+    omit?: UiSettingsOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: UiSettingsInclude<ExtArgs> | null
@@ -10588,6 +11962,10 @@ export namespace Prisma {
      */
     select?: UiSettingsSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the UiSettings
+     */
+    omit?: UiSettingsOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: UiSettingsInclude<ExtArgs> | null
@@ -10617,6 +11995,10 @@ export namespace Prisma {
      */
     select?: UiSettingsSelectCreateManyAndReturn<ExtArgs> | null
     /**
+     * Omit specific fields from the UiSettings
+     */
+    omit?: UiSettingsOmit<ExtArgs> | null
+    /**
      * The data used to create many UiSettings.
      */
     data: UiSettingsCreateManyInput | UiSettingsCreateManyInput[]
@@ -10635,6 +12017,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the UiSettings
      */
     select?: UiSettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UiSettings
+     */
+    omit?: UiSettingsOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -10661,6 +12047,40 @@ export namespace Prisma {
      * Filter which UiSettings to update
      */
     where?: UiSettingsWhereInput
+    /**
+     * Limit how many UiSettings to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * UiSettings updateManyAndReturn
+   */
+  export type UiSettingsUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UiSettings
+     */
+    select?: UiSettingsSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the UiSettings
+     */
+    omit?: UiSettingsOmit<ExtArgs> | null
+    /**
+     * The data used to update UiSettings.
+     */
+    data: XOR<UiSettingsUpdateManyMutationInput, UiSettingsUncheckedUpdateManyInput>
+    /**
+     * Filter which UiSettings to update
+     */
+    where?: UiSettingsWhereInput
+    /**
+     * Limit how many UiSettings to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UiSettingsIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -10671,6 +12091,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the UiSettings
      */
     select?: UiSettingsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UiSettings
+     */
+    omit?: UiSettingsOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
@@ -10698,6 +12122,10 @@ export namespace Prisma {
      */
     select?: UiSettingsSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the UiSettings
+     */
+    omit?: UiSettingsOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: UiSettingsInclude<ExtArgs> | null
@@ -10715,6 +12143,10 @@ export namespace Prisma {
      * Filter which UiSettings to delete
      */
     where?: UiSettingsWhereInput
+    /**
+     * Limit how many UiSettings to delete.
+     */
+    limit?: number
   }
 
   /**
@@ -10726,9 +12158,1178 @@ export namespace Prisma {
      */
     select?: UiSettingsSelect<ExtArgs> | null
     /**
+     * Omit specific fields from the UiSettings
+     */
+    omit?: UiSettingsOmit<ExtArgs> | null
+    /**
      * Choose, which related nodes to fetch as well
      */
     include?: UiSettingsInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Transaction
+   */
+
+  export type AggregateTransaction = {
+    _count: TransactionCountAggregateOutputType | null
+    _avg: TransactionAvgAggregateOutputType | null
+    _sum: TransactionSumAggregateOutputType | null
+    _min: TransactionMinAggregateOutputType | null
+    _max: TransactionMaxAggregateOutputType | null
+  }
+
+  export type TransactionAvgAggregateOutputType = {
+    amount: Decimal | null
+  }
+
+  export type TransactionSumAggregateOutputType = {
+    amount: Decimal | null
+  }
+
+  export type TransactionMinAggregateOutputType = {
+    id: string | null
+    type: $Enums.TransactionType | null
+    amount: Decimal | null
+    chamaId: string | null
+    userId: string | null
+    description: string | null
+    reference: string | null
+    status: $Enums.TransactionStatus | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type TransactionMaxAggregateOutputType = {
+    id: string | null
+    type: $Enums.TransactionType | null
+    amount: Decimal | null
+    chamaId: string | null
+    userId: string | null
+    description: string | null
+    reference: string | null
+    status: $Enums.TransactionStatus | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type TransactionCountAggregateOutputType = {
+    id: number
+    type: number
+    amount: number
+    chamaId: number
+    userId: number
+    description: number
+    reference: number
+    status: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type TransactionAvgAggregateInputType = {
+    amount?: true
+  }
+
+  export type TransactionSumAggregateInputType = {
+    amount?: true
+  }
+
+  export type TransactionMinAggregateInputType = {
+    id?: true
+    type?: true
+    amount?: true
+    chamaId?: true
+    userId?: true
+    description?: true
+    reference?: true
+    status?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type TransactionMaxAggregateInputType = {
+    id?: true
+    type?: true
+    amount?: true
+    chamaId?: true
+    userId?: true
+    description?: true
+    reference?: true
+    status?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type TransactionCountAggregateInputType = {
+    id?: true
+    type?: true
+    amount?: true
+    chamaId?: true
+    userId?: true
+    description?: true
+    reference?: true
+    status?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type TransactionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Transaction to aggregate.
+     */
+    where?: TransactionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Transactions to fetch.
+     */
+    orderBy?: TransactionOrderByWithRelationInput | TransactionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TransactionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Transactions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Transactions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Transactions
+    **/
+    _count?: true | TransactionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: TransactionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TransactionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TransactionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TransactionMaxAggregateInputType
+  }
+
+  export type GetTransactionAggregateType<T extends TransactionAggregateArgs> = {
+        [P in keyof T & keyof AggregateTransaction]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTransaction[P]>
+      : GetScalarType<T[P], AggregateTransaction[P]>
+  }
+
+
+
+
+  export type TransactionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TransactionWhereInput
+    orderBy?: TransactionOrderByWithAggregationInput | TransactionOrderByWithAggregationInput[]
+    by: TransactionScalarFieldEnum[] | TransactionScalarFieldEnum
+    having?: TransactionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TransactionCountAggregateInputType | true
+    _avg?: TransactionAvgAggregateInputType
+    _sum?: TransactionSumAggregateInputType
+    _min?: TransactionMinAggregateInputType
+    _max?: TransactionMaxAggregateInputType
+  }
+
+  export type TransactionGroupByOutputType = {
+    id: string
+    type: $Enums.TransactionType
+    amount: Decimal
+    chamaId: string
+    userId: string
+    description: string | null
+    reference: string | null
+    status: $Enums.TransactionStatus
+    createdAt: Date
+    updatedAt: Date
+    _count: TransactionCountAggregateOutputType | null
+    _avg: TransactionAvgAggregateOutputType | null
+    _sum: TransactionSumAggregateOutputType | null
+    _min: TransactionMinAggregateOutputType | null
+    _max: TransactionMaxAggregateOutputType | null
+  }
+
+  type GetTransactionGroupByPayload<T extends TransactionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TransactionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TransactionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TransactionGroupByOutputType[P]>
+            : GetScalarType<T[P], TransactionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TransactionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    type?: boolean
+    amount?: boolean
+    chamaId?: boolean
+    userId?: boolean
+    description?: boolean
+    reference?: boolean
+    status?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    chama?: boolean | ChamaDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["transaction"]>
+
+  export type TransactionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    type?: boolean
+    amount?: boolean
+    chamaId?: boolean
+    userId?: boolean
+    description?: boolean
+    reference?: boolean
+    status?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    chama?: boolean | ChamaDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["transaction"]>
+
+  export type TransactionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    type?: boolean
+    amount?: boolean
+    chamaId?: boolean
+    userId?: boolean
+    description?: boolean
+    reference?: boolean
+    status?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    chama?: boolean | ChamaDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["transaction"]>
+
+  export type TransactionSelectScalar = {
+    id?: boolean
+    type?: boolean
+    amount?: boolean
+    chamaId?: boolean
+    userId?: boolean
+    description?: boolean
+    reference?: boolean
+    status?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type TransactionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "type" | "amount" | "chamaId" | "userId" | "description" | "reference" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["transaction"]>
+  export type TransactionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    chama?: boolean | ChamaDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type TransactionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    chama?: boolean | ChamaDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type TransactionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    chama?: boolean | ChamaDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $TransactionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Transaction"
+    objects: {
+      chama: Prisma.$ChamaPayload<ExtArgs>
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      type: $Enums.TransactionType
+      amount: Prisma.Decimal
+      chamaId: string
+      userId: string
+      description: string | null
+      reference: string | null
+      status: $Enums.TransactionStatus
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["transaction"]>
+    composites: {}
+  }
+
+  type TransactionGetPayload<S extends boolean | null | undefined | TransactionDefaultArgs> = $Result.GetResult<Prisma.$TransactionPayload, S>
+
+  type TransactionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<TransactionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TransactionCountAggregateInputType | true
+    }
+
+  export interface TransactionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Transaction'], meta: { name: 'Transaction' } }
+    /**
+     * Find zero or one Transaction that matches the filter.
+     * @param {TransactionFindUniqueArgs} args - Arguments to find a Transaction
+     * @example
+     * // Get one Transaction
+     * const transaction = await prisma.transaction.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TransactionFindUniqueArgs>(args: SelectSubset<T, TransactionFindUniqueArgs<ExtArgs>>): Prisma__TransactionClient<$Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Transaction that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {TransactionFindUniqueOrThrowArgs} args - Arguments to find a Transaction
+     * @example
+     * // Get one Transaction
+     * const transaction = await prisma.transaction.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TransactionFindUniqueOrThrowArgs>(args: SelectSubset<T, TransactionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TransactionClient<$Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Transaction that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TransactionFindFirstArgs} args - Arguments to find a Transaction
+     * @example
+     * // Get one Transaction
+     * const transaction = await prisma.transaction.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TransactionFindFirstArgs>(args?: SelectSubset<T, TransactionFindFirstArgs<ExtArgs>>): Prisma__TransactionClient<$Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Transaction that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TransactionFindFirstOrThrowArgs} args - Arguments to find a Transaction
+     * @example
+     * // Get one Transaction
+     * const transaction = await prisma.transaction.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TransactionFindFirstOrThrowArgs>(args?: SelectSubset<T, TransactionFindFirstOrThrowArgs<ExtArgs>>): Prisma__TransactionClient<$Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Transactions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TransactionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Transactions
+     * const transactions = await prisma.transaction.findMany()
+     * 
+     * // Get first 10 Transactions
+     * const transactions = await prisma.transaction.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const transactionWithIdOnly = await prisma.transaction.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends TransactionFindManyArgs>(args?: SelectSubset<T, TransactionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Transaction.
+     * @param {TransactionCreateArgs} args - Arguments to create a Transaction.
+     * @example
+     * // Create one Transaction
+     * const Transaction = await prisma.transaction.create({
+     *   data: {
+     *     // ... data to create a Transaction
+     *   }
+     * })
+     * 
+     */
+    create<T extends TransactionCreateArgs>(args: SelectSubset<T, TransactionCreateArgs<ExtArgs>>): Prisma__TransactionClient<$Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Transactions.
+     * @param {TransactionCreateManyArgs} args - Arguments to create many Transactions.
+     * @example
+     * // Create many Transactions
+     * const transaction = await prisma.transaction.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TransactionCreateManyArgs>(args?: SelectSubset<T, TransactionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Transactions and returns the data saved in the database.
+     * @param {TransactionCreateManyAndReturnArgs} args - Arguments to create many Transactions.
+     * @example
+     * // Create many Transactions
+     * const transaction = await prisma.transaction.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Transactions and only return the `id`
+     * const transactionWithIdOnly = await prisma.transaction.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends TransactionCreateManyAndReturnArgs>(args?: SelectSubset<T, TransactionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Transaction.
+     * @param {TransactionDeleteArgs} args - Arguments to delete one Transaction.
+     * @example
+     * // Delete one Transaction
+     * const Transaction = await prisma.transaction.delete({
+     *   where: {
+     *     // ... filter to delete one Transaction
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TransactionDeleteArgs>(args: SelectSubset<T, TransactionDeleteArgs<ExtArgs>>): Prisma__TransactionClient<$Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Transaction.
+     * @param {TransactionUpdateArgs} args - Arguments to update one Transaction.
+     * @example
+     * // Update one Transaction
+     * const transaction = await prisma.transaction.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TransactionUpdateArgs>(args: SelectSubset<T, TransactionUpdateArgs<ExtArgs>>): Prisma__TransactionClient<$Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Transactions.
+     * @param {TransactionDeleteManyArgs} args - Arguments to filter Transactions to delete.
+     * @example
+     * // Delete a few Transactions
+     * const { count } = await prisma.transaction.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TransactionDeleteManyArgs>(args?: SelectSubset<T, TransactionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Transactions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TransactionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Transactions
+     * const transaction = await prisma.transaction.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TransactionUpdateManyArgs>(args: SelectSubset<T, TransactionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Transactions and returns the data updated in the database.
+     * @param {TransactionUpdateManyAndReturnArgs} args - Arguments to update many Transactions.
+     * @example
+     * // Update many Transactions
+     * const transaction = await prisma.transaction.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Transactions and only return the `id`
+     * const transactionWithIdOnly = await prisma.transaction.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends TransactionUpdateManyAndReturnArgs>(args: SelectSubset<T, TransactionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Transaction.
+     * @param {TransactionUpsertArgs} args - Arguments to update or create a Transaction.
+     * @example
+     * // Update or create a Transaction
+     * const transaction = await prisma.transaction.upsert({
+     *   create: {
+     *     // ... data to create a Transaction
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Transaction we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TransactionUpsertArgs>(args: SelectSubset<T, TransactionUpsertArgs<ExtArgs>>): Prisma__TransactionClient<$Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Transactions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TransactionCountArgs} args - Arguments to filter Transactions to count.
+     * @example
+     * // Count the number of Transactions
+     * const count = await prisma.transaction.count({
+     *   where: {
+     *     // ... the filter for the Transactions we want to count
+     *   }
+     * })
+    **/
+    count<T extends TransactionCountArgs>(
+      args?: Subset<T, TransactionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TransactionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Transaction.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TransactionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TransactionAggregateArgs>(args: Subset<T, TransactionAggregateArgs>): Prisma.PrismaPromise<GetTransactionAggregateType<T>>
+
+    /**
+     * Group by Transaction.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TransactionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TransactionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TransactionGroupByArgs['orderBy'] }
+        : { orderBy?: TransactionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TransactionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTransactionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Transaction model
+   */
+  readonly fields: TransactionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Transaction.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TransactionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    chama<T extends ChamaDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ChamaDefaultArgs<ExtArgs>>): Prisma__ChamaClient<$Result.GetResult<Prisma.$ChamaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Transaction model
+   */
+  interface TransactionFieldRefs {
+    readonly id: FieldRef<"Transaction", 'String'>
+    readonly type: FieldRef<"Transaction", 'TransactionType'>
+    readonly amount: FieldRef<"Transaction", 'Decimal'>
+    readonly chamaId: FieldRef<"Transaction", 'String'>
+    readonly userId: FieldRef<"Transaction", 'String'>
+    readonly description: FieldRef<"Transaction", 'String'>
+    readonly reference: FieldRef<"Transaction", 'String'>
+    readonly status: FieldRef<"Transaction", 'TransactionStatus'>
+    readonly createdAt: FieldRef<"Transaction", 'DateTime'>
+    readonly updatedAt: FieldRef<"Transaction", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Transaction findUnique
+   */
+  export type TransactionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Transaction
+     */
+    select?: TransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Transaction
+     */
+    omit?: TransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TransactionInclude<ExtArgs> | null
+    /**
+     * Filter, which Transaction to fetch.
+     */
+    where: TransactionWhereUniqueInput
+  }
+
+  /**
+   * Transaction findUniqueOrThrow
+   */
+  export type TransactionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Transaction
+     */
+    select?: TransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Transaction
+     */
+    omit?: TransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TransactionInclude<ExtArgs> | null
+    /**
+     * Filter, which Transaction to fetch.
+     */
+    where: TransactionWhereUniqueInput
+  }
+
+  /**
+   * Transaction findFirst
+   */
+  export type TransactionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Transaction
+     */
+    select?: TransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Transaction
+     */
+    omit?: TransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TransactionInclude<ExtArgs> | null
+    /**
+     * Filter, which Transaction to fetch.
+     */
+    where?: TransactionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Transactions to fetch.
+     */
+    orderBy?: TransactionOrderByWithRelationInput | TransactionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Transactions.
+     */
+    cursor?: TransactionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Transactions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Transactions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Transactions.
+     */
+    distinct?: TransactionScalarFieldEnum | TransactionScalarFieldEnum[]
+  }
+
+  /**
+   * Transaction findFirstOrThrow
+   */
+  export type TransactionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Transaction
+     */
+    select?: TransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Transaction
+     */
+    omit?: TransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TransactionInclude<ExtArgs> | null
+    /**
+     * Filter, which Transaction to fetch.
+     */
+    where?: TransactionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Transactions to fetch.
+     */
+    orderBy?: TransactionOrderByWithRelationInput | TransactionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Transactions.
+     */
+    cursor?: TransactionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Transactions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Transactions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Transactions.
+     */
+    distinct?: TransactionScalarFieldEnum | TransactionScalarFieldEnum[]
+  }
+
+  /**
+   * Transaction findMany
+   */
+  export type TransactionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Transaction
+     */
+    select?: TransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Transaction
+     */
+    omit?: TransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TransactionInclude<ExtArgs> | null
+    /**
+     * Filter, which Transactions to fetch.
+     */
+    where?: TransactionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Transactions to fetch.
+     */
+    orderBy?: TransactionOrderByWithRelationInput | TransactionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Transactions.
+     */
+    cursor?: TransactionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Transactions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Transactions.
+     */
+    skip?: number
+    distinct?: TransactionScalarFieldEnum | TransactionScalarFieldEnum[]
+  }
+
+  /**
+   * Transaction create
+   */
+  export type TransactionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Transaction
+     */
+    select?: TransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Transaction
+     */
+    omit?: TransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TransactionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Transaction.
+     */
+    data: XOR<TransactionCreateInput, TransactionUncheckedCreateInput>
+  }
+
+  /**
+   * Transaction createMany
+   */
+  export type TransactionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Transactions.
+     */
+    data: TransactionCreateManyInput | TransactionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Transaction createManyAndReturn
+   */
+  export type TransactionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Transaction
+     */
+    select?: TransactionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Transaction
+     */
+    omit?: TransactionOmit<ExtArgs> | null
+    /**
+     * The data used to create many Transactions.
+     */
+    data: TransactionCreateManyInput | TransactionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TransactionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Transaction update
+   */
+  export type TransactionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Transaction
+     */
+    select?: TransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Transaction
+     */
+    omit?: TransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TransactionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Transaction.
+     */
+    data: XOR<TransactionUpdateInput, TransactionUncheckedUpdateInput>
+    /**
+     * Choose, which Transaction to update.
+     */
+    where: TransactionWhereUniqueInput
+  }
+
+  /**
+   * Transaction updateMany
+   */
+  export type TransactionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Transactions.
+     */
+    data: XOR<TransactionUpdateManyMutationInput, TransactionUncheckedUpdateManyInput>
+    /**
+     * Filter which Transactions to update
+     */
+    where?: TransactionWhereInput
+    /**
+     * Limit how many Transactions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Transaction updateManyAndReturn
+   */
+  export type TransactionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Transaction
+     */
+    select?: TransactionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Transaction
+     */
+    omit?: TransactionOmit<ExtArgs> | null
+    /**
+     * The data used to update Transactions.
+     */
+    data: XOR<TransactionUpdateManyMutationInput, TransactionUncheckedUpdateManyInput>
+    /**
+     * Filter which Transactions to update
+     */
+    where?: TransactionWhereInput
+    /**
+     * Limit how many Transactions to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TransactionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Transaction upsert
+   */
+  export type TransactionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Transaction
+     */
+    select?: TransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Transaction
+     */
+    omit?: TransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TransactionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Transaction to update in case it exists.
+     */
+    where: TransactionWhereUniqueInput
+    /**
+     * In case the Transaction found by the `where` argument doesn't exist, create a new Transaction with this data.
+     */
+    create: XOR<TransactionCreateInput, TransactionUncheckedCreateInput>
+    /**
+     * In case the Transaction was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TransactionUpdateInput, TransactionUncheckedUpdateInput>
+  }
+
+  /**
+   * Transaction delete
+   */
+  export type TransactionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Transaction
+     */
+    select?: TransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Transaction
+     */
+    omit?: TransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TransactionInclude<ExtArgs> | null
+    /**
+     * Filter which Transaction to delete.
+     */
+    where: TransactionWhereUniqueInput
+  }
+
+  /**
+   * Transaction deleteMany
+   */
+  export type TransactionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Transactions to delete
+     */
+    where?: TransactionWhereInput
+    /**
+     * Limit how many Transactions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Transaction without action
+   */
+  export type TransactionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Transaction
+     */
+    select?: TransactionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Transaction
+     */
+    omit?: TransactionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TransactionInclude<ExtArgs> | null
   }
 
 
@@ -10863,6 +13464,22 @@ export namespace Prisma {
   export type UiSettingsScalarFieldEnum = (typeof UiSettingsScalarFieldEnum)[keyof typeof UiSettingsScalarFieldEnum]
 
 
+  export const TransactionScalarFieldEnum: {
+    id: 'id',
+    type: 'type',
+    amount: 'amount',
+    chamaId: 'chamaId',
+    userId: 'userId',
+    description: 'description',
+    reference: 'reference',
+    status: 'status',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type TransactionScalarFieldEnum = (typeof TransactionScalarFieldEnum)[keyof typeof TransactionScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -10905,7 +13522,7 @@ export namespace Prisma {
 
 
   /**
-   * Field references 
+   * Field references
    */
 
 
@@ -11064,6 +13681,41 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'QueryMode'
+   */
+  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+  /**
+   * Reference to a field of type 'TransactionType'
+   */
+  export type EnumTransactionTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TransactionType'>
+    
+
+
+  /**
+   * Reference to a field of type 'TransactionType[]'
+   */
+  export type ListEnumTransactionTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TransactionType[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'TransactionStatus'
+   */
+  export type EnumTransactionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TransactionStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'TransactionStatus[]'
+   */
+  export type ListEnumTransactionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TransactionStatus[]'>
+    
+
+
+  /**
    * Reference to a field of type 'Float'
    */
   export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -11096,8 +13748,9 @@ export namespace Prisma {
     memberships?: MembershipListRelationFilter
     contributions?: ContributionListRelationFilter
     notifications?: NotificationListRelationFilter
-    uiSettings?: XOR<UiSettingsNullableRelationFilter, UiSettingsWhereInput> | null
+    uiSettings?: XOR<UiSettingsNullableScalarRelationFilter, UiSettingsWhereInput> | null
     Chama?: ChamaListRelationFilter
+    transactions?: TransactionListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -11115,6 +13768,7 @@ export namespace Prisma {
     notifications?: NotificationOrderByRelationAggregateInput
     uiSettings?: UiSettingsOrderByWithRelationInput
     Chama?: ChamaOrderByRelationAggregateInput
+    transactions?: TransactionOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -11133,8 +13787,9 @@ export namespace Prisma {
     memberships?: MembershipListRelationFilter
     contributions?: ContributionListRelationFilter
     notifications?: NotificationListRelationFilter
-    uiSettings?: XOR<UiSettingsNullableRelationFilter, UiSettingsWhereInput> | null
+    uiSettings?: XOR<UiSettingsNullableScalarRelationFilter, UiSettingsWhereInput> | null
     Chama?: ChamaListRelationFilter
+    transactions?: TransactionListRelationFilter
   }, "id" | "email" | "phone">
 
   export type UserOrderByWithAggregationInput = {
@@ -11178,10 +13833,11 @@ export namespace Prisma {
     userId?: StringFilter<"Chama"> | string
     createdAt?: DateTimeFilter<"Chama"> | Date | string
     updatedAt?: DateTimeFilter<"Chama"> | Date | string
-    createdBy?: XOR<UserRelationFilter, UserWhereInput>
+    createdBy?: XOR<UserScalarRelationFilter, UserWhereInput>
     memberships?: MembershipListRelationFilter
     contributions?: ContributionListRelationFilter
     invites?: InviteListRelationFilter
+    transactions?: TransactionListRelationFilter
   }
 
   export type ChamaOrderByWithRelationInput = {
@@ -11196,6 +13852,7 @@ export namespace Prisma {
     memberships?: MembershipOrderByRelationAggregateInput
     contributions?: ContributionOrderByRelationAggregateInput
     invites?: InviteOrderByRelationAggregateInput
+    transactions?: TransactionOrderByRelationAggregateInput
   }
 
   export type ChamaWhereUniqueInput = Prisma.AtLeast<{
@@ -11209,10 +13866,11 @@ export namespace Prisma {
     userId?: StringFilter<"Chama"> | string
     createdAt?: DateTimeFilter<"Chama"> | Date | string
     updatedAt?: DateTimeFilter<"Chama"> | Date | string
-    createdBy?: XOR<UserRelationFilter, UserWhereInput>
+    createdBy?: XOR<UserScalarRelationFilter, UserWhereInput>
     memberships?: MembershipListRelationFilter
     contributions?: ContributionListRelationFilter
     invites?: InviteListRelationFilter
+    transactions?: TransactionListRelationFilter
   }, "id">
 
   export type ChamaOrderByWithAggregationInput = {
@@ -11252,8 +13910,8 @@ export namespace Prisma {
     joinedAt?: DateTimeFilter<"Membership"> | Date | string
     createdAt?: DateTimeFilter<"Membership"> | Date | string
     updatedAt?: DateTimeFilter<"Membership"> | Date | string
-    user?: XOR<UserRelationFilter, UserWhereInput>
-    chama?: XOR<ChamaRelationFilter, ChamaWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    chama?: XOR<ChamaScalarRelationFilter, ChamaWhereInput>
   }
 
   export type MembershipOrderByWithRelationInput = {
@@ -11279,8 +13937,8 @@ export namespace Prisma {
     joinedAt?: DateTimeFilter<"Membership"> | Date | string
     createdAt?: DateTimeFilter<"Membership"> | Date | string
     updatedAt?: DateTimeFilter<"Membership"> | Date | string
-    user?: XOR<UserRelationFilter, UserWhereInput>
-    chama?: XOR<ChamaRelationFilter, ChamaWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    chama?: XOR<ChamaScalarRelationFilter, ChamaWhereInput>
   }, "id">
 
   export type MembershipOrderByWithAggregationInput = {
@@ -11320,7 +13978,7 @@ export namespace Prisma {
     expiresAt?: DateTimeFilter<"Invite"> | Date | string
     usedAt?: DateTimeNullableFilter<"Invite"> | Date | string | null
     createdAt?: DateTimeFilter<"Invite"> | Date | string
-    chama?: XOR<ChamaRelationFilter, ChamaWhereInput>
+    chama?: XOR<ChamaScalarRelationFilter, ChamaWhereInput>
   }
 
   export type InviteOrderByWithRelationInput = {
@@ -11345,7 +14003,7 @@ export namespace Prisma {
     expiresAt?: DateTimeFilter<"Invite"> | Date | string
     usedAt?: DateTimeNullableFilter<"Invite"> | Date | string | null
     createdAt?: DateTimeFilter<"Invite"> | Date | string
-    chama?: XOR<ChamaRelationFilter, ChamaWhereInput>
+    chama?: XOR<ChamaScalarRelationFilter, ChamaWhereInput>
   }, "id" | "token">
 
   export type InviteOrderByWithAggregationInput = {
@@ -11387,8 +14045,8 @@ export namespace Prisma {
     date?: DateTimeFilter<"Contribution"> | Date | string
     createdAt?: DateTimeFilter<"Contribution"> | Date | string
     updatedAt?: DateTimeFilter<"Contribution"> | Date | string
-    chama?: XOR<ChamaRelationFilter, ChamaWhereInput>
-    user?: XOR<UserRelationFilter, UserWhereInput>
+    chama?: XOR<ChamaScalarRelationFilter, ChamaWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
     payments?: PaymentListRelationFilter
   }
 
@@ -11420,8 +14078,8 @@ export namespace Prisma {
     date?: DateTimeFilter<"Contribution"> | Date | string
     createdAt?: DateTimeFilter<"Contribution"> | Date | string
     updatedAt?: DateTimeFilter<"Contribution"> | Date | string
-    chama?: XOR<ChamaRelationFilter, ChamaWhereInput>
-    user?: XOR<UserRelationFilter, UserWhereInput>
+    chama?: XOR<ChamaScalarRelationFilter, ChamaWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
     payments?: PaymentListRelationFilter
   }, "id">
 
@@ -11469,7 +14127,7 @@ export namespace Prisma {
     processedAt?: DateTimeNullableFilter<"Payment"> | Date | string | null
     createdAt?: DateTimeFilter<"Payment"> | Date | string
     updatedAt?: DateTimeFilter<"Payment"> | Date | string
-    contribution?: XOR<ContributionRelationFilter, ContributionWhereInput>
+    contribution?: XOR<ContributionScalarRelationFilter, ContributionWhereInput>
   }
 
   export type PaymentOrderByWithRelationInput = {
@@ -11496,7 +14154,7 @@ export namespace Prisma {
     processedAt?: DateTimeNullableFilter<"Payment"> | Date | string | null
     createdAt?: DateTimeFilter<"Payment"> | Date | string
     updatedAt?: DateTimeFilter<"Payment"> | Date | string
-    contribution?: XOR<ContributionRelationFilter, ContributionWhereInput>
+    contribution?: XOR<ContributionScalarRelationFilter, ContributionWhereInput>
   }, "id">
 
   export type PaymentOrderByWithAggregationInput = {
@@ -11591,8 +14249,8 @@ export namespace Prisma {
     readAt?: DateTimeNullableFilter<"Notification"> | Date | string | null
     sentAt?: DateTimeNullableFilter<"Notification"> | Date | string | null
     createdAt?: DateTimeFilter<"Notification"> | Date | string
-    user?: XOR<UserRelationFilter, UserWhereInput>
-    type?: XOR<NotificationTypeRelationFilter, NotificationTypeWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    type?: XOR<NotificationTypeScalarRelationFilter, NotificationTypeWhereInput>
   }
 
   export type NotificationOrderByWithRelationInput = {
@@ -11620,8 +14278,8 @@ export namespace Prisma {
     readAt?: DateTimeNullableFilter<"Notification"> | Date | string | null
     sentAt?: DateTimeNullableFilter<"Notification"> | Date | string | null
     createdAt?: DateTimeFilter<"Notification"> | Date | string
-    user?: XOR<UserRelationFilter, UserWhereInput>
-    type?: XOR<NotificationTypeRelationFilter, NotificationTypeWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    type?: XOR<NotificationTypeScalarRelationFilter, NotificationTypeWhereInput>
   }, "id">
 
   export type NotificationOrderByWithAggregationInput = {
@@ -11662,7 +14320,7 @@ export namespace Prisma {
     showTutorial?: BoolFilter<"UiSettings"> | boolean
     theme?: StringNullableFilter<"UiSettings"> | string | null
     lastSeenWidgets?: JsonNullableFilter<"UiSettings">
-    user?: XOR<UserRelationFilter, UserWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }
 
   export type UiSettingsOrderByWithRelationInput = {
@@ -11681,7 +14339,7 @@ export namespace Prisma {
     showTutorial?: BoolFilter<"UiSettings"> | boolean
     theme?: StringNullableFilter<"UiSettings"> | string | null
     lastSeenWidgets?: JsonNullableFilter<"UiSettings">
-    user?: XOR<UserRelationFilter, UserWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }, "userId">
 
   export type UiSettingsOrderByWithAggregationInput = {
@@ -11704,6 +14362,91 @@ export namespace Prisma {
     lastSeenWidgets?: JsonNullableWithAggregatesFilter<"UiSettings">
   }
 
+  export type TransactionWhereInput = {
+    AND?: TransactionWhereInput | TransactionWhereInput[]
+    OR?: TransactionWhereInput[]
+    NOT?: TransactionWhereInput | TransactionWhereInput[]
+    id?: StringFilter<"Transaction"> | string
+    type?: EnumTransactionTypeFilter<"Transaction"> | $Enums.TransactionType
+    amount?: DecimalFilter<"Transaction"> | Decimal | DecimalJsLike | number | string
+    chamaId?: StringFilter<"Transaction"> | string
+    userId?: StringFilter<"Transaction"> | string
+    description?: StringNullableFilter<"Transaction"> | string | null
+    reference?: StringNullableFilter<"Transaction"> | string | null
+    status?: EnumTransactionStatusFilter<"Transaction"> | $Enums.TransactionStatus
+    createdAt?: DateTimeFilter<"Transaction"> | Date | string
+    updatedAt?: DateTimeFilter<"Transaction"> | Date | string
+    chama?: XOR<ChamaScalarRelationFilter, ChamaWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type TransactionOrderByWithRelationInput = {
+    id?: SortOrder
+    type?: SortOrder
+    amount?: SortOrder
+    chamaId?: SortOrder
+    userId?: SortOrder
+    description?: SortOrderInput | SortOrder
+    reference?: SortOrderInput | SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    chama?: ChamaOrderByWithRelationInput
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type TransactionWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: TransactionWhereInput | TransactionWhereInput[]
+    OR?: TransactionWhereInput[]
+    NOT?: TransactionWhereInput | TransactionWhereInput[]
+    type?: EnumTransactionTypeFilter<"Transaction"> | $Enums.TransactionType
+    amount?: DecimalFilter<"Transaction"> | Decimal | DecimalJsLike | number | string
+    chamaId?: StringFilter<"Transaction"> | string
+    userId?: StringFilter<"Transaction"> | string
+    description?: StringNullableFilter<"Transaction"> | string | null
+    reference?: StringNullableFilter<"Transaction"> | string | null
+    status?: EnumTransactionStatusFilter<"Transaction"> | $Enums.TransactionStatus
+    createdAt?: DateTimeFilter<"Transaction"> | Date | string
+    updatedAt?: DateTimeFilter<"Transaction"> | Date | string
+    chama?: XOR<ChamaScalarRelationFilter, ChamaWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id">
+
+  export type TransactionOrderByWithAggregationInput = {
+    id?: SortOrder
+    type?: SortOrder
+    amount?: SortOrder
+    chamaId?: SortOrder
+    userId?: SortOrder
+    description?: SortOrderInput | SortOrder
+    reference?: SortOrderInput | SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: TransactionCountOrderByAggregateInput
+    _avg?: TransactionAvgOrderByAggregateInput
+    _max?: TransactionMaxOrderByAggregateInput
+    _min?: TransactionMinOrderByAggregateInput
+    _sum?: TransactionSumOrderByAggregateInput
+  }
+
+  export type TransactionScalarWhereWithAggregatesInput = {
+    AND?: TransactionScalarWhereWithAggregatesInput | TransactionScalarWhereWithAggregatesInput[]
+    OR?: TransactionScalarWhereWithAggregatesInput[]
+    NOT?: TransactionScalarWhereWithAggregatesInput | TransactionScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Transaction"> | string
+    type?: EnumTransactionTypeWithAggregatesFilter<"Transaction"> | $Enums.TransactionType
+    amount?: DecimalWithAggregatesFilter<"Transaction"> | Decimal | DecimalJsLike | number | string
+    chamaId?: StringWithAggregatesFilter<"Transaction"> | string
+    userId?: StringWithAggregatesFilter<"Transaction"> | string
+    description?: StringNullableWithAggregatesFilter<"Transaction"> | string | null
+    reference?: StringNullableWithAggregatesFilter<"Transaction"> | string | null
+    status?: EnumTransactionStatusWithAggregatesFilter<"Transaction"> | $Enums.TransactionStatus
+    createdAt?: DateTimeWithAggregatesFilter<"Transaction"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Transaction"> | Date | string
+  }
+
   export type UserCreateInput = {
     id?: string
     name?: string | null
@@ -11719,6 +14462,7 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutUserInput
     uiSettings?: UiSettingsCreateNestedOneWithoutUserInput
     Chama?: ChamaCreateNestedManyWithoutCreatedByInput
+    transactions?: TransactionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -11736,6 +14480,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     uiSettings?: UiSettingsUncheckedCreateNestedOneWithoutUserInput
     Chama?: ChamaUncheckedCreateNestedManyWithoutCreatedByInput
+    transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -11753,6 +14498,7 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     uiSettings?: UiSettingsUpdateOneWithoutUserNestedInput
     Chama?: ChamaUpdateManyWithoutCreatedByNestedInput
+    transactions?: TransactionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -11770,6 +14516,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     uiSettings?: UiSettingsUncheckedUpdateOneWithoutUserNestedInput
     Chama?: ChamaUncheckedUpdateManyWithoutCreatedByNestedInput
+    transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -11819,6 +14566,7 @@ export namespace Prisma {
     memberships?: MembershipCreateNestedManyWithoutChamaInput
     contributions?: ContributionCreateNestedManyWithoutChamaInput
     invites?: InviteCreateNestedManyWithoutChamaInput
+    transactions?: TransactionCreateNestedManyWithoutChamaInput
   }
 
   export type ChamaUncheckedCreateInput = {
@@ -11832,6 +14580,7 @@ export namespace Prisma {
     memberships?: MembershipUncheckedCreateNestedManyWithoutChamaInput
     contributions?: ContributionUncheckedCreateNestedManyWithoutChamaInput
     invites?: InviteUncheckedCreateNestedManyWithoutChamaInput
+    transactions?: TransactionUncheckedCreateNestedManyWithoutChamaInput
   }
 
   export type ChamaUpdateInput = {
@@ -11845,6 +14594,7 @@ export namespace Prisma {
     memberships?: MembershipUpdateManyWithoutChamaNestedInput
     contributions?: ContributionUpdateManyWithoutChamaNestedInput
     invites?: InviteUpdateManyWithoutChamaNestedInput
+    transactions?: TransactionUpdateManyWithoutChamaNestedInput
   }
 
   export type ChamaUncheckedUpdateInput = {
@@ -11858,6 +14608,7 @@ export namespace Prisma {
     memberships?: MembershipUncheckedUpdateManyWithoutChamaNestedInput
     contributions?: ContributionUncheckedUpdateManyWithoutChamaNestedInput
     invites?: InviteUncheckedUpdateManyWithoutChamaNestedInput
+    transactions?: TransactionUncheckedUpdateManyWithoutChamaNestedInput
   }
 
   export type ChamaCreateManyInput = {
@@ -12361,6 +15112,95 @@ export namespace Prisma {
     lastSeenWidgets?: NullableJsonNullValueInput | InputJsonValue
   }
 
+  export type TransactionCreateInput = {
+    id?: string
+    type: $Enums.TransactionType
+    amount: Decimal | DecimalJsLike | number | string
+    description?: string | null
+    reference?: string | null
+    status?: $Enums.TransactionStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    chama: ChamaCreateNestedOneWithoutTransactionsInput
+    user: UserCreateNestedOneWithoutTransactionsInput
+  }
+
+  export type TransactionUncheckedCreateInput = {
+    id?: string
+    type: $Enums.TransactionType
+    amount: Decimal | DecimalJsLike | number | string
+    chamaId: string
+    userId: string
+    description?: string | null
+    reference?: string | null
+    status?: $Enums.TransactionStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TransactionUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    chama?: ChamaUpdateOneRequiredWithoutTransactionsNestedInput
+    user?: UserUpdateOneRequiredWithoutTransactionsNestedInput
+  }
+
+  export type TransactionUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    chamaId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TransactionCreateManyInput = {
+    id?: string
+    type: $Enums.TransactionType
+    amount: Decimal | DecimalJsLike | number | string
+    chamaId: string
+    userId: string
+    description?: string | null
+    reference?: string | null
+    status?: $Enums.TransactionStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TransactionUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TransactionUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    chamaId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -12434,7 +15274,7 @@ export namespace Prisma {
     none?: NotificationWhereInput
   }
 
-  export type UiSettingsNullableRelationFilter = {
+  export type UiSettingsNullableScalarRelationFilter = {
     is?: UiSettingsWhereInput | null
     isNot?: UiSettingsWhereInput | null
   }
@@ -12443,6 +15283,12 @@ export namespace Prisma {
     every?: ChamaWhereInput
     some?: ChamaWhereInput
     none?: ChamaWhereInput
+  }
+
+  export type TransactionListRelationFilter = {
+    every?: TransactionWhereInput
+    some?: TransactionWhereInput
+    none?: TransactionWhereInput
   }
 
   export type SortOrderInput = {
@@ -12463,6 +15309,10 @@ export namespace Prisma {
   }
 
   export type ChamaOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type TransactionOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -12572,7 +15422,7 @@ export namespace Prisma {
     _max?: NestedEnumUserTypeNullableFilter<$PrismaModel>
   }
 
-  export type UserRelationFilter = {
+  export type UserScalarRelationFilter = {
     is?: UserWhereInput
     isNot?: UserWhereInput
   }
@@ -12617,7 +15467,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
-  export type ChamaRelationFilter = {
+  export type ChamaScalarRelationFilter = {
     is?: ChamaWhereInput
     isNot?: ChamaWhereInput
   }
@@ -12819,7 +15669,7 @@ export namespace Prisma {
     not?: NestedEnumPaymentStatusFilter<$PrismaModel> | $Enums.PaymentStatus
   }
 
-  export type ContributionRelationFilter = {
+  export type ContributionScalarRelationFilter = {
     is?: ContributionWhereInput
     isNot?: ContributionWhereInput
   }
@@ -12950,7 +15800,7 @@ export namespace Prisma {
     _max?: NestedEnumDeliveryMethodFilter<$PrismaModel>
   }
 
-  export type NotificationTypeRelationFilter = {
+  export type NotificationTypeScalarRelationFilter = {
     is?: NotificationTypeWhereInput
     isNot?: NotificationTypeWhereInput
   }
@@ -13000,7 +15850,7 @@ export namespace Prisma {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
     not?: NestedBoolFilter<$PrismaModel> | boolean
   }
-  export type JsonNullableFilter<$PrismaModel = never> = 
+  export type JsonNullableFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
         Required<JsonNullableFilterBase<$PrismaModel>>
@@ -13010,12 +15860,13 @@ export namespace Prisma {
   export type JsonNullableFilterBase<$PrismaModel = never> = {
     equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
     path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
     string_contains?: string | StringFieldRefInput<$PrismaModel>
     string_starts_with?: string | StringFieldRefInput<$PrismaModel>
     string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
@@ -13049,7 +15900,7 @@ export namespace Prisma {
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
   }
-  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> = 
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
         Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
@@ -13059,12 +15910,13 @@ export namespace Prisma {
   export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
     equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
     path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
     string_contains?: string | StringFieldRefInput<$PrismaModel>
     string_starts_with?: string | StringFieldRefInput<$PrismaModel>
     string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
@@ -13073,6 +15925,87 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedJsonNullableFilter<$PrismaModel>
     _max?: NestedJsonNullableFilter<$PrismaModel>
+  }
+
+  export type EnumTransactionTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.TransactionType | EnumTransactionTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.TransactionType[] | ListEnumTransactionTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TransactionType[] | ListEnumTransactionTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumTransactionTypeFilter<$PrismaModel> | $Enums.TransactionType
+  }
+
+  export type EnumTransactionStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.TransactionStatus | EnumTransactionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.TransactionStatus[] | ListEnumTransactionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TransactionStatus[] | ListEnumTransactionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumTransactionStatusFilter<$PrismaModel> | $Enums.TransactionStatus
+  }
+
+  export type TransactionCountOrderByAggregateInput = {
+    id?: SortOrder
+    type?: SortOrder
+    amount?: SortOrder
+    chamaId?: SortOrder
+    userId?: SortOrder
+    description?: SortOrder
+    reference?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TransactionAvgOrderByAggregateInput = {
+    amount?: SortOrder
+  }
+
+  export type TransactionMaxOrderByAggregateInput = {
+    id?: SortOrder
+    type?: SortOrder
+    amount?: SortOrder
+    chamaId?: SortOrder
+    userId?: SortOrder
+    description?: SortOrder
+    reference?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TransactionMinOrderByAggregateInput = {
+    id?: SortOrder
+    type?: SortOrder
+    amount?: SortOrder
+    chamaId?: SortOrder
+    userId?: SortOrder
+    description?: SortOrder
+    reference?: SortOrder
+    status?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TransactionSumOrderByAggregateInput = {
+    amount?: SortOrder
+  }
+
+  export type EnumTransactionTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TransactionType | EnumTransactionTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.TransactionType[] | ListEnumTransactionTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TransactionType[] | ListEnumTransactionTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumTransactionTypeWithAggregatesFilter<$PrismaModel> | $Enums.TransactionType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTransactionTypeFilter<$PrismaModel>
+    _max?: NestedEnumTransactionTypeFilter<$PrismaModel>
+  }
+
+  export type EnumTransactionStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TransactionStatus | EnumTransactionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.TransactionStatus[] | ListEnumTransactionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TransactionStatus[] | ListEnumTransactionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumTransactionStatusWithAggregatesFilter<$PrismaModel> | $Enums.TransactionStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTransactionStatusFilter<$PrismaModel>
+    _max?: NestedEnumTransactionStatusFilter<$PrismaModel>
   }
 
   export type MembershipCreateNestedManyWithoutUserInput = {
@@ -13109,6 +16042,13 @@ export namespace Prisma {
     connect?: ChamaWhereUniqueInput | ChamaWhereUniqueInput[]
   }
 
+  export type TransactionCreateNestedManyWithoutUserInput = {
+    create?: XOR<TransactionCreateWithoutUserInput, TransactionUncheckedCreateWithoutUserInput> | TransactionCreateWithoutUserInput[] | TransactionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: TransactionCreateOrConnectWithoutUserInput | TransactionCreateOrConnectWithoutUserInput[]
+    createMany?: TransactionCreateManyUserInputEnvelope
+    connect?: TransactionWhereUniqueInput | TransactionWhereUniqueInput[]
+  }
+
   export type MembershipUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<MembershipCreateWithoutUserInput, MembershipUncheckedCreateWithoutUserInput> | MembershipCreateWithoutUserInput[] | MembershipUncheckedCreateWithoutUserInput[]
     connectOrCreate?: MembershipCreateOrConnectWithoutUserInput | MembershipCreateOrConnectWithoutUserInput[]
@@ -13141,6 +16081,13 @@ export namespace Prisma {
     connectOrCreate?: ChamaCreateOrConnectWithoutCreatedByInput | ChamaCreateOrConnectWithoutCreatedByInput[]
     createMany?: ChamaCreateManyCreatedByInputEnvelope
     connect?: ChamaWhereUniqueInput | ChamaWhereUniqueInput[]
+  }
+
+  export type TransactionUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<TransactionCreateWithoutUserInput, TransactionUncheckedCreateWithoutUserInput> | TransactionCreateWithoutUserInput[] | TransactionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: TransactionCreateOrConnectWithoutUserInput | TransactionCreateOrConnectWithoutUserInput[]
+    createMany?: TransactionCreateManyUserInputEnvelope
+    connect?: TransactionWhereUniqueInput | TransactionWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -13229,6 +16176,20 @@ export namespace Prisma {
     deleteMany?: ChamaScalarWhereInput | ChamaScalarWhereInput[]
   }
 
+  export type TransactionUpdateManyWithoutUserNestedInput = {
+    create?: XOR<TransactionCreateWithoutUserInput, TransactionUncheckedCreateWithoutUserInput> | TransactionCreateWithoutUserInput[] | TransactionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: TransactionCreateOrConnectWithoutUserInput | TransactionCreateOrConnectWithoutUserInput[]
+    upsert?: TransactionUpsertWithWhereUniqueWithoutUserInput | TransactionUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: TransactionCreateManyUserInputEnvelope
+    set?: TransactionWhereUniqueInput | TransactionWhereUniqueInput[]
+    disconnect?: TransactionWhereUniqueInput | TransactionWhereUniqueInput[]
+    delete?: TransactionWhereUniqueInput | TransactionWhereUniqueInput[]
+    connect?: TransactionWhereUniqueInput | TransactionWhereUniqueInput[]
+    update?: TransactionUpdateWithWhereUniqueWithoutUserInput | TransactionUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: TransactionUpdateManyWithWhereWithoutUserInput | TransactionUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: TransactionScalarWhereInput | TransactionScalarWhereInput[]
+  }
+
   export type MembershipUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<MembershipCreateWithoutUserInput, MembershipUncheckedCreateWithoutUserInput> | MembershipCreateWithoutUserInput[] | MembershipUncheckedCreateWithoutUserInput[]
     connectOrCreate?: MembershipCreateOrConnectWithoutUserInput | MembershipCreateOrConnectWithoutUserInput[]
@@ -13295,6 +16256,20 @@ export namespace Prisma {
     deleteMany?: ChamaScalarWhereInput | ChamaScalarWhereInput[]
   }
 
+  export type TransactionUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<TransactionCreateWithoutUserInput, TransactionUncheckedCreateWithoutUserInput> | TransactionCreateWithoutUserInput[] | TransactionUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: TransactionCreateOrConnectWithoutUserInput | TransactionCreateOrConnectWithoutUserInput[]
+    upsert?: TransactionUpsertWithWhereUniqueWithoutUserInput | TransactionUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: TransactionCreateManyUserInputEnvelope
+    set?: TransactionWhereUniqueInput | TransactionWhereUniqueInput[]
+    disconnect?: TransactionWhereUniqueInput | TransactionWhereUniqueInput[]
+    delete?: TransactionWhereUniqueInput | TransactionWhereUniqueInput[]
+    connect?: TransactionWhereUniqueInput | TransactionWhereUniqueInput[]
+    update?: TransactionUpdateWithWhereUniqueWithoutUserInput | TransactionUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: TransactionUpdateManyWithWhereWithoutUserInput | TransactionUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: TransactionScalarWhereInput | TransactionScalarWhereInput[]
+  }
+
   export type UserCreateNestedOneWithoutChamaInput = {
     create?: XOR<UserCreateWithoutChamaInput, UserUncheckedCreateWithoutChamaInput>
     connectOrCreate?: UserCreateOrConnectWithoutChamaInput
@@ -13322,6 +16297,13 @@ export namespace Prisma {
     connect?: InviteWhereUniqueInput | InviteWhereUniqueInput[]
   }
 
+  export type TransactionCreateNestedManyWithoutChamaInput = {
+    create?: XOR<TransactionCreateWithoutChamaInput, TransactionUncheckedCreateWithoutChamaInput> | TransactionCreateWithoutChamaInput[] | TransactionUncheckedCreateWithoutChamaInput[]
+    connectOrCreate?: TransactionCreateOrConnectWithoutChamaInput | TransactionCreateOrConnectWithoutChamaInput[]
+    createMany?: TransactionCreateManyChamaInputEnvelope
+    connect?: TransactionWhereUniqueInput | TransactionWhereUniqueInput[]
+  }
+
   export type MembershipUncheckedCreateNestedManyWithoutChamaInput = {
     create?: XOR<MembershipCreateWithoutChamaInput, MembershipUncheckedCreateWithoutChamaInput> | MembershipCreateWithoutChamaInput[] | MembershipUncheckedCreateWithoutChamaInput[]
     connectOrCreate?: MembershipCreateOrConnectWithoutChamaInput | MembershipCreateOrConnectWithoutChamaInput[]
@@ -13341,6 +16323,13 @@ export namespace Prisma {
     connectOrCreate?: InviteCreateOrConnectWithoutChamaInput | InviteCreateOrConnectWithoutChamaInput[]
     createMany?: InviteCreateManyChamaInputEnvelope
     connect?: InviteWhereUniqueInput | InviteWhereUniqueInput[]
+  }
+
+  export type TransactionUncheckedCreateNestedManyWithoutChamaInput = {
+    create?: XOR<TransactionCreateWithoutChamaInput, TransactionUncheckedCreateWithoutChamaInput> | TransactionCreateWithoutChamaInput[] | TransactionUncheckedCreateWithoutChamaInput[]
+    connectOrCreate?: TransactionCreateOrConnectWithoutChamaInput | TransactionCreateOrConnectWithoutChamaInput[]
+    createMany?: TransactionCreateManyChamaInputEnvelope
+    connect?: TransactionWhereUniqueInput | TransactionWhereUniqueInput[]
   }
 
   export type UserUpdateOneRequiredWithoutChamaNestedInput = {
@@ -13393,6 +16382,20 @@ export namespace Prisma {
     deleteMany?: InviteScalarWhereInput | InviteScalarWhereInput[]
   }
 
+  export type TransactionUpdateManyWithoutChamaNestedInput = {
+    create?: XOR<TransactionCreateWithoutChamaInput, TransactionUncheckedCreateWithoutChamaInput> | TransactionCreateWithoutChamaInput[] | TransactionUncheckedCreateWithoutChamaInput[]
+    connectOrCreate?: TransactionCreateOrConnectWithoutChamaInput | TransactionCreateOrConnectWithoutChamaInput[]
+    upsert?: TransactionUpsertWithWhereUniqueWithoutChamaInput | TransactionUpsertWithWhereUniqueWithoutChamaInput[]
+    createMany?: TransactionCreateManyChamaInputEnvelope
+    set?: TransactionWhereUniqueInput | TransactionWhereUniqueInput[]
+    disconnect?: TransactionWhereUniqueInput | TransactionWhereUniqueInput[]
+    delete?: TransactionWhereUniqueInput | TransactionWhereUniqueInput[]
+    connect?: TransactionWhereUniqueInput | TransactionWhereUniqueInput[]
+    update?: TransactionUpdateWithWhereUniqueWithoutChamaInput | TransactionUpdateWithWhereUniqueWithoutChamaInput[]
+    updateMany?: TransactionUpdateManyWithWhereWithoutChamaInput | TransactionUpdateManyWithWhereWithoutChamaInput[]
+    deleteMany?: TransactionScalarWhereInput | TransactionScalarWhereInput[]
+  }
+
   export type MembershipUncheckedUpdateManyWithoutChamaNestedInput = {
     create?: XOR<MembershipCreateWithoutChamaInput, MembershipUncheckedCreateWithoutChamaInput> | MembershipCreateWithoutChamaInput[] | MembershipUncheckedCreateWithoutChamaInput[]
     connectOrCreate?: MembershipCreateOrConnectWithoutChamaInput | MembershipCreateOrConnectWithoutChamaInput[]
@@ -13433,6 +16436,20 @@ export namespace Prisma {
     update?: InviteUpdateWithWhereUniqueWithoutChamaInput | InviteUpdateWithWhereUniqueWithoutChamaInput[]
     updateMany?: InviteUpdateManyWithWhereWithoutChamaInput | InviteUpdateManyWithWhereWithoutChamaInput[]
     deleteMany?: InviteScalarWhereInput | InviteScalarWhereInput[]
+  }
+
+  export type TransactionUncheckedUpdateManyWithoutChamaNestedInput = {
+    create?: XOR<TransactionCreateWithoutChamaInput, TransactionUncheckedCreateWithoutChamaInput> | TransactionCreateWithoutChamaInput[] | TransactionUncheckedCreateWithoutChamaInput[]
+    connectOrCreate?: TransactionCreateOrConnectWithoutChamaInput | TransactionCreateOrConnectWithoutChamaInput[]
+    upsert?: TransactionUpsertWithWhereUniqueWithoutChamaInput | TransactionUpsertWithWhereUniqueWithoutChamaInput[]
+    createMany?: TransactionCreateManyChamaInputEnvelope
+    set?: TransactionWhereUniqueInput | TransactionWhereUniqueInput[]
+    disconnect?: TransactionWhereUniqueInput | TransactionWhereUniqueInput[]
+    delete?: TransactionWhereUniqueInput | TransactionWhereUniqueInput[]
+    connect?: TransactionWhereUniqueInput | TransactionWhereUniqueInput[]
+    update?: TransactionUpdateWithWhereUniqueWithoutChamaInput | TransactionUpdateWithWhereUniqueWithoutChamaInput[]
+    updateMany?: TransactionUpdateManyWithWhereWithoutChamaInput | TransactionUpdateManyWithWhereWithoutChamaInput[]
+    deleteMany?: TransactionScalarWhereInput | TransactionScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutMembershipsInput = {
@@ -13683,6 +16700,42 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutUiSettingsInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutUiSettingsInput, UserUpdateWithoutUiSettingsInput>, UserUncheckedUpdateWithoutUiSettingsInput>
+  }
+
+  export type ChamaCreateNestedOneWithoutTransactionsInput = {
+    create?: XOR<ChamaCreateWithoutTransactionsInput, ChamaUncheckedCreateWithoutTransactionsInput>
+    connectOrCreate?: ChamaCreateOrConnectWithoutTransactionsInput
+    connect?: ChamaWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutTransactionsInput = {
+    create?: XOR<UserCreateWithoutTransactionsInput, UserUncheckedCreateWithoutTransactionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutTransactionsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type EnumTransactionTypeFieldUpdateOperationsInput = {
+    set?: $Enums.TransactionType
+  }
+
+  export type EnumTransactionStatusFieldUpdateOperationsInput = {
+    set?: $Enums.TransactionStatus
+  }
+
+  export type ChamaUpdateOneRequiredWithoutTransactionsNestedInput = {
+    create?: XOR<ChamaCreateWithoutTransactionsInput, ChamaUncheckedCreateWithoutTransactionsInput>
+    connectOrCreate?: ChamaCreateOrConnectWithoutTransactionsInput
+    upsert?: ChamaUpsertWithoutTransactionsInput
+    connect?: ChamaWhereUniqueInput
+    update?: XOR<XOR<ChamaUpdateToOneWithWhereWithoutTransactionsInput, ChamaUpdateWithoutTransactionsInput>, ChamaUncheckedUpdateWithoutTransactionsInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutTransactionsNestedInput = {
+    create?: XOR<UserCreateWithoutTransactionsInput, UserUncheckedCreateWithoutTransactionsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutTransactionsInput
+    upsert?: UserUpsertWithoutTransactionsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutTransactionsInput, UserUpdateWithoutTransactionsInput>, UserUncheckedUpdateWithoutTransactionsInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -13987,7 +17040,7 @@ export namespace Prisma {
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
   }
-  export type NestedJsonNullableFilter<$PrismaModel = never> = 
+  export type NestedJsonNullableFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
         Required<NestedJsonNullableFilterBase<$PrismaModel>>
@@ -13997,17 +17050,52 @@ export namespace Prisma {
   export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
     equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
     path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
     string_contains?: string | StringFieldRefInput<$PrismaModel>
     string_starts_with?: string | StringFieldRefInput<$PrismaModel>
     string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type NestedEnumTransactionTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.TransactionType | EnumTransactionTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.TransactionType[] | ListEnumTransactionTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TransactionType[] | ListEnumTransactionTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumTransactionTypeFilter<$PrismaModel> | $Enums.TransactionType
+  }
+
+  export type NestedEnumTransactionStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.TransactionStatus | EnumTransactionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.TransactionStatus[] | ListEnumTransactionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TransactionStatus[] | ListEnumTransactionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumTransactionStatusFilter<$PrismaModel> | $Enums.TransactionStatus
+  }
+
+  export type NestedEnumTransactionTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TransactionType | EnumTransactionTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.TransactionType[] | ListEnumTransactionTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TransactionType[] | ListEnumTransactionTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumTransactionTypeWithAggregatesFilter<$PrismaModel> | $Enums.TransactionType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTransactionTypeFilter<$PrismaModel>
+    _max?: NestedEnumTransactionTypeFilter<$PrismaModel>
+  }
+
+  export type NestedEnumTransactionStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TransactionStatus | EnumTransactionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.TransactionStatus[] | ListEnumTransactionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TransactionStatus[] | ListEnumTransactionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumTransactionStatusWithAggregatesFilter<$PrismaModel> | $Enums.TransactionStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTransactionStatusFilter<$PrismaModel>
+    _max?: NestedEnumTransactionStatusFilter<$PrismaModel>
   }
 
   export type MembershipCreateWithoutUserInput = {
@@ -14129,6 +17217,7 @@ export namespace Prisma {
     memberships?: MembershipCreateNestedManyWithoutChamaInput
     contributions?: ContributionCreateNestedManyWithoutChamaInput
     invites?: InviteCreateNestedManyWithoutChamaInput
+    transactions?: TransactionCreateNestedManyWithoutChamaInput
   }
 
   export type ChamaUncheckedCreateWithoutCreatedByInput = {
@@ -14141,6 +17230,7 @@ export namespace Prisma {
     memberships?: MembershipUncheckedCreateNestedManyWithoutChamaInput
     contributions?: ContributionUncheckedCreateNestedManyWithoutChamaInput
     invites?: InviteUncheckedCreateNestedManyWithoutChamaInput
+    transactions?: TransactionUncheckedCreateNestedManyWithoutChamaInput
   }
 
   export type ChamaCreateOrConnectWithoutCreatedByInput = {
@@ -14150,6 +17240,40 @@ export namespace Prisma {
 
   export type ChamaCreateManyCreatedByInputEnvelope = {
     data: ChamaCreateManyCreatedByInput | ChamaCreateManyCreatedByInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type TransactionCreateWithoutUserInput = {
+    id?: string
+    type: $Enums.TransactionType
+    amount: Decimal | DecimalJsLike | number | string
+    description?: string | null
+    reference?: string | null
+    status?: $Enums.TransactionStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    chama: ChamaCreateNestedOneWithoutTransactionsInput
+  }
+
+  export type TransactionUncheckedCreateWithoutUserInput = {
+    id?: string
+    type: $Enums.TransactionType
+    amount: Decimal | DecimalJsLike | number | string
+    chamaId: string
+    description?: string | null
+    reference?: string | null
+    status?: $Enums.TransactionStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TransactionCreateOrConnectWithoutUserInput = {
+    where: TransactionWhereUniqueInput
+    create: XOR<TransactionCreateWithoutUserInput, TransactionUncheckedCreateWithoutUserInput>
+  }
+
+  export type TransactionCreateManyUserInputEnvelope = {
+    data: TransactionCreateManyUserInput | TransactionCreateManyUserInput[]
     skipDuplicates?: boolean
   }
 
@@ -14295,6 +17419,38 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Chama"> | Date | string
   }
 
+  export type TransactionUpsertWithWhereUniqueWithoutUserInput = {
+    where: TransactionWhereUniqueInput
+    update: XOR<TransactionUpdateWithoutUserInput, TransactionUncheckedUpdateWithoutUserInput>
+    create: XOR<TransactionCreateWithoutUserInput, TransactionUncheckedCreateWithoutUserInput>
+  }
+
+  export type TransactionUpdateWithWhereUniqueWithoutUserInput = {
+    where: TransactionWhereUniqueInput
+    data: XOR<TransactionUpdateWithoutUserInput, TransactionUncheckedUpdateWithoutUserInput>
+  }
+
+  export type TransactionUpdateManyWithWhereWithoutUserInput = {
+    where: TransactionScalarWhereInput
+    data: XOR<TransactionUpdateManyMutationInput, TransactionUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type TransactionScalarWhereInput = {
+    AND?: TransactionScalarWhereInput | TransactionScalarWhereInput[]
+    OR?: TransactionScalarWhereInput[]
+    NOT?: TransactionScalarWhereInput | TransactionScalarWhereInput[]
+    id?: StringFilter<"Transaction"> | string
+    type?: EnumTransactionTypeFilter<"Transaction"> | $Enums.TransactionType
+    amount?: DecimalFilter<"Transaction"> | Decimal | DecimalJsLike | number | string
+    chamaId?: StringFilter<"Transaction"> | string
+    userId?: StringFilter<"Transaction"> | string
+    description?: StringNullableFilter<"Transaction"> | string | null
+    reference?: StringNullableFilter<"Transaction"> | string | null
+    status?: EnumTransactionStatusFilter<"Transaction"> | $Enums.TransactionStatus
+    createdAt?: DateTimeFilter<"Transaction"> | Date | string
+    updatedAt?: DateTimeFilter<"Transaction"> | Date | string
+  }
+
   export type UserCreateWithoutChamaInput = {
     id?: string
     name?: string | null
@@ -14309,6 +17465,7 @@ export namespace Prisma {
     contributions?: ContributionCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     uiSettings?: UiSettingsCreateNestedOneWithoutUserInput
+    transactions?: TransactionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutChamaInput = {
@@ -14325,6 +17482,7 @@ export namespace Prisma {
     contributions?: ContributionUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     uiSettings?: UiSettingsUncheckedCreateNestedOneWithoutUserInput
+    transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutChamaInput = {
@@ -14422,6 +17580,40 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type TransactionCreateWithoutChamaInput = {
+    id?: string
+    type: $Enums.TransactionType
+    amount: Decimal | DecimalJsLike | number | string
+    description?: string | null
+    reference?: string | null
+    status?: $Enums.TransactionStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutTransactionsInput
+  }
+
+  export type TransactionUncheckedCreateWithoutChamaInput = {
+    id?: string
+    type: $Enums.TransactionType
+    amount: Decimal | DecimalJsLike | number | string
+    userId: string
+    description?: string | null
+    reference?: string | null
+    status?: $Enums.TransactionStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TransactionCreateOrConnectWithoutChamaInput = {
+    where: TransactionWhereUniqueInput
+    create: XOR<TransactionCreateWithoutChamaInput, TransactionUncheckedCreateWithoutChamaInput>
+  }
+
+  export type TransactionCreateManyChamaInputEnvelope = {
+    data: TransactionCreateManyChamaInput | TransactionCreateManyChamaInput[]
+    skipDuplicates?: boolean
+  }
+
   export type UserUpsertWithoutChamaInput = {
     update: XOR<UserUpdateWithoutChamaInput, UserUncheckedUpdateWithoutChamaInput>
     create: XOR<UserCreateWithoutChamaInput, UserUncheckedCreateWithoutChamaInput>
@@ -14447,6 +17639,7 @@ export namespace Prisma {
     contributions?: ContributionUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     uiSettings?: UiSettingsUpdateOneWithoutUserNestedInput
+    transactions?: TransactionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutChamaInput = {
@@ -14463,6 +17656,7 @@ export namespace Prisma {
     contributions?: ContributionUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     uiSettings?: UiSettingsUncheckedUpdateOneWithoutUserNestedInput
+    transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type MembershipUpsertWithWhereUniqueWithoutChamaInput = {
@@ -14526,6 +17720,22 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Invite"> | Date | string
   }
 
+  export type TransactionUpsertWithWhereUniqueWithoutChamaInput = {
+    where: TransactionWhereUniqueInput
+    update: XOR<TransactionUpdateWithoutChamaInput, TransactionUncheckedUpdateWithoutChamaInput>
+    create: XOR<TransactionCreateWithoutChamaInput, TransactionUncheckedCreateWithoutChamaInput>
+  }
+
+  export type TransactionUpdateWithWhereUniqueWithoutChamaInput = {
+    where: TransactionWhereUniqueInput
+    data: XOR<TransactionUpdateWithoutChamaInput, TransactionUncheckedUpdateWithoutChamaInput>
+  }
+
+  export type TransactionUpdateManyWithWhereWithoutChamaInput = {
+    where: TransactionScalarWhereInput
+    data: XOR<TransactionUpdateManyMutationInput, TransactionUncheckedUpdateManyWithoutChamaInput>
+  }
+
   export type UserCreateWithoutMembershipsInput = {
     id?: string
     name?: string | null
@@ -14540,6 +17750,7 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutUserInput
     uiSettings?: UiSettingsCreateNestedOneWithoutUserInput
     Chama?: ChamaCreateNestedManyWithoutCreatedByInput
+    transactions?: TransactionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutMembershipsInput = {
@@ -14556,6 +17767,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     uiSettings?: UiSettingsUncheckedCreateNestedOneWithoutUserInput
     Chama?: ChamaUncheckedCreateNestedManyWithoutCreatedByInput
+    transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutMembershipsInput = {
@@ -14573,6 +17785,7 @@ export namespace Prisma {
     createdBy: UserCreateNestedOneWithoutChamaInput
     contributions?: ContributionCreateNestedManyWithoutChamaInput
     invites?: InviteCreateNestedManyWithoutChamaInput
+    transactions?: TransactionCreateNestedManyWithoutChamaInput
   }
 
   export type ChamaUncheckedCreateWithoutMembershipsInput = {
@@ -14585,6 +17798,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     contributions?: ContributionUncheckedCreateNestedManyWithoutChamaInput
     invites?: InviteUncheckedCreateNestedManyWithoutChamaInput
+    transactions?: TransactionUncheckedCreateNestedManyWithoutChamaInput
   }
 
   export type ChamaCreateOrConnectWithoutMembershipsInput = {
@@ -14617,6 +17831,7 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     uiSettings?: UiSettingsUpdateOneWithoutUserNestedInput
     Chama?: ChamaUpdateManyWithoutCreatedByNestedInput
+    transactions?: TransactionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMembershipsInput = {
@@ -14633,6 +17848,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     uiSettings?: UiSettingsUncheckedUpdateOneWithoutUserNestedInput
     Chama?: ChamaUncheckedUpdateManyWithoutCreatedByNestedInput
+    transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ChamaUpsertWithoutMembershipsInput = {
@@ -14656,6 +17872,7 @@ export namespace Prisma {
     createdBy?: UserUpdateOneRequiredWithoutChamaNestedInput
     contributions?: ContributionUpdateManyWithoutChamaNestedInput
     invites?: InviteUpdateManyWithoutChamaNestedInput
+    transactions?: TransactionUpdateManyWithoutChamaNestedInput
   }
 
   export type ChamaUncheckedUpdateWithoutMembershipsInput = {
@@ -14668,6 +17885,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     contributions?: ContributionUncheckedUpdateManyWithoutChamaNestedInput
     invites?: InviteUncheckedUpdateManyWithoutChamaNestedInput
+    transactions?: TransactionUncheckedUpdateManyWithoutChamaNestedInput
   }
 
   export type ChamaCreateWithoutInvitesInput = {
@@ -14680,6 +17898,7 @@ export namespace Prisma {
     createdBy: UserCreateNestedOneWithoutChamaInput
     memberships?: MembershipCreateNestedManyWithoutChamaInput
     contributions?: ContributionCreateNestedManyWithoutChamaInput
+    transactions?: TransactionCreateNestedManyWithoutChamaInput
   }
 
   export type ChamaUncheckedCreateWithoutInvitesInput = {
@@ -14692,6 +17911,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     memberships?: MembershipUncheckedCreateNestedManyWithoutChamaInput
     contributions?: ContributionUncheckedCreateNestedManyWithoutChamaInput
+    transactions?: TransactionUncheckedCreateNestedManyWithoutChamaInput
   }
 
   export type ChamaCreateOrConnectWithoutInvitesInput = {
@@ -14720,6 +17940,7 @@ export namespace Prisma {
     createdBy?: UserUpdateOneRequiredWithoutChamaNestedInput
     memberships?: MembershipUpdateManyWithoutChamaNestedInput
     contributions?: ContributionUpdateManyWithoutChamaNestedInput
+    transactions?: TransactionUpdateManyWithoutChamaNestedInput
   }
 
   export type ChamaUncheckedUpdateWithoutInvitesInput = {
@@ -14732,6 +17953,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: MembershipUncheckedUpdateManyWithoutChamaNestedInput
     contributions?: ContributionUncheckedUpdateManyWithoutChamaNestedInput
+    transactions?: TransactionUncheckedUpdateManyWithoutChamaNestedInput
   }
 
   export type ChamaCreateWithoutContributionsInput = {
@@ -14744,6 +17966,7 @@ export namespace Prisma {
     createdBy: UserCreateNestedOneWithoutChamaInput
     memberships?: MembershipCreateNestedManyWithoutChamaInput
     invites?: InviteCreateNestedManyWithoutChamaInput
+    transactions?: TransactionCreateNestedManyWithoutChamaInput
   }
 
   export type ChamaUncheckedCreateWithoutContributionsInput = {
@@ -14756,6 +17979,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     memberships?: MembershipUncheckedCreateNestedManyWithoutChamaInput
     invites?: InviteUncheckedCreateNestedManyWithoutChamaInput
+    transactions?: TransactionUncheckedCreateNestedManyWithoutChamaInput
   }
 
   export type ChamaCreateOrConnectWithoutContributionsInput = {
@@ -14777,6 +18001,7 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutUserInput
     uiSettings?: UiSettingsCreateNestedOneWithoutUserInput
     Chama?: ChamaCreateNestedManyWithoutCreatedByInput
+    transactions?: TransactionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutContributionsInput = {
@@ -14793,6 +18018,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     uiSettings?: UiSettingsUncheckedCreateNestedOneWithoutUserInput
     Chama?: ChamaUncheckedCreateNestedManyWithoutCreatedByInput
+    transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutContributionsInput = {
@@ -14851,6 +18077,7 @@ export namespace Prisma {
     createdBy?: UserUpdateOneRequiredWithoutChamaNestedInput
     memberships?: MembershipUpdateManyWithoutChamaNestedInput
     invites?: InviteUpdateManyWithoutChamaNestedInput
+    transactions?: TransactionUpdateManyWithoutChamaNestedInput
   }
 
   export type ChamaUncheckedUpdateWithoutContributionsInput = {
@@ -14863,6 +18090,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: MembershipUncheckedUpdateManyWithoutChamaNestedInput
     invites?: InviteUncheckedUpdateManyWithoutChamaNestedInput
+    transactions?: TransactionUncheckedUpdateManyWithoutChamaNestedInput
   }
 
   export type UserUpsertWithoutContributionsInput = {
@@ -14890,6 +18118,7 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     uiSettings?: UiSettingsUpdateOneWithoutUserNestedInput
     Chama?: ChamaUpdateManyWithoutCreatedByNestedInput
+    transactions?: TransactionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutContributionsInput = {
@@ -14906,6 +18135,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     uiSettings?: UiSettingsUncheckedUpdateOneWithoutUserNestedInput
     Chama?: ChamaUncheckedUpdateManyWithoutCreatedByNestedInput
+    transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type PaymentUpsertWithWhereUniqueWithoutContributionInput = {
@@ -15062,6 +18292,7 @@ export namespace Prisma {
     contributions?: ContributionCreateNestedManyWithoutUserInput
     uiSettings?: UiSettingsCreateNestedOneWithoutUserInput
     Chama?: ChamaCreateNestedManyWithoutCreatedByInput
+    transactions?: TransactionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -15078,6 +18309,7 @@ export namespace Prisma {
     contributions?: ContributionUncheckedCreateNestedManyWithoutUserInput
     uiSettings?: UiSettingsUncheckedCreateNestedOneWithoutUserInput
     Chama?: ChamaUncheckedCreateNestedManyWithoutCreatedByInput
+    transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -15128,6 +18360,7 @@ export namespace Prisma {
     contributions?: ContributionUpdateManyWithoutUserNestedInput
     uiSettings?: UiSettingsUpdateOneWithoutUserNestedInput
     Chama?: ChamaUpdateManyWithoutCreatedByNestedInput
+    transactions?: TransactionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -15144,6 +18377,7 @@ export namespace Prisma {
     contributions?: ContributionUncheckedUpdateManyWithoutUserNestedInput
     uiSettings?: UiSettingsUncheckedUpdateOneWithoutUserNestedInput
     Chama?: ChamaUncheckedUpdateManyWithoutCreatedByNestedInput
+    transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type NotificationTypeUpsertWithoutNotificationsInput = {
@@ -15184,6 +18418,7 @@ export namespace Prisma {
     contributions?: ContributionCreateNestedManyWithoutUserInput
     notifications?: NotificationCreateNestedManyWithoutUserInput
     Chama?: ChamaCreateNestedManyWithoutCreatedByInput
+    transactions?: TransactionCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutUiSettingsInput = {
@@ -15200,6 +18435,7 @@ export namespace Prisma {
     contributions?: ContributionUncheckedCreateNestedManyWithoutUserInput
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     Chama?: ChamaUncheckedCreateNestedManyWithoutCreatedByInput
+    transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutUiSettingsInput = {
@@ -15232,6 +18468,7 @@ export namespace Prisma {
     contributions?: ContributionUpdateManyWithoutUserNestedInput
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     Chama?: ChamaUpdateManyWithoutCreatedByNestedInput
+    transactions?: TransactionUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutUiSettingsInput = {
@@ -15247,6 +18484,159 @@ export namespace Prisma {
     memberships?: MembershipUncheckedUpdateManyWithoutUserNestedInput
     contributions?: ContributionUncheckedUpdateManyWithoutUserNestedInput
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    Chama?: ChamaUncheckedUpdateManyWithoutCreatedByNestedInput
+    transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type ChamaCreateWithoutTransactionsInput = {
+    id?: string
+    name: string
+    description?: string | null
+    rules?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    createdBy: UserCreateNestedOneWithoutChamaInput
+    memberships?: MembershipCreateNestedManyWithoutChamaInput
+    contributions?: ContributionCreateNestedManyWithoutChamaInput
+    invites?: InviteCreateNestedManyWithoutChamaInput
+  }
+
+  export type ChamaUncheckedCreateWithoutTransactionsInput = {
+    id?: string
+    name: string
+    description?: string | null
+    rules?: string | null
+    userId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    memberships?: MembershipUncheckedCreateNestedManyWithoutChamaInput
+    contributions?: ContributionUncheckedCreateNestedManyWithoutChamaInput
+    invites?: InviteUncheckedCreateNestedManyWithoutChamaInput
+  }
+
+  export type ChamaCreateOrConnectWithoutTransactionsInput = {
+    where: ChamaWhereUniqueInput
+    create: XOR<ChamaCreateWithoutTransactionsInput, ChamaUncheckedCreateWithoutTransactionsInput>
+  }
+
+  export type UserCreateWithoutTransactionsInput = {
+    id?: string
+    name?: string | null
+    email?: string | null
+    phone?: string | null
+    passwordHash?: string | null
+    role?: $Enums.UserRole
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    activeUserType?: $Enums.UserType | null
+    memberships?: MembershipCreateNestedManyWithoutUserInput
+    contributions?: ContributionCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    uiSettings?: UiSettingsCreateNestedOneWithoutUserInput
+    Chama?: ChamaCreateNestedManyWithoutCreatedByInput
+  }
+
+  export type UserUncheckedCreateWithoutTransactionsInput = {
+    id?: string
+    name?: string | null
+    email?: string | null
+    phone?: string | null
+    passwordHash?: string | null
+    role?: $Enums.UserRole
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    activeUserType?: $Enums.UserType | null
+    memberships?: MembershipUncheckedCreateNestedManyWithoutUserInput
+    contributions?: ContributionUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    uiSettings?: UiSettingsUncheckedCreateNestedOneWithoutUserInput
+    Chama?: ChamaUncheckedCreateNestedManyWithoutCreatedByInput
+  }
+
+  export type UserCreateOrConnectWithoutTransactionsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutTransactionsInput, UserUncheckedCreateWithoutTransactionsInput>
+  }
+
+  export type ChamaUpsertWithoutTransactionsInput = {
+    update: XOR<ChamaUpdateWithoutTransactionsInput, ChamaUncheckedUpdateWithoutTransactionsInput>
+    create: XOR<ChamaCreateWithoutTransactionsInput, ChamaUncheckedCreateWithoutTransactionsInput>
+    where?: ChamaWhereInput
+  }
+
+  export type ChamaUpdateToOneWithWhereWithoutTransactionsInput = {
+    where?: ChamaWhereInput
+    data: XOR<ChamaUpdateWithoutTransactionsInput, ChamaUncheckedUpdateWithoutTransactionsInput>
+  }
+
+  export type ChamaUpdateWithoutTransactionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    rules?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdBy?: UserUpdateOneRequiredWithoutChamaNestedInput
+    memberships?: MembershipUpdateManyWithoutChamaNestedInput
+    contributions?: ContributionUpdateManyWithoutChamaNestedInput
+    invites?: InviteUpdateManyWithoutChamaNestedInput
+  }
+
+  export type ChamaUncheckedUpdateWithoutTransactionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    rules?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    memberships?: MembershipUncheckedUpdateManyWithoutChamaNestedInput
+    contributions?: ContributionUncheckedUpdateManyWithoutChamaNestedInput
+    invites?: InviteUncheckedUpdateManyWithoutChamaNestedInput
+  }
+
+  export type UserUpsertWithoutTransactionsInput = {
+    update: XOR<UserUpdateWithoutTransactionsInput, UserUncheckedUpdateWithoutTransactionsInput>
+    create: XOR<UserCreateWithoutTransactionsInput, UserUncheckedCreateWithoutTransactionsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutTransactionsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutTransactionsInput, UserUncheckedUpdateWithoutTransactionsInput>
+  }
+
+  export type UserUpdateWithoutTransactionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    activeUserType?: NullableEnumUserTypeFieldUpdateOperationsInput | $Enums.UserType | null
+    memberships?: MembershipUpdateManyWithoutUserNestedInput
+    contributions?: ContributionUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    uiSettings?: UiSettingsUpdateOneWithoutUserNestedInput
+    Chama?: ChamaUpdateManyWithoutCreatedByNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutTransactionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    activeUserType?: NullableEnumUserTypeFieldUpdateOperationsInput | $Enums.UserType | null
+    memberships?: MembershipUncheckedUpdateManyWithoutUserNestedInput
+    contributions?: ContributionUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    uiSettings?: UiSettingsUncheckedUpdateOneWithoutUserNestedInput
     Chama?: ChamaUncheckedUpdateManyWithoutCreatedByNestedInput
   }
 
@@ -15285,6 +18675,18 @@ export namespace Prisma {
     name: string
     description?: string | null
     rules?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TransactionCreateManyUserInput = {
+    id?: string
+    type: $Enums.TransactionType
+    amount: Decimal | DecimalJsLike | number | string
+    chamaId: string
+    description?: string | null
+    reference?: string | null
+    status?: $Enums.TransactionStatus
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -15391,6 +18793,7 @@ export namespace Prisma {
     memberships?: MembershipUpdateManyWithoutChamaNestedInput
     contributions?: ContributionUpdateManyWithoutChamaNestedInput
     invites?: InviteUpdateManyWithoutChamaNestedInput
+    transactions?: TransactionUpdateManyWithoutChamaNestedInput
   }
 
   export type ChamaUncheckedUpdateWithoutCreatedByInput = {
@@ -15403,6 +18806,7 @@ export namespace Prisma {
     memberships?: MembershipUncheckedUpdateManyWithoutChamaNestedInput
     contributions?: ContributionUncheckedUpdateManyWithoutChamaNestedInput
     invites?: InviteUncheckedUpdateManyWithoutChamaNestedInput
+    transactions?: TransactionUncheckedUpdateManyWithoutChamaNestedInput
   }
 
   export type ChamaUncheckedUpdateManyWithoutCreatedByInput = {
@@ -15410,6 +18814,42 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     rules?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TransactionUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    chama?: ChamaUpdateOneRequiredWithoutTransactionsNestedInput
+  }
+
+  export type TransactionUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    chamaId?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TransactionUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    chamaId?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -15441,6 +18881,18 @@ export namespace Prisma {
     expiresAt: Date | string
     usedAt?: Date | string | null
     createdAt?: Date | string
+  }
+
+  export type TransactionCreateManyChamaInput = {
+    id?: string
+    type: $Enums.TransactionType
+    amount: Decimal | DecimalJsLike | number | string
+    userId: string
+    description?: string | null
+    reference?: string | null
+    status?: $Enums.TransactionStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type MembershipUpdateWithoutChamaInput = {
@@ -15532,6 +18984,42 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type TransactionUpdateWithoutChamaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutTransactionsNestedInput
+  }
+
+  export type TransactionUncheckedUpdateWithoutChamaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    userId?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TransactionUncheckedUpdateManyWithoutChamaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+    amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    userId?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    reference?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumTransactionStatusFieldUpdateOperationsInput | $Enums.TransactionStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type PaymentCreateManyContributionInput = {
     id?: string
     method?: $Enums.PaymentMethod
@@ -15613,62 +19101,6 @@ export namespace Prisma {
   }
 
 
-
-  /**
-   * Aliases for legacy arg types
-   */
-    /**
-     * @deprecated Use UserCountOutputTypeDefaultArgs instead
-     */
-    export type UserCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = UserCountOutputTypeDefaultArgs<ExtArgs>
-    /**
-     * @deprecated Use ChamaCountOutputTypeDefaultArgs instead
-     */
-    export type ChamaCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ChamaCountOutputTypeDefaultArgs<ExtArgs>
-    /**
-     * @deprecated Use ContributionCountOutputTypeDefaultArgs instead
-     */
-    export type ContributionCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ContributionCountOutputTypeDefaultArgs<ExtArgs>
-    /**
-     * @deprecated Use NotificationTypeCountOutputTypeDefaultArgs instead
-     */
-    export type NotificationTypeCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = NotificationTypeCountOutputTypeDefaultArgs<ExtArgs>
-    /**
-     * @deprecated Use UserDefaultArgs instead
-     */
-    export type UserArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = UserDefaultArgs<ExtArgs>
-    /**
-     * @deprecated Use ChamaDefaultArgs instead
-     */
-    export type ChamaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ChamaDefaultArgs<ExtArgs>
-    /**
-     * @deprecated Use MembershipDefaultArgs instead
-     */
-    export type MembershipArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = MembershipDefaultArgs<ExtArgs>
-    /**
-     * @deprecated Use InviteDefaultArgs instead
-     */
-    export type InviteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = InviteDefaultArgs<ExtArgs>
-    /**
-     * @deprecated Use ContributionDefaultArgs instead
-     */
-    export type ContributionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ContributionDefaultArgs<ExtArgs>
-    /**
-     * @deprecated Use PaymentDefaultArgs instead
-     */
-    export type PaymentArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = PaymentDefaultArgs<ExtArgs>
-    /**
-     * @deprecated Use NotificationTypeDefaultArgs instead
-     */
-    export type NotificationTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = NotificationTypeDefaultArgs<ExtArgs>
-    /**
-     * @deprecated Use NotificationDefaultArgs instead
-     */
-    export type NotificationArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = NotificationDefaultArgs<ExtArgs>
-    /**
-     * @deprecated Use UiSettingsDefaultArgs instead
-     */
-    export type UiSettingsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = UiSettingsDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany

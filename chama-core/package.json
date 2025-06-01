@@ -17,12 +17,20 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@getbrevo/brevo": "^2.2.0",
     "@nestjs/common": "^10.0.0",
+    "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^10.0.0",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/swagger": "^11.2.0",
+    "axios": "^1.9.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.2",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
+    "decimal.js": "^10.5.0",
     "express": "~4.16.1",
+    "firebase-admin": "^13.4.0",
     "morgan": "~1.9.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1"
@@ -47,13 +55,19 @@
     "typescript": "^5.1.3"
   },
   "jest": {
-    "moduleFileExtensions": ["js", "json", "ts"],
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
-    "collectCoverageFrom": ["**/*.(t|j)s"],
+    "collectCoverageFrom": [
+      "**/*.(t|j)s"
+    ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
   }
