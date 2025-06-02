@@ -72,10 +72,21 @@ export class ChamaController {
       properties: {
         id: { type: 'string', description: 'Unique chama identifier' },
         name: { type: 'string', description: 'Name of the chama' },
-        description: { type: 'string', description: 'Description of the chama' },
+        description: {
+          type: 'string',
+          description: 'Description of the chama',
+        },
         userId: { type: 'string', description: 'ID of the creator' },
-        createdAt: { type: 'string', format: 'date-time', description: 'Creation timestamp' },
-        updatedAt: { type: 'string', format: 'date-time', description: 'Last update timestamp' },
+        createdAt: {
+          type: 'string',
+          format: 'date-time',
+          description: 'Creation timestamp',
+        },
+        updatedAt: {
+          type: 'string',
+          format: 'date-time',
+          description: 'Last update timestamp',
+        },
         memberships: {
           type: 'array',
           description: 'List of users who are members of this chama',
@@ -85,18 +96,26 @@ export class ChamaController {
               id: { type: 'string', description: 'Membership ID' },
               chamaId: { type: 'string', description: 'Chama ID' },
               userId: { type: 'string', description: 'User ID' },
-              role: { type: 'string', description: 'Role in the chama (ADMIN, MEMBER)' },
-              createdAt: { type: 'string', format: 'date-time', description: 'Membership creation date' },
-              updatedAt: { type: 'string', format: 'date-time', description: 'Membership last update date' },
+              role: {
+                type: 'string',
+                description: 'Role in the chama (ADMIN, MEMBER)',
+              },
+              createdAt: {
+                type: 'string',
+                format: 'date-time',
+                description: 'Membership creation date',
+              },
+              updatedAt: {
+                type: 'string',
+                format: 'date-time',
+                description: 'Membership last update date',
+              },
             },
           },
         },
       },
     },
   })
-  @ApiBadRequestResponse({ description: 'Bad request - Invalid data or chama already exists' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized - User not authenticated' })
-  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async create(
     @Body() createChamaDto: CreateChamaDto,
     @CurrentUser() currentUser: CurrentUserType,
@@ -104,9 +123,7 @@ export class ChamaController {
     try {
       return await this.chamaService.create(createChamaDto, currentUser.id);
     } catch (error) {
-      if (error instanceof BadRequestException) {
-        throw error;
-      }
+      if (error instanceof BadRequestException) throw error;
       throw new BadRequestException(`Failed to create chama: ${error.message}`);
     }
   }
@@ -128,10 +145,21 @@ export class ChamaController {
         properties: {
           id: { type: 'string', description: 'Unique chama identifier' },
           name: { type: 'string', description: 'Name of the chama' },
-          description: { type: 'string', description: 'Description of the chama' },
+          description: {
+            type: 'string',
+            description: 'Description of the chama',
+          },
           userId: { type: 'string', description: 'ID of the creator' },
-          createdAt: { type: 'string', format: 'date-time', description: 'Creation timestamp' },
-          updatedAt: { type: 'string', format: 'date-time', description: 'Last update timestamp' },
+          createdAt: {
+            type: 'string',
+            format: 'date-time',
+            description: 'Creation timestamp',
+          },
+          updatedAt: {
+            type: 'string',
+            format: 'date-time',
+            description: 'Last update timestamp',
+          },
           memberships: {
             type: 'array',
             description: 'List of users who are members of this chama',
@@ -141,9 +169,20 @@ export class ChamaController {
                 id: { type: 'string', description: 'Membership ID' },
                 chamaId: { type: 'string', description: 'Chama ID' },
                 userId: { type: 'string', description: 'User ID' },
-                role: { type: 'string', description: 'Role in the chama (ADMIN, MEMBER)' },
-                createdAt: { type: 'string', format: 'date-time', description: 'Membership creation date' },
-                updatedAt: { type: 'string', format: 'date-time', description: 'Membership last update date' },
+                role: {
+                  type: 'string',
+                  description: 'Role in the chama (ADMIN, MEMBER)',
+                },
+                createdAt: {
+                  type: 'string',
+                  format: 'date-time',
+                  description: 'Membership creation date',
+                },
+                updatedAt: {
+                  type: 'string',
+                  format: 'date-time',
+                  description: 'Membership last update date',
+                },
               },
             },
           },
@@ -151,15 +190,21 @@ export class ChamaController {
       },
     },
   })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized - User not authenticated' })
-  async findAll(@CurrentUser() currentUser: CurrentUserType): Promise<ChamaResponse[]> {
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized - User not authenticated',
+  })
+  async findAll(
+    @CurrentUser() currentUser: CurrentUserType,
+  ): Promise<ChamaResponse[]> {
     try {
       return await this.chamaService.findAll(currentUser.id);
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw error;
       }
-      throw new InternalServerErrorException(`Failed to fetch chamas: ${error.message}`);
+      throw new InternalServerErrorException(
+        `Failed to fetch chamas: ${error.message}`,
+      );
     }
   }
 
@@ -179,10 +224,21 @@ export class ChamaController {
       properties: {
         id: { type: 'string', description: 'Unique chama identifier' },
         name: { type: 'string', description: 'Name of the chama' },
-        description: { type: 'string', description: 'Description of the chama' },
+        description: {
+          type: 'string',
+          description: 'Description of the chama',
+        },
         userId: { type: 'string', description: 'ID of the creator' },
-        createdAt: { type: 'string', format: 'date-time', description: 'Creation timestamp' },
-        updatedAt: { type: 'string', format: 'date-time', description: 'Last update timestamp' },
+        createdAt: {
+          type: 'string',
+          format: 'date-time',
+          description: 'Creation timestamp',
+        },
+        updatedAt: {
+          type: 'string',
+          format: 'date-time',
+          description: 'Last update timestamp',
+        },
         memberships: {
           type: 'array',
           description: 'List of users who are members of this chama',
@@ -192,17 +248,32 @@ export class ChamaController {
               id: { type: 'string', description: 'Membership ID' },
               chamaId: { type: 'string', description: 'Chama ID' },
               userId: { type: 'string', description: 'User ID' },
-              role: { type: 'string', description: 'Role in the chama (ADMIN, MEMBER)' },
-              createdAt: { type: 'string', format: 'date-time', description: 'Membership creation date' },
-              updatedAt: { type: 'string', format: 'date-time', description: 'Membership last update date' },
+              role: {
+                type: 'string',
+                description: 'Role in the chama (ADMIN, MEMBER)',
+              },
+              createdAt: {
+                type: 'string',
+                format: 'date-time',
+                description: 'Membership creation date',
+              },
+              updatedAt: {
+                type: 'string',
+                format: 'date-time',
+                description: 'Membership last update date',
+              },
             },
           },
         },
       },
     },
   })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized - User not authenticated' })
-  @ApiNotFoundResponse({ description: 'Chama not found or user does not have access' })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized - User not authenticated',
+  })
+  @ApiNotFoundResponse({
+    description: 'Chama not found or user does not have access',
+  })
   async findOne(
     @Param('id') id: string,
     @CurrentUser() currentUser: CurrentUserType,
@@ -216,7 +287,9 @@ export class ChamaController {
       if (error instanceof BadRequestException) {
         throw error;
       }
-      throw new InternalServerErrorException(`Failed to fetch chama: ${error.message}`);
+      throw new InternalServerErrorException(
+        `Failed to fetch chama: ${error.message}`,
+      );
     }
   }
 }
