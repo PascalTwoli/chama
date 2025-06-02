@@ -6,7 +6,21 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { TransactionType } from 'generated/prisma';
+import { TransactionType, TransactionStatus } from 'generated/prisma';
+
+// Define interface for transaction response that matches the controller's expected format
+export interface TransactionResponse {
+  id: string;
+  type: TransactionType;
+  amount: number;
+  chamaId: string;
+  userId: string;
+  description?: string;
+  reference?: string;
+  status: TransactionStatus;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 @Injectable()
 export class TransactionService {
@@ -21,7 +35,7 @@ export class TransactionService {
   async createTransaction(
     createTransactionDto: CreateTransactionDto,
     userId: string,
-  ) {
+  ): Promise<TransactionResponse> {
     // First, verify the user is a member of the chama
     const membership = await this.prisma.membership.findFirst({
       where: {
@@ -61,7 +75,13 @@ export class TransactionService {
         });
       });
 
-      return transaction;
+      // Convert Decimal amount to number and null to undefined for response
+      return {
+        ...transaction,
+        amount: Number(transaction.amount),
+        description: transaction.description || undefined,
+        reference: transaction.reference || undefined
+      };
     } catch (error) {
       throw new BadRequestException(
         `Failed to create transaction: ${error.message}`,
@@ -84,7 +104,7 @@ export class TransactionService {
     type?: TransactionType,
     startDate?: string,
     endDate?: string,
-  ) {
+  ): Promise<TransactionResponse[]> {
     // Verify the user is a member of the chama
     const membership = await this.prisma.membership.findFirst({
       where: {
@@ -131,7 +151,7 @@ export class TransactionService {
     }
 
     // Get transactions
-    return await this.prisma.$transaction(async (prisma) => {
+    const transactions = await this.prisma.$transaction(async (prisma) => {
       return await prisma.transaction.findMany({
         where,
         orderBy: {
@@ -139,6 +159,14 @@ export class TransactionService {
         },
       });
     });
+    
+    // Convert Decimal amounts to numbers and null to undefined for response
+    return transactions.map(transaction => ({
+      ...transaction,
+      amount: Number(transaction.amount),
+      description: transaction.description || undefined,
+      reference: transaction.reference || undefined
+    }));
   }
 
   /**
@@ -147,7 +175,7 @@ export class TransactionService {
    * @param userId - ID of the user requesting the transaction
    * @returns Transaction details
    */
-  async getTransactionById(id: string, userId: string) {
+  async getTransactionById(id: string, userId: string): Promise<TransactionResponse> {
     const transaction = await this.prisma.transaction.findUnique({
       where: { id },
       include: {
@@ -175,9 +203,14 @@ export class TransactionService {
       );
     }
 
-    // Exclude nested data before returning
+    // Exclude nested data before returning and convert Decimal to number
     const { chama, ...transactionData } = transaction;
-    return transactionData;
+    return {
+      ...transactionData,
+      amount: Number(transactionData.amount),
+      description: transactionData.description || undefined,
+      reference: transactionData.reference || undefined
+    };
   }
 
   /**
