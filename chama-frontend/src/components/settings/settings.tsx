@@ -3,7 +3,7 @@ import ChamaSettings from "./chama-settings";
 function Settings () {
     return (
         <>
-            <ChamaSettings/>
+            <ChamaSettings chamaId="" chamaName="" />
         </>
     )
 }

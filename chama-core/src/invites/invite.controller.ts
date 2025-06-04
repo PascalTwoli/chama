@@ -57,7 +57,7 @@ export class InviteController {
   ): Promise<InviteEntity> {
     try {
       const invite = await this.inviteService.createInvite(createInviteDto, currentUser.id);
-      return new InviteEntity(invite);
+      return new InviteEntity(invite.invite);
     } catch (error) {
       this.handleError(error, 'Failed to create invite');
     }
