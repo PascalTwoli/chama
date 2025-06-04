@@ -4,10 +4,15 @@ import { Toast } from "primereact/toast";
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
+import InviteLink from "./InviteLink";
 type Role = "Chair" | "Secretary" | "Treasurer"
 
+interface ChamaSettingsProps {
+  chamaId: string;
+  chamaName: string;
+}
 
-function ChamaSettings() {
+function ChamaSettings({ chamaId, chamaName }: ChamaSettingsProps) {
     const toast = useRef<Toast>(null);
     const [activeTab, setActiveTab] = useState("Account");
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -119,7 +124,13 @@ function ChamaSettings() {
   return (
     <>
     <Toast ref={toast}/>
-    <h1 className="font-bold text-lg mb-4">Twoli Contribution's Settings</h1>
+    <h1 className="font-bold text-lg mb-4">{chamaName}'s Settings</h1>
+    
+    {/* InviteLink component for admin to generate invitation links */}
+    <div className="mb-6">
+      <InviteLink chamaId={chamaId} chamaName={chamaName} />
+    </div>
+    
     <div className="flex gap-4">
         <div className="bg-gray-800 rounded-lg shadow-lg min-w-[220px] overflow-hidden">
           <Menu model={menuItems} className="w-full" pt={{
@@ -184,7 +195,7 @@ function ChamaSettings() {
             <div>
                 <div className="text-center">
                     <h2 className="text-xl font-semibold mb-3 p-3 border-b border-b-2 border-b-gray-500 ">
-                        Twoli Contribution Leadership
+                        {chamaName} Leadership
                     </h2>
                 </div>
                 <div className="flex gap-4 grid grid-cols-3 ">
@@ -250,7 +261,7 @@ function ChamaSettings() {
                 <div className="font-bold">
                     <div className="text-center">
                         <h1 className="font-bold text-xl mb-4 pb-2 border-b border-gray-600">
-                            Delete Chama/Group: Twoli contributions
+                            Delete Chama/Group: {chamaName}
                         </h1>
                     </div>
                     <div className="text-gray-400">
@@ -271,7 +282,7 @@ function ChamaSettings() {
                         </ul>
                     </div>
                     <div className="text-right">
-                        <Button icon="pi pi-trash" className="p-button p-button-danger p-button-outlined mt-4" label="Delete Twoli Contribution's account" style={{ height: '2.5rem' }} />
+                        <Button icon="pi pi-trash" className="p-button p-button-danger p-button-outlined mt-4" label={`Delete ${chamaName}'s account`} style={{ height: '2.5rem' }} />
                     </div>
                 </div>
             </div>
