@@ -5,8 +5,10 @@ import {
   ConflictException, 
   UnauthorizedException,
   Logger,
-  InternalServerErrorException
+  InternalServerErrorException,
+  Optional
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import { EmailService } from '../email/email.service';
 import { CreateInviteDto } from './dto/create-invite.dto';
@@ -19,16 +21,24 @@ import { MembershipEntity } from './entities/membership.entity';
 @Injectable()
 export class InviteService {
   private readonly logger = new Logger(InviteService.name);
+  private readonly baseUrl: string;
   
   constructor(
     private readonly prisma: PrismaService,
-    private readonly emailService: EmailService
-  ) {}
+    @Optional() private readonly emailService: EmailService,
+    private readonly configService: ConfigService
+  ) {
+    this.baseUrl = this.configService.get<string>('APP_BASE_URL', 'http://localhost:3000');
+  }
 
   /**
    * Create a new invite for a user to join a chama
    */
-  async createInvite(createInviteDto: CreateInviteDto, requestUserId: string): Promise<Invite> {
+  async createInvite(
+    createInviteDto: CreateInviteDto, 
+    requestUserId: string, 
+    sendEmail: boolean = false
+  ): Promise<{ invite: Invite; inviteLink: string }> {
     const { chamaId, email } = createInviteDto;
 
     try {
@@ -133,29 +143,18 @@ export class InviteService {
         },
       });
 
-      // Send invite email
-      try {
-        const inviterName = requestingUser.name || 'A Chama Admin';
-        
-        const emailSent = await this.emailService.sendInviteEmail(
-          email,
-          invite.chama.name,
-          token,
-          inviterName
-        );
-        
-        if (emailSent) {
-          this.logger.log(`Invite email sent to ${email} for chama ${chamaId}`);
-        } else {
-          this.logger.warn(`Failed to send invite email to ${email} for chama ${chamaId}`);
-        }
-      } catch (error) {
-        this.logger.error(`Error sending invite email: ${error.message}`, error.stack);
-        // We don't throw here as the invite was created successfully
-        // The user can still join with the token even if email delivery fails
+      // Generate the invite link
+      const inviteLink = `${this.baseUrl}/join-chama/${token}`;
+      
+      // Send invite email if requested and email service is available
+      if (sendEmail && this.emailService) {
+        await this.sendInviteEmail(email, invite.chama.name, token, requestingUser.name || 'A Chama Admin');
       }
 
-      return invite;
+      return { 
+        invite, 
+        inviteLink 
+      };
     } catch (error) {
       // Pass through known error types
       if (
@@ -400,5 +399,45 @@ export class InviteService {
 
     return !!existingInvite;
   }
-}
+  /**
+   * Helper method to send an invite email
+   */
+  async sendInviteEmail(
+    email: string,
+    chamaName: string,
+    token: string,
+    inviterName: string
+  ): Promise<boolean> {
+    if (!this.emailService) {
+      this.logger.warn('Email service not available - invite email not sent');
+      return false;
+    }
 
+    try {
+      const emailSent = await this.emailService.sendInviteEmail(
+        email,
+        chamaName,
+        token,
+        inviterName
+      );
+      
+      if (emailSent) {
+        this.logger.log(`Invite email sent to ${email} for chama ${chamaName}`);
+        return true;
+      } else {
+        this.logger.warn(`Failed to send invite email to ${email} for chama ${chamaName}`);
+        return false;
+      }
+    } catch (error) {
+      this.logger.error(`Error sending invite email: ${error.message}`, error.stack);
+      return false;
+    }
+  }
+
+  /**
+   * Generate an invite link for a token
+   */
+  generateInviteLink(token: string): string {
+    return `${this.baseUrl}/join-chama/${token}`;
+  }
+}
