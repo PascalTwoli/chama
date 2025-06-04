@@ -28,3 +28,22 @@ export const joinChama = async (chamaId: string) => {
   const res = await axios.post(`${API_BASE}/${chamaId}/join`);
   return res.data;
 };
+
+export const validateInvite = async (token: string) => {
+  const res = await axios.get(`/api/invites/validate/${token}`);
+  return res.data;
+};
+
+export const acceptInvite = async (token: string) => {
+  const res = await axios.post(`/api/invites/accept/${token}`);
+  return res.data;
+};
+
+export const createInvite = async (chamaId: string, email: string, sendEmail: boolean = false) => {
+  const res = await axios.post(`/api/invites/create`, {
+    chamaId,
+    email,
+    sendEmail
+  });
+  return res.data;
+};
