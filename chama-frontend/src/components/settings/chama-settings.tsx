@@ -6,7 +6,12 @@ import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
 type Role = "Chair" | "Secretary" | "Treasurer";
 
-function ChamaSettings() {
+interface ChamaSettingsProps {
+  chamaId?: string;
+  chamaName?: string;
+}
+
+const ChamaSettings: React.FC<ChamaSettingsProps> = () => {
 	const [isEditing, setIsEditing] = useState(false);
 	const toast = useRef<Toast>(null);
 	const [activeTab, setActiveTab] = useState("Account");
