@@ -2,15 +2,18 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
   Query,
+  UseGuards,
   ValidationPipe,
   UsePipes,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
   ApiOkResponse,
@@ -23,6 +26,10 @@ import { LoginDto } from '../user/dto/login.dto';
 import { RegisterUserDto } from '../user/dto/register-user.dto';
 import { LoginResponse } from '../user/user.service';
 import { UserService } from '../user/user.service';
+import { AuthGuard } from '../guards/auth.guard';
+import { CurrentUser } from '../decorators/current-user.decorator';
+import { type CurrentUser as CurrentUserType } from '../decorators/current-user.decorator';
+import { UserResponseEntity } from '../user/entities/user.entity';
 
 /**
  * Interface for token refresh response
@@ -149,6 +156,43 @@ export class AuthController {
       return await this.userService.refreshAuthToken(refreshToken);
     } catch (error) {
       throw new BadRequestException(`Token refresh failed: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get current logged in user information
+   */
+  @Get('me')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Get current user information',
+    description: 'Returns the current authenticated user information including both Firebase and local user details',
+  })
+  @ApiOkResponse({
+    description: 'Current user information',
+    type: UserResponseEntity,
+  })
+  @ApiUnauthorizedResponse({ description: 'User not authenticated' })
+  async getCurrentUser(@CurrentUser() currentUser: CurrentUserType): Promise<UserResponseEntity> {
+    try {
+      // Use the current user's Firebase UID to get complete user details
+      const userResponse = await this.userService.findOne(currentUser.firebaseUid);
+      
+      // Transform to entity instance
+      return new UserResponseEntity({
+        firebaseUser: userResponse.firebaseUser ? {
+          uid: userResponse.firebaseUser.uid,
+          email: userResponse.firebaseUser.email,
+          displayName: userResponse.firebaseUser.displayName,
+          phoneNumber: userResponse.firebaseUser.phoneNumber,
+          emailVerified: userResponse.firebaseUser.emailVerified
+        } : undefined,
+        localUser: userResponse.localUser
+      });
+    } catch (error) {
+      throw new BadRequestException(`Failed to fetch current user: ${error.message}`);
     }
   }
 }
