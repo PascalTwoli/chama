@@ -87,7 +87,8 @@ export function ChamaUserType({ type }: ChamaUserTypeProps): React.ReactElement 
                 return;
             }
 
-            const userId = localStorage.getItem('userId') || '';
+            const currentUser = await AuthService.getCurrentUser();
+            const userId = currentUser.id;
             const userData = await AuthService.updateUserType(userId, {
                 activeUserType: normalizedType,
             });
