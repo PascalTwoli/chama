@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import AdminLayout from "../layout/Admin-layout";
 import SignIn from "../pages/signin";
 import SignUp from "../pages/signup";
@@ -18,6 +18,8 @@ import { UserType } from "../data/user-type";
 import MemberLayout from "../layout/Member-layout";
 import MemberDashboard from "../pages/MemberDashboard";
 import AuthService from "../services/auth/signup-service";
+import { useEffect, useState } from "react";
+import { OnboardingStatus } from "../models/user";
 
 interface ProtectedRouteProps {
 	children: React.ReactElement;
@@ -29,10 +31,10 @@ const AppRoutes = () => {
 	 * Function to check if user should be redirected to role selection
 	 * @returns True if user should be redirected to role selection
 	 */
-	const shouldRedirectToRoleSelection = (): boolean => {
-		const status = AuthService.checkOnboardingStatus();
-		return status.needsUserType;
-	};
+	// const shouldRedirectToRoleSelection = (): boolean => {
+	// 	const status = AuthService.checkOnboardingStatus();
+	// 	return status.needsUserType;
+	// };
 
 	/**
 	 * Function to get default route based on user type and onboarding status
@@ -45,36 +47,48 @@ const AppRoutes = () => {
 	/**
 	 * Protected route component - only allows access to users with specified role
 	 */
-	const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
-		children,
-		allowedRole,
-	}) => {
-		// Use the AuthService to check authentication and user type
-		const authToken = localStorage.getItem("authToken");
-		if (!authToken) {
-			return <Navigate to="/signin" replace />;
-		}
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRole }) => {
+  const [status, setStatus] = useState<OnboardingStatus | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
-		// Get full onboarding status
-		const status = AuthService.checkOnboardingStatus();
-		
-		// If user needs to select a type, redirect to user type selection
-		if (status.needsUserType) {
-			return <Navigate to="/chose-user" replace />;
-		}
+  useEffect(() => {
+    const checkStatus = async () => {
+      try {
+        const authToken = localStorage.getItem("authToken");
+        if (!authToken) {
+          navigate("/signin");
+          return;
+        }
+        const onboardingStatus = await AuthService.checkOnboardingStatus();
+        setStatus(onboardingStatus);
+      } catch (error) {
+        console.error("Error checking onboarding status:", error);
+        navigate("/signin");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    checkStatus();
+  }, [navigate]);
 
-		// If user doesn't have the allowed role, redirect based on their actual role
-		const normalizedUserType = AuthService.normalizeUserType(status.userType);
-		const normalizedAllowedRole = AuthService.normalizeUserType(allowedRole);
-		
-		if (normalizedUserType !== normalizedAllowedRole) {
-			// Get the appropriate redirect path based on user's status
-			return <Navigate to={AuthService.getRedirectPath()} replace />;
-		}
+  if (isLoading) {
+    return <div>Loading...</div>; // You can replace this with a spinner or custom loading component
+  }
 
-		// User has the correct role, render the children
-		return children;
-	};
+  if (status?.needsUserType) {
+    return <Navigate to="/chose-user" replace />;
+  }
+  
+  const normalizedUserType = AuthService.normalizeUserType(status?.activeUserType?? null);
+  const normalizedAllowedType = AuthService.normalizeUserType(allowedRole);
+
+  if (normalizedUserType !== normalizedAllowedType) {
+    return <Navigate to={AuthService.getRedirectPath()} replace />;
+  }
+
+  return children;
+};
 
 	return (
 		<BrowserRouter>
