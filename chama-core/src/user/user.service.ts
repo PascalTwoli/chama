@@ -11,6 +11,11 @@ import { LoginDto } from './dto/login.dto';
 import axios from 'axios';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserType } from 'generated/prisma';
+import {
+  UserEntity,
+  FirebaseUserEntity,
+  UserResponseEntity,
+} from './entities/user.entity';
 
 // Interface for pagination parameters
 export interface PaginationParams {
@@ -22,6 +27,12 @@ export interface PaginationParams {
 export interface UserListResponse {
   users: firebaseAdmin.auth.UserRecord[];
   pageToken?: string;
+}
+
+// Enhanced interface for user response matching our entity
+export interface EnhancedUserResponse {
+  firebaseUser: firebaseAdmin.auth.UserRecord | null;
+  localUser: UserEntity;
 }
 
 // Interface for enhanced login response
@@ -267,30 +278,34 @@ export class UserService {
     }
   }
 
-  async validateRequest(req): Promise<boolean> {
+  async validateRequestAndGetToken(
+    req,
+  ): Promise<firebaseAdmin.auth.DecodedIdToken | null> {
     const authHeader = req.headers['authorization'];
     if (!authHeader) {
       console.log('Authorization header not provided.');
-      return false;
+      return null;
     }
+
     const [bearer, token] = authHeader.split(' ');
     if (bearer !== 'Bearer' || !token) {
       console.log('Invalid authorization format. Expected "Bearer <token>".');
-      return false;
+      return null;
     }
+
     try {
+      console.log('Verifying token with Firebase Admin SDK...');
       const decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
-      console.log('Decoded Token:', decodedToken);
-      return true;
+      console.log('Token verified successfully:', decodedToken);
+      return decodedToken;
     } catch (error) {
+      console.error('Token verification failed:', error.message);
       if (error.code === 'auth/id-token-expired') {
         console.error('Token has expired.');
       } else if (error.code === 'auth/invalid-id-token') {
         console.error('Invalid ID token provided.');
-      } else {
-        console.error('Error verifying token:', error);
       }
-      return false;
+      return null;
     }
   }
 
@@ -314,6 +329,7 @@ export class UserService {
       }
     }
   }
+
   private async sendRefreshAuthTokenRequest(refreshToken: string) {
     const url = `https://securetoken.googleapis.com/v1/token?key=${process.env.FIREBASE_API_KEY}`;
     const payload = {
@@ -343,23 +359,34 @@ export class UserService {
     }
   }
 
-  async findOne(
-    uid: string,
-  ): Promise<{
-    firebaseUser: firebaseAdmin.auth.UserRecord | null;
-    localUser: any;
-  }> {
+  /**
+   * Find a user by their Firebase UID and return both Firebase and local user data
+   * @param uid The Firebase UID of the user
+   * @returns Combined user data in a format matching UserResponseEntity
+   */
+  async findOne(uid: string): Promise<EnhancedUserResponse> {
     try {
       // Get the Firebase user
       const firebaseUser = await firebaseAdmin.auth().getUser(uid);
 
-      // Get the local user data
+      // Get the local user data with all fields needed for UserEntity
       const localUser = await this.databaseService.user.findFirst({
         where: {
           OR: [
             { id: uid },
             ...(firebaseUser.email ? [{ email: firebaseUser.email }] : []),
           ],
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+          passwordHash: true,
+          role: true,
+          createdAt: true,
+          updatedAt: true,
+          activeUserType: true,
         },
       });
 
@@ -374,17 +401,45 @@ export class UserService {
             phone: firebaseUser.phoneNumber || '',
             activeUserType: 'MEMBER', // Default to MEMBER user type
           },
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+            passwordHash: true,
+            role: true,
+            createdAt: true,
+            updatedAt: true,
+            activeUserType: true,
+          },
         });
 
-        return { firebaseUser, localUser: newLocalUser };
+        return {
+          firebaseUser,
+          localUser: newLocalUser as UserEntity,
+        };
       }
 
-      return { firebaseUser, localUser };
+      return {
+        firebaseUser,
+        localUser: localUser as UserEntity,
+      };
     } catch (error) {
       if (error.code === 'auth/user-not-found') {
         // If Firebase user not found, check if local user exists
         const localUser = await this.databaseService.user.findUnique({
           where: { id: uid },
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+            passwordHash: true,
+            role: true,
+            createdAt: true,
+            updatedAt: true,
+            activeUserType: true,
+          },
         });
 
         if (localUser) {
@@ -392,7 +447,7 @@ export class UserService {
           console.warn(`Local user ${uid} exists but Firebase user is missing`);
           return {
             firebaseUser: null,
-            localUser,
+            localUser: localUser as UserEntity,
           };
         }
 
@@ -406,7 +461,16 @@ export class UserService {
     }
   }
 
-  async update(uid: string, updateUserDto: UpdateUserDto) {
+  /**
+   * Update a user's information in both Firebase and local database
+   * @param uid The Firebase UID of the user to update
+   * @param updateUserDto The data to update
+   * @returns Updated Firebase user record
+   */
+  async update(
+    uid: string,
+    updateUserDto: UpdateUserDto,
+  ): Promise<firebaseAdmin.auth.UserRecord> {
     try {
       // First update Firebase user
       // Create a Firebase-compatible update object
@@ -453,12 +517,32 @@ export class UserService {
    * @param uid Firebase user ID
    * @param updateData Data to update
    */
-  async updateLocalUser(uid: string, updateData: Partial<UpdateUserDto>) {
+  /**
+   * Updates the local user record in the database
+   * @param uid Firebase user ID
+   * @param updateData Data to update
+   * @returns Updated local user record
+   */
+  async updateLocalUser(
+    uid: string,
+    updateData: Partial<UpdateUserDto>,
+  ): Promise<UserEntity> {
     try {
       // First check if user exists in local database
       const existingUser = await this.databaseService.user.findFirst({
         where: {
           id: uid,
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+          passwordHash: true,
+          role: true,
+          createdAt: true,
+          updatedAt: true,
+          activeUserType: true,
         },
       });
 
@@ -508,11 +592,22 @@ export class UserService {
           return prisma.user.update({
             where: { id: existingUser.id },
             data: updateFields,
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              phone: true,
+              passwordHash: true,
+              role: true,
+              createdAt: true,
+              updatedAt: true,
+              activeUserType: true,
+            },
           });
         },
       );
 
-      return updatedUser;
+      return updatedUser as UserEntity;
     } catch (error) {
       console.error(`Error updating local user with ID ${uid}:`, error);
 
@@ -526,7 +621,12 @@ export class UserService {
     }
   }
 
-  async remove(uid: string) {
+  /**
+   * Remove a user from both Firebase and the local database
+   * @param uid The Firebase UID of the user to remove
+   * @returns Success message
+   */
+  async remove(uid: string): Promise<{ success: boolean; message: string }> {
     try {
       // Use a transaction to delete both Firebase and local user
       await this.databaseService.$transaction(async (prisma) => {
@@ -534,6 +634,9 @@ export class UserService {
         const localUser = await prisma.user.findFirst({
           where: {
             id: uid,
+          },
+          select: {
+            id: true,
           },
         });
 

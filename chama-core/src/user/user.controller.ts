@@ -1,46 +1,237 @@
 import {
+  BadRequestException,
+  Body,
   Controller,
-  Get,
-  Patch,
-  Param,
   Delete,
+  ForbiddenException,
+  Get,
+  HttpCode,
+  HttpStatus,
+  InternalServerErrorException,
+  NotFoundException,
+  Param,
+  Patch,
   UseGuards,
-  Version,
+  ValidationPipe,
+  UsePipes,
+  ClassSerializerInterceptor,
+  UseInterceptors,
+  SerializeOptions,
 } from '@nestjs/common';
-import { UserService } from './user.service';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiBody,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
+import * as firebaseAdmin from 'firebase-admin';
+import { UserType } from 'generated/prisma';
+import { AuthGuard } from '../guards/auth.guard';
+import { CurrentUser } from '../decorators/current-user.decorator';
+import { type CurrentUser as CurrentUserType } from '../decorators/current-user.decorator';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { AuthGuard } from 'src/guards/auth.guard';
-import { Body } from '@nestjs/common';
+import { UserListResponse, UserService } from './user.service';
+import { UserEntity, FirebaseUserEntity, UserResponseEntity } from './entities/user.entity';
 
 @ApiTags('User')
 @Controller('user')
+@UseInterceptors(ClassSerializerInterceptor)
+@SerializeOptions({
+  strategy: 'excludeAll',
+  excludePrefixes: ['_'],
+})
 export class UserController {
   constructor(private readonly userService: UserService) {}
-  
+
+  /**
+   * Gets all users in the system
+   */
   @Get()
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
-  findAll() {
-    return this.userService.findAll();
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Get all users',
+    description: 'Returns a list of all users in the system',
+  })
+  @ApiOkResponse({
+    description: 'List of users',
+    schema: {
+      type: 'object',
+      properties: {
+        users: {
+          type: 'array',
+          items: {
+            $ref: '#/components/schemas/FirebaseUserEntity',
+          },
+        },
+        pageToken: { type: 'string', description: 'Token for pagination' },
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({ description: 'User not authenticated' })
+  @ApiForbiddenResponse({ description: 'User not authorized to view all users' })
+  async findAll(@CurrentUser() currentUser: CurrentUserType): Promise<{users: FirebaseUserEntity[], pageToken?: string}> {
+    try {
+      // For admin functionality, you might want to verify the user has admin permissions
+      const response = await this.userService.findAll();
+      
+      // Transform Firebase UserRecord objects to FirebaseUserEntity instances
+      return {
+        users: response.users.map(user => new FirebaseUserEntity({
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName,
+          phoneNumber: user.phoneNumber,
+          emailVerified: user.emailVerified
+        })),
+        pageToken: response.pageToken
+      };
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(`Failed to fetch users: ${error.message}`);
+    }
   }
 
+  /**
+   * Gets a user by ID
+   */
   @Get(':id')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(id);
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Get a user by ID',
+    description: 'Returns detailed information about a specific user',
+  })
+  @ApiParam({ name: 'id', description: 'User ID', type: 'string' })
+  @ApiOkResponse({
+    description: 'User details',
+    type: UserResponseEntity
+  })
+  @ApiNotFoundResponse({ description: 'User not found' })
+  @ApiUnauthorizedResponse({ description: 'User not authenticated' })
+  async findOne(@Param('id') id: string): Promise<UserResponseEntity> {
+    try {
+      const userResponse = await this.userService.findOne(id);
+      
+      // Transform to entity instance
+      return new UserResponseEntity({
+        firebaseUser: userResponse.firebaseUser ? {
+          uid: userResponse.firebaseUser.uid,
+          email: userResponse.firebaseUser.email,
+          displayName: userResponse.firebaseUser.displayName,
+          phoneNumber: userResponse.firebaseUser.phoneNumber,
+          emailVerified: userResponse.firebaseUser.emailVerified
+        } : undefined,
+        localUser: userResponse.localUser
+      });
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(`Failed to fetch user: ${error.message}`);
+    }
   }
 
+  /**
+   * Updates a user's information
+   */
   @Patch(':id')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(id, updateUserDto);
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Update a user',
+    description: 'Updates a user\'s information',
+  })
+  @ApiParam({ name: 'id', description: 'User ID', type: 'string' })
+  @ApiBody({ type: UpdateUserDto })
+  @ApiOkResponse({
+    description: 'User updated successfully',
+    type: FirebaseUserEntity
+  })
+  @ApiNotFoundResponse({ description: 'User not found' })
+  @ApiBadRequestResponse({ description: 'Invalid update data' })
+  @ApiUnauthorizedResponse({ description: 'User not authenticated' })
+  @ApiForbiddenResponse({ description: 'User not authorized to update this user' })
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
+  async update(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @CurrentUser() currentUser: CurrentUserType,
+  ): Promise<FirebaseUserEntity> {
+    try {
+      // Check if the user is updating their own profile or has admin privileges
+      if (currentUser.id !== id) {
+        // In a real app, you'd check if the user has admin permissions here
+        throw new ForbiddenException('You are not authorized to update this user');
+      }
+      
+      const userRecord = await this.userService.update(id, updateUserDto);
+      
+      // Transform to entity instance
+      return new FirebaseUserEntity({
+        uid: userRecord.uid,
+        email: userRecord.email,
+        displayName: userRecord.displayName,
+        phoneNumber: userRecord.phoneNumber,
+        emailVerified: userRecord.emailVerified
+      });
+    } catch (error) {
+      if (error instanceof NotFoundException || 
+          error instanceof BadRequestException || 
+          error instanceof ForbiddenException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(`Failed to update user: ${error.message}`);
+    }
   }
 
+  /**
+   * Deletes a user
+   */
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(id);
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Delete a user',
+    description: 'Deletes a user from the system',
+  })
+  @ApiParam({ name: 'id', description: 'User ID', type: 'string' })
+  @ApiOkResponse({ description: 'User deleted successfully' })
+  @ApiNotFoundResponse({ description: 'User not found' })
+  @ApiUnauthorizedResponse({ description: 'User not authenticated' })
+  @ApiForbiddenResponse({ description: 'User not authorized to delete this user' })
+  async remove(
+    @Param('id') id: string,
+    @CurrentUser() currentUser: CurrentUserType,
+  ): Promise<{ message: string }> {
+    try {
+      // Check if the user is deleting their own profile or has admin privileges
+      if (currentUser.id !== id) {
+        // In a real app, you'd check if the user has admin permissions here
+        throw new ForbiddenException('You are not authorized to delete this user');
+      }
+      
+      await this.userService.remove(id);
+      return { message: 'User deleted successfully' };
+    } catch (error) {
+      if (error instanceof NotFoundException || 
+          error instanceof BadRequestException || 
+          error instanceof ForbiddenException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(`Failed to delete user: ${error.message}`);
+    }
   }
 }
