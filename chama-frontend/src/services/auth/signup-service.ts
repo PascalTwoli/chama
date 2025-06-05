@@ -47,7 +47,7 @@ export class AuthService {
         if (!token) {
             throw new Error('No authentication token found');
         }
-        const response: AxiosResponse<User> = await apiClient.get('/user/me', {
+        const response: AxiosResponse<User> = await apiClient.get('/auth/me', {
             headers: {
                 Authorization: `Bearer ${token}`
             }
