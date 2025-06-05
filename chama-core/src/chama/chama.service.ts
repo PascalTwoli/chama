@@ -1,42 +1,26 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateChamaDto } from './dto/create-chama.dto';
-import * as firebaseAdmin from 'firebase-admin';
 
 @Injectable()
 export class ChamaService {
   constructor(private prisma: PrismaService) {}
 
-  private async getUserFromToken(idToken: string) {
-    const decodedToken = await firebaseAdmin.auth().verifyIdToken(idToken);
-    const firebaseUser = await firebaseAdmin.auth().getUser(decodedToken.uid);
-    
-    // Find user by email
-    let user = await this.prisma.user.findUnique({
-      where: { email: firebaseUser.email },
-    });
-
-    if (!user) {
-      // Create the user if they don't exist
-      user = await this.prisma.user.create({
-        data: {
-          name: firebaseUser.displayName || decodedToken.name,
-          email: firebaseUser.email,
-          phone: firebaseUser.phoneNumber,
-          role: 'MEMBER', // Default role in the system
-          activeUserType: 'MEMBER', // Default to MEMBER user type
-        },
-      });
-    }
-
-    return user;
-  }
-
-  async create(createChamaDto: CreateChamaDto, idToken: string) {
+  async create(createChamaDto: CreateChamaDto, userId: string) {
     try {
-      const user = await this.getUserFromToken(idToken);
+      // Verify user exists
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+      });
+      if (!user) {
+        throw new NotFoundException(`User with ID ${userId} not found`);
+      }
 
-      // Create the chama with the confirmed user
+      // Create the chama
       const chama = await this.prisma.chama.create({
         data: {
           name: createChamaDto.name,
@@ -45,7 +29,7 @@ export class ChamaService {
           memberships: {
             create: {
               userId: user.id,
-              role: 'ADMIN', // The creator is automatically an admin
+              role: 'ADMIN', // Creator is admin
             },
           },
         },
@@ -60,75 +44,52 @@ export class ChamaService {
       if (error.code === 'P2002') {
         throw new BadRequestException('A chama with this name already exists');
       }
-      if (error.code && error.code.startsWith('auth/')) {
-        throw new BadRequestException(`Authentication error: ${error.message}`);
-      }
       throw new BadRequestException(`Failed to create chama: ${error.message}`);
     }
   }
 
-  async findAll(idToken: string) {
+  async findAll(userId: string) {
     try {
-      const user = await this.getUserFromToken(idToken);
-
-      // Find all chamas where the user is a member
       const chamas = await this.prisma.chama.findMany({
         where: {
           memberships: {
-            some: {
-              userId: user.id,
-            },
+            some: { userId },
           },
         },
         include: {
           memberships: true,
         },
       });
-
       return chamas;
     } catch (error) {
       console.error('Error finding chamas:', error);
-      if (error.code && error.code.startsWith('auth/')) {
-        throw new BadRequestException(`Authentication error: ${error.message}`);
-      }
       throw new BadRequestException(`Failed to fetch chamas: ${error.message}`);
     }
   }
 
-  async findOne(id: string, idToken: string) {
+  async findOne(id: string, userId: string) {
     try {
-      const user = await this.getUserFromToken(idToken);
-
-      // Find the chama and ensure the user is a member
       const chama = await this.prisma.chama.findFirst({
         where: {
-          id: id,
+          id,
           memberships: {
-            some: {
-              userId: user.id,
-            },
+            some: { userId },
           },
         },
         include: {
           memberships: true,
         },
       });
-
       if (!chama) {
-        throw new NotFoundException(`Chama with ID ${id} not found or you don't have access`);
+        throw new NotFoundException(
+          `Chama with ID ${id} not found or you don't have access`,
+        );
       }
-
       return chama;
     } catch (error) {
       console.error(`Error finding chama with ID ${id}:`, error);
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
-      if (error.code && error.code.startsWith('auth/')) {
-        throw new BadRequestException(`Authentication error: ${error.message}`);
-      }
+      if (error instanceof NotFoundException) throw error;
       throw new BadRequestException(`Failed to fetch chama: ${error.message}`);
     }
   }
 }
-

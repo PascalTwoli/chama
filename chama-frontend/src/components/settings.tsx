@@ -1,9 +1,9 @@
-import ChamaSettings from "./chama-settings";
+import ChamaSettings from "./settings/chama-settings";
 
 function Settings () {
     return (
         <>
-            <ChamaSettings/>
+            <ChamaSettings chamaId="" chamaName="" />
         </>
     )
 }
