@@ -44,10 +44,13 @@ async function bootstrap() {
   SwaggerModule.setup('docs', app, document);
 
   // Firebase initialization
+  // Use absolute path based on project root directory
+  const projectRoot = process.cwd(); // This will resolve to the project root directory
   const firebaseKeyFilePath = path.join(
-    __dirname,
-    '../chama-b57f4-firebase-adminsdk-fbsvc-a743d47717.json'
+    projectRoot,
+    'chama-b57f4-firebase-adminsdk-fbsvc-a743d47717.json'
   );
+  console.log('Firebase key file path:', firebaseKeyFilePath);
 
   try {
     // Check if file exists first
