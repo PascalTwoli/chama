@@ -295,7 +295,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/felixtwoli/Development/personal/chama/chama-core/generated/prisma",
+      "value": "/Users/theboys/dev/chama/chama-core/generated/prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -309,7 +309,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/Users/felixtwoli/Development/personal/chama/chama-core/prisma/schema.prisma",
+    "sourceFilePath": "/Users/theboys/dev/chama/chama-core/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
