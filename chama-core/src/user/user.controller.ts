@@ -169,14 +169,34 @@ export class UserController {
     @Body() updateUserDto: UpdateUserDto,
     @CurrentUser() currentUser: CurrentUserType,
   ): Promise<FirebaseUserEntity> {
+    console.log('=== PATCH /user/:id endpoint called ===');
+    console.log('Request ID:', id);
+    console.log('Request body (updateUserDto):', updateUserDto);
+    console.log('Current user from token:', {
+      id: currentUser?.id,
+      email: currentUser?.email,
+      firebaseUid: currentUser?.firebaseUid,
+      fullUser: currentUser
+    });
+    
     try {
       // Check if the user is updating their own profile or has admin privileges
-      if (currentUser.id !== id) {
-        // In a real app, you'd check if the user has admin permissions here
+      // Allow both currentUser.id and currentUser.firebaseUid to match the requested id
+      if (currentUser.id !== id && currentUser.firebaseUid !== id) {
+        console.log('=== AUTHORIZATION FAILED ===');
+        console.log('- currentUser.id:', currentUser.id);
+        console.log('- currentUser.firebaseUid:', currentUser.firebaseUid);
+        console.log('- requested id:', id);
+        console.log('- Neither currentUser.id nor currentUser.firebaseUid matches the requested id');
         throw new ForbiddenException('You are not authorized to update this user');
       }
       
+      console.log('=== AUTHORIZATION PASSED ===');
+      console.log('Proceeding with user update...');
+      
+      console.log('Calling userService.update with id:', id, 'and data:', updateUserDto);
       const userRecord = await this.userService.update(id, updateUserDto);
+      console.log('userService.update result:', userRecord);
       
       // Transform to entity instance
       return new FirebaseUserEntity({
