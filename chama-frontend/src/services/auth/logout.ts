@@ -1,26 +1,41 @@
 import apiClient from "../../config/axios-config";
+import SecureAuthService from "./secure-auth-service";
 
+/**
+ * Secure logout function that uses the new secure authentication service
+ * This function is maintained for backward compatibility but now uses secure storage
+ */
 const logoutUser = async (): Promise<void> => {
   try {
-    // Make an API call to the logout endpoint
-    await apiClient.post("/auth/logout"); // Adjust the endpoint as per your backend
+    // Use the secure auth service for logout
+    await SecureAuthService.signOut();
+    
+    console.log("Secure logout completed successfully");
   } catch (error) {
     console.error("Logout failed:", error);
-    // Continue with local cleanup even if API call fails
+    
+    // Even if API call fails, clear local tokens for security
+    try {
+      await SecureAuthService.signOut();
+    } catch (fallbackError) {
+      console.error("Fallback logout also failed:", fallbackError);
+    }
   } finally {
-    // Clear ALL relevant items from localStorage
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("userRole");
-    localStorage.removeItem("isFirstLogin");
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    
-    // Clear session storage
-    sessionStorage.clear();
-    
     // Use window.location for a full page refresh to clear any remaining state
     window.location.href = "/signin";
+  }
+};
+
+/**
+ * Alternative secure logout that doesn't redirect (for programmatic use)
+ */
+export const secureLogoutWithoutRedirect = async (): Promise<void> => {
+  try {
+    await SecureAuthService.signOut();
+    console.log("Secure logout completed without redirect");
+  } catch (error) {
+    console.error("Secure logout failed:", error);
+    throw error;
   }
 };
 
