@@ -52,6 +52,47 @@ export interface LoginResponse {
 export class UserService {
   constructor(private databaseService: PrismaService) {}
 
+  /**
+   * Update user's active user type (ADMIN or MEMBER)
+   * @param uid User ID
+   * @param userType User type to set
+   * @returns Updated user
+   */
+  async updateUserType(uid: string, userType: UserType) {
+    try {
+      // Verify the user exists
+      const { firebaseUser, localUser } = await this.findOne(uid);
+
+      if (!localUser) {
+        throw new NotFoundException(
+          `User with ID ${uid} not found in local database`,
+        );
+      }
+
+      // Update the user's activeUserType
+      const updatedUser = await this.databaseService.user.update({
+        where: { id: uid },
+        data: { activeUserType: userType },
+      });
+
+      return {
+        success: true,
+        message: `User type updated to ${userType}`,
+        user: updatedUser,
+      };
+    } catch (error) {
+      console.error(`Error updating user type for ${uid}:`, error);
+
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+
+      throw new BadRequestException(
+        `Failed to update user type: ${error.message}`,
+      );
+    }
+  }
+
   async registerUser(registerUser: RegisterUserDto): Promise<LoginResponse> {
     console.log(registerUser);
     try {
@@ -74,7 +115,7 @@ export class UserService {
               email: registerUser.email,
               name: `${registerUser.firstName} ${registerUser.lastName}`,
               phone: registerUser.phoneNumber || '',
-              activeUserType: registerUser.activeUserType ?? UserType.MEMBER,
+              // activeUserType: registerUser.activeUserType ?? UserType.MEMBER,
             },
           });
 
