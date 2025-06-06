@@ -4,7 +4,7 @@ import AuthService, {
 	
 }
 from "../services/auth/signup-service";
-import {SignupRequest, FormErrors, User } from "../models/user"
+import {SignupRequest, FormErrors } from "../models/user"
 
 const SignUp = () => {
 	const navigate = useNavigate();
