@@ -82,11 +82,13 @@ const SignUp = () => {
 			await AuthService.signup(
 				formData as SignupRequest
 			);
-			setApiSuccess("Registration successful! Redirecting to login...");
+			setApiSuccess("Registration successful! Redirecting to user type selection...");
 
-			// Redirect to sign in after short delay
+			// Redirect to user type selection page after short delay
+			// This allows users to select their role in the system (e.g., admin, member, etc.)
 			setTimeout(() => {
-				navigate("/signin");
+				navigate("/chose-user");
+				
 			}, 2000);
 		} catch (error) {
 			console.error("Registration error:", error);
@@ -126,6 +128,7 @@ const SignUp = () => {
             // Check for network errors
             else if (error instanceof Error && error.message.includes("Could not connect to the server")) {
                 setApiError("Could not connect to the server. Please check your internet connection and try again.");
+				// setApiError("Email is already registered. Please use a different email or sign in.");
             }
             // For other errors
             else {
