@@ -5,9 +5,13 @@ import { VersioningType } from '@nestjs/common';
 import * as firebaseAdmin from 'firebase-admin';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Configure cookie parser middleware for secure token storage
+  app.use(cookieParser());
 
   // Set up API versioning
   app.enableVersioning({

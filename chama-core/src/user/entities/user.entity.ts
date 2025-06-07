@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsEnum, IsOptional, IsString, IsUUID, IsDate } from 'class-validator';
 import { Exclude, Expose, Transform } from 'class-transformer';
-import { UserType } from 'generated/prisma';
+import { UserType } from '@prisma/client';
 
 @Expose()
 export class UserEntity {

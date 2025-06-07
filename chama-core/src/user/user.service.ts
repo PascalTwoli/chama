@@ -10,7 +10,7 @@ import * as firebaseAdmin from 'firebase-admin';
 import { LoginDto } from './dto/login.dto';
 import axios from 'axios';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { UserType } from 'generated/prisma';
+import { UserType } from '@prisma/client';
 import {
   UserEntity,
   FirebaseUserEntity,
