@@ -1,5 +1,5 @@
 import { toast } from 'react-toastify';
-import { useRef, useState, type Dispatch, type SetStateAction } from "react";
+import { useRef, useState } from "react";
 
 interface ProfileImageUploadProps {
   onStartEditing: () => void;
