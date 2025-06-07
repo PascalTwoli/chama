@@ -1,6 +1,6 @@
 import { UserType } from "../data/user-type";
 import { RadioButton } from "primereact/radiobutton";
-import { Toast } from "primereact/toast";
+import { toast } from 'react-toastify';
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthService from "../services/auth/signup-service";
@@ -15,7 +15,6 @@ export function ChamaUserType({
 	const [userType, setUserType] = useState<UserType | string>(type);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [error, setError] = useState<string | null>(null);
-	const toast = useRef<Toast>(null);
 	const navigate = useNavigate();
 
 	useEffect(() => {
@@ -64,13 +63,8 @@ export function ChamaUserType({
 	}, [navigate]);
 
 	useEffect(() => {
-		if (error && toast.current) {
-			toast.current.show({
-				severity: "error",
-				summary: "Error",
-				detail: error,
-				life: 5000,
-			});
+		if (error) {
+			toast.error(error);
 		}
 	}, [error]);
 
@@ -100,16 +94,7 @@ export function ChamaUserType({
 				activeUserType: normalizedType,
 			});
 
-			if (toast.current) {
-				toast.current.show({
-					severity: "success",
-					summary: "Success",
-					detail: `User type updated to ${getRoleDisplayName(
-						normalizedType
-					)}`,
-					life: 3000,
-				});
-			}
+			toast.success(`User type updated to ${getRoleDisplayName(normalizedType)}`);
 
 			if (normalizedType === UserType.ADMIN) {
 				navigate("/create-chama");
@@ -132,7 +117,6 @@ export function ChamaUserType({
 
 	return (
 		<div className="min-h-screen bg-gray-900 flex items-center justify-center">
-			<Toast ref={toast} position="top-right" />
 			<div className="bg-gray-800 p-8 rounded-lg shadow-lg max-w-md w-full">
 				<div className="text-center mb-6">
 					<h4 className="text-2xl font-bold text-white mb-2">

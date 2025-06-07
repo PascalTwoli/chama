@@ -5,7 +5,7 @@ import { AuthService as SigninService } from "../services/auth/signin-service";
 import AuthService from "../services/auth/signup-service";
 import { UserType } from "../data/user-type";
 import { useNavigate } from "react-router-dom";
-import { Toast } from "primereact/toast";
+import { toast } from 'react-toastify';
 
 
 const SignIn = () => {
@@ -20,7 +20,6 @@ const SignIn = () => {
   const [isCheckingUserType, setIsCheckingUserType] = useState<boolean>(false);
   const [apiError, setApiError] = useState<string>("");
   const [apiSuccess, setApiSuccess] = useState<string>("");
-  const toast = useRef<Toast>(null);
 
   const handleChange = (e: FormEvent<HTMLInputElement>) => {
     const { name, value } = e.currentTarget;
@@ -55,21 +54,6 @@ const SignIn = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-    useEffect(() => {
-      if (error && toast.current) {
-        // Get the first error message from the FormErrors object
-        const firstError = typeof error === "string"
-          ? error
-          : Object.values(error).find(Boolean) || "An error occurred";
-        toast.current.show({
-          severity: 'error',
-          summary: 'Error',
-          detail: firstError,
-          life: 5000
-        });
-      }
-    }, [error]);
-
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setApiError("");
@@ -87,7 +71,7 @@ const SignIn = () => {
         formData as SignInCredentials
       );
       
-      setApiSuccess("Login successful! Checking account status...");
+      // toast.success("Login successful! Checking account status...");
       
       // After successful login, check if user has a type
       setIsCheckingUserType(true);
@@ -114,24 +98,24 @@ const SignIn = () => {
           redirectMessage = 'Login successful! Redirecting to member dashboard...';
         } else {
           // Fallback for unexpected user type
-          redirectPath = '/user-type';
+          redirectPath = '/chose-user';
           redirectMessage = 'Login successful! Redirecting to verify your account...';
         }
         
         // Update success message
-        setApiSuccess(redirectMessage);
+        toast.success(redirectMessage);
         
         // Navigate to the appropriate page
         setTimeout(() => {
           navigate(redirectPath);
-        }, 1000);
+        }, 3000);
       } catch (userTypeError) {
         console.error("Error checking user type:", userTypeError);
         // If there's an error getting the user type, redirect to user type selection
-        setApiSuccess("Login successful! Redirecting to account setup...");
+        toast.success("Login successful! Redirecting to account setup...");
         setTimeout(() => {
-          navigate('/user-type');
-        }, 1000);
+          navigate('/chose-user');
+        }, 50000);
       } finally {
         setIsCheckingUserType(false);
       }
@@ -139,16 +123,13 @@ const SignIn = () => {
     } catch (error) {
       console.error("Login error:", error);
       
-      // Clear the apiError first to avoid duplicate messages
-      setApiError("");
-      
       // Check if the error is related to unregistered email 
       if (error instanceof Error && error.message.includes("unregistered email")) {
         setError({
           email: "This email is not registered. Please sign up first or try again."
         });
         // Show clean error without the prefix in the api error display
-        setApiError("This email is not registered. Please sign up first or try again.");
+        toast.error("This email is not registered. Please sign up first or try again.");
       }
       // Check if the error is related to incorrect password
       else if (error instanceof Error && error.message.includes("incorrect password")) {
@@ -156,29 +137,29 @@ const SignIn = () => {
           password: "Incorrect password. Please try again."
         });
         // Show clean error without the prefix in the api error display
-        setApiError("The password you entered is incorrect. Please try again.");
+        toast.error("The password you entered is incorrect. Please try again.");
       }
       // Check for network errors
       else if (error instanceof Error && error.message.includes("network")) {
-        setApiError("Could not connect to the server. Please check your internet connection and try again.");
+        toast.error("Could not connect to the server. Please check your internet connection and try again.");
       }
       // Check for server errors
       else if (error instanceof Error && error.message.includes("server")) {
         // setApiError("An internal server error occurred. Please try again later.");
-        setApiError("This email is not registered. Please sign up first or try again.");
+        toast.error("This email is not registered. Please sign up first or try again.");
       }
       // Check for rate limiting
       else if (error instanceof Error && error.message.includes("rate-limit")) {
-        setApiError("Too many login attempts. Please try again later.");
+        toast.error("Too many login attempts. Please try again later.");
       }
       // For any other errors, display the clean message
       else {
         // Extract clean error message by removing any prefixes
         const errorMessage = error instanceof Error 
-          ? (error.message.includes(":") ? error.message.split(":")[1].trim() : error.message) 
-          : "Failed to sign in. Please check your credentials and try again.";
+          ? "Failed to sign in. Please check your credentials and try again."
+          : "An unexpected error occurred. Please try again.";
           
-        setApiError(errorMessage);
+        toast.error(errorMessage);
       }
     }
     finally {
@@ -200,7 +181,7 @@ const SignIn = () => {
         <div className="signin-details flex items-center bg-black min-h-full flex-2 font-bold">
           <div className="w-full p-10 min-h-full">
             {/* <h2 className="text-2xl font-bold text-center text-white">Sign In</h2> */}
-            {apiSuccess && (
+            {/* {apiSuccess && (
               <p className="text-green-500 font-bold text-center mb-4">
                 {apiSuccess}
               </p>
@@ -209,7 +190,7 @@ const SignIn = () => {
               <p className="text-red-500 font-bold text-center mb-4">
                 {apiError}
               </p>
-            )}
+            )} */}
             <form onSubmit={handleLogin}>
               <div className="">
                 <label className="email-input" htmlFor="email">
