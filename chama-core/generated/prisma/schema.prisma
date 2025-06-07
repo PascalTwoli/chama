@@ -70,6 +70,11 @@ enum TransactionStatus {
   @@map("transaction_status")
 }
 
+enum UserType {
+  ADMIN
+  MEMBER
+}
+
 /// Models
 
 model User {
@@ -204,11 +209,6 @@ model UiSettings {
   lastSeenWidgets Json?   @map("last_seen_widgets")
 
   @@map("ui_settings")
-}
-
-enum UserType {
-  ADMIN
-  MEMBER
 }
 
 model Transaction {

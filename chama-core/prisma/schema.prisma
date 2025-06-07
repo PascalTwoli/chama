@@ -1,8 +1,5 @@
-
-
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -72,6 +69,11 @@ enum TransactionStatus {
   @@map("transaction_status")
 }
 
+enum UserType {
+  ADMIN
+  MEMBER
+}
+
 /// Models
 
 model User {
@@ -84,13 +86,13 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  memberships   Membership[]
-  contributions Contribution[]
-  notifications Notification[]
-  uiSettings    UiSettings?
-  Chama         Chama[]
-  transactions  Transaction[]
-  activeUserType UserType? @map("active_user_type")
+  memberships    Membership[]
+  contributions  Contribution[]
+  notifications  Notification[]
+  uiSettings     UiSettings?
+  Chama          Chama[]
+  transactions   Transaction[]
+  activeUserType UserType?      @map("active_user_type")
 
   @@map("user")
 }
@@ -100,7 +102,7 @@ model Chama {
   name        String
   description String?
   rules       String?
-  userId String   @map("created_by") // User who created the Chama  Firebase user ID
+  userId      String   @map("created_by") // User who created the Chama  Firebase user ID
   createdBy   User     @relation(fields: [userId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -206,11 +208,6 @@ model UiSettings {
   lastSeenWidgets Json?   @map("last_seen_widgets")
 
   @@map("ui_settings")
-}
-
-enum UserType {
-  ADMIN
-  MEMBER
 }
 
 model Transaction {

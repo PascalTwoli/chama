@@ -13,7 +13,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { EmailService } from '../email/email.service';
 import { CreateInviteDto } from './dto/create-invite.dto';
 import { randomBytes } from 'crypto';
-import { Invite, Membership, UserRole, User } from '../../generated/prisma';
+import { Invite, Membership, UserRole, User } from '@prisma/client';
 import * as firebaseAdmin from 'firebase-admin';
 import { InviteEntity } from './entities/invite.entity';
 import { MembershipEntity } from './entities/membership.entity';
