@@ -1,5 +1,5 @@
 
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, useState, useEffect } from "react";
 import { FormErrors, SignInCredentials} from "../models/user"; //SignInResponse
 import { AuthService as SigninService } from "../services/auth/signin-service";
 import AuthService from "../services/auth/signup-service";
@@ -18,8 +18,7 @@ const SignIn = () => {
   const [error, setError] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isCheckingUserType, setIsCheckingUserType] = useState<boolean>(false);
-  const [apiError, setApiError] = useState<string>("");
-  const [apiSuccess, setApiSuccess] = useState<string>("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e: FormEvent<HTMLInputElement>) => {
     const { name, value } = e.currentTarget;
@@ -56,8 +55,6 @@ const SignIn = () => {
 
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setApiError("");
-    setApiSuccess("");
 
     // Validate form data
     if (!validateForm()) {
@@ -174,23 +171,12 @@ const SignIn = () => {
       <div className="signin-container flex flex-row justify-center items-center rounded-xl">
         <div className="signin-image flex-1" style={{backgroundImage: "url('/assets/signinimage.png')", backgroundSize: "cover"}}>
           <div className=" flex flex-col justify-center signin-image-overlay text-center p-14">
-            <p className="font-bold welcome-p">Welcome Back To Chama System</p>
-            <p className="font-bold text-4xl p-7 text-left">We provide easy-to-use tools for managing  group finances and working together efficiently!</p>
+            <p className="font-bold welcome-p mb-4">Welcome Back To <br /> <span className="underline">ChamaPlus System</span> </p>
+            <p className="font-bold text-2xl p-7 pt-0 mt-0 text-center">We provide easy-to-use tools for managing  group finances and working together efficiently!</p>
           </div>
         </div>
         <div className="signin-details flex items-center bg-black min-h-full flex-2 font-bold">
           <div className="w-full p-10 min-h-full">
-            {/* <h2 className="text-2xl font-bold text-center text-white">Sign In</h2> */}
-            {/* {apiSuccess && (
-              <p className="text-green-500 font-bold text-center mb-4">
-                {apiSuccess}
-              </p>
-            )}
-            {apiError && (
-              <p className="text-red-500 font-bold text-center mb-4">
-                {apiError}
-              </p>
-            )} */}
             <form onSubmit={handleLogin}>
               <div className="">
                 <label className="email-input" htmlFor="email">
@@ -210,11 +196,11 @@ const SignIn = () => {
                 </label>
               </div>
 
-              <div className="mt-20">
+              <div className="mt-20 relative">
                 <label className="pass-input" htmlFor="password">
                   Password
                   <input 
-                    type="password" 
+                    type={showPassword ? "text" : "password"} 
                     id="password"
                     name="password"
                     value={formData.password}
@@ -224,14 +210,26 @@ const SignIn = () => {
                     className={`w-full p-3 mt-4 border rounded bg-gray-700 placeholder:font-bold placeholder:text-gray-300 focus:outline focus:outline-sky-500 ${error.password ? "border-red-500" : ""}`} />
                   {error.password && <p className="text-red-500 text-sm mt-1">{error.password}</p>}
                 </label>
+                <button 
+                  type="button"
+                  className="absolute right-3 top-[45px] text-gray-400 hover:text-gray-200 transition duration-300 bg-transparent border-0 focus:outline-none"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? (
+                    <i className="bi bi-eye-slash text-2xl"></i>
+                  ) : (
+                    <i className="bi bi-eye text-2xl"></i>
+                  )}
+                </button>
                 <div className="text-right">
-                  <a href="/forgot-password" className="font-bold text-green-500 hover:text-green-400 transition duration-300">Forgot your password?</a>
+                  <a href="/forgot-password" className="font-bold text-[#54B685] hover:text-green-400 transition duration-300">Forgot your password?</a>
                 </div>
               </div>
               
               <div className="">
                 <button 
-                  className="w-full p-2 mt-20 mb-10 text-white bg-green-500 rounded hover:bg-green-400 transition duration-300 border-0 text-center" 
+                  className="w-full p-2 mt-20 mb-10 text-white bg-[#54B685] rounded hover:bg-green-400 transition duration-300 border-0 text-center" 
                   type="submit"
                   disabled={isLoading || isCheckingUserType}
                 >
@@ -239,23 +237,23 @@ const SignIn = () => {
                 </button>
               </div>
 
-              <div className="flex items-center my-6 mb-10">
-                <div className="flex-grow border-t border-gray-700"></div>
-                <button 
-                  type="button" 
-                  className="google-login bg-gray-700 p-2 rounded flex justify-around ml-4 mr-4 gap-4 hover:bg-gray-600 transition duration-300 border-0"
-                  aria-label="Sign in with Google"
-                >
-                  <img className="google-logo" src="/assets/Google__G__logo.svg.webp" alt="Google" />
-                  <span>Sign in with Google</span>
+              <div className="flex items-center my-6 mb-10 mt-14">
+                <div className="flex-grow  hor-line"></div>
+                <button className=" google-login bg-gray-700 p-2 rounded flex justify-around items-center ml-4 mr-4 gap-4 hover:bg-gray-600 transition duration-300  border-0">
+                  <img
+                    className="google-logo"
+                    src="/assets/Google__G__logo.svg.webp"
+                    alt="Google"
+                  />
+                  <span>Sign In With Google</span>
                 </button>
-                <div className="flex-grow border-t border-gray-700"></div>
+                <div className=" flex-grow hor-line"></div> 
               </div>
             </form>
 
 
             <p className="mt-4 text-center text-gray-400 font-bold">
-              Don’t have an account? <a href="/signup" className="text-green-500 hover:text-green-400 transition duration-300">Sign Up</a>
+              Don’t have an account? <a href="/signup" className="text-[#54B685] hover:text-green-400 transition duration-300">Sign Up</a>
             </p>
           </div>
         </div>
