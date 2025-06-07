@@ -33,7 +33,7 @@ import { CurrentUser } from '../decorators/current-user.decorator';
 import { type CurrentUser as CurrentUserType } from '../decorators/current-user.decorator';
 import { AuthGuard } from '../guards/auth.guard';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { TransactionType } from 'generated/prisma';
+import { TransactionType } from '@prisma/client';
 import { TransactionService } from './transaction.service';
 
 /**

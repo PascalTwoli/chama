@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsString, IsUUID, IsDate } from 'class-validator';
 import { Expose, Transform, Type } from 'class-transformer';
-import { UserRole } from 'generated/prisma';
+import { UserRole } from '@prisma/client';
 import { UserEntity } from '../../user/entities/user.entity';
 import { ChamaEntity } from './invite.entity';
 
