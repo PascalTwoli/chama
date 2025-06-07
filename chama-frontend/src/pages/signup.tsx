@@ -1,10 +1,12 @@
 import { useNavigate } from "react-router-dom";
-import { useState, FormEvent, ChangeEvent } from "react";
+import React, { useState, FormEvent, ChangeEvent } from "react";
 import AuthService, {
 	
 }
 from "../services/auth/signup-service";
 import {SignupRequest, FormErrors } from "../models/user"
+import { toast } from "react-toastify";
+
 
 const SignUp = () => {
 	const navigate = useNavigate();
@@ -82,7 +84,7 @@ const SignUp = () => {
 			await AuthService.signup(
 				formData as SignupRequest
 			);
-			setApiSuccess("Registration successful! Redirecting to user type selection...");
+			toast.success("Registration successful! Redirecting to user type selection...");
 
 			// Redirect to user type selection page after short delay
 			// This allows users to select their role in the system (e.g., admin, member, etc.)
@@ -105,7 +107,7 @@ const SignUp = () => {
 					...errors,
 					email: "Email is already registered. Please use a different email."
 				});
-                setApiError("Email is already registered. Please use a different email or sign in.");
+                toast.error("Email is already registered. Please use a different email or sign in.");
 			}
             // Check for validation errors
             else if (error instanceof Error && error.message.includes("Validation error")) {
@@ -117,22 +119,22 @@ const SignUp = () => {
                         [field]: error.message.replace(/Validation error:\s*/i, '')
                     });
                 }
-                setApiError(error.message.replace(/Validation error:\s*/i, ''));
+                toast.error(error.message.replace(/Validation error:\s*/i, ''));
             }
             // Check for server errors
             else if (error instanceof Error && 
                     (error.message.includes("internal server error") || 
                      error.message.includes("Our team has been notified"))) {
-                setApiError("An internal server error occurred. Please try again later.");
+                toast.error("An internal server error occurred. Please try again later.");
             }
             // Check for network errors
             else if (error instanceof Error && error.message.includes("Could not connect to the server")) {
-                setApiError("Could not connect to the server. Please check your internet connection and try again.");
+                toast.error("Could not connect to the server. Please check your internet connection and try again.");
 				// setApiError("Email is already registered. Please use a different email or sign in.");
             }
             // For other errors
             else {
-                setApiError(
+                toast.error(
                     error instanceof Error
                         ? error.message
                         : "Registration failed. Please try again."
@@ -148,7 +150,7 @@ const SignUp = () => {
 				<div className="signup-details flex items-center justify-center min-h-full bg-black">
 					<div className="w-full  px-10 rounded-xl font-bold">
 						{/* <h2 className="text-2xl font-bold text-center">Sign Up</h2> */}
-						{apiSuccess && (
+						{/* {apiSuccess && (
 							<div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
 								{apiSuccess}
 							</div>
@@ -157,7 +159,7 @@ const SignUp = () => {
 							<div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
 								{apiError}
 							</div>
-						)}
+						)} */}
 						<form onSubmit={handleRegister}>
 							<div className="flex gap-6">
 								<label htmlFor="firstName" className="w-full">

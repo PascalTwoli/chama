@@ -1,4 +1,4 @@
-import { Toast } from "primereact/toast";
+import { toast } from 'react-toastify';
 import { useRef, useState, type Dispatch, type SetStateAction } from "react";
 
 interface ProfileImageUploadProps {
@@ -7,7 +7,6 @@ interface ProfileImageUploadProps {
 }
 
 function ProfileImageUpload({ onStartEditing, isParentEditing }: ProfileImageUploadProps) {
-  const toast = useRef<Toast>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
@@ -15,12 +14,7 @@ function ProfileImageUpload({ onStartEditing, isParentEditing }: ProfileImageUpl
     const file = e.target.files?.[0];
     if (file) {
       if (!file.type.startsWith('image/')) {
-        toast.current?.show({
-            severity: "error",
-            summary: "Invalid file type",
-            detail: "Please upload an image file (JPG, PNG, etc.)",
-            life: 3000,
-        })
+        toast.error("Please upload an image file (JPG, PNG, etc.)");
         return;
       }
       const reader = new FileReader();
@@ -39,7 +33,6 @@ function ProfileImageUpload({ onStartEditing, isParentEditing }: ProfileImageUpl
 
   return (
     <>
-      <Toast ref={toast} />
       <div
         className={`relative flex flex-col items-center `}
         onClick={handleEditClick}
