@@ -1,7 +1,7 @@
 import { UserType } from "../data/user-type";
 import { RadioButton } from "primereact/radiobutton";
 import { toast } from 'react-toastify';
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthService from "../services/auth/signup-service";
 
@@ -90,7 +90,7 @@ export function ChamaUserType({
 
 			const currentUser = await AuthService.getCurrentUser();
 			const userId = currentUser.id;
-			const userData = await AuthService.updateUserType(userId, {
+			await AuthService.updateUserType(userId, {
 				activeUserType: normalizedType,
 			});
 
@@ -119,17 +119,17 @@ export function ChamaUserType({
 		<div className="min-h-screen bg-gray-900 flex items-center justify-center">
 			<div className="bg-gray-800 p-8 rounded-lg shadow-lg max-w-md w-full">
 				<div className="text-center mb-6">
-					<h4 className="text-2xl font-bold text-white mb-2">
-						Choose Your Role
+					<h4 className="text-2xl font-bold text-white mb-2 mt-0">
+						What is your role in ChamaPlus?
 					</h4>
-					<p className="text-gray-400">Please select a role to continue</p>
-					<p className="text-gray-300 mt-2">
+					<p className="text-gray-400">Please select an option below to continue</p>
+					{/* <p className="text-gray-300 mt-2">
 						Current selection: {getRoleDisplayName(userType)}
-					</p>
+					</p> */}
 				</div>
 				<form onSubmit={handleSubmit} className="space-y-6">
-					<div className="space-y-4">
-						<div className="flex items-center space-x-3 p-3 bg-gray-700 rounded hover:bg-gray-600 transition-colors">
+					<div className="flex flex-row justify-between gap-4">
+						<div className="flex flex-1 items-center space-x-3 p-2 bg-gray-700 rounded hover:bg-gray-600 transition-colors width-full">
 							<RadioButton
 								inputId="admin"
 								name="role"
@@ -140,10 +140,10 @@ export function ChamaUserType({
 							<label
 								htmlFor="admin"
 								className="text-white cursor-pointer flex-1">
-								Administrator
+								I'm an Admin
 							</label>
 						</div>
-						<div className="flex items-center space-x-3 p-3 bg-gray-700 rounded hover:bg-gray-600 transition-colors">
+						<div className="flex flex-1 items-center space-x-3 p-2 bg-gray-700 rounded hover:bg-gray-600 transition-colors width-full">
 							<RadioButton
 								inputId="member"
 								name="role"
@@ -154,7 +154,7 @@ export function ChamaUserType({
 							<label
 								htmlFor="member"
 								className="text-white cursor-pointer flex-1">
-								Member
+								I'm a Member
 							</label>
 						</div>
 					</div>
@@ -164,8 +164,8 @@ export function ChamaUserType({
 						className={`w-full py-3 px-4 ${
 							isLoading
 								? "bg-gray-500"
-								: "bg-green-500 hover:bg-green-600"
-						} text-white rounded-md font-semibold transition-colors flex justify-center items-center`}>
+								: "bg-[#4084B9] hover:bg-[#488ec3] active:bg-[#3a7fae]"
+						} text-white rounded-md font-semibold transition-colors flex justify-center items-center border-none focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}>
 						{isLoading ? (
 							<>
 								<svg
@@ -197,56 +197,4 @@ export function ChamaUserType({
 	);
 }
 
-interface UserTypeProps {
-	role: UserType | string;
-}
 
-export function ChamaUserTypeBadge({
-	role,
-}: UserTypeProps): React.ReactElement {
-	const normalizedType = AuthService.normalizeUserType(role);
-	switch (normalizedType) {
-		case UserType.ADMIN:
-			return <span className="badge badge-primary">Admin</span>;
-		case UserType.MEMBER:
-			return <span className="badge badge-secondary">Member</span>;
-		default:
-			return <span className="badge badge-light">Unknown Role</span>;
-	}
-}
-
-export function ChamaUserTypeIcon({ role }: UserTypeProps): React.ReactElement {
-	const normalizedType = AuthService.normalizeUserType(role);
-	switch (normalizedType) {
-		case UserType.ADMIN:
-			return <i className="bi bi-shield-lock-fill text-primary"></i>;
-		case UserType.MEMBER:
-			return <i className="bi bi-person-fill text-secondary"></i>;
-		default:
-			return <i className="bi bi-question-circle-fill text-light"></i>;
-	}
-}
-
-export function ChamaUserTypeColor({ role }: UserTypeProps): string {
-	const normalizedType = AuthService.normalizeUserType(role);
-	switch (normalizedType) {
-		case UserType.ADMIN:
-			return "text-primary";
-		case UserType.MEMBER:
-			return "text-secondary";
-		default:
-			return "text-light";
-	}
-}
-
-export function ChamaUserTypeClassName(role: UserType | string): string {
-	const normalizedType = AuthService.normalizeUserType(role);
-	switch (normalizedType) {
-		case UserType.ADMIN:
-			return "bg-primary text-white";
-		case UserType.MEMBER:
-			return "bg-secondary text-white";
-		default:
-			return "bg-light text-dark";
-	}
-}
