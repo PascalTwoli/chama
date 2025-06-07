@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { TransactionType, TransactionStatus } from 'generated/prisma';
+import { TransactionType, TransactionStatus } from '@prisma/client';
 
 // Define interface for transaction response that matches the controller's expected format
 export interface TransactionResponse {

@@ -31,7 +31,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import * as firebaseAdmin from 'firebase-admin';
-import { UserType } from 'generated/prisma';
+import { UserType } from '@prisma/client';
 import { AuthGuard } from '../guards/auth.guard';
 import { CurrentUser } from '../decorators/current-user.decorator';
 import { type CurrentUser as CurrentUserType } from '../decorators/current-user.decorator';
