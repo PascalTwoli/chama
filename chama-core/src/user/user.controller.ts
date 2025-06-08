@@ -37,7 +37,7 @@ import { CurrentUser } from '../decorators/current-user.decorator';
 import { type CurrentUser as CurrentUserType } from '../decorators/current-user.decorator';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserListResponse, UserService } from './user.service';
-import { UserEntity, FirebaseUserEntity, UserResponseEntity } from './entities/user.entity';
+import { UserEntity, UserResponseEntity } from './entities/user.entity';
 
 @ApiTags('User')
 @Controller('user')
@@ -68,7 +68,7 @@ export class UserController {
         users: {
           type: 'array',
           items: {
-            $ref: '#/components/schemas/FirebaseUserEntity',
+            $ref: '#/components/schemas/UserEntity',
           },
         },
         pageToken: { type: 'string', description: 'Token for pagination' },
@@ -77,20 +77,29 @@ export class UserController {
   })
   @ApiUnauthorizedResponse({ description: 'User not authenticated' })
   @ApiForbiddenResponse({ description: 'User not authorized to view all users' })
-  async findAll(@CurrentUser() currentUser: CurrentUserType): Promise<{users: FirebaseUserEntity[], pageToken?: string}> {
+  async findAll(@CurrentUser() currentUser: CurrentUserType): Promise<{users: UserEntity[], pageToken?: string}> {
     try {
       // For admin functionality, you might want to verify the user has admin permissions
       const response = await this.userService.findAll();
       
-      // Transform Firebase UserRecord objects to FirebaseUserEntity instances
+      // Get local user data for each Firebase user
+      const localUsers = await Promise.all(
+        response.users.map(async (firebaseUser) => {
+          try {
+            const userResponse = await this.userService.findOne(firebaseUser.uid);
+            return userResponse.localUser;
+          } catch (error) {
+            // If local user doesn't exist, skip this user
+            return null;
+          }
+        })
+      );
+      
+      // Filter out null values (users without local records)
+      const validUsers = localUsers.filter(user => user !== null) as UserEntity[];
+      
       return {
-        users: response.users.map(user => new FirebaseUserEntity({
-          uid: user.uid,
-          email: user.email,
-          displayName: user.displayName,
-          phoneNumber: user.phoneNumber,
-          emailVerified: user.emailVerified
-        })),
+        users: validUsers,
         pageToken: response.pageToken
       };
     } catch (error) {
@@ -125,13 +134,6 @@ export class UserController {
       
       // Transform to entity instance
       return new UserResponseEntity({
-        firebaseUser: userResponse.firebaseUser ? {
-          uid: userResponse.firebaseUser.uid,
-          email: userResponse.firebaseUser.email,
-          displayName: userResponse.firebaseUser.displayName,
-          phoneNumber: userResponse.firebaseUser.phoneNumber,
-          emailVerified: userResponse.firebaseUser.emailVerified
-        } : undefined,
         localUser: userResponse.localUser
       });
     } catch (error) {
@@ -157,7 +159,7 @@ export class UserController {
   @ApiBody({ type: UpdateUserDto })
   @ApiOkResponse({
     description: 'User updated successfully',
-    type: FirebaseUserEntity
+    type: UserEntity
   })
   @ApiNotFoundResponse({ description: 'User not found' })
   @ApiBadRequestResponse({ description: 'Invalid update data' })
@@ -168,7 +170,7 @@ export class UserController {
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
     @CurrentUser() currentUser: CurrentUserType,
-  ): Promise<FirebaseUserEntity> {
+  ): Promise<UserEntity> {
     console.log('=== PATCH /user/:id endpoint called ===');
     console.log('Request ID:', id);
     console.log('Request body (updateUserDto):', updateUserDto);
@@ -198,14 +200,9 @@ export class UserController {
       const userRecord = await this.userService.update(id, updateUserDto);
       console.log('userService.update result:', userRecord);
       
-      // Transform to entity instance
-      return new FirebaseUserEntity({
-        uid: userRecord.uid,
-        email: userRecord.email,
-        displayName: userRecord.displayName,
-        phoneNumber: userRecord.phoneNumber,
-        emailVerified: userRecord.emailVerified
-      });
+      // Get the updated local user data
+      const userResponse = await this.userService.findOne(id);
+      return userResponse.localUser;
     } catch (error) {
       if (error instanceof NotFoundException || 
           error instanceof BadRequestException || 
