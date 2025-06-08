@@ -29,13 +29,12 @@ export interface UserListResponse {
   pageToken?: string;
 }
 
-// Enhanced interface for user response matching our entity
+// Enhanced interface for user response matching our entity - Firebase data removed
 export interface EnhancedUserResponse {
-  firebaseUser: firebaseAdmin.auth.UserRecord | null;
   localUser: UserEntity;
 }
 
-// Interface for enhanced login response
+// Interface for enhanced login response - Firebase data removed
 export interface LoginResponse {
   // Authentication tokens
   idToken: string;
@@ -43,7 +42,6 @@ export interface LoginResponse {
   expiresIn: string;
   // User details
   user: {
-    firebaseUser: firebaseAdmin.auth.UserRecord | null;
     localUser: any;
   };
 }
@@ -61,7 +59,7 @@ export class UserService {
   async updateUserType(uid: string, userType: UserType) {
     try {
       // Verify the user exists
-      const { firebaseUser, localUser } = await this.findOne(uid);
+      const { localUser } = await this.findOne(uid);
 
       if (!localUser) {
         throw new NotFoundException(
@@ -144,7 +142,6 @@ export class UserService {
         refreshToken,
         expiresIn,
         user: {
-          firebaseUser: userRecord,
           localUser: localUser,
         },
       };
@@ -220,11 +217,11 @@ export class UserService {
       // Get the user details using the findOne method
       const userDetails = await this.findOne(uid);
 
-      // Since this is a login operation, we should always have a Firebase user
+      // Since this is a login operation, we should always have a local user
       // If we don't, something went wrong
-      if (!userDetails.firebaseUser) {
+      if (!userDetails.localUser) {
         throw new Error(
-          'Authentication failed: Firebase user not found after login',
+          'Authentication failed: Local user not found after login',
         );
       }
 
@@ -234,8 +231,6 @@ export class UserService {
         refreshToken,
         expiresIn,
         user: {
-          // Create a new object to help TypeScript recognize the non-null value
-          firebaseUser: userDetails.firebaseUser!, // Use non-null assertion since we've checked above
           localUser: userDetails.localUser,
         },
       };
@@ -419,13 +414,11 @@ export class UserService {
         });
 
         return {
-          firebaseUser,
           localUser: newLocalUser as UserEntity,
         };
       }
 
       return {
-        firebaseUser,
         localUser: localUser as UserEntity,
       };
     } catch (error) {
@@ -450,7 +443,6 @@ export class UserService {
           // Local user exists but Firebase user doesn't - unusual situation
           console.warn(`Local user ${uid} exists but Firebase user is missing`);
           return {
-            firebaseUser: null,
             localUser: localUser as UserEntity,
           };
         }

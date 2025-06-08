@@ -65,7 +65,6 @@ export class AuthController {
         user: {
           type: 'object',
           properties: {
-            firebaseUser: { type: 'object', description: 'Firebase user details' },
             localUser: { type: 'object', description: 'Local user details' },
           },
         },
@@ -103,7 +102,6 @@ export class AuthController {
         user: {
           type: 'object',
           properties: {
-            firebaseUser: { type: 'object', description: 'Firebase user details' },
             localUser: { type: 'object', description: 'Local user details' },
           },
         },
@@ -182,13 +180,6 @@ export class AuthController {
       
       // Transform to entity instance
       return new UserResponseEntity({
-        firebaseUser: userResponse.firebaseUser ? {
-          uid: userResponse.firebaseUser.uid,
-          email: userResponse.firebaseUser.email,
-          displayName: userResponse.firebaseUser.displayName,
-          phoneNumber: userResponse.firebaseUser.phoneNumber,
-          emailVerified: userResponse.firebaseUser.emailVerified
-        } : undefined,
         localUser: userResponse.localUser
       });
     } catch (error) {
