@@ -1,6 +1,8 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "ChamaPlus",
+  "name": "ChamaPlus - Your Chama Management App",
+  "description": "ChamaPlus is a comprehensive app for managing your Chama groups, tracking contributions, and facilitating communication.",
+  "lang": "en",
   "icons": [
     {
       "src": "favicon.ico",
@@ -8,12 +10,12 @@
       "type": "image/x-icon"
     },
     {
-      "src": "logo192.png",
+      "src": "chamaplus-logo.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "logo512.png",
+      "src": "chamaplus-logo-512.png",
       "type": "image/png",
       "sizes": "512x512"
     }

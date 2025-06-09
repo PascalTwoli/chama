@@ -1,10 +1,12 @@
 import { useNavigate } from "react-router-dom";
-import { useState, FormEvent, ChangeEvent } from "react";
+import React, { useState, FormEvent, ChangeEvent } from "react";
 import AuthService, {
 	
 }
 from "../services/auth/signup-service";
 import {SignupRequest, FormErrors } from "../models/user"
+import { toast } from "react-toastify";
+
 
 const SignUp = () => {
 	const navigate = useNavigate();
@@ -17,8 +19,7 @@ const SignUp = () => {
 	});
 	const [errors, setErrors] = useState<FormErrors>({});
 	const [isLoading, setIsLoading] = useState<boolean>(false);
-	const [apiError, setApiError] = useState<string>("");
-	const [apiSuccess, setApiSuccess] = useState<string>("");
+	const [showPassword, setShowPassword] = useState(false);
 
 	const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
@@ -69,8 +70,6 @@ const SignUp = () => {
 
 	const handleRegister = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		setApiError("");
-		setApiSuccess("");
 
 		if (!validateForm()) {
 			return;
@@ -82,7 +81,7 @@ const SignUp = () => {
 			await AuthService.signup(
 				formData as SignupRequest
 			);
-			setApiSuccess("Registration successful! Redirecting to user type selection...");
+			toast.success("Registration successful! Redirecting to user type selection...");
 
 			// Redirect to user type selection page after short delay
 			// This allows users to select their role in the system (e.g., admin, member, etc.)
@@ -105,7 +104,7 @@ const SignUp = () => {
 					...errors,
 					email: "Email is already registered. Please use a different email."
 				});
-                setApiError("Email is already registered. Please use a different email or sign in.");
+                toast.error("Email is already registered. Please use a different email or sign in.");
 			}
             // Check for validation errors
             else if (error instanceof Error && error.message.includes("Validation error")) {
@@ -117,22 +116,22 @@ const SignUp = () => {
                         [field]: error.message.replace(/Validation error:\s*/i, '')
                     });
                 }
-                setApiError(error.message.replace(/Validation error:\s*/i, ''));
+                toast.error(error.message.replace(/Validation error:\s*/i, ''));
             }
             // Check for server errors
             else if (error instanceof Error && 
                     (error.message.includes("internal server error") || 
                      error.message.includes("Our team has been notified"))) {
-                setApiError("An internal server error occurred. Please try again later.");
+                toast.error("An internal server error occurred. Please try again later.");
             }
             // Check for network errors
             else if (error instanceof Error && error.message.includes("Could not connect to the server")) {
-                setApiError("Could not connect to the server. Please check your internet connection and try again.");
+                toast.error("Could not connect to the server. Please check your internet connection and try again.");
 				// setApiError("Email is already registered. Please use a different email or sign in.");
             }
             // For other errors
             else {
-                setApiError(
+                toast.error(
                     error instanceof Error
                         ? error.message
                         : "Registration failed. Please try again."
@@ -145,19 +144,8 @@ const SignUp = () => {
 	return (
 		<div className="bg-gray-900 flex justify-center min-h-screen items-center">
 			<div className="signin-container flex flex-row justify-center items-center rounded-xl">
-				<div className="signup-details flex items-center justify-center min-h-full bg-black">
-					<div className="w-full  px-10 rounded-xl font-bold">
-						{/* <h2 className="text-2xl font-bold text-center">Sign Up</h2> */}
-						{apiSuccess && (
-							<div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
-								{apiSuccess}
-							</div>
-						)}
-						{apiError && (
-							<div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
-								{apiError}
-							</div>
-						)}
+				<div className="signup-details flex items-center justify-center min-h-full bg-black ">
+					<div className="w-full  px-10 rounded-xl font-bold overflow-y-auto h-[93vh] pt-2">
 						<form onSubmit={handleRegister}>
 							<div className="flex gap-6">
 								<label htmlFor="firstName" className="w-full">
@@ -241,11 +229,11 @@ const SignUp = () => {
 									)}
 								</label>
 							</div>
-							<div className="mt-8">
+							<div className="mt-8 relative">
 								<label htmlFor="password" className="w-full">
 									Password
 									<input
-										type="password"
+										type={showPassword ? "text" : "password"}
 										id="password"
 										name="password"
 										placeholder="Password"
@@ -261,6 +249,18 @@ const SignUp = () => {
 										</p>
 									)}
 								</label>
+								<button 
+									type="button"
+									className="absolute right-3 top-[36px] text-gray-400 hover:text-gray-200 transition duration-300 bg-transparent border-0 focus:outline-none"
+									onClick={() => setShowPassword(!showPassword)}
+									aria-label={showPassword ? "Hide password" : "Show password"}
+								>
+									{showPassword ? (
+										<i className="bi bi-eye-slash text-2xl"></i>
+									) : (
+										<i className="bi bi-eye text-2xl"></i>
+									)}
+								</button>
 							</div>
 							<p className="text-gray-400 mt-8 font-normal">
 								By creating an account, you agree to our{" "}
@@ -278,30 +278,30 @@ const SignUp = () => {
 							</p>
 							<button
 								type="submit"
-								className="w-full p-2 mt-4 text-white bg-green-500 rounded hover:bg-green-400 transition duration-300 border-0 disabled:bg-gray-500 disabled:cursor-not-allowed"
+								className="w-full p-2 mt-4 text-white bg-[#54B685] rounded hover:bg-green-400 transition duration-300 border-0 disabled:bg-gray-500 disabled:cursor-not-allowed cursor-pointer"
 								disabled={isLoading}>
-								{isLoading ? "Signing Up..." : "Sign Up"}
+								{isLoading ? "Creating account..." : "Create Account"}
 							</button>
-						</form>
 
-						<div className="flex items-center my-6 mb-10 mt-14">
-							<div className="flex-grow border-t border-gray-700"></div>
-							<button className=" google-login bg-gray-700 p-2 rounded flex justify-around ml-4 mr-4 gap-4 hover:bg-gray-600 transition duration-300  border-0">
-								<img
-									className="google-logo"
-									src="/assets/Google__G__logo.svg.webp"
-									alt="Google"
-								/>
-								<span>Sign in with Google</span>
-							</button>
-							<div className="flex-grow border-t border-gray-700"></div>
-						</div>
+							<div className="flex items-center my-6 mb-10 mt-14">
+								<div className="flex-grow  hor-line"></div>
+								<button className=" google-login bg-gray-700 p-2 rounded flex justify-around items-center ml-4 mr-4 gap-4 hover:bg-gray-600 transition duration-300  border-0">
+									<img
+										className="google-logo"
+										src="/assets/Google__G__logo.svg.webp"
+										alt="Google"
+									/>
+									<span>Google Sign up</span>
+								</button>
+								<div className=" flex-grow hor-line"></div> 
+							</div>
+						</form>
 
 						<p className="mt-4 text-center text-gray-400 font-bold">
 							Already have an account?{" "}
 							<a
 								href="/signin"
-								className="text-green-500 hover:text-green-400 transition duration-300">
+								className="text-[#54B685] hover:text-green-400 transition duration-300">
 								Sign In
 							</a>
 						</p>
@@ -314,10 +314,10 @@ const SignUp = () => {
 						backgroundSize: "cover",
 					}}>
 					<div className=" flex flex-col justify-center signup-image-overlay text-center p-14">
-						<p className="font-bold welcome-p">
-							Welcome Back To Chama System
+						<p className="font-bold welcome-p mb-4 ">
+							Welcome To <br /> <span className="underline">ChamaPlus System</span>
 						</p>
-						<p className="font-bold text-4xl p-7 text-left">
+						<p className="font-bold text-2xl p-7 pt-0 mt-0 text-center">
 							We provide easy-to-use tools for managing group finances
 							and working together efficiently!
 						</p>

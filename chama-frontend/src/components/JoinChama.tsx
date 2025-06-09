@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from 'primereact/button';
 import { ProgressSpinner } from 'primereact/progressspinner';
-import { Toast } from 'primereact/toast';
+import { toast } from 'react-toastify';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 
@@ -42,7 +42,6 @@ function JoinChama() {
   const params = useParams<{ token?: string }>();
   const token = params.token || '';
   const navigate = useNavigate();
-  const toast = useRef<Toast>(null);
   const { isAuthenticated, user } = useAuth();
   
   const [loading, setLoading] = useState(true);
@@ -94,12 +93,7 @@ function JoinChama() {
       const response = await axios.post<ChamaResponse>(`/api/invites/accept/${token}`);
       
       setSuccess(true);
-      toast.current?.show({
-        severity: 'success',
-        summary: 'Success',
-        detail: `You have successfully joined ${response.data.chama.name}!`,
-        life: 5000
-      });
+      toast.success(`You have successfully joined ${response.data.chama.name}!`);
 
       // Redirect to chama dashboard after a short delay
       setTimeout(() => {
@@ -169,7 +163,6 @@ function JoinChama() {
   if (success) {
     return (
       <div className="flex flex-column align-items-center justify-content-center min-h-screen bg-gray-900 p-4">
-        <Toast ref={toast} />
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg text-center max-w-md w-full">
           <i className="pi pi-check-circle text-5xl text-green-500 mb-4"></i>
           <h2 className="text-white text-2xl font-bold mb-4">Success!</h2>
