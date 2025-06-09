@@ -21,6 +21,16 @@
     font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
       monospace;
   }
+
+  input,
+  textarea{
+    font-family: monospace;
+    font-weight: bold;
+  }
+
+  input::placeholder {
+    font-weight: 600
+  }
 }
 
 /* PrimeReact component overrides */
@@ -106,3 +116,5 @@
 
   
 }
+
+
