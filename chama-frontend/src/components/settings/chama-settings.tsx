@@ -1,6 +1,6 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { Menu } from "primereact/menu";
-import { Toast } from "primereact/toast";
+import { toast } from 'react-toastify';
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
@@ -13,7 +13,6 @@ interface ChamaSettingsProps {
 
 const ChamaSettings: React.FC<ChamaSettingsProps> = () => {
 	const [isEditing, setIsEditing] = useState(false);
-	const toast = useRef<Toast>(null);
 	const [activeTab, setActiveTab] = useState("Account");
 	const [selectedImage, setSelectedImage] = useState<string | null>(null);
 	const [roleProfile, setRoleProfile] = useState<Record<Role, string | null>>({
@@ -78,12 +77,7 @@ const ChamaSettings: React.FC<ChamaSettingsProps> = () => {
 		const file = event.target.files?.[0];
 		if (file) {
 			if (!file.type.startsWith("image/")) {
-				toast.current?.show({
-					severity: "error",
-					summary: "Invalid file type",
-					detail: "Please upload an image file (JPG, PNG, etc.)",
-					life: 3000,
-				});
+			toast.error("Please upload an image file (JPG, PNG, etc.)");
 				return;
 			}
 			const reader = new FileReader();
@@ -101,12 +95,7 @@ const ChamaSettings: React.FC<ChamaSettingsProps> = () => {
 		const file = event.target.files?.[0];
 		if (file) {
 			if (!file.type.startsWith("image/")) {
-				toast.current?.show({
-					severity: "error",
-					summary: "Invalid file type",
-					detail: "Please upload an image file (JPG, PNG, etc.)",
-					life: 3000,
-				});
+			toast.error("Please upload an image file (JPG, PNG, etc.)");
 				return;
 			}
 			const reader = new FileReader();
@@ -139,7 +128,6 @@ const ChamaSettings: React.FC<ChamaSettingsProps> = () => {
 
 	return (
 		<>
-			<Toast ref={toast} />
 			<h1 className="font-bold text-lg mb-4">
 				Twoli Contribution's Settings
 			</h1>
@@ -243,33 +231,33 @@ const ChamaSettings: React.FC<ChamaSettingsProps> = () => {
 
 					{activeTab === "Leadership" && (
 						<div className=" leadership bg-[#242E3B] rounded-lg shadow-lg">
-              <h3 className="mt-0 p-3 text-gray-200">Leadership</h3>
+              				<h3 className="mt-0 p-3 text-gray-200">Leadership</h3>
 							<div className="text-center relative">
 								<h4 className="text-lg font-semibold mb-0 mx-2 text-gray-200 pb-2">
 									Twoli Contribution Leadership
 								</h4>
-                <Button
-                  onClick={() => setIsEditing(true)}
-                  className=" profile-edit-btn mt-0 justify-center text-gray-300 hover:border hover:border-gray-300 p-2 rounded-x-lg hover:bg-gray-700 transition-all p-button-info p-button-outlined absolute right-4 top-2 h-5 w-8">
-                  <i className="pi pi-pencil text-xs" />
-                </Button>
+								<Button
+								onClick={() => setIsEditing(true)}
+								className=" profile-edit-btn mt-0 justify-center text-gray-300 hover:border hover:border-gray-300 p-2 rounded-x-lg hover:bg-gray-700 transition-all p-button-info p-button-outlined absolute right-4 top-2 h-5 w-8">
+								<i className="pi pi-pencil text-xs" />
+								</Button>
 							</div>
 							<div className="flex grid grid-cols-3 justify-between">
 								{renderRoleProfile("Chair")}
 								{renderRoleProfile("Secretary")}
 								{renderRoleProfile("Treasurer")}
 							</div>
-              {isEditing && <div className="flex gap-6 justify-end items-center mt-6">
-                <Button label="Cancel" onClick={() => setIsEditing(false)} severity="secondary" className=" h-10 mb-2"/>
-                <Button
-                  type="button"
-                  label="Update Leaders"
-                  icon="pi pi-check"
-                  className=" p-button p-button-outlined p-button-info text-[#4084B9] mr-2 mb-2"
-                  style={{ height: "2.5rem" }}
-                  onClick={handleSaveAccountChanges}
-                />
-              </div>}
+							{isEditing && <div className="flex gap-6 justify-end items-center mt-6">
+								<Button label="Cancel" onClick={() => setIsEditing(false)} severity="secondary" className=" h-10 mb-2"/>
+								<Button
+								type="button"
+								label="Update Leaders"
+								icon="pi pi-check"
+								className=" p-button p-button-outlined p-button-info text-[#4084B9] mr-2 mb-2"
+								style={{ height: "2.5rem" }}
+								onClick={handleSaveAccountChanges}
+								/>
+							</div>}
 						</div>
 					)}
 
