@@ -47,48 +47,48 @@ const AppRoutes = () => {
 	/**
 	 * Protected route component - only allows access to users with specified role
 	 */
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRole }) => {
-  const [status, setStatus] = useState<OnboardingStatus | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const navigate = useNavigate();
+	const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRole }) => {
+	const [status, setStatus] = useState<OnboardingStatus | null>(null);
+	const [isLoading, setIsLoading] = useState(true);
+	const navigate = useNavigate();
 
-  useEffect(() => {
-    const checkStatus = async () => {
-      try {
-        const authToken = localStorage.getItem("authToken");
-        if (!authToken) {
-          navigate("/signin");
-          return;
-        }
-        const onboardingStatus = await AuthService.checkOnboardingStatus();
-        setStatus(onboardingStatus);
-      } catch (error) {
-        console.error("Error checking onboarding status:", error);
-        navigate("/signin");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    checkStatus();
-  }, [navigate]);
+	useEffect(() => {
+		const checkStatus = async () => {
+		try {
+			const authToken = localStorage.getItem("authToken");
+			if (!authToken) {
+			navigate("/signin");
+			return;
+			}
+			const onboardingStatus = await AuthService.checkOnboardingStatus();
+			setStatus(onboardingStatus);
+		} catch (error) {
+			console.error("Error checking onboarding status:", error);
+			navigate("/signin");
+		} finally {
+			setIsLoading(false);
+		}
+		};
+		checkStatus();
+	}, [navigate]);
 
-  if (isLoading) {
-    return <div>Loading...</div>; // You can replace this with a spinner or custom loading component
-  }
+	if (isLoading) {
+		return <div>Loading...</div>; // You can replace this with a spinner or custom loading component
+	}
 
-  if (status?.needsUserType) {
-    return <Navigate to="/chose-user" replace />;
-  }
-  
-  const normalizedUserType = AuthService.normalizeUserType(status?.activeUserType?? null);
-  const normalizedAllowedType = AuthService.normalizeUserType(allowedRole);
+	if (status?.needsUserType) {
+		return <Navigate to="/chose-user" replace />;
+	}
+	
+	const normalizedUserType = AuthService.normalizeUserType(status?.activeUserType?? null);
+	const normalizedAllowedType = AuthService.normalizeUserType(allowedRole);
 
-  if (normalizedUserType !== normalizedAllowedType) {
-    return <Navigate to={AuthService.getRedirectPath()} replace />;
-  }
+	if (normalizedUserType !== normalizedAllowedType) {
+		return <Navigate to={AuthService.getRedirectPath()} replace />;
+	}
 
-  return children;
-};
+	return children;
+	};
 
 	return (
 		<BrowserRouter>
