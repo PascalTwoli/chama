@@ -6,31 +6,31 @@ import { ChamaFormData } from '../models/chamas';
 
 const tabs = ['Basic', 'Features', 'Terms'];
 
+// Extended interface for complete form data including terms
+interface ExtendedChamaFormData extends ChamaFormData {
+  terms: string;
+}
+
 // Component for creating a new chama (for admin users)
 const CreateChama: React.FC = () => {
-  const [chamaName, setChamaName] = useState('');
-  const [chamaDescription, setChamaDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const navigate = useNavigate();
 
   const [activeStep, setActiveStep] = useState(0);
-  const [formData, setFormData] = useState<ChamaFormData>({
+  const [formData, setFormData] = useState<ExtendedChamaFormData>({
     chamaName: '',
     membersCount: 0, 
     description: '',
-    country: '',
+    country: 'kenya', // Set default value
     location: '',
     organizationRole: '',
     image: null,
+    terms: '',
   });
 
   const chamaId = useParams().chamaId || 'new'; // Default to 'new' if chamaId is not provided
-  
-  // const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-  //   const { name, value } = e.target;
-  //   setFormData(prev => ({ ...prev, [name]: value }));
-  // };
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     if (type === 'file') {
@@ -39,26 +39,93 @@ const CreateChama: React.FC = () => {
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
+    
+    // Clear validation error for this field when user starts typing
+    if (validationErrors[name]) {
+      setValidationErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  // Validate current step
+  const validateStep = (step: number): boolean => {
+    const errors: Record<string, string> = {};
+    
+    switch (step) {
+      case 0: // Basic Information
+        if (!formData.chamaName.trim()) {
+          errors.chamaName = 'Organisation name is required';
+        }
+        if (!formData.membersCount || formData.membersCount <= 0) {
+          errors.membersCount = 'Number of members must be greater than 0';
+        }
+        if (!formData.organizationRole) {
+          errors.organizationRole = 'Organisation role is required';
+        }
+        if (!formData.country) {
+          errors.country = 'Country is required';
+        }
+        break;
+      
+      case 2: // Terms
+        if (!formData.terms.trim()) {
+          errors.terms = 'Terms and conditions are required';
+        }
+        break;
+      
+      default:
+        break;
+    }
+    
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  // Handle next step
+  const handleNext = () => {
+    if (validateStep(activeStep)) {
+      setActiveStep(prev => prev + 1);
+    }
+  };
+
+  // Handle previous step
+  const handlePrevious = () => {
+    setActiveStep(prev => prev - 1);
   };
 
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Handle final form submission
+  const handleSubmit = async () => {
+    // Validate all required steps
+    if (!validateStep(0) || !validateStep(2)) {
+      setError('Please fill in all required fields');
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
+      // Prepare form data for API
+      const submitData = {
+        name: formData.chamaName,
+        description: formData.description,
+        membersCount: formData.membersCount,
+        country: formData.country,
+        location: formData.location,
+        organizationRole: formData.organizationRole,
+        terms: formData.terms,
+        // Note: File upload would need separate handling
+        // image: formData.image
+      };
+
       // Make API call to create a chama
-      const response = await fetch('/chamas', {
+      const response = await fetch('/chama', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`
         },
-        body: JSON.stringify({
-          name: chamaName,
-          description: chamaDescription
-        })
+        body: JSON.stringify(submitData)
       });
 
       if (!response.ok) {
@@ -86,12 +153,7 @@ const CreateChama: React.FC = () => {
     case 0:
       return (
         <div className="bg-[#242E3B4D] p-3 pb-18 rounded-xl text-gray-500"> {/**bg-[#242E3B] */}
-          <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-            {error && (
-              <div className="bg-red-800 text-white p-3 rounded mb-4">
-                {error}
-              </div>
-            )}
+          <div className="flex flex-col gap-6">
               <div className="">
                 <div className='basic-info-cont  mb-4'>
                   <h4 className='m-0'>Basic Information</h4>
@@ -106,25 +168,35 @@ const CreateChama: React.FC = () => {
                         name="chamaName"
                         id="chamaName"
                         placeholder="Chama Name"
-                        className="p-2 rounded-md border border-[#525A644D] bg-transparent text-white w-full outline-[#4084B9] focus:outline-2"
+                        className={`p-2 rounded-md border bg-transparent text-white w-full outline-[#4084B9] focus:outline-2 ${
+                          validationErrors.chamaName ? 'border-red-500' : 'border-[#525A644D]'
+                        }`}
                         value={formData.chamaName}
                         onChange={handleInputChange}
                         required
                       />
+                      {validationErrors.chamaName && (
+                        <p className="text-red-500 text-sm mt-1">{validationErrors.chamaName}</p>
+                      )}
                     </label>
                   </div>
                   <div>
                     <label htmlFor="numberOfMembers" className='font-bold'>How many members in your organisation <span className='text-red-500'>*</span>
                       <input
                         type="number"
-                        name="numberOfMembers"
+                        name="membersCount"
                         placeholder="Number of Members"
-                        className="p-2 rounded border border-[#525A644D] bg-transparent text-white w-full outline-[#4084B9] focus:outline-2"
+                        className={`p-2 rounded border bg-transparent text-white w-full outline-[#4084B9] focus:outline-2 ${
+                          validationErrors.membersCount ? 'border-red-500' : 'border-[#525A644D]'
+                        }`}
                         id="numberOfMembers"
                         value={formData.membersCount || ''}
                         onChange={handleInputChange}
                         required  
                       />
+                      {validationErrors.membersCount && (
+                        <p className="text-red-500 text-sm mt-1">{validationErrors.membersCount}</p>
+                      )}
                     </label>
                   </div>
                   <div>
@@ -133,7 +205,9 @@ const CreateChama: React.FC = () => {
                       <select
                         name="organizationRole"
                         id="organizationRole"
-                        className="p-2 rounded border border-[#525A644D] bg-transparent text-white w-full outline-[#4084B9] focus:outline-2"
+                        className={`p-2 rounded border bg-transparent text-white w-full outline-[#4084B9] focus:outline-2 ${
+                          validationErrors.organizationRole ? 'border-red-500' : 'border-[#525A644D]'
+                        }`}
                         value={formData.organizationRole}
                         onChange={handleInputChange}
                         required
@@ -141,10 +215,14 @@ const CreateChama: React.FC = () => {
                         <option value="" disabled>
                           --Select organisation role--
                         </option>
-                        <option value="admin">Admin</option>
+                        <option value="chair-person">Chair person</option>
+                        <option value="secretary">Secretary</option>
                         <option value="treasurer">Treasurer</option>
                         <option value="member">Member</option>
                       </select>
+                      {validationErrors.organizationRole && (
+                        <p className="text-red-500 text-sm mt-1">{validationErrors.organizationRole}</p>
+                      )}
                     </label>
                   </div>
                   <div>
@@ -153,7 +231,9 @@ const CreateChama: React.FC = () => {
                       <select
                         name="country"
                         id="country"
-                        className="p-2 rounded border border-[#525A644D] bg-transparent text-white w-full outline-[#4084B9] focus:outline-2"
+                        className={`p-2 rounded border bg-transparent text-white w-full outline-[#4084B9] focus:outline-2 ${
+                          validationErrors.country ? 'border-red-500' : 'border-[#525A644D]'
+                        }`}
                         value={formData.country}
                         onChange={handleInputChange}
                         required
@@ -165,13 +245,16 @@ const CreateChama: React.FC = () => {
                         <option value="tanzania">Tanzania</option>
                         <option value="nigeria">Nigeria</option>
                       </select>
+                      {validationErrors.country && (
+                        <p className="text-red-500 text-sm mt-1">{validationErrors.country}</p>
+                      )}
                     </label>
                   </div>
                 </div>
                 <div>
                   <label className="font-bold">Description of the group</label>
                   <textarea
-                    name="about"
+                    name="description"
                     placeholder="Description of the Group"
                     className="p-2 rounded border border-[#525A644D] bg-transparent text-white w-full outline-[#4084B9] focus:outline-2"
                     id="chamaDescription"
@@ -186,11 +269,13 @@ const CreateChama: React.FC = () => {
               <span>Upload an Image / Profile of the Chama</span>
               <input
                 type="file"
+                name="image"
                 onChange={handleInputChange}
                 className="text-white"
+                accept="image/*"
               />
             </div>
-          </form>
+          </div>
 
         </div>
       );
@@ -251,29 +336,34 @@ const CreateChama: React.FC = () => {
       )  
     case 2:
       return (
-      <div className="text-white ">
-        <p> Chama Terms and conditions goes here</p>
-        <form action="">
-          <div>
+      <div className="bg-[#242E3B4D] p-3 pb-18 rounded-xl text-white">
+        <div className="mb-4">
+          <h4 className="m-0 font-bold">Terms and Conditions</h4>
+          <p className="m-0 mb-4 text-sm text-gray-400">Define the terms and conditions for your chama</p>
+        </div>
+        <div>
           <label 
             htmlFor="chamaTerms" 
-            className="block text-sm font-medium text-gray-300 mb-1"
+            className="block text-sm font-medium text-gray-300 mb-2"
           >
             Chama Terms and Conditions <span className="text-red-500">*</span>
           </label>
           <textarea 
-            name="chamaTerms" 
+            name="terms" 
             id="chamaTerms" 
             placeholder='Please enter the terms and conditions for your chama here...'
-            rows={5}
+            rows={8}
             required
-            value={chamaName}
-            onChange={(e) => setChamaName(e.target.value)}
-            className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+            value={formData.terms}
+            onChange={handleInputChange}
+            className={`w-full px-4 py-2 bg-gray-700 border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-green-500 ${
+              validationErrors.terms ? 'border-red-500' : 'border-gray-600'
+            }`}
             />
-          </div>
-
-        </form>
+          {validationErrors.terms && (
+            <p className="text-red-500 text-sm mt-1">{validationErrors.terms}</p>
+          )}
+        </div>
        </div>
     )
     default:
@@ -285,94 +375,6 @@ const CreateChama: React.FC = () => {
   
 
   return (
-    // <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-    //   <div className="bg-gray-800 p-8 rounded-lg shadow-lg max-w-md w-full">
-    //     <h1 className="text-2xl font-bold text-white mb-6 text-center">
-    //       Create Your Chama
-    //     </h1>
-        
-    //     {error && (
-    //       <div className="bg-red-800 text-white p-3 rounded mb-4">
-    //         {error}
-    //       </div>
-    //     )}
-        
-    //     <form onSubmit={handleSubmit} className="space-y-6">
-    //       <div>
-    //         <label 
-    //           htmlFor="chamaName"
-    //           className="block text-sm font-medium text-gray-300 mb-1"
-    //         >
-    //           Chama Name
-    //         </label>
-    //         <input
-    //           id="chamaName"
-    //           type="text"
-    //           required
-    //           value={chamaName}
-    //           onChange={(e) => setChamaName(e.target.value)}
-    //           className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-green-500"
-    //           placeholder="Enter chama name"
-    //         />
-    //       </div>
-          
-    //       <div>
-    //         <label 
-    //           htmlFor="chamaDescription"
-    //           className="block text-sm font-medium text-gray-300 mb-1"
-    //         >
-    //           Description
-    //         </label>
-    //         <textarea
-    //           id="chamaDescription"
-    //           rows={4}
-    //           value={chamaDescription}
-    //           onChange={(e) => setChamaDescription(e.target.value)}
-    //           className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-green-500"
-    //           placeholder="Describe your chama"
-    //         />
-    //       </div>
-          
-    //       <div>
-    //         <button
-    //           type="submit"
-    //           disabled={isLoading}
-    //           className={`w-full py-3 px-4 ${
-    //             isLoading ? "bg-gray-500" : "bg-green-500 hover:bg-green-600"
-    //           } text-white rounded-md font-semibold transition-colors flex justify-center items-center`}
-    //         >
-    //           {isLoading ? (
-    //             <>
-    //               <svg
-    //                 className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-    //                 xmlns="http://www.w3.org/2000/svg"
-    //                 fill="none"
-    //                 viewBox="0 0 24 24"
-    //               >
-    //                 <circle
-    //                   className="opacity-25"
-    //                   cx="12"
-    //                   cy="12"
-    //                   r="10"
-    //                   stroke="currentColor"
-    //                   strokeWidth="4"
-    //                 ></circle>
-    //                 <path
-    //                   className="opacity-75"
-    //                   fill="currentColor"
-    //                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-    //                 ></path>
-    //               </svg>
-    //               Creating Chama...
-    //             </>
-    //           ) : (
-    //             'Create Chama'
-    //           )}
-    //         </button>
-    //       </div>
-    //     </form>
-    //   </div>
-
       <div className="w-full max-h-full  p-8 pt-0 text-white px-40">
         <div className='flex justify-between items-center mb-8'>
           <div>
@@ -391,7 +393,7 @@ const CreateChama: React.FC = () => {
           {tabs.map((tab, index) => (
             <Button
               key={tab}
-              className={`py-1 px-4 rounded flex-1 border-0  font-bold ${activeStep === index ? 'bg-[#4084B9] text-white' : 'bg-white text-gray-300'} hover:bg-[#4084B9] hover:text-white transition-colors`}
+              className={`py-1 px-4 rounded flex-1 border-0 h-8  font-bold ${activeStep === index ? 'bg-[#4084B9] text-white' : 'bg-white text-gray-300'} hover:bg-[#4084B9] hover:text-white transition-colors`}
               onClick={() => setActiveStep(index)}
             >
               {tab}
@@ -402,21 +404,36 @@ const CreateChama: React.FC = () => {
         {/* Step Content */}
         {renderStepContent()}
 
+        {/* Error Display */}
+        {error && (
+          <div className="bg-red-800 text-white p-3 rounded mt-4">
+            {error}
+          </div>
+        )}
+
         {/* Navigation Buttons */}
         <div className="flex justify-end gap-4 mt-6">
           {activeStep > 0 && (
-            <Button className='bg-[#4084B9] border-0' onClick={() => setActiveStep(prev => prev - 1)}> {/**variant="outline" */}
+            <Button 
+              className='bg-[#4084B9] border-0' 
+              onClick={handlePrevious}
+              disabled={isLoading}
+            >
               Previous
             </Button>
           )}
           {activeStep < tabs.length - 1 && (
-            <Button className='bg-[#4084B9] border-0 ' onClick={() => setActiveStep(prev => prev + 1)}>
+            <Button 
+              className='bg-[#4084B9] border-0' 
+              onClick={handleNext}
+              disabled={isLoading}
+            >
               Next
             </Button>
           )}
           {activeStep === tabs.length - 1 && (
-            <button
-                type="submit"
+            <Button
+                onClick={handleSubmit}
                 disabled={isLoading}
                 className={` py-3 px-4 border-none ${
                   isLoading ? "bg-gray-500" : "bg-green-500 hover:bg-green-600"
@@ -449,16 +466,12 @@ const CreateChama: React.FC = () => {
                 ) : (
                   'Create Chama'
                 )}
-              </button>
+              </Button>
           )}
         </div>
     </div>
 
-    // </div>
   );
 };
 
 export default CreateChama;
-
-
-

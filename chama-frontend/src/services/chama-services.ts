@@ -1,49 +1,106 @@
-// export default function handleJoinChama(chamaId: string): void {
-//     console.log(`Joining chama: ${chamaId}`);
-//     // TODO: Implement actual logic, e.g., navigation or state update
-// }
+import { AxiosError, AxiosResponse } from "axios";
+import apiClient from "../config/axios-config";
 
-// export default function handleCreateChama = () => {
-//     console.log("Opening create chama modal");
-//     // TODO: Implement actual modal opening logic
-// };
 
-import axios from 'axios';
+export class ChamaService {
+  static normalizeChamaType(chamaType: string | null): string | null {
+    if (!chamaType) return null;
+    const typeStr = chamaType.toUpperCase();
+    return typeStr === 'SAVINGS' || typeStr === 'INVESTMENT' ? typeStr : null;
+  }
 
-const API_BASE = '/api/chamas'; 
+static async getUserChamas(): Promise<any> {
+    try {
+      const response: AxiosResponse<any> = await apiClient.get('/api/chamas/user');
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching user chamas:", error);
+      const axiosError = error as AxiosError;
+      if (!axiosError.response) {
+        throw new Error("Could not connect to the server. Please check your internet connection and try again.");
+      }
+      const errorData = axiosError.response.data as { message?: string };
+      throw new Error(errorData?.message || "Failed to fetch user chamas.");
+    }
+  }
+  static async createChama(data: FormData): Promise<any> {
+    try {
+      const response: AxiosResponse<any> = await apiClient.post('/api/chamas/create', data, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error creating chama:", error);
+      const axiosError = error as AxiosError;
+      if (!axiosError.response) {
+        throw new Error("Could not connect to the server. Please check your internet connection and try again.");
+      }
+      const errorData = axiosError.response.data as { message?: string };
+      throw new Error(errorData?.message || "Failed to create chama.");
+    }
+  }
+  static async joinChama(chamaId: string): Promise<any> {
+    try {
+      const response: AxiosResponse<any> = await apiClient.post(`/api/chamas/${chamaId}/join`);
+      return response.data;
+    } catch (error) {
+      console.error("Error joining chama:", error);
+      const axiosError = error as AxiosError;
+      if (!axiosError.response) {
+        throw new Error("Could not connect to the server. Please check your internet connection and try again.");
+      }
+      const errorData = axiosError.response.data as { message?: string };
+      throw new Error(errorData?.message || "Failed to join chama.");
+    }
+  }
+  static async validateInvite(token: string): Promise<any> {
+    try {
+      const response: AxiosResponse<any> = await apiClient.get(`/api/invites/validate/${token}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error validating invite:", error);
+      const axiosError = error as AxiosError;
+      if (!axiosError.response) {
+        throw new Error("Could not connect to the server. Please check your internet connection and try again.");
+      }
+      const errorData = axiosError.response.data as { message?: string };
+      throw new Error(errorData?.message || "Failed to validate invite.");
+    }
+  }
+  static async acceptInvite(token: string): Promise<any> {
+    try {
+      const response: AxiosResponse<any> = await apiClient.post(`/api/invites/accept/${token}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error accepting invite:", error);
+      const axiosError = error as AxiosError;
+      if (!axiosError.response) {
+        throw new Error("Could not connect to the server. Please check your internet connection and try again.");
+      }
+      const errorData = axiosError.response.data as { message?: string };
+      throw new Error(errorData?.message || "Failed to accept invite.");
+    }
+  }
+  static async createInvite(chamaId: string, email: string, sendEmail: boolean = false): Promise<any> {
+    try {
+      const response: AxiosResponse<any> = await apiClient.post('/api/invites/create', {
+        chamaId,
+        email,
+        sendEmail
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error creating invite:", error);
+      const axiosError = error as AxiosError;
+      if (!axiosError.response) {
+        throw new Error("Could not connect to the server. Please check your internet connection and try again.");
+      }
+      const errorData = axiosError.response.data as { message?: string };
+      throw new Error(errorData?.message || "Failed to create invite.");
+    }
+  }
 
-export const getUserChamas = async () => {
-  const res = await axios.get(`${API_BASE}/user`);
-  return res.data;
-};
+}
 
-export const createChama = async (data: FormData) => {
-  const res = await axios.post(`${API_BASE}/create`, data, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
-  return res.data;
-};
 
-export const joinChama = async (chamaId: string) => {
-  const res = await axios.post(`${API_BASE}/${chamaId}/join`);
-  return res.data;
-};
 
-export const validateInvite = async (token: string) => {
-  const res = await axios.get(`/api/invites/validate/${token}`);
-  return res.data;
-};
-
-export const acceptInvite = async (token: string) => {
-  const res = await axios.post(`/api/invites/accept/${token}`);
-  return res.data;
-};
-
-export const createInvite = async (chamaId: string, email: string, sendEmail: boolean = false) => {
-  const res = await axios.post(`/api/invites/create`, {
-    chamaId,
-    email,
-    sendEmail
-  });
-  return res.data;
-};
