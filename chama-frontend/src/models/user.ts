@@ -91,9 +91,3 @@ export interface OnboardingStatus {
 	needsChama: boolean;
 	activeUserType: UserType | null;
 }
-
-// interface OnboardingStatus {
-//     needsUserType: boolean;
-//     needsChama: boolean;
-//     userType: UserType | null;
-// }

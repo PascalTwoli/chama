@@ -28,11 +28,11 @@ export class AuthService {
 				"/auth/signup",
 				userData
 			);
-			localStorage.setItem("authToken", response.data.token ?? "");
-			localStorage.setItem(
-				"userId",
-				response.data.id || response.data.userId
-			);
+			// localStorage.setItem("authToken", response.data.token ?? "");
+			// localStorage.setItem(
+			// 	"userId",
+			// 	response.data.id || response.data.userId
+			// );
 			console.log("Sign-up successful:", response.data);
 			return response.data;
 		} catch (error) {

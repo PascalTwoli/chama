@@ -11,7 +11,7 @@ export interface ChamaFormData {
   image: File | null;
 }
 
-export interface Chamas {
+export interface Chama {
   id: number;
   userType: UserType
   name: string;
@@ -25,5 +25,13 @@ export interface Chamas {
   membersCount: number;   
   createdAt: string;
   updatedAt: string;
+
+}
+
+export interface CreateChamaResponse {
+  success: boolean;
+  message: string;
+  chama?: Chama;
+  error?: string;
 
 }
