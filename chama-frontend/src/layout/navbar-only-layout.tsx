@@ -1,5 +1,4 @@
 
-import { Outlet } from "react-router-dom";
 
 interface NavbarOnlyLayoutProps {
   children?: React.ReactNode;

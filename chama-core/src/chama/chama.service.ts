@@ -26,6 +26,8 @@ export class ChamaService {
           name: createChamaDto.name,
           description: createChamaDto.description,
           userId: user.id,
+          country: 'KENYA', // Default country - you might want to make this configurable
+          membersCount: 1, // Starting with the creator as the first member
           memberships: {
             create: {
               userId: user.id,
