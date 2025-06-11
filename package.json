@@ -1,10 +1,21 @@
 {
+  "name": "chama-monorepo",
+  "private": true,
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
     "build": "webpack --mode production",
     "test": "jest",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "build:all": "pnpm -r build",
+    "test:all": "pnpm -r test",
+    "lint:all": "pnpm -r lint",
+    "backend": "pnpm --filter chama-core start:dev",
+    "frontend": "pnpm --filter chama-frontend start",
+    "backend:prod": "pnpm --filter chama-core start:prod",
+    "frontend:build": "pnpm --filter chama-frontend build",
+    "backend:test": "pnpm --filter chama-core test",
+    "frontend:test": "pnpm --filter chama-frontend test"
   },
   "dependencies": {
     "primeflex": "^4.0.0",

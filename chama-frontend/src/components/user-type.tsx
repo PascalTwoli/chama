@@ -96,7 +96,7 @@ export function ChamaUserType({
 
 			const currentUser = await AuthService.getCurrentUser();
 			const userId = currentUser.id;
-			const userData = await AuthService.updateUserType(userId, {
+			await AuthService.updateUserType(userId, {
 				activeUserType: normalizedType,
 			});
 

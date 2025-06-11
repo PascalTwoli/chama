@@ -1,5 +1,4 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
 import AppRoutes from './routes/Routes';
 import "bootstrap-icons/font/bootstrap-icons.css";
