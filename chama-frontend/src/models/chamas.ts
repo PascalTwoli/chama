@@ -29,9 +29,16 @@ export interface Chama {
 }
 
 export interface CreateChamaResponse {
+  chamaId: string;
+  chamaName: string;
   success: boolean;
   message: string;
   chama?: Chama;
   error?: string;
 
+}
+
+// Extended interface for complete form data including terms
+export interface ExtendedChamaFormData extends ChamaFormData {
+  terms: string;
 }

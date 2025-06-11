@@ -1,15 +1,14 @@
-import React, { useState } from 'react';
+import React, { FormEvent, useState } from 'react';
 import AuthService from '../services/auth/signup-service';
 import { Button } from 'primereact/button'; 
 import { useNavigate, useParams } from 'react-router-dom';
-import { ChamaFormData } from '../models/chamas';
+import { } from '../models/chamas';
+import {ChamaFormData, ExtendedChamaFormData } from '../models/chamas';
+import { ChamaService } from '../services/chama-services';
 
 const tabs = ['Basic', 'Features', 'Terms'];
 
-// Extended interface for complete form data including terms
-interface ExtendedChamaFormData extends ChamaFormData {
-  terms: string;
-}
+
 
 // Component for creating a new chama (for admin users)
 const CreateChama: React.FC = () => {
@@ -23,7 +22,7 @@ const CreateChama: React.FC = () => {
     chamaName: '',
     membersCount: 0, 
     description: '',
-    country: 'kenya', // Set default value
+    country: 'kenya',
     location: '',
     organizationRole: '',
     image: null,
@@ -95,6 +94,7 @@ const CreateChama: React.FC = () => {
 
   // Handle final form submission
   const handleSubmit = async () => {
+    
     // Validate all required steps
     if (!validateStep(0) || !validateStep(2)) {
       setError('Please fill in all required fields');
@@ -106,40 +106,38 @@ const CreateChama: React.FC = () => {
 
     try {
       // Prepare form data for API
-      const submitData = {
-        name: formData.chamaName,
+      const submitData: ExtendedChamaFormData = {
+        chamaName: formData.chamaName,
         description: formData.description,
         membersCount: formData.membersCount,
         country: formData.country,
         location: formData.location,
         organizationRole: formData.organizationRole,
         terms: formData.terms,
-        // Note: File upload would need separate handling
-        // image: formData.image
+        image: formData.image,
       };
 
       // Make API call to create a chama
-      const response = await fetch('/chama', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-        },
-        body: JSON.stringify(submitData)
-      });
+      const response = await ChamaService.createNewChama(
+        submitData
+      );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create chama');
+      // If your API returns a 'success' or 'status' property, check it here.
+      // Adjust the property name as per your actual response type.
+      if (!response || (typeof response.success !== "undefined" && !response.success)) {
+        throw new Error(response?.message || 'Failed to create chama');
       }
 
-      const data = await response.json();
+      // Use the response directly as data
+      const data = response;
       
       // Mark chama creation as complete
-      AuthService.markChamaCreationComplete(data.id);
+      AuthService.markChamaCreationComplete(data.chamaId);
       
       // Redirect to admin dashboard
-      navigate(`/admin/chamas/${data.id}`);
+      navigate(`/admin/chamas/${data.chamaId}`, {
+        state: { chamaName: data.chamaName, chamaId: data.chamaId },
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create chama. Please try again.');
       console.error('Error creating chama:', err);
@@ -475,3 +473,6 @@ const CreateChama: React.FC = () => {
 };
 
 export default CreateChama;
+
+
+

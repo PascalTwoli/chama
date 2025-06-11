@@ -1,5 +1,6 @@
 import { AxiosError, AxiosResponse } from "axios";
 import apiClient from "../config/axios-config";
+import { CreateChamaResponse, ExtendedChamaFormData } from "../models/chamas";
 
 
 export class ChamaService {
@@ -23,9 +24,10 @@ static async getUserChamas(): Promise<any> {
       throw new Error(errorData?.message || "Failed to fetch user chamas.");
     }
   }
-  static async createChama(data: FormData): Promise<any> {
+
+  static async createNewChama(data: ExtendedChamaFormData): Promise<CreateChamaResponse> {
     try {
-      const response: AxiosResponse<any> = await apiClient.post('/api/chamas/create', data, {
+      const response: AxiosResponse<CreateChamaResponse> = await apiClient.post('/chama', data, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       return response.data;
@@ -39,6 +41,7 @@ static async getUserChamas(): Promise<any> {
       throw new Error(errorData?.message || "Failed to create chama.");
     }
   }
+
   static async joinChama(chamaId: string): Promise<any> {
     try {
       const response: AxiosResponse<any> = await apiClient.post(`/api/chamas/${chamaId}/join`);
@@ -53,6 +56,7 @@ static async getUserChamas(): Promise<any> {
       throw new Error(errorData?.message || "Failed to join chama.");
     }
   }
+
   static async validateInvite(token: string): Promise<any> {
     try {
       const response: AxiosResponse<any> = await apiClient.get(`/api/invites/validate/${token}`);
@@ -67,6 +71,7 @@ static async getUserChamas(): Promise<any> {
       throw new Error(errorData?.message || "Failed to validate invite.");
     }
   }
+
   static async acceptInvite(token: string): Promise<any> {
     try {
       const response: AxiosResponse<any> = await apiClient.post(`/api/invites/accept/${token}`);
@@ -81,6 +86,7 @@ static async getUserChamas(): Promise<any> {
       throw new Error(errorData?.message || "Failed to accept invite.");
     }
   }
+  
   static async createInvite(chamaId: string, email: string, sendEmail: boolean = false): Promise<any> {
     try {
       const response: AxiosResponse<any> = await apiClient.post('/api/invites/create', {
