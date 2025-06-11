@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
 import AppRoutes from './routes/Routes';
-import "bootstrap-icons/font/bootstrap-icons.css";
+import 'bootstrap-icons/font/bootstrap-icons.css';
 import 'primereact/resources/primereact.min.css'; // PrimeReact core CSS
 import 'primereact/resources/themes/lara-dark-indigo/theme.css'; // Theme
 import 'primeicons/primeicons.css'; // PrimeIcons
@@ -9,13 +9,12 @@ import 'primeicons/primeicons.css'; // PrimeIcons
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-
 function App() {
   return (
-    <div className="App text-base">
-      <AppRoutes/>
+    <div className='App text-base'>
+      <AppRoutes />
       <ToastContainer
-        position="bottom-right"
+        position='bottom-right'
         autoClose={5000}
         hideProgressBar={false}
         newestOnTop={false}
@@ -24,7 +23,7 @@ function App() {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme="dark"
+        theme='dark'
       />
     </div>
   );

@@ -1,6 +1,12 @@
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, {
+  AxiosError,
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosResponse,
+} from 'axios';
 // Backend API base URL
-export const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5500/api/v1';
+export const API_BASE =
+  process.env.REACT_APP_API_URL || 'http://localhost:5500/api/v1';
 // Flag to prevent multiple refresh attempts
 let isRefreshing = false;
 let refreshSubscribers: ((token: string) => void)[] = [];
@@ -13,7 +19,10 @@ export const getRefreshToken = (): string | null => {
   return localStorage.getItem('refreshToken');
 };
 // Set auth token in request headers
-export const setAuthHeader = (instance: AxiosInstance, token: string | null): void => {
+export const setAuthHeader = (
+  instance: AxiosInstance,
+  token: string | null
+): void => {
   if (token) {
     instance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   } else {
@@ -33,7 +42,9 @@ const onTokenRefreshed = (newToken: string) => {
 export const refreshAuthToken = async (refreshToken: string): Promise<any> => {
   try {
     // Use a fresh axios instance for token refresh to avoid interceptor loops
-    const response = await axios.post(`${API_BASE}/auth/refresh-token?refreshToken=${refreshToken}`);
+    const response = await axios.post(
+      `${API_BASE}/auth/refresh-token?refreshToken=${refreshToken}`
+    );
     // Update tokens in localStorage
     localStorage.setItem('authToken', response.data.idToken);
     localStorage.setItem('refreshToken', response.data.refreshToken);
@@ -57,7 +68,7 @@ export const logout = (apiClient: AxiosInstance): void => {
 // Setup request interceptor to add auth token
 const setupRequestInterceptor = (instance: AxiosInstance): void => {
   instance.interceptors.request.use(
-    (config) => {
+    config => {
       const token = getAuthToken();
       if (token) {
         config.headers = config.headers || {};
@@ -65,20 +76,22 @@ const setupRequestInterceptor = (instance: AxiosInstance): void => {
       }
       return config;
     },
-    (error) => Promise.reject(error)
+    error => Promise.reject(error)
   );
 };
 // Setup response interceptor to handle token expiration
 const setupResponseInterceptor = (instance: AxiosInstance): void => {
   instance.interceptors.response.use(
-    (response) => response,
+    response => response,
     async (error: AxiosError) => {
-      const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
+      const originalRequest = error.config as AxiosRequestConfig & {
+        _retry?: boolean;
+      };
       // Check if error is due to expired token (401 Unauthorized)
       if (error.response?.status === 401 && !originalRequest._retry) {
         if (isRefreshing) {
           // If already refreshing, wait for new token
-          return new Promise<AxiosResponse>((resolve) => {
+          return new Promise<AxiosResponse>(resolve => {
             subscribeToTokenRefresh((token: string) => {
               originalRequest.headers = originalRequest.headers || {};
               originalRequest.headers['Authorization'] = `Bearer ${token}`;
@@ -121,7 +134,9 @@ const setupResponseInterceptor = (instance: AxiosInstance): void => {
   );
 };
 // Validate token on page load/refresh
-export const validateTokenOnLoad = async (apiClient: AxiosInstance): Promise<boolean> => {
+export const validateTokenOnLoad = async (
+  apiClient: AxiosInstance
+): Promise<boolean> => {
   const currentToken = getAuthToken();
   const refreshToken = getRefreshToken();
   if (!currentToken) {
@@ -157,7 +172,7 @@ export const validateTokenOnLoad = async (apiClient: AxiosInstance): Promise<boo
 export const createAxiosInstance = (baseURL = API_BASE): AxiosInstance => {
   // Create axios instance
   const instance = axios.create({
-    baseURL
+    baseURL,
   });
   // Setup interceptors
   setupRequestInterceptor(instance);
