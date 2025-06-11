@@ -7,7 +7,155 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-/// Enums
+model User {
+  id             String         @id @default(uuid())
+  name           String?
+  email          String?        @unique
+  phone          String?        @unique
+  passwordHash   String?        @map("password_hash")
+  role           UserRole       @default(MEMBER)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  activeUserType UserType?      @map("active_user_type")
+  Chama          Chama[]
+  contributions  Contribution[]
+  memberships    Membership[]
+  notifications  Notification[]
+  transactions   Transaction[]
+  uiSettings     UiSettings?
+
+  @@map("user")
+}
+
+model Chama {
+  id               String         @id @default(uuid())
+  name             String
+  description      String?
+  rules            String?
+  userId           String         @map("created_by")
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  country          Countries      @map("country")
+  membersCount     Int            @map("members_count")
+  organizationRole UserRole?      @map("organization_role")
+  createdBy        User           @relation(fields: [userId], references: [id])
+  contributions    Contribution[]
+  invites          Invite[]
+  memberships      Membership[]
+  transactions     Transaction[]
+
+  @@map("chama")
+}
+
+model Membership {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  chamaId   String   @map("chama_id")
+  role      UserRole @default(MEMBER)
+  joinedAt  DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  chama     Chama    @relation(fields: [chamaId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("membership")
+}
+
+model Invite {
+  id          String    @id @default(uuid())
+  chamaId     String    @map("chama_id")
+  token       String    @unique
+  sentToEmail String    @map("sent_to_email")
+  expiresAt   DateTime  @map("expires_at")
+  usedAt      DateTime? @map("used_at")
+  createdAt   DateTime  @default(now())
+  chama       Chama     @relation(fields: [chamaId], references: [id])
+
+  @@map("invite")
+}
+
+model Contribution {
+  id        String             @id @default(uuid())
+  chamaId   String             @map("chama_id")
+  userId    String             @map("user_id")
+  amount    Decimal            @db.Decimal(10, 2)
+  currency  String
+  status    ContributionStatus @default(PENDING)
+  date      DateTime           @default(now())
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+  chama     Chama              @relation(fields: [chamaId], references: [id])
+  user      User               @relation(fields: [userId], references: [id])
+  payments  Payment[]
+
+  @@map("contribution")
+}
+
+model Payment {
+  id             String        @id @default(uuid())
+  contributionId String        @map("contribution_id")
+  method         PaymentMethod @default(MPESA)
+  externalRef    String?       @map("external_ref")
+  status         PaymentStatus @default(PENDING)
+  processedAt    DateTime?     @map("processed_at")
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  contribution   Contribution  @relation(fields: [contributionId], references: [id])
+
+  @@map("payment")
+}
+
+model NotificationType {
+  id              Int            @id @default(autoincrement())
+  name            String         @unique
+  description     String?
+  defaultDelivery DeliveryMethod @map("default_delivery")
+  notifications   Notification[]
+
+  @@map("notification_type")
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String           @map("user_id")
+  typeId    Int              @map("type_id")
+  title     String
+  body      String
+  readAt    DateTime?        @map("read_at")
+  sentAt    DateTime?        @map("sent_at")
+  createdAt DateTime         @default(now())
+  type      NotificationType @relation(fields: [typeId], references: [id])
+  user      User             @relation(fields: [userId], references: [id])
+
+  @@map("notification")
+}
+
+model UiSettings {
+  userId          String  @id @map("user_id")
+  showTutorial    Boolean @default(true) @map("show_tutorial")
+  theme           String? @default("default")
+  lastSeenWidgets Json?   @map("last_seen_widgets")
+  user            User    @relation(fields: [userId], references: [id])
+
+  @@map("ui_settings")
+}
+
+model Transaction {
+  id          String            @id @default(uuid())
+  type        TransactionType
+  amount      Decimal           @db.Decimal(10, 2)
+  chamaId     String            @map("chama_id")
+  userId      String            @map("user_id")
+  description String?
+  reference   String?
+  status      TransactionStatus @default(COMPLETED)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  chama       Chama             @relation(fields: [chamaId], references: [id])
+  user        User              @relation(fields: [userId], references: [id])
+
+  @@map("transaction")
+}
 
 /// Roles that users can have within the system or within a Chama
 enum UserRole {
@@ -56,7 +204,7 @@ enum TransactionType {
   INVESTMENT
   RETURN
   EXPENSE
-  
+
   @@map("transaction_type")
 }
 
@@ -65,7 +213,7 @@ enum TransactionStatus {
   PENDING
   COMPLETED
   FAILED
-  
+
   @@map("transaction_status")
 }
 
@@ -74,155 +222,202 @@ enum UserType {
   MEMBER
 }
 
-/// Models
+enum Countries {
+  AFGHANISTAN
+  ALBANIA
+  ALGERIA
+  ANDORRA
+  ANGOLA
+  ANTIGUA_AND_BARBUDA
+  ARGENTINA
+  ARMENIA
+  AUSTRALIA
+  AUSTRIA
+  AZERBAIJAN
+  BAHAMAS
+  BAHRAIN
+  BANGLADESH
+  BARBADOS
+  BELARUS
+  BELGIUM
+  BELIZE
+  BENIN
+  BHUTAN
+  BOLIVIA
+  BOSNIA_AND_HERZEGOVINA
+  BOTSWANA
+  BRAZIL
+  BRUNEI
+  BULGARIA
+  BURKINA_FASO
+  BURUNDI
+  CABO_VERDE
+  CAMBODIA
+  CAMEROON
+  CANADA
+  CENTRAL_AFRICAN_REPUBLIC
+  CHAD
+  CHILE
+  CHINA
+  COLOMBIA
+  COMOROS
+  DEMOCRATIC_REPUBLIC_OF_THE_CONGO
+  COSTA_RICA
+  COTE_D_IVOIRE
+  CROATIA
+  CUBA
+  CYPRUS
+  CZECH_REPUBLIC
+  DENMARK
+  DJIBOUTI
+  DOMINICA
+  DOMINICAN_REPUBLIC
+  EAST_TIMOR
+  ECUADOR
+  EGYPT
+  EL_SALVADOR
+  EQUATORIAL_GUINEA
+  ERITREA
+  ESTONIA
+  ESWATINI
+  ETHIOPIA
+  FIJI
+  FINLAND
+  FRANCE
+  GABON
+  GAMBIA
+  GEORGIA
+  GERMANY
+  GHANA
+  GREECE
+  GRENADA
+  GUATEMALA
+  GUINEA
+  GUINEA_BISSAU
+  GUYANA
+  HAITI
+  HONDURAS
+  HUNGARY
+  ICELAND
+  INDIA
+  INDONESIA
+  IRAN
+  IRAQ
+  IRELAND
+  ISRAEL
+  ITALY
+  JAMAICA
+  JAPAN
+  JORDAN
+  KAZAKHSTAN
+  KENYA
+  KIRIBATI
+  NORTH_KOREA
+  SOUTH_KOREA
+  KOSOVO
+  KUWAIT
+  KYRGYZSTAN
+  LAOS
+  LATVIA
+  LEBANON
+  LESOTHO
+  LIBERIA
+  LIBYA
+  LIECHTENSTEIN
+  LITHUANIA
+  LUXEMBOURG
+  MADAGASCAR
+  MALAWI
+  MALAYSIA
+  MALDIVES
+  MALI
+  MALTA
+  MARSHALL_ISLANDS
+  MAURITANIA
+  MAURITIUS
+  MEXICO
+  MICRONESIA
+  MOLDOVA
+  MONACO
+  MONGOLIA
+  MONTENEGRO
+  MOROCCO
+  MOZAMBIQUE
+  MYANMAR
+  NAMIBIA
+  NAURU
+  NEPAL
+  NETHERLANDS
+  NEW_ZEALAND
+  NICARAGUA
+  NIGER
+  NIGERIA
+  NORTH_MACEDONIA
+  NORWAY
+  OMAN
+  PAKISTAN
+  PALAU
+  PANAMA
+  PAPUA_NEW_GUINEA
+  PARAGUAY
+  PERU
+  PHILIPPINES
+  POLAND
+  PORTUGAL
+  QATAR
+  ROMANIA
+  RUSSIA
+  RWANDA
+  SAINT_KITTS_AND_NEVIS
+  SAINT_LUCIA
+  SAINT_VINCENT_AND_THE_GRENADINES
+  SAMOA
+  SAN_MARINO
+  SAO_TOME_AND_PRINCIPE
+  SAUDI_ARABIA
+  SENEGAL
+  SERBIA
+  SEYCHELLES
+  SIERRA_LEONE
+  SINGAPORE
+  SLOVAKIA
+  SLOVENIA
+  SOLOMON_ISLANDS
+  SOMALIA
+  SOUTH_AFRICA
+  SOUTH_SUDAN
+  SPAIN
+  SRI_LANKA
+  SUDAN
+  SURINAME
+  SWEDEN
+  SWITZERLAND
+  SYRIA
+  TAIWAN
+  TAJIKISTAN
+  TANZANIA
+  THAILAND
+  TOGO
+  TONGA
+  TRINIDAD_AND_TOBAGO
+  TUNISIA
+  TURKEY
+  TURKMENISTAN
+  TUVALU
+  UGANDA
+  UKRAINE
+  UNITED_ARAB_EMIRATES
+  UNITED_KINGDOM
+  UNITED_STATES
+  URUGUAY
+  UZBEKISTAN
+  VANUATU
+  VATICAN_CITY
+  VENEZUELA
+  VIETNAM
+  YEMEN
+  ZAMBIA
+  ZIMBABWE
 
-model User {
-  id           String   @id @default(uuid())
-  name         String?
-  email        String?  @unique
-  phone        String?  @unique
-  passwordHash String?  @map("password_hash")
-  role         UserRole @default(MEMBER)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  memberships    Membership[]
-  contributions  Contribution[]
-  notifications  Notification[]
-  uiSettings     UiSettings?
-  Chama          Chama[]
-  transactions   Transaction[]
-  activeUserType UserType?      @map("active_user_type")
-
-  @@map("user")
-}
-
-model Chama {
-  id          String   @id @default(uuid())
-  name        String
-  description String?
-  rules       String?
-  userId      String   @map("created_by") // User who created the Chama  Firebase user ID
-  createdBy   User     @relation(fields: [userId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  memberships   Membership[]
-  contributions Contribution[]
-  invites       Invite[]
-  transactions  Transaction[]
-
-  @@map("chama")
-}
-
-model Membership {
-  id        String   @id @default(uuid())
-  userId    String   @map("user_id")
-  user      User     @relation(fields: [userId], references: [id])
-  chamaId   String   @map("chama_id")
-  chama     Chama    @relation(fields: [chamaId], references: [id])
-  role      UserRole @default(MEMBER)
-  joinedAt  DateTime @default(now())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("membership")
-}
-
-model Invite {
-  id          String    @id @default(uuid())
-  chamaId     String    @map("chama_id")
-  chama       Chama     @relation(fields: [chamaId], references: [id])
-  token       String    @unique
-  sentToEmail String    @map("sent_to_email")
-  expiresAt   DateTime  @map("expires_at")
-  usedAt      DateTime? @map("used_at")
-  createdAt   DateTime  @default(now())
-
-  @@map("invite")
-}
-
-model Contribution {
-  id        String             @id @default(uuid())
-  chamaId   String             @map("chama_id")
-  chama     Chama              @relation(fields: [chamaId], references: [id])
-  userId    String             @map("user_id")
-  user      User               @relation(fields: [userId], references: [id])
-  amount    Decimal            @db.Decimal(10, 2)
-  currency  String
-  status    ContributionStatus @default(PENDING)
-  date      DateTime           @default(now())
-  createdAt DateTime           @default(now())
-  updatedAt DateTime           @updatedAt
-
-  payments Payment[]
-
-  @@map("contribution")
-}
-
-model Payment {
-  id             String        @id @default(uuid())
-  contributionId String        @map("contribution_id")
-  contribution   Contribution  @relation(fields: [contributionId], references: [id])
-  method         PaymentMethod @default(MPESA)
-  externalRef    String?       @map("external_ref")
-  status         PaymentStatus @default(PENDING)
-  processedAt    DateTime?     @map("processed_at")
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-
-  @@map("payment")
-}
-
-model NotificationType {
-  id              Int            @id @default(autoincrement())
-  name            String         @unique
-  description     String?
-  defaultDelivery DeliveryMethod @map("default_delivery")
-
-  notifications Notification[]
-
-  @@map("notification_type")
-}
-
-model Notification {
-  id        String           @id @default(uuid())
-  userId    String           @map("user_id")
-  user      User             @relation(fields: [userId], references: [id])
-  typeId    Int              @map("type_id")
-  type      NotificationType @relation(fields: [typeId], references: [id])
-  title     String
-  body      String
-  readAt    DateTime?        @map("read_at")
-  sentAt    DateTime?        @map("sent_at")
-  createdAt DateTime         @default(now())
-
-  @@map("notification")
-}
-
-model UiSettings {
-  userId          String  @id @map("user_id")
-  user            User    @relation(fields: [userId], references: [id])
-  showTutorial    Boolean @default(true) @map("show_tutorial")
-  theme           String? @default("default")
-  lastSeenWidgets Json?   @map("last_seen_widgets")
-
-  @@map("ui_settings")
-}
-
-model Transaction {
-  id          String            @id @default(uuid())
-  type        TransactionType
-  amount      Decimal           @db.Decimal(10, 2)
-  chamaId     String            @map("chama_id")
-  chama       Chama             @relation(fields: [chamaId], references: [id])
-  userId      String            @map("user_id")
-  user        User              @relation(fields: [userId], references: [id])
-  description String?
-  reference   String?
-  status      TransactionStatus @default(COMPLETED)
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-
-  @@map("transaction")
+  @@map("country")
 }

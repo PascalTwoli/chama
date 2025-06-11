@@ -122,16 +122,9 @@ export class FirebaseUserEntity {
   }
 }
 
-// Combined user response entity
+// Combined user response entity - Firebase data removed
 @Expose()
 export class UserResponseEntity {
-  @ApiProperty({
-    description: 'Firebase user information',
-    type: FirebaseUserEntity,
-    required: false,
-  })
-  firebaseUser?: FirebaseUserEntity;
-
   @ApiProperty({
     description: 'Local user information',
     type: UserEntity,
@@ -139,10 +132,6 @@ export class UserResponseEntity {
   localUser: UserEntity;
 
   constructor(partial: Partial<UserResponseEntity>) {
-    if (partial.firebaseUser) {
-      this.firebaseUser = new FirebaseUserEntity(partial.firebaseUser);
-    }
-    
     if (partial.localUser) {
       this.localUser = new UserEntity(partial.localUser);
     } else {
