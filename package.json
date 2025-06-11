@@ -20,7 +20,8 @@
   "dependencies": {
     "primeflex": "^4.0.0",
     "primereact": "^10.9.5",
-    "react-router-dom": "^7.6.0"
+    "react-router-dom": "^7.6.0",
+    "react-toastify": "^11.0.5"
   },
   "devDependencies": {
     "@types/react": "^19.1.4"

@@ -29,8 +29,8 @@ const AdminLayout = () => {
         onCreateChama={() => navigate("/create-chama")}
         handleJoinChama={handleJoinChama}
       />
-      <div className="flex main-section"> {/**bg-[#1f2937] */}
-        {!shouldHideSidebar && <Sidebar />} 
+      <div className="flex main-section"> 
+        {/*!shouldHideSidebar && */}<Sidebar /> 
         <div className="flex-1 flex rounded-xl ml-1 overflow-auto"> {/* bg-gray-700 */}
           <main className="p-4 w-full">
             <Outlet />

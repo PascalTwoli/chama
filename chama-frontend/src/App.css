@@ -1,8 +1,25 @@
 
 :root {
-  --gray-400:  #a0aec0;
+  --border-1-color: #525A644D;
+  --primary-color: #4084B9;
+  --primary-color-hover: #488ec3;
   --info-btn: #4084B9;
+  --info-btn-hover: #4084B9;
+  --info-btn-active: #4084B9;
+  --gray-100: #f7fafc;
+  --gray-200: #edf2f7;
+  --gray-300: #718096;
+  --gray-400: #a0aec0;
+  /* --gray-500: #cbd5e0; */
+  --gray-600: #e2e8f0;
+  --gray-700: #edf2f7;
+  --gray-800: #f7fafc;
+  --gray-900: #f8fafc;
   --gray-500: rgb(158, 158, 158, 0.5) ;
+  --purple-500: #6b46c1;
+  --purple-600: #553c9a;
+  --purple-700: #44337a;
+  --purple-800: #322659;      
 }
 
 
@@ -14,7 +31,7 @@
 
 .navbar{
   padding: 2px 40px;
-  border-bottom: 1px solid  rgb(100, 100, 100);
+  border-bottom: 1px solid  var(--border-1-color);
 }
 
 .logo-arrows{
@@ -151,7 +168,7 @@
 }
 
 .signup-details {
-  width: 500px;
+  max-width: 31.25rem;
   border-top-left-radius: 30px;
   border-bottom-left-radius: 30px;
 }
@@ -167,9 +184,9 @@
 
 
 .welcome-p {
-  border-bottom: 3px solid white;
-  font-size: 75px;
-  line-height: 80px;
+  /* border-bottom: 3px solid white; */
+  font-size: 45px;
+  line-height: 50px;
   font-weight: 700;
 }
 
@@ -177,6 +194,10 @@
   height: 20px;
 }
 
+.hor-line {  
+  border-top: solid 1px;
+  border-color: var(--gray-700);
+}
 .google-login {
   /* margin: 0 auto;
   margin-top: 50px;
@@ -225,4 +246,8 @@
 
 .create-chama-features .bi {
   font-size: 45px;
+}
+
+.basic-info-cont{
+  border-bottom: solid 1px var(--border-1-color);
 }
