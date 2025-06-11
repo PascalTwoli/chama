@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
-import { Toast } from 'primereact/toast';
+import { toast } from 'react-toastify';
 import { Dialog } from 'primereact/dialog';
 import axios from 'axios';
 
@@ -32,18 +32,12 @@ function InviteLink({ chamaId, chamaName }: InviteLinkProps) {
   const [loading, setLoading] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
   const [sendEmail, setSendEmail] = useState(false);
-  const toast = useRef<Toast>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Generate an invitation link
   const generateInviteLink = async () => {
     if (!email || !email.includes('@')) {
-      toast.current?.show({
-        severity: 'error',
-        summary: 'Invalid Email',
-        detail: 'Please enter a valid email address',
-        life: 3000,
-      });
+      toast.error('Please enter a valid email address');
       return;
     }
 
@@ -58,22 +52,12 @@ function InviteLink({ chamaId, chamaName }: InviteLinkProps) {
       setInviteLink(response.data.inviteLink);
       setShowDialog(true);
       
-      toast.current?.show({
-        severity: 'success',
-        summary: 'Invite Link Generated',
-        detail: sendEmail 
-          ? `Invitation sent to ${email}` 
-          : `Invitation link ready to share with ${email}`,
-        life: 3000,
-      });
+      toast.success(sendEmail 
+        ? `Invitation sent to ${email}` 
+        : `Invitation link ready to share with ${email}`);
     } catch (error: unknown) {
       console.error('Error generating invite link:', error);
-      toast.current?.show({
-        severity: 'error',
-        summary: 'Error',
-        detail: ((error as ApiError).response?.data?.message) || 'Failed to generate invite link',
-        life: 3000,
-      });
+      toast.error(((error as ApiError).response?.data?.message) || 'Failed to generate invite link');
     } finally {
       setLoading(false);
     }
@@ -85,12 +69,7 @@ function InviteLink({ chamaId, chamaName }: InviteLinkProps) {
       inputRef.current.select();
       document.execCommand('copy');
       
-      toast.current?.show({
-        severity: 'info',
-        summary: 'Copied!',
-        detail: 'Invite link copied to clipboard',
-        life: 2000,
-      });
+      toast.info('Invite link copied to clipboard');
     }
   };
 
@@ -111,7 +90,6 @@ function InviteLink({ chamaId, chamaName }: InviteLinkProps) {
 
   return (
     <div className="p-4 bg-gray-800 rounded-lg mb-4">
-      <Toast ref={toast} />
       
       <h3 className="text-white text-lg font-bold mb-3">Invite Member to {chamaName}</h3>
       

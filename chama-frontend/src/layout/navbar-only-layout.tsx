@@ -6,8 +6,8 @@ interface NavbarOnlyLayoutProps {
 
 export default function NavbarOnlyLayout({ children }: NavbarOnlyLayoutProps) {
   return (
-    <div className="flex flex-col min-h-screen">
-        <div className="navbar flex justify-between items-center bg-gray-900 text-white">
+    <div className="flex flex-col min-h-screen bg-[#19222C]">
+        <div className="navbar flex justify-between items-center text-white">
             <div className="flex items-center gap-x-6">
                 <span>
                   <svg width="92" height="56" viewBox="0 0 122 74" fill="none" xmlns="http://www.w3.org/2000/svg">

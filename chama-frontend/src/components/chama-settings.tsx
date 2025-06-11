@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import { Menu } from "primereact/menu";
-import { Toast } from "primereact/toast";
+import { toast } from 'react-toastify';
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
@@ -13,7 +13,6 @@ interface ChamaSettingsProps {
 }
 
 function ChamaSettings({ chamaId, chamaName }: ChamaSettingsProps) {
-    const toast = useRef<Toast>(null);
     const [activeTab, setActiveTab] = useState("Account");
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [roleProfile, setRoleProfile] = useState<Record < Role, string | null>>({
@@ -61,12 +60,7 @@ function ChamaSettings({ chamaId, chamaName }: ChamaSettingsProps) {
         const file = event.target.files?.[0];
         if (file) {
           if (!file.type.startsWith("image/")) {
-            toast.current?.show({
-              severity: "error",
-              summary: "Invalid file type",
-              detail: "Please upload an image file (JPG, PNG, etc.)",
-              life: 3000,
-            });
+            toast.error("Please upload an image file (JPG, PNG, etc.)");
             return;
           }
     
@@ -85,12 +79,7 @@ function ChamaSettings({ chamaId, chamaName }: ChamaSettingsProps) {
         const file = event.target.files?.[0];
         if (file) {
             if (!file.type.startsWith('image/')) {
-                toast.current?.show({
-                    severity: "error",
-                    summary: "Invalid file type",
-                    detail: "Please upload an image file (JPG, PNG, etc.)",
-                    life: 3000,
-                });
+                toast.error("Please upload an image file (JPG, PNG, etc.)");
                 return;
             }
             const reader = new FileReader();
@@ -123,7 +112,6 @@ function ChamaSettings({ chamaId, chamaName }: ChamaSettingsProps) {
 
   return (
     <>
-    <Toast ref={toast}/>
     <h1 className="font-bold text-lg mb-4">{chamaName}'s Settings</h1>
     
     {/* InviteLink component for admin to generate invitation links */}
