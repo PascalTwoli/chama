@@ -37,15 +37,20 @@ import { CreateChamaDto } from './dto/create-chama.dto';
 interface ChamaResponse {
   id: string;
   name: string;
-  description?: string | null;
+  description: string | null;
+  rules: string | null;
   userId: string;
   createdAt: Date;
   updatedAt: Date;
+  country: string;
+  membersCount: number;
+  organizationRole: string | null;
   memberships: {
     id: string;
     chamaId: string;
     userId: string;
     role: string;
+    joinedAt: Date;
     createdAt: Date;
     updatedAt: Date;
   }[];

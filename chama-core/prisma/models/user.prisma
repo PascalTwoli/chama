@@ -2,87 +2,87 @@
 // This file shows how individual models can be organized
 
 /// User model with comprehensive field types
-model User {
-  id           String   @id @default(uuid())
-  name         String?
-  email        String?  @unique
-  phone        String?  @unique
-  passwordHash String?  @map("password_hash")
+// model User {
+//   id           String   @id @default(uuid())
+//   name         String?
+//   email        String?  @unique
+//   phone        String?  @unique
+//   passwordHash String?  @map("password_hash")
   
-  // Enum field - demonstrates enum usage
-  role         UserRole @default(MEMBER)
-  activeUserType UserType? @map("active_user_type")
+//   // Enum field - demonstrates enum usage
+//   role         UserRole @default(MEMBER)
+//   activeUserType UserType? @map("active_user_type")
   
-  // Timestamp fields
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+//   // Timestamp fields
+//   createdAt    DateTime @default(now())
+//   updatedAt    DateTime @updatedAt
 
-  // Relationships
-  memberships   Membership[]
-  contributions Contribution[]
-  notifications Notification[]
-  uiSettings    UiSettings?
-  chamasCreated Chama[]
-  transactions  Transaction[]
+//   // Relationships
+//   memberships   Membership[]
+//   contributions Contribution[]
+//   notifications Notification[]
+//   uiSettings    UiSettings?
+//   chamasCreated Chama[]
+//   transactions  Transaction[]
 
-  @@map("user")
-}
+//   @@map("user")
+// }
 
-/// UI Settings model demonstrating JSON field usage
-model UiSettings {
-  userId          String  @id @map("user_id")
-  user            User    @relation(fields: [userId], references: [id])
-  showTutorial    Boolean @default(true) @map("show_tutorial")
-  theme           String? @default("default")
+// /// UI Settings model demonstrating JSON field usage
+// model UiSettings {
+//   userId          String  @id @map("user_id")
+//   user            User    @relation(fields: [userId], references: [id])
+//   showTutorial    Boolean @default(true) @map("show_tutorial")
+//   theme           String? @default("default")
   
-  // JSON field - demonstrates storing structured data
-  lastSeenWidgets Json?   @map("last_seen_widgets")
+//   // JSON field - demonstrates storing structured data
+//   lastSeenWidgets Json?   @map("last_seen_widgets")
 
-  @@map("ui_settings")
-}
+//   @@map("ui_settings")
+// }
 
-/// Contribution model demonstrating Decimal field usage
-model Contribution {
-  id        String             @id @default(uuid())
-  chamaId   String             @map("chama_id")
-  chama     Chama              @relation(fields: [chamaId], references: [id])
-  userId    String             @map("user_id")
-  user      User               @relation(fields: [userId], references: [id])
+// /// Contribution model demonstrating Decimal field usage
+// model Contribution {
+//   id        String             @id @default(uuid())
+//   chamaId   String             @map("chama_id")
+//   chama     Chama              @relation(fields: [chamaId], references: [id])
+//   userId    String             @map("user_id")
+//   user      User               @relation(fields: [userId], references: [id])
   
-  // Decimal field - demonstrates precise decimal handling for currency
-  amount    Decimal            @db.Decimal(10, 2)
-  currency  String             @default("KES")
+//   // Decimal field - demonstrates precise decimal handling for currency
+//   amount    Decimal            @db.Decimal(10, 2)
+//   currency  String             @default("KES")
   
-  // Enum field
-  status    ContributionStatus @default(PENDING)
+//   // Enum field
+//   status    ContributionStatus @default(PENDING)
   
-  date      DateTime           @default(now())
-  createdAt DateTime           @default(now())
-  updatedAt DateTime           @updatedAt
+//   date      DateTime           @default(now())
+//   createdAt DateTime           @default(now())
+//   updatedAt DateTime           @updatedAt
 
-  payments Payment[]
+//   payments Payment[]
 
-  @@map("contribution")
-}
+//   @@map("contribution")
+// }
 
-/// Enums used in the user model
-enum UserRole {
-  ADMIN
-  MEMBER
-  TREASURER
-  SECRETARY
+// /// Enums used in the user model
+// enum UserRole {
+//   ADMIN
+//   MEMBER
+//   TREASURER
+//   SECRETARY
 
-  @@map("user_role")
-}
+//   @@map("user_role")
+// }
 
-enum UserType {
-  ADMIN
-  MEMBER
-}
+// enum UserType {
+//   ADMIN
+//   MEMBER
+// }
 
-enum ContributionStatus {
-  PENDING
-  COMPLETED
-  FAILED
-}
+// enum ContributionStatus {
+//   PENDING
+//   COMPLETED
+//   FAILED
+// }
 
