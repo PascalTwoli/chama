@@ -29,7 +29,7 @@ interface ChamaResponse {
 
 /**
  * Component for handling Chama invitation flow
- * 
+ *
  * This component handles the following scenarios:
  * 1. User not logged in -> Redirect to login
  * 2. User logged in but incorrect email -> Show error
@@ -43,11 +43,13 @@ function JoinChama() {
   const token = params.token || '';
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
-  
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const [inviteDetails, setInviteDetails] = useState<InviteDetails | null>(null);
+  const [inviteDetails, setInviteDetails] = useState<InviteDetails | null>(
+    null
+  );
 
   // Check authentication and process invite
   useEffect(() => {
@@ -60,9 +62,11 @@ function JoinChama() {
     // First validate the token to get invite details
     const validateInvite = async () => {
       try {
-        const response = await axios.get<InviteDetails>(`/api/invites/validate/${token}`);
+        const response = await axios.get<InviteDetails>(
+          `/api/invites/validate/${token}`
+        );
         setInviteDetails(response.data);
-        
+
         // If user is authenticated, try to accept the invite
         if (isAuthenticated && user) {
           acceptInvite();
@@ -76,8 +80,8 @@ function JoinChama() {
       } catch (error: unknown) {
         console.error('Error validating invite:', error);
         setError(
-          ((error as ApiError).response?.data?.message) || 
-          'This invitation link is invalid or has expired.'
+          (error as ApiError).response?.data?.message ||
+            'This invitation link is invalid or has expired.'
         );
         setLoading(false);
       }
@@ -90,10 +94,14 @@ function JoinChama() {
   const acceptInvite = async () => {
     try {
       setLoading(true);
-      const response = await axios.post<ChamaResponse>(`/api/invites/accept/${token}`);
-      
+      const response = await axios.post<ChamaResponse>(
+        `/api/invites/accept/${token}`
+      );
+
       setSuccess(true);
-      toast.success(`You have successfully joined ${response.data.chama.name}!`);
+      toast.success(
+        `You have successfully joined ${response.data.chama.name}!`
+      );
 
       // Redirect to chama dashboard after a short delay
       setTimeout(() => {
@@ -102,8 +110,8 @@ function JoinChama() {
     } catch (error: unknown) {
       console.error('Error accepting invite:', error);
       setError(
-        ((error as ApiError).response?.data?.message) || 
-        'Failed to join chama. Please try again later.'
+        (error as ApiError).response?.data?.message ||
+          'Failed to join chama. Please try again later.'
       );
     } finally {
       setLoading(false);
@@ -131,9 +139,9 @@ function JoinChama() {
   // Render loading state
   if (loading) {
     return (
-      <div className="flex flex-column align-items-center justify-content-center min-h-screen bg-gray-900 p-4">
+      <div className='flex flex-column align-items-center justify-content-center min-h-screen bg-gray-900 p-4'>
         <ProgressSpinner style={{ width: '50px', height: '50px' }} />
-        <p className="text-white mt-3">Processing your invitation...</p>
+        <p className='text-white mt-3'>Processing your invitation...</p>
       </div>
     );
   }
@@ -141,16 +149,18 @@ function JoinChama() {
   // Render error state
   if (error) {
     return (
-      <div className="flex flex-column align-items-center justify-content-center min-h-screen bg-gray-900 p-4">
-        <div className="bg-gray-800 p-6 rounded-lg shadow-lg text-center max-w-md w-full">
-          <i className="pi pi-exclamation-triangle text-5xl text-yellow-500 mb-4"></i>
-          <h2 className="text-white text-2xl font-bold mb-4">Invitation Error</h2>
-          <p className="text-gray-300 mb-6">{error}</p>
-          <div className="flex justify-content-center">
+      <div className='flex flex-column align-items-center justify-content-center min-h-screen bg-gray-900 p-4'>
+        <div className='bg-gray-800 p-6 rounded-lg shadow-lg text-center max-w-md w-full'>
+          <i className='pi pi-exclamation-triangle text-5xl text-yellow-500 mb-4'></i>
+          <h2 className='text-white text-2xl font-bold mb-4'>
+            Invitation Error
+          </h2>
+          <p className='text-gray-300 mb-6'>{error}</p>
+          <div className='flex justify-content-center'>
             <Button
-              label="Go to Dashboard"
-              icon="pi pi-home"
-              className="p-button-primary mr-2"
+              label='Go to Dashboard'
+              icon='pi pi-home'
+              className='p-button-primary mr-2'
               onClick={() => navigate('/')}
             />
           </div>
@@ -162,18 +172,19 @@ function JoinChama() {
   // Render success state
   if (success) {
     return (
-      <div className="flex flex-column align-items-center justify-content-center min-h-screen bg-gray-900 p-4">
-        <div className="bg-gray-800 p-6 rounded-lg shadow-lg text-center max-w-md w-full">
-          <i className="pi pi-check-circle text-5xl text-green-500 mb-4"></i>
-          <h2 className="text-white text-2xl font-bold mb-4">Success!</h2>
-          <p className="text-gray-300 mb-6">
-            You have successfully joined the chama. Redirecting you to the dashboard...
+      <div className='flex flex-column align-items-center justify-content-center min-h-screen bg-gray-900 p-4'>
+        <div className='bg-gray-800 p-6 rounded-lg shadow-lg text-center max-w-md w-full'>
+          <i className='pi pi-check-circle text-5xl text-green-500 mb-4'></i>
+          <h2 className='text-white text-2xl font-bold mb-4'>Success!</h2>
+          <p className='text-gray-300 mb-6'>
+            You have successfully joined the chama. Redirecting you to the
+            dashboard...
           </p>
-          <div className="flex justify-content-center">
+          <div className='flex justify-content-center'>
             <Button
-              label="Go to Dashboard Now"
-              icon="pi pi-arrow-right"
-              className="p-button-success"
+              label='Go to Dashboard Now'
+              icon='pi pi-arrow-right'
+              className='p-button-success'
               onClick={() => navigate(`/chama/${inviteDetails?.chamaId}`)}
             />
           </div>
@@ -184,43 +195,47 @@ function JoinChama() {
 
   // Render unauthenticated state with invite details
   return (
-    <div className="flex flex-column align-items-center justify-content-center min-h-screen bg-gray-900 p-4">
-      <div className="bg-gray-800 p-6 rounded-lg shadow-lg max-w-md w-full">
-        <h2 className="text-white text-2xl font-bold mb-4 text-center">Chama Invitation</h2>
+    <div className='flex flex-column align-items-center justify-content-center min-h-screen bg-gray-900 p-4'>
+      <div className='bg-gray-800 p-6 rounded-lg shadow-lg max-w-md w-full'>
+        <h2 className='text-white text-2xl font-bold mb-4 text-center'>
+          Chama Invitation
+        </h2>
         {inviteDetails && (
-          <div className="mb-6">
-            <p className="text-gray-300 mb-2">
-              You've been invited to join:
-            </p>
-            <h3 className="text-white text-lg font-bold mb-4">
+          <div className='mb-6'>
+            <p className='text-gray-300 mb-2'>You've been invited to join:</p>
+            <h3 className='text-white text-lg font-bold mb-4'>
               {inviteDetails.chamaName}
             </h3>
-            <p className="text-gray-300 mb-4">
-              This invitation was sent to: <span className="text-white font-semibold">{inviteDetails.invitedEmail}</span>
+            <p className='text-gray-300 mb-4'>
+              This invitation was sent to:{' '}
+              <span className='text-white font-semibold'>
+                {inviteDetails.invitedEmail}
+              </span>
             </p>
-            <div className="bg-gray-700 p-3 rounded mb-4">
-              <p className="text-gray-300 text-sm">
-                <i className="pi pi-info-circle mr-2 text-blue-400"></i>
-                You need to be logged in with the same email to accept this invitation.
+            <div className='bg-gray-700 p-3 rounded mb-4'>
+              <p className='text-gray-300 text-sm'>
+                <i className='pi pi-info-circle mr-2 text-blue-400'></i>
+                You need to be logged in with the same email to accept this
+                invitation.
               </p>
             </div>
           </div>
         )}
-        
-        <div className="flex flex-column gap-3">
+
+        <div className='flex flex-column gap-3'>
           <Button
-            label="Sign In"
-            icon="pi pi-sign-in"
-            className="p-button-primary"
+            label='Sign In'
+            icon='pi pi-sign-in'
+            className='p-button-primary'
             onClick={handleLoginRedirect}
           />
-          <div className="text-center text-gray-400 my-2">
+          <div className='text-center text-gray-400 my-2'>
             Don't have an account?
           </div>
           <Button
-            label="Create Account"
-            icon="pi pi-user-plus"
-            className="p-button-outlined p-button-secondary"
+            label='Create Account'
+            icon='pi pi-user-plus'
+            className='p-button-outlined p-button-secondary'
             onClick={handleSignupRedirect}
           />
         </div>
@@ -230,4 +245,3 @@ function JoinChama() {
 }
 
 export default JoinChama;
-

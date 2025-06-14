@@ -10,7 +10,7 @@
 
 import axios from 'axios';
 
-const API_BASE = '/api/chamas'; 
+const API_BASE = '/api/chamas';
 
 export const getUserChamas = async () => {
   const res = await axios.get(`${API_BASE}/user`);
@@ -39,11 +39,15 @@ export const acceptInvite = async (token: string) => {
   return res.data;
 };
 
-export const createInvite = async (chamaId: string, email: string, sendEmail: boolean = false) => {
+export const createInvite = async (
+  chamaId: string,
+  email: string,
+  sendEmail: boolean = false
+) => {
   const res = await axios.post(`/api/invites/create`, {
     chamaId,
     email,
-    sendEmail
+    sendEmail,
   });
   return res.data;
 };

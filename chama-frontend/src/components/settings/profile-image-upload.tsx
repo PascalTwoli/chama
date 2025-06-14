@@ -1,12 +1,15 @@
-import { Toast } from "primereact/toast";
-import { useRef, useState } from "react";
+import { Toast } from 'primereact/toast';
+import { useRef, useState } from 'react';
 
 interface ProfileImageUploadProps {
   onStartEditing: () => void;
   isParentEditing: boolean;
 }
 
-function ProfileImageUpload({ onStartEditing, isParentEditing }: ProfileImageUploadProps) {
+function ProfileImageUpload({
+  onStartEditing,
+  isParentEditing,
+}: ProfileImageUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
@@ -20,7 +23,7 @@ function ProfileImageUpload({ onStartEditing, isParentEditing }: ProfileImageUpl
       const reader = new FileReader();
       reader.onloadend = () => {
         setSelectedImage(reader.result as string);
-      }
+      };
       reader.readAsDataURL(file);
     }
   };
@@ -37,24 +40,26 @@ function ProfileImageUpload({ onStartEditing, isParentEditing }: ProfileImageUpl
         className={`relative flex flex-col items-center `}
         onClick={handleEditClick}
       >
-        <div className={`w-40 h-40 bg-gray-800 transition-all duration-200 rounded-full flex items-center justify-center overflow-hidden ${isParentEditing ? 'cursor-pointer profileEditing' : 'cursor-not-allowed opacity-90'} `}> 
-          {selectedImage? (
-              <img
-                  src={selectedImage}
-                  alt="Uploaded"
-                  className="object-cover w-full h-full"
-              />
+        <div
+          className={`w-40 h-40 bg-gray-800 transition-all duration-200 rounded-full flex items-center justify-center overflow-hidden ${isParentEditing ? 'cursor-pointer profileEditing' : 'cursor-not-allowed opacity-90'} `}
+        >
+          {selectedImage ? (
+            <img
+              src={selectedImage}
+              alt='Uploaded'
+              className='object-cover w-full h-full'
+            />
           ) : (
-              <span>Upload Image</span>
+            <span>Upload Image</span>
           )}
         </div>
         <input
-          id="upload"
-          type="file"
-          accept="image/*"
+          id='upload'
+          type='file'
+          accept='image/*'
           ref={fileInputRef}
           onChange={handleFileChange}
-          className="hidden"
+          className='hidden'
         />
       </div>
     </>
