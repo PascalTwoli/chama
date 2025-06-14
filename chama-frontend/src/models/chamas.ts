@@ -1,5 +1,5 @@
-import { UserType } from "../data/user-type";
-import { User } from "./user";
+import { UserType } from '../data/user-type';
+import { User } from './user';
 
 export interface ChamaFormData {
   chamaName: string;
@@ -13,16 +13,16 @@ export interface ChamaFormData {
 
 export interface Chama {
   id: number;
-  userType: UserType
+  userType: UserType;
   name: string;
   location: string;
   registrationNumber: string;
   registrationDate: string;
   description: string;
   image: File | null; // or string if you store the URL
-  members: User[];   
-  imageUrl: string;   
-  membersCount: number;   
+  members: User[];
+  imageUrl: string;
+  membersCount: number;
   createdAt: string;
   updatedAt: string;
 

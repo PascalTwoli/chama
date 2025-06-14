@@ -9,20 +9,20 @@ const logoutUser = async (): Promise<void> => {
   try {
     // Use the secure auth service for logout
     await SecureAuthService.signOut();
-    
-    console.log("Secure logout completed successfully");
+
+    console.log('Secure logout completed successfully');
   } catch (error) {
-    console.error("Logout failed:", error);
-    
+    console.error('Logout failed:', error);
+
     // Even if API call fails, clear local tokens for security
     try {
       await SecureAuthService.signOut();
     } catch (fallbackError) {
-      console.error("Fallback logout also failed:", fallbackError);
+      console.error('Fallback logout also failed:', fallbackError);
     }
   } finally {
     // Use window.location for a full page refresh to clear any remaining state
-    window.location.href = "/signin";
+    window.location.href = '/signin';
   }
 };
 
@@ -32,9 +32,9 @@ const logoutUser = async (): Promise<void> => {
 export const secureLogoutWithoutRedirect = async (): Promise<void> => {
   try {
     await SecureAuthService.signOut();
-    console.log("Secure logout completed without redirect");
+    console.log('Secure logout completed without redirect');
   } catch (error) {
-    console.error("Secure logout failed:", error);
+    console.error('Secure logout failed:', error);
     throw error;
   }
 };
