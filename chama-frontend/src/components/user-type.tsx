@@ -1,200 +1,208 @@
-import { UserType } from "../data/user-type";
-import { RadioButton } from "primereact/radiobutton";
+import { UserType } from '../data/user-type';
+import { RadioButton } from 'primereact/radiobutton';
 import { toast } from 'react-toastify';
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import AuthService from "../services/auth/signup-service";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import AuthService from '../services/auth/signup-service';
 
 interface ChamaUserTypeProps {
-	type: UserType | string;
+  type: UserType | string;
 }
 
 export function ChamaUserType({
-	type,
+  type,
 }: ChamaUserTypeProps): React.ReactElement {
-	const [userType, setUserType] = useState<UserType | string>(type);
-	const [isLoading, setIsLoading] = useState<boolean>(false);
-	const [error, setError] = useState<string | null>(null);
-	const navigate = useNavigate();
+  const [userType, setUserType] = useState<UserType | string>(type);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
-	useEffect(() => {
-		const checkAuthAndRedirect = async () => {
-			const authToken = localStorage.getItem("authToken");
-			if (!authToken) {
-				navigate("/signin");
-				return;
-			}
+  useEffect(() => {
+    const checkAuthAndRedirect = async () => {
+      const authToken = localStorage.getItem('authToken');
+      if (!authToken) {
+        navigate('/signin');
+        return;
+      }
 
-			try {
-				const status = await AuthService.checkOnboardingStatus();
+      try {
+        const status = await AuthService.checkOnboardingStatus();
 
-				console.log({ status });
+        console.log({ status });
 
-				if (!status.needsUserType) {
-					if (status.activeUserType === UserType.ADMIN) {
-						if (localStorage.getItem("hasCreatedChama") === "true") {
-							const activeChamaId =
-								localStorage.getItem("activeChamaId") || "1";
-							navigate(`/admin/chamas/${activeChamaId}`);
-						} else {
-							navigate("/create-chama");
-						}
-					} else if (status.activeUserType === UserType.MEMBER) {
-						if (localStorage.getItem("hasJoinedChama") === "true") {
-							const activeChamaId =
-								localStorage.getItem("activeChamaId") || "1";
-							navigate(`/member/chamas/${activeChamaId}`);
-						} else {
-							navigate("/chama-list-view");
-						}
-					} else {
-						navigate("/signin");
-					}
-				} else if (status.activeUserType) {
-					setUserType(status.activeUserType);
-				}
-			} catch (error) {
-				console.error("Error checking onboarding status:", error);
-				navigate("/signin");
-			}
-		};
+        if (!status.needsUserType) {
+          if (status.activeUserType === UserType.ADMIN) {
+            if (localStorage.getItem('hasCreatedChama') === 'true') {
+              const activeChamaId =
+                localStorage.getItem('activeChamaId') || '1';
+              navigate(`/admin/chamas/${activeChamaId}`);
+            } else {
+              navigate('/create-chama');
+            }
+          } else if (status.activeUserType === UserType.MEMBER) {
+            if (localStorage.getItem('hasJoinedChama') === 'true') {
+              const activeChamaId =
+                localStorage.getItem('activeChamaId') || '1';
+              navigate(`/member/chamas/${activeChamaId}`);
+            } else {
+              navigate('/chama-list-view');
+            }
+          } else {
+            navigate('/signin');
+          }
+        } else if (status.activeUserType) {
+          setUserType(status.activeUserType);
+        }
+      } catch (error) {
+        console.error('Error checking onboarding status:', error);
+        navigate('/signin');
+      }
+    };
 
-		checkAuthAndRedirect();
-	}, [navigate]);
+    checkAuthAndRedirect();
+  }, [navigate]);
 
-	useEffect(() => {
-		if (error) {
-			toast.error(error);
-		}
-	}, [error]);
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
 
-	const getRoleDisplayName = (typeValue: UserType | string): string => {
-		const normalizedType = AuthService.normalizeUserType(typeValue);
-		if (normalizedType === UserType.ADMIN) return "Administrator";
-		if (normalizedType === UserType.MEMBER) return "Member";
-		return String(typeValue);
-	};
+  const getRoleDisplayName = (typeValue: UserType | string): string => {
+    const normalizedType = AuthService.normalizeUserType(typeValue);
+    if (normalizedType === UserType.ADMIN) return 'Administrator';
+    if (normalizedType === UserType.MEMBER) return 'Member';
+    return String(typeValue);
+  };
 
-	const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-		event.preventDefault();
-		setError(null);
-		setIsLoading(true);
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setError(null);
+    setIsLoading(true);
 
-		try {
-			const normalizedType = AuthService.normalizeUserType(userType);
-			if (!normalizedType) {
-				setError("Invalid user type selected. Please try again.");
-				setIsLoading(false);
-				return;
-			}
+    try {
+      const normalizedType = AuthService.normalizeUserType(userType);
+      if (!normalizedType) {
+        setError('Invalid user type selected. Please try again.');
+        setIsLoading(false);
+        return;
+      }
 
-			const currentUser = await AuthService.getCurrentUser();
-			const userId = currentUser.id;
-			await AuthService.updateUserType(userId, {
-				activeUserType: normalizedType,
-			});
+      const currentUser = await AuthService.getCurrentUser();
+      const userId = currentUser.id;
+      await AuthService.updateUserType(userId, {
+        activeUserType: normalizedType,
+      });
 
-			toast.success(`User type updated to ${getRoleDisplayName(normalizedType)}`);
+      toast.success(
+        `User type updated to ${getRoleDisplayName(normalizedType)}`
+      );
 
-			if (normalizedType === UserType.ADMIN) {
-				navigate("/create-chama");
-			} else if (normalizedType === UserType.MEMBER) {
-				navigate("/chama-list-view");
-			} else {
-				navigate("/signin");
-			}
-		} catch (err) {
-			setError(
-				err instanceof Error
-					? err.message
-					: "Failed to update user type. Please try again."
-			);
-			console.error("Error updating user type:", err);
-		} finally {
-			setIsLoading(false);
-		}
-	};
+      if (normalizedType === UserType.ADMIN) {
+        navigate('/create-chama');
+      } else if (normalizedType === UserType.MEMBER) {
+        navigate('/chama-list-view');
+      } else {
+        navigate('/signin');
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Failed to update user type. Please try again.'
+      );
+      console.error('Error updating user type:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-	return (
-		<div className="min-h-screen bg-gray-900 flex items-center justify-center">
-			<div className="bg-gray-800 p-8 rounded-lg shadow-lg max-w-md w-full">
-				<div className="text-center mb-6">
-					<h4 className="text-2xl font-bold text-white mb-2 mt-0">
-						What is your role in ChamaPlus?
-					</h4>
-					<p className="text-gray-400">Please select an option below to continue</p>
-					{/* <p className="text-gray-300 mt-2">
+  return (
+    <div className='min-h-screen bg-gray-900 flex items-center justify-center'>
+      <div className='bg-gray-800 p-8 rounded-lg shadow-lg max-w-md w-full'>
+        <div className='text-center mb-6'>
+          <h4 className='text-2xl font-bold text-white mb-2 mt-0'>
+            What is your role in ChamaPlus?
+          </h4>
+          <p className='text-gray-400'>
+            Please select an option below to continue
+          </p>
+          {/* <p className="text-gray-300 mt-2">
 						Current selection: {getRoleDisplayName(userType)}
 					</p> */}
-				</div>
-				<form onSubmit={handleSubmit} className="space-y-6">
-					<div className="flex flex-row justify-between gap-4">
-						<div className="flex flex-1 items-center space-x-3 p-2 bg-gray-700 rounded hover:bg-gray-600 transition-colors width-full">
-							<RadioButton
-								inputId="admin"
-								name="role"
-								value={UserType.ADMIN}
-								onChange={(e) => setUserType(e.value)}
-								checked={userType === UserType.ADMIN}
-							/>
-							<label
-								htmlFor="admin"
-								className="text-white cursor-pointer flex-1">
-								I'm an Admin
-							</label>
-						</div>
-						<div className="flex flex-1 items-center space-x-3 p-2 bg-gray-700 rounded hover:bg-gray-600 transition-colors width-full">
-							<RadioButton
-								inputId="member"
-								name="role"
-								value={UserType.MEMBER}
-								onChange={(e) => setUserType(e.value)}
-								checked={userType === UserType.MEMBER}
-							/>
-							<label
-								htmlFor="member"
-								className="text-white cursor-pointer flex-1">
-								I'm a Member
-							</label>
-						</div>
-					</div>
-					<button
-						type="submit"
-						disabled={isLoading}
-						className={`w-full py-3 px-4 ${
-							isLoading
-								? "bg-gray-500"
-								: "bg-[#4084B9] hover:bg-[#488ec3] active:bg-[#3a7fae]"
-						} text-white rounded-md font-semibold transition-colors flex justify-center items-center border-none focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}>
-						{isLoading ? (
-							<>
-								<svg
-									className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-									xmlns="http://www.w3.org/2000/svg"
-									fill="none"
-									viewBox="0 0 24 24">
-									<circle
-										className="opacity-25"
-										cx="12"
-										cy="12"
-										r="10"
-										stroke="currentColor"
-										strokeWidth="4"></circle>
-									<path
-										className="opacity-75"
-										fill="currentColor"
-										d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-								</svg>
-								Processing...
-							</>
-						) : (
-							"Continue"
-						)}
-					</button>
-				</form>
-			</div>
-		</div>
-	);
+        </div>
+        <form onSubmit={handleSubmit} className='space-y-6'>
+          <div className='flex flex-row justify-between gap-4'>
+            <div className='flex flex-1 items-center space-x-3 p-2 bg-gray-700 rounded hover:bg-gray-600 transition-colors width-full'>
+              <RadioButton
+                inputId='admin'
+                name='role'
+                value={UserType.ADMIN}
+                onChange={e => setUserType(e.value)}
+                checked={userType === UserType.ADMIN}
+              />
+              <label
+                htmlFor='admin'
+                className='text-white cursor-pointer flex-1'
+              >
+                I'm an Admin
+              </label>
+            </div>
+            <div className='flex flex-1 items-center space-x-3 p-2 bg-gray-700 rounded hover:bg-gray-600 transition-colors width-full'>
+              <RadioButton
+                inputId='member'
+                name='role'
+                value={UserType.MEMBER}
+                onChange={e => setUserType(e.value)}
+                checked={userType === UserType.MEMBER}
+              />
+              <label
+                htmlFor='member'
+                className='text-white cursor-pointer flex-1'
+              >
+                I'm a Member
+              </label>
+            </div>
+          </div>
+          <button
+            type='submit'
+            disabled={isLoading}
+            className={`w-full py-3 px-4 ${
+              isLoading
+                ? 'bg-gray-500'
+                : 'bg-[#4084B9] hover:bg-[#488ec3] active:bg-[#3a7fae]'
+            } text-white rounded-md font-semibold transition-colors flex justify-center items-center border-none focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
+          >
+            {isLoading ? (
+              <>
+                <svg
+                  className='animate-spin -ml-1 mr-3 h-5 w-5 text-white'
+                  xmlns='http://www.w3.org/2000/svg'
+                  fill='none'
+                  viewBox='0 0 24 24'
+                >
+                  <circle
+                    className='opacity-25'
+                    cx='12'
+                    cy='12'
+                    r='10'
+                    stroke='currentColor'
+                    strokeWidth='4'
+                  ></circle>
+                  <path
+                    className='opacity-75'
+                    fill='currentColor'
+                    d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+                  ></path>
+                </svg>
+                Processing...
+              </>
+            ) : (
+              'Continue'
+            )}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
 }
-
-
