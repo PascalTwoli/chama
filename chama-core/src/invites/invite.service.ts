@@ -167,7 +167,9 @@ export class InviteService {
       }
       
       // Log and wrap unknown errors
-      this.logger.error(`Error creating invite: ${error.message}`, error.stack);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      const stack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(`Error creating invite: ${message}`, stack);
       throw new InternalServerErrorException('Failed to create invite');
     }
   }
@@ -290,7 +292,9 @@ export class InviteService {
       }
       
       // Log and wrap unknown errors
-      this.logger.error(`Error accepting invite: ${error.message}`, error.stack);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      const stack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(`Error accepting invite: ${message}`, stack);
       throw new InternalServerErrorException('Failed to accept invite');
     }
   }
@@ -429,7 +433,9 @@ export class InviteService {
         return false;
       }
     } catch (error) {
-      this.logger.error(`Error sending invite email: ${error.message}`, error.stack);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      const stack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(`Error sending invite email: ${message}`, stack);
       return false;
     }
   }

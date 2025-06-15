@@ -20,8 +20,8 @@ __decorate([
         description: 'The name of the chama',
         example: 'Wealth Builders',
     }),
-    (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateChamaDto.prototype, "name", void 0);
 __decorate([

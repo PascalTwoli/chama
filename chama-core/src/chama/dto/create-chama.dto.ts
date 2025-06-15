@@ -6,9 +6,9 @@ export class CreateChamaDto {
     description: 'The name of the chama',
     example: 'Wealth Builders',
   })
-  @IsNotEmpty()
   @IsString()
-  name: string;
+  @IsNotEmpty()
+  name!: string;
 
   @ApiProperty({
     description: 'Description of the chama',

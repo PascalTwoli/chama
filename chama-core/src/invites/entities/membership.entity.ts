@@ -12,14 +12,14 @@ export class MembershipEntity {
     example: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
   })
   @IsUUID()
-  id: string;
+  id!: string;
 
   @ApiProperty({
     description: 'The ID of the user',
     example: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
   })
   @IsUUID()
-  userId: string;
+  userId!: string;
 
   @ApiProperty({
     description: 'The user associated with the membership',
@@ -33,7 +33,7 @@ export class MembershipEntity {
     example: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
   })
   @IsUUID()
-  chamaId: string;
+  chamaId!: string;
 
   @ApiProperty({
     description: 'The chama associated with the membership',
@@ -48,7 +48,7 @@ export class MembershipEntity {
     example: UserRole.MEMBER,
   })
   @IsEnum(UserRole)
-  role: UserRole;
+  role!: UserRole;
 
   @ApiProperty({
     description: 'The date when the user joined the chama',
@@ -56,7 +56,7 @@ export class MembershipEntity {
   })
   @IsDate()
   @Transform(({ value }) => value instanceof Date ? value : new Date(value))
-  joinedAt: Date;
+  joinedAt!: Date;
 
   @ApiProperty({
     description: 'The date when the membership was created',
@@ -64,7 +64,7 @@ export class MembershipEntity {
   })
   @IsDate()
   @Transform(({ value }) => value instanceof Date ? value : new Date(value))
-  createdAt: Date;
+  createdAt!: Date;
 
   @ApiProperty({
     description: 'The date when the membership was last updated',
@@ -72,7 +72,7 @@ export class MembershipEntity {
   })
   @IsDate()
   @Transform(({ value }) => value instanceof Date ? value : new Date(value))
-  updatedAt: Date;
+  updatedAt!: Date;
 
   constructor(partial: Partial<MembershipEntity>) {
     Object.assign(this, partial);

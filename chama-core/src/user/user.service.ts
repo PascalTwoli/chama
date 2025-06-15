@@ -9,7 +9,7 @@ import { RegisterUserDto } from './dto/register-user.dto';
 import * as firebaseAdmin from 'firebase-admin';
 import { LoginDto } from './dto/login.dto';
 import axios from 'axios';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { UserType } from '@prisma/client';
 import {
   UserEntity,
@@ -78,15 +78,16 @@ export class UserService {
         message: `User type updated to ${userType}`,
         user: updatedUser,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(`Error updating user type for ${uid}:`, error);
 
       if (error instanceof NotFoundException) {
         throw error;
       }
 
+      const message = error instanceof Error ? error.message : 'Unknown error';
       throw new BadRequestException(
-        `Failed to update user type: ${error.message}`,
+        `Failed to update user type: ${message}`,
       );
     }
   }
@@ -105,7 +106,7 @@ export class UserService {
 
       // Then create the local user with transaction to ensure atomicity
       const localUser = await this.databaseService.$transaction(
-        async (prisma) => {
+        async (prisma: any) => {
           // Create local user with all available fields
           const user = await prisma.user.create({
             data: {
@@ -145,16 +146,19 @@ export class UserService {
           localUser: localUser,
         },
       };
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error creating user:', error);
 
+      // Type check for error with code property
+      const errorWithCode = error as any;
+      
       // If Firebase user was created but local user creation failed,
       // attempt to delete the Firebase user to maintain consistency
-      if (error.code !== 'auth/email-already-exists' && error.firebaseUid) {
+      if (errorWithCode.code !== 'auth/email-already-exists' && errorWithCode.firebaseUid) {
         try {
-          await firebaseAdmin.auth().deleteUser(error.firebaseUid);
+          await firebaseAdmin.auth().deleteUser(errorWithCode.firebaseUid);
           console.log(
-            `Rolled back Firebase user creation for UID: ${error.firebaseUid}`,
+            `Rolled back Firebase user creation for UID: ${errorWithCode.firebaseUid}`,
           );
         } catch (deleteError) {
           console.error(
@@ -165,16 +169,18 @@ export class UserService {
       }
 
       // Provide more specific error messages based on error type
-      if (error.code === 'auth/email-already-exists') {
+      if (errorWithCode.code === 'auth/email-already-exists') {
         throw new BadRequestException('Email address is already in use');
-      } else if (error.code === 'auth/invalid-phone-number') {
+      } else if (errorWithCode.code === 'auth/invalid-phone-number') {
         throw new BadRequestException('The phone number is invalid');
-      } else if (error.code?.includes('prisma')) {
-        throw new BadRequestException(`Database error: ${error.message}`);
+      } else if (errorWithCode.code?.includes('prisma')) {
+        const message = error instanceof Error ? error.message : 'Database error';
+        throw new BadRequestException(`Database error: ${message}`);
       }
 
+      const message = error instanceof Error ? error.message : 'Unknown error';
       throw new BadRequestException(
-        `User registration failed: ${error.message}`,
+        `User registration failed: ${message}`,
       );
     }
   }
@@ -278,7 +284,7 @@ export class UserService {
   }
 
   async validateRequestAndGetToken(
-    req,
+    req: any,
   ): Promise<firebaseAdmin.auth.DecodedIdToken | null> {
     const authHeader = req.headers['authorization'];
     if (!authHeader) {
@@ -297,11 +303,13 @@ export class UserService {
       const decodedToken = await firebaseAdmin.auth().verifyIdToken(token);
       console.log('Token verified successfully:', decodedToken);
       return decodedToken;
-    } catch (error) {
-      console.error('Token verification failed:', error.message);
-      if (error.code === 'auth/id-token-expired') {
+    } catch (error: unknown) {
+      const errorWithCode = error as any;
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      console.error('Token verification failed:', message);
+      if (errorWithCode.code === 'auth/id-token-expired') {
         console.error('Token has expired.');
-      } else if (error.code === 'auth/invalid-id-token') {
+      } else if (errorWithCode.code === 'auth/invalid-id-token') {
         console.error('Invalid ID token provided.');
       }
       return null;
@@ -352,9 +360,10 @@ export class UserService {
         users: listUsersResult.users,
         pageToken: listUsersResult.pageToken,
       };
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error listing users:', error);
-      throw new BadRequestException(`Failed to fetch users: ${error.message}`);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new BadRequestException(`Failed to fetch users: ${message}`);
     }
   }
 
@@ -421,8 +430,9 @@ export class UserService {
       return {
         localUser: localUser as UserEntity,
       };
-    } catch (error) {
-      if (error.code === 'auth/user-not-found') {
+    } catch (error: unknown) {
+      const errorWithCode = error as any;
+      if (errorWithCode.code === 'auth/user-not-found') {
         // If Firebase user not found, check if local user exists
         const localUser = await this.databaseService.user.findUnique({
           where: { id: uid },
@@ -453,7 +463,8 @@ export class UserService {
       }
 
       console.error(`Error fetching user with ID ${uid}:`, error);
-      throw new BadRequestException(`Failed to fetch user: ${error.message}`);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new BadRequestException(`Failed to fetch user: ${message}`);
     }
   }
 
@@ -499,12 +510,14 @@ export class UserService {
       await this.updateLocalUser(uid, updateUserDto);
 
       return userRecord;
-    } catch (error) {
-      if (error.code === 'auth/user-not-found') {
+    } catch (error: unknown) {
+      const errorWithCode = error as any;
+      if (errorWithCode.code === 'auth/user-not-found') {
         throw new NotFoundException(`User with ID ${uid} not found`);
       }
       console.error(`Error updating user with ID ${uid}:`, error);
-      throw new BadRequestException(`Failed to update user: ${error.message}`);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new BadRequestException(`Failed to update user: ${message}`);
     }
   }
 
@@ -584,7 +597,7 @@ export class UserService {
 
       // Update the user in a transaction
       const updatedUser = await this.databaseService.$transaction(
-        async (prisma) => {
+        async (prisma: any) => {
           return prisma.user.update({
             where: { id: existingUser.id },
             data: updateFields,
@@ -611,8 +624,9 @@ export class UserService {
         throw error;
       }
 
+      const message = error instanceof Error ? error.message : 'Unknown error';
       throw new BadRequestException(
-        `Failed to update local user: ${error.message}`,
+        `Failed to update local user: ${message}`,
       );
     }
   }
@@ -625,7 +639,7 @@ export class UserService {
   async remove(uid: string): Promise<{ success: boolean; message: string }> {
     try {
       // Use a transaction to delete both Firebase and local user
-      await this.databaseService.$transaction(async (prisma) => {
+      await this.databaseService.$transaction(async (prisma: any) => {
         // First try to find and delete the local user
         const localUser = await prisma.user.findFirst({
           where: {
@@ -648,8 +662,9 @@ export class UserService {
         success: true,
         message: `User with ID ${uid} successfully deleted from both Firebase and local database`,
       };
-    } catch (error) {
-      if (error.code === 'auth/user-not-found') {
+    } catch (error: unknown) {
+      const errorWithCode = error as any;
+      if (errorWithCode.code === 'auth/user-not-found') {
         // If Firebase user doesn't exist but local user might, try to delete just local user
         try {
           const localUser = await this.databaseService.user.findFirst({
@@ -671,19 +686,21 @@ export class UserService {
           throw new NotFoundException(
             `User with ID ${uid} not found in Firebase or local database`,
           );
-        } catch (localError) {
+        } catch (localError: unknown) {
           console.error(
             `Error deleting local user with ID ${uid}:`,
             localError,
           );
+          const message = localError instanceof Error ? localError.message : 'Unknown error';
           throw new BadRequestException(
-            `Failed to delete local user: ${localError.message}`,
+            `Failed to delete local user: ${message}`,
           );
         }
       }
 
       console.error(`Error deleting user with ID ${uid}:`, error);
-      throw new BadRequestException(`Failed to delete user: ${error.message}`);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new BadRequestException(`Failed to delete user: ${message}`);
     }
   }
 }

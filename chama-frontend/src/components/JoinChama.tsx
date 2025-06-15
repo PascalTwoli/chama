@@ -27,6 +27,8 @@ interface ChamaResponse {
   };
 }
 
+
+
 /**
  * Component for handling Chama invitation flow
  *
@@ -50,6 +52,26 @@ function JoinChama() {
   const [inviteDetails, setInviteDetails] = useState<InviteDetails | null>(
     null
   );
+
+  //apart from inviting a user, we also need to handle the case where a user is trying to join a chama
+  // This component handles both inviting a user and joining a chama
+  // for the case where a user is trying to join a chama, a request should just be sent to the admin of the chama who will then approve the request
+  // and the user will be notified via email
+  // This is done by checking if the user is authenticated and if the email matches the invited email
+  // If the user is authenticated, we will try to accept the invite immediately
+  // If the user is not authenticated, we will store the token in session storage and redirect to login/signup
+  // This way, after the user logs in or signs up, we can check for any pending invites and process them
+  // This is done using the useAuth context to check if the user is authenticated
+  // and the user object to get the email of the authenticated user
+  // We will also use the useEffect hook to check if the user is authenticated and process the invite accordingly
+  // const isUserAuthenticated = useRef(isAuthenticated);  
+  // useEffect(() => {
+  //   isUserAuthenticated.current = isAuthenticated;
+  // }, [isAuthenticated]);
+
+  // // If the user is authenticated, we can access the user object
+  // const isUserEmailMatchingInvite = user?.email === inviteDetails?.invitedEmail;
+
 
   // Check authentication and process invite
   useEffect(() => {

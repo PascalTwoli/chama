@@ -1,14 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthService from '../services/auth/signup-service';
+import { Chama } from '../models/chamas';
+import ChamaService from '../services/chama-services';
 
-interface Chama {
-  id: string;
-  name: string;
-  description: string;
-  memberCount: number;
-  createdAt: string;
-}
 
 const ChamaListView: React.FC = () => {
   const [chamas, setChamas] = useState<Chama[]>([]);
@@ -17,23 +12,32 @@ const ChamaListView: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchChamas();
+    displayChamas();
   }, []);
 
-  const fetchChamas = async () => {
+  const displayChamas = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/chamas', {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-        },
-      });
+      const response = await ChamaService.fetchAllChamas();
 
-      if (!response.ok) {
+      if (!response || !Array.isArray(response)) {
         throw new Error('Failed to fetch chamas');
       }
 
-      const data = await response.json();
+      const data = response.map((chama: Chama) => ({
+        id: chama.id,
+        name: chama.name,
+        description: chama.description,
+        membersCount: chama.membersCount,
+        createdAt: chama.createdAt,
+        userType: chama.userType,
+        location: chama.location,
+        registrationNumber: chama.registrationNumber,
+        registrationDate: chama.registrationDate,
+        members: chama.members ?? [],
+        imageUrl: chama.imageUrl ?? '',
+        updatedAt: chama.updatedAt ?? '',
+      }));
       setChamas(data);
     } catch (err) {
       setError(
@@ -131,20 +135,13 @@ const ChamaListView: React.FC = () => {
         ) : (
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
             {chamas.map(chama => (
-              <div
-                key={chama.id}
-                className='bg-gray-800 rounded-lg overflow-hidden shadow-lg'
-              >
-                <div className='p-6'>
-                  <h2 className='text-xl font-bold text-white mb-2'>
-                    {chama.name}
-                  </h2>
-                  <p className='text-gray-300 mb-4'>{chama.description}</p>
-                  <div className='flex justify-between text-sm text-gray-400 mb-4'>
-                    <span>Members: {chama.memberCount}</span>
-                    <span>
-                      Created: {new Date(chama.createdAt).toLocaleDateString()}
-                    </span>
+              <div key={chama.id} className="bg-gray-800 rounded-lg overflow-hidden shadow-lg">
+                <div className="p-6">
+                  <h2 className="text-xl font-bold text-white mb-2">{chama.name}</h2>
+                  <p className="text-gray-300 mb-4">{chama.description}</p>
+                  <div className="flex justify-between text-sm text-gray-400 mb-4">
+                    <span>Members: {chama.membersCount}</span>
+                    <span>Created: {new Date(chama.createdAt).toLocaleDateString()}</span>
                   </div>
                   <button
                     onClick={() => handleJoinChama(chama.id)}
