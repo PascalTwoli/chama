@@ -27,8 +27,6 @@ interface ChamaResponse {
   };
 }
 
-
-
 /**
  * Component for handling Chama invitation flow
  *
@@ -64,14 +62,13 @@ function JoinChama() {
   // This is done using the useAuth context to check if the user is authenticated
   // and the user object to get the email of the authenticated user
   // We will also use the useEffect hook to check if the user is authenticated and process the invite accordingly
-  // const isUserAuthenticated = useRef(isAuthenticated);  
+  // const isUserAuthenticated = useRef(isAuthenticated);
   // useEffect(() => {
   //   isUserAuthenticated.current = isAuthenticated;
   // }, [isAuthenticated]);
 
   // // If the user is authenticated, we can access the user object
   // const isUserEmailMatchingInvite = user?.email === inviteDetails?.invitedEmail;
-
 
   // Check authentication and process invite
   useEffect(() => {

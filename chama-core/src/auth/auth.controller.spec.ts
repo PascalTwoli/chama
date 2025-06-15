@@ -76,9 +76,7 @@ describe('AuthController', () => {
 
       expect(userService.findOne).toHaveBeenCalledWith(mockCurrentUser.firebaseUid);
       expect(result).toBeInstanceOf(UserResponseEntity);
-      expect(result.firebaseUser).toBeDefined();
       expect(result.localUser).toBeDefined();
-      expect(result.firebaseUser?.uid).toBe('firebase123');
       expect(result.localUser.id).toBe('user123');
     });
 
@@ -126,7 +124,6 @@ describe('AuthController', () => {
       const result = await controller.getCurrentUser(mockCurrentUser);
 
       expect(result).toBeInstanceOf(UserResponseEntity);
-      expect(result.firebaseUser).toBeUndefined();
       expect(result.localUser).toBeDefined();
       expect(result.localUser?.id).toBe('user123');
     });

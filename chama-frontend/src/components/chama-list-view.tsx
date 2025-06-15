@@ -4,7 +4,6 @@ import AuthService from '../services/auth/signup-service';
 import { Chama } from '../models/chamas';
 import ChamaService from '../services/chama-services';
 
-
 const ChamaListView: React.FC = () => {
   const [chamas, setChamas] = useState<Chama[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -135,13 +134,20 @@ const ChamaListView: React.FC = () => {
         ) : (
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
             {chamas.map(chama => (
-              <div key={chama.id} className="bg-gray-800 rounded-lg overflow-hidden shadow-lg">
-                <div className="p-6">
-                  <h2 className="text-xl font-bold text-white mb-2">{chama.name}</h2>
-                  <p className="text-gray-300 mb-4">{chama.description}</p>
-                  <div className="flex justify-between text-sm text-gray-400 mb-4">
+              <div
+                key={chama.id}
+                className='bg-gray-800 rounded-lg overflow-hidden shadow-lg'
+              >
+                <div className='p-6'>
+                  <h2 className='text-xl font-bold text-white mb-2'>
+                    {chama.name}
+                  </h2>
+                  <p className='text-gray-300 mb-4'>{chama.description}</p>
+                  <div className='flex justify-between text-sm text-gray-400 mb-4'>
                     <span>Members: {chama.membersCount}</span>
-                    <span>Created: {new Date(chama.createdAt).toLocaleDateString()}</span>
+                    <span>
+                      Created: {new Date(chama.createdAt).toLocaleDateString()}
+                    </span>
                   </div>
                   <button
                     onClick={() => handleJoinChama(chama.id)}

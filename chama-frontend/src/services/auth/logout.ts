@@ -1,5 +1,5 @@
-import apiClient from "../../config/axios-config";
-import SecureAuthService from "./secure-auth-service";
+import apiClient from '../../config/axios-config';
+import SecureAuthService from './secure-auth-service';
 
 /**
  * Secure logout function that uses the new secure authentication service
