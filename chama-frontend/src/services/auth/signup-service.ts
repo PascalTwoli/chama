@@ -22,45 +22,45 @@ export class AuthService {
         : null;
   }
 
-	static async signup(userData: SignupRequest): Promise<SignupResponse> {
-		try {
-			const response: AxiosResponse<SignupResponse> = await apiClient.post(
-				"/auth/signup",
-				userData
-			);
-			// localStorage.setItem("authToken", response.data.token ?? "");
-			// localStorage.setItem(
-			// 	"userId",
-			// 	response.data.id || response.data.userId
-			// );
-			console.log("Sign-up successful:", response.data);
-			return response.data;
-		} catch (error) {
-			console.error("Registration error:", error);
-			const axiosError = error as AxiosError<ApiErrorResponse>;
-			if (!axiosError.response) {
-				throw new Error(
-					"Could not connect to the server. Please check your internet connection and try again."
-				);
-			}
-			const statusCode = axiosError.response?.status;
-			const errorResponse = axiosError.response?.data;
-			let errorMessage =
-				errorResponse?.message || "Registration failed. Please try again.";
-			if (Array.isArray(errorMessage)) {
-				errorMessage = errorMessage.join(", ");
-			}
-			if (
-				statusCode === 409 ||
-				(errorMessage.includes("email") && errorMessage.includes("exist"))
-			) {
-				throw new Error(
-					"Email is already registered. Please use a different email or sign in."
-				);
-			}
-			throw new Error(errorMessage);
-		}
-	}
+  static async signup(userData: SignupRequest): Promise<SignupResponse> {
+    try {
+      const response: AxiosResponse<SignupResponse> = await apiClient.post(
+        '/auth/signup',
+        userData
+      );
+      // localStorage.setItem("authToken", response.data.token ?? "");
+      // localStorage.setItem(
+      // 	"userId",
+      // 	response.data.id || response.data.userId
+      // );
+      console.log('Sign-up successful:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Registration error:', error);
+      const axiosError = error as AxiosError<ApiErrorResponse>;
+      if (!axiosError.response) {
+        throw new Error(
+          'Could not connect to the server. Please check your internet connection and try again.'
+        );
+      }
+      const statusCode = axiosError.response?.status;
+      const errorResponse = axiosError.response?.data;
+      let errorMessage =
+        errorResponse?.message || 'Registration failed. Please try again.';
+      if (Array.isArray(errorMessage)) {
+        errorMessage = errorMessage.join(', ');
+      }
+      if (
+        statusCode === 409 ||
+        (errorMessage.includes('email') && errorMessage.includes('exist'))
+      ) {
+        throw new Error(
+          'Email is already registered. Please use a different email or sign in.'
+        );
+      }
+      throw new Error(errorMessage);
+    }
+  }
 
   static async updateUserType(
     userId: string,
@@ -151,9 +151,7 @@ export class AuthService {
     }
   }
 
-  static async getUserType(
-    forceCheck: boolean = false
-  ): Promise<UserType | null> {
+  static async getUserType(forceCheck = false): Promise<UserType | null> {
     try {
       const user = await this.getCurrentUser();
       return this.normalizeUserType(user.activeUserType);

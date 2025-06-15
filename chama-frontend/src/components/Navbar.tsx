@@ -67,9 +67,9 @@ const Navbar = ({ chamas, onCreateChama, handleJoinChama }: NavbarProps) => {
                 y2='66.2708'
                 gradientUnits='userSpaceOnUse'
               >
-                <stop stop-color='#CCCCCC' />
-                <stop offset='0.5' stop-color='#4084B9' />
-                <stop offset='1' stop-color='#4CAF50' />
+                <stop stopColor='#CCCCCC' />
+                <stop offset='0.5' stopColor='#4084B9' />
+                <stop offset='1' stopColor='#4CAF50' />
               </linearGradient>
             </defs>
           </svg>

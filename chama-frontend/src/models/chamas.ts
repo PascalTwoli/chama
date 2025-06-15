@@ -13,16 +13,16 @@ export interface ChamaFormData {
 
 export interface Chama {
   id: string;
-  userType: UserType
+  userType: UserType;
   name: string;
   location: string;
   registrationNumber: string;
   registrationDate: string;
   description: string;
   image?: File | null; // or string if you store the URL
-  members: User[];   
-  imageUrl: string;   
-  membersCount: number;   
+  members: User[];
+  imageUrl: string;
+  membersCount: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -34,7 +34,7 @@ export interface ChamaResponse {
     description: string;
     imageUrl: string; // URL to the chama's image
     membersCount: number; // Total number of members in the chama
-  } 
+  };
   success: boolean;
   message: string;
   error?: string;
@@ -47,7 +47,7 @@ export interface ExtendedChamaFormData extends ChamaFormData {
 
 //Interface for response when requesting to join a chama
 export interface JoinChamaResponse {
-  success: boolean;   
+  success: boolean;
   message: string;
   error?: string;
 }
@@ -102,5 +102,4 @@ export interface ChamaDetails {
   termsAcceptedBy: User | null; // User who accepted the terms, if applicable
   image: File | null; // or string if you store the URL
   imageFile: File | null; // File object for the chama's image
-
 }
