@@ -112,7 +112,7 @@ export class TransactionController {
         throw error;
       }
       throw new InternalServerErrorException(
-        `Failed to create transaction: ${error.message || 'Unknown error'}`,
+        `Failed to create transaction: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
     }
   }
@@ -198,7 +198,7 @@ export class TransactionController {
         throw error;
       }
       throw new InternalServerErrorException(
-        `Failed to fetch transactions: ${error.message || 'Unknown error'}`,
+        `Failed to fetch transactions: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
     }
   }
@@ -266,7 +266,7 @@ export class TransactionController {
         throw error;
       }
       throw new InternalServerErrorException(
-        `Failed to fetch transaction: ${error.message || 'Unknown error'}`,
+        `Failed to fetch transaction: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
     }
   }
@@ -330,7 +330,7 @@ export class TransactionController {
       return await this.transactionService.getUserTransactionSummary(currentUser.id);
     } catch (error) {
       throw new InternalServerErrorException(
-        `Failed to fetch transaction summary: ${error.message || 'Unknown error'}`,
+        `Failed to fetch transaction summary: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
     }
   }

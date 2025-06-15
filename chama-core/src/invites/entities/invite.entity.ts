@@ -9,14 +9,14 @@ export class ChamaEntity {
     example: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
   })
   @IsUUID()
-  id: string;
+  id!: string;
 
   @ApiProperty({
     description: 'The name of the chama',
     example: 'Investment Group',
   })
   @IsString()
-  name: string;
+  name!: string;
 
   @ApiProperty({
     description: 'The description of the chama',
@@ -39,14 +39,14 @@ export class InviteEntity {
     example: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
   })
   @IsUUID()
-  id: string;
+  id!: string;
 
   @ApiProperty({
     description: 'The ID of the chama that the invite is for',
     example: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
   })
   @IsUUID()
-  chamaId: string;
+  chamaId!: string;
 
   @ApiProperty({
     description: 'The chama that the invite is for',
@@ -62,14 +62,14 @@ export class InviteEntity {
     example: '7f9c2ba5-7f38-4bff-b61d-5d6c3caad65e',
   })
   @IsString()
-  token: string;
+  token!: string;
 
   @ApiProperty({
     description: 'The email address the invite was sent to',
     example: 'john.doe@example.com',
   })
   @IsEmail()
-  sentToEmail: string;
+  sentToEmail!: string;
 
   @ApiProperty({
     description: 'The date when the invite expires',
@@ -77,7 +77,7 @@ export class InviteEntity {
   })
   @IsDate()
   @Transform(({ value }) => value instanceof Date ? value : new Date(value))
-  expiresAt: Date;
+  expiresAt!: Date;
 
   @ApiProperty({
     description: 'The date when the invite was used',
@@ -95,7 +95,7 @@ export class InviteEntity {
   })
   @IsDate()
   @Transform(({ value }) => value instanceof Date ? value : new Date(value))
-  createdAt: Date;
+  createdAt!: Date;
 
   constructor(partial: Partial<InviteEntity>) {
     Object.assign(this, partial);

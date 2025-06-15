@@ -43,7 +43,8 @@ let AuthController = class AuthController {
                 return yield this.userService.registerUser(registerUserDto);
             }
             catch (error) {
-                throw new common_1.BadRequestException(`Registration failed: ${error.message}`);
+                const message = error instanceof Error ? error.message : 'Unknown error';
+                throw new common_1.BadRequestException(`Registration failed: ${message}`);
             }
         });
     }
@@ -56,7 +57,8 @@ let AuthController = class AuthController {
                 return yield this.userService.loginUser(loginDto);
             }
             catch (error) {
-                throw new common_1.BadRequestException(`Authentication failed: ${error.message}`);
+                const message = error instanceof Error ? error.message : 'Unknown error';
+                throw new common_1.BadRequestException(`Authentication failed: ${message}`);
             }
         });
     }
@@ -72,7 +74,8 @@ let AuthController = class AuthController {
                 return yield this.userService.refreshAuthToken(refreshToken);
             }
             catch (error) {
-                throw new common_1.BadRequestException(`Token refresh failed: ${error.message}`);
+                const message = error instanceof Error ? error.message : 'Unknown error';
+                throw new common_1.BadRequestException(`Token refresh failed: ${message}`);
             }
         });
     }
@@ -90,7 +93,8 @@ let AuthController = class AuthController {
                 });
             }
             catch (error) {
-                throw new common_1.BadRequestException(`Failed to fetch current user: ${error.message}`);
+                const message = error instanceof Error ? error.message : 'Unknown error';
+                throw new common_1.BadRequestException(`Failed to fetch current user: ${message}`);
             }
         });
     }

@@ -41,12 +41,14 @@ export class ChamaService {
       });
 
       return chama;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error creating chama:', error);
-      if (error.code === 'P2002') {
+      const errorWithCode = error as any;
+      if (errorWithCode.code === 'P2002') {
         throw new BadRequestException('A chama with this name already exists');
       }
-      throw new BadRequestException(`Failed to create chama: ${error.message}`);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new BadRequestException(`Failed to create chama: ${message}`);
     }
   }
 
@@ -63,9 +65,10 @@ export class ChamaService {
         },
       });
       return chamas;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error finding chamas:', error);
-      throw new BadRequestException(`Failed to fetch chamas: ${error.message}`);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new BadRequestException(`Failed to fetch chamas: ${message}`);
     }
   }
 
@@ -88,10 +91,11 @@ export class ChamaService {
         );
       }
       return chama;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(`Error finding chama with ID ${id}:`, error);
       if (error instanceof NotFoundException) throw error;
-      throw new BadRequestException(`Failed to fetch chama: ${error.message}`);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new BadRequestException(`Failed to fetch chama: ${message}`);
     }
   }
 }

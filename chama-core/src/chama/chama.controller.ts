@@ -127,9 +127,10 @@ export class ChamaController {
   ): Promise<ChamaResponse> {
     try {
       return await this.chamaService.create(createChamaDto, currentUser.id);
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof BadRequestException) throw error;
-      throw new BadRequestException(`Failed to create chama: ${error.message}`);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new BadRequestException(`Failed to create chama: ${message}`);
     }
   }
 
@@ -203,12 +204,13 @@ export class ChamaController {
   ): Promise<ChamaResponse[]> {
     try {
       return await this.chamaService.findAll(currentUser.id);
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof BadRequestException) {
         throw error;
       }
+      const message = error instanceof Error ? error.message : 'Unknown error';
       throw new InternalServerErrorException(
-        `Failed to fetch chamas: ${error.message}`,
+        `Failed to fetch chamas: ${message}`,
       );
     }
   }
@@ -285,15 +287,16 @@ export class ChamaController {
   ): Promise<ChamaResponse> {
     try {
       return await this.chamaService.findOne(id, currentUser.id);
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof NotFoundException) {
         throw error;
       }
       if (error instanceof BadRequestException) {
         throw error;
       }
+      const message = error instanceof Error ? error.message : 'Unknown error';
       throw new InternalServerErrorException(
-        `Failed to fetch chama: ${error.message}`,
+        `Failed to fetch chama: ${message}`,
       );
     }
   }

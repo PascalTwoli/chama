@@ -106,7 +106,8 @@ function bootstrap() {
             }
         }
         catch (error) {
-            console.error('Firebase initialization error:', error.message);
+            const message = error instanceof Error ? error.message : 'Unknown error';
+            console.error('Firebase initialization error:', message);
             process.exit(1); // Exit the application on Firebase initialization error
         }
         yield app.listen(process.env.PORT || 5500);

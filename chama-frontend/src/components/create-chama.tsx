@@ -4,7 +4,7 @@ import { Button } from 'primereact/button';
 import { useNavigate, useParams } from 'react-router-dom';
 import { } from '../models/chamas';
 import {ChamaFormData, ExtendedChamaFormData } from '../models/chamas';
-import { ChamaService } from '../services/chama-services';
+import  ChamaService  from '../services/chama-services';
 
 const tabs = ['Basic', 'Features', 'Terms'];
 
@@ -19,8 +19,8 @@ const CreateChama: React.FC = () => {
 
   const [activeStep, setActiveStep] = useState(0);
   const [formData, setFormData] = useState<ExtendedChamaFormData>({
-    chamaName: '',
-    membersCount: 0,
+    name: '',
+    membersCount: 0, 
     description: '',
     country: 'kenya',
     location: '',
@@ -54,7 +54,7 @@ const CreateChama: React.FC = () => {
     
     switch (step) {
       case 0: // Basic Information
-        if (!formData.chamaName.trim()) {
+        if (!formData.name.trim()) {
           errors.chamaName = 'Organisation name is required';
         }
         if (!formData.membersCount || formData.membersCount <= 0) {
@@ -110,7 +110,7 @@ const CreateChama: React.FC = () => {
     try {
       // Prepare form data for API
       const submitData: ExtendedChamaFormData = {
-        chamaName: formData.chamaName,
+        name: formData.name,
         description: formData.description,
         membersCount: formData.membersCount,
         country: formData.country,
@@ -139,7 +139,7 @@ const CreateChama: React.FC = () => {
       
       // Redirect to admin dashboard
       navigate(`/admin/chamas/${data.chamaId}`, {
-        state: { chamaName: data.chamaName, chamaId: data.chamaId },
+        state: { name: data.chama.name, chamaId: data.chamaId },
       });
     } catch (err) {
       setError(
@@ -178,7 +178,7 @@ const CreateChama: React.FC = () => {
                         className={`p-2 rounded-md border bg-transparent text-white w-full outline-[#4084B9] focus:outline-2 ${
                           validationErrors.chamaName ? 'border-red-500' : 'border-[#525A644D]'
                         }`}
-                        value={formData.chamaName}
+                        value={formData.name}
                         onChange={handleInputChange}
                         required
                       />

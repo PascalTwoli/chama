@@ -5,7 +5,7 @@ import { VersioningType } from '@nestjs/common';
 import * as firebaseAdmin from 'firebase-admin';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as cookieParser from 'cookie-parser';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -76,8 +76,9 @@ async function bootstrap() {
       });
       console.log('Firebase Application initialized successfully.');
     }
-  } catch (error) {
-    console.error('Firebase initialization error:', error.message);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    console.error('Firebase initialization error:', message);
     process.exit(1); // Exit the application on Firebase initialization error
   }
 

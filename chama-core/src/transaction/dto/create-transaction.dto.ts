@@ -14,7 +14,7 @@ export class CreateTransactionDto {
   })
   @IsNotEmpty({ message: 'Transaction type is required' })
   @IsEnum(TransactionType, { message: 'Invalid transaction type' })
-  type: TransactionType;
+  type!: TransactionType;
 
   @ApiProperty({
     description: 'The amount for the transaction',
@@ -24,7 +24,7 @@ export class CreateTransactionDto {
   @IsNotEmpty({ message: 'Amount is required' })
   @IsNumber({}, { message: 'Amount must be a number' })
   @Min(1, { message: 'Amount must be greater than 0' })
-  amount: number;
+  amount!: number;
 
   @ApiProperty({
     description: 'The ID of the chama this transaction belongs to',
@@ -32,7 +32,7 @@ export class CreateTransactionDto {
   })
   @IsNotEmpty({ message: 'Chama ID is required' })
   @IsUUID('4', { message: 'Invalid chama ID format' })
-  chamaId: string;
+  chamaId!: string;
 
   @ApiProperty({
     description: 'Description of the transaction',

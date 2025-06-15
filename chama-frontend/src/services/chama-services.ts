@@ -1,6 +1,6 @@
 import { AxiosError, AxiosResponse } from "axios";
 import apiClient from "../config/axios-config";
-import { CreateChamaResponse, ExtendedChamaFormData } from "../models/chamas";
+import { Chama, ChamaResponse, ExtendedChamaFormData, JoinChamaResponse } from "../models/chamas";
 
 
 export class ChamaService {
@@ -12,7 +12,7 @@ export class ChamaService {
 
 static async getUserChamas(): Promise<any> {
     try {
-      const response: AxiosResponse<any> = await apiClient.get('/api/chamas/user');
+      const response: AxiosResponse<any> = await apiClient.get('/chamas/user');
       return response.data;
     } catch (error) {
       console.error("Error fetching user chamas:", error);
@@ -25,9 +25,9 @@ static async getUserChamas(): Promise<any> {
     }
   }
 
-  static async createNewChama(data: ExtendedChamaFormData): Promise<CreateChamaResponse> {
+  static async createNewChama(data: ExtendedChamaFormData): Promise<ChamaResponse> {
     try {
-      const response: AxiosResponse<CreateChamaResponse> = await apiClient.post('/chama', data, {
+      const response: AxiosResponse<ChamaResponse> = await apiClient.post('/chama', data, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       return response.data;
@@ -39,6 +39,42 @@ static async getUserChamas(): Promise<any> {
       }
       const errorData = axiosError.response.data as { message?: string };
       throw new Error(errorData?.message || "Failed to create chama.");
+    }
+  }
+
+  static async fetchAllChamas(): Promise<Chama[]> {
+    try {
+      const response: AxiosResponse<Chama[]> = await apiClient.get('/chamas');
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching all chamas:", error);
+      const axiosError = error as AxiosError;
+      if (!axiosError.response) {
+        throw new Error("Could not connect to the server. Please check your internet connection and try again.");
+      }
+      const errorData = axiosError.response.data as { message?: string };
+      throw new Error(errorData?.message || "Failed to fetch chamas.");
+    }
+  }
+
+  static async requestToJoinChama(chamaId: string, role: string, termsAccepted: boolean): Promise<JoinChamaResponse> {
+    try {
+      if (!termsAccepted) {
+        throw new Error("You need to accept terms before requesting to join a chama.");
+      }
+  
+      const response: AxiosResponse<any> = await apiClient.post(`/chamas/${chamaId}/request`, {
+        termsAccepted
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error requesting to join chama:", error);
+      const axiosError = error as AxiosError; 
+      if (!axiosError.response) {
+        throw new Error("Could not connect to the server. Please check your internet connection and try again.");
+      }
+      const errorData = axiosError.response.data as { message?: string };
+      throw new Error(errorData?.message || "Failed to request to join chama.");
     }
   }
 
@@ -107,6 +143,8 @@ static async getUserChamas(): Promise<any> {
   }
 
 }
+
+export default ChamaService;
 
 
 

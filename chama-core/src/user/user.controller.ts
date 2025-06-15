@@ -106,7 +106,8 @@ export class UserController {
       if (error instanceof BadRequestException) {
         throw error;
       }
-      throw new InternalServerErrorException(`Failed to fetch users: ${error.message}`);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new InternalServerErrorException(`Failed to fetch users: ${message}`);
     }
   }
 
@@ -140,7 +141,8 @@ export class UserController {
       if (error instanceof NotFoundException) {
         throw error;
       }
-      throw new InternalServerErrorException(`Failed to fetch user: ${error.message}`);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new InternalServerErrorException(`Failed to fetch user: ${message}`);
     }
   }
 
@@ -209,7 +211,8 @@ export class UserController {
           error instanceof ForbiddenException) {
         throw error;
       }
-      throw new InternalServerErrorException(`Failed to update user: ${error.message}`);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new InternalServerErrorException(`Failed to update user: ${message}`);
     }
   }
 
@@ -248,7 +251,8 @@ export class UserController {
           error instanceof ForbiddenException) {
         throw error;
       }
-      throw new InternalServerErrorException(`Failed to delete user: ${error.message}`);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new InternalServerErrorException(`Failed to delete user: ${message}`);
     }
   }
 }

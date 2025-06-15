@@ -81,7 +81,9 @@ let EmailService = EmailService_1 = class EmailService {
                 return true;
             }
             catch (error) {
-                this.logger.error(`Failed to send email: ${error.message}`, error.stack);
+                const message = error instanceof Error ? error.message : 'Unknown error';
+                const stack = error instanceof Error ? error.stack : undefined;
+                this.logger.error(`Failed to send email: ${message}`, stack);
                 return false;
             }
         });

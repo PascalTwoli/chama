@@ -99,7 +99,8 @@ function updateUserName() {
             console.log('User updated successfully:', updatedUser);
         }
         catch (error) {
-            console.error('Failed to update user:', error.message);
+            const message = error instanceof Error ? error.message : 'Unknown error';
+            console.error('Failed to update user:', message);
         }
     });
 }
@@ -116,7 +117,8 @@ function updateUserContactInfo() {
             console.log('User contact info updated successfully:', updatedUser);
         }
         catch (error) {
-            console.error('Failed to update user contact info:', error.message);
+            const message = error instanceof Error ? error.message : 'Unknown error';
+            console.error('Failed to update user contact info:', message);
         }
     });
 }
@@ -132,7 +134,8 @@ function updateUserPassword() {
             console.log('User password updated successfully');
         }
         catch (error) {
-            console.error('Failed to update user password:', error.message);
+            const message = error instanceof Error ? error.message : 'Unknown error';
+            console.error('Failed to update user password:', message);
         }
     });
 }
@@ -148,7 +151,8 @@ function updateUserRole() {
             console.log('User role updated successfully:', updatedUser);
         }
         catch (error) {
-            console.error('Failed to update user role:', error.message);
+            const message = error instanceof Error ? error.message : 'Unknown error';
+            console.error('Failed to update user role:', message);
         }
     });
 }

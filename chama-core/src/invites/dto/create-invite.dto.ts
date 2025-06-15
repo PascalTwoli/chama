@@ -8,7 +8,7 @@ export class CreateInviteDto {
   })
   @IsNotEmpty()
   @IsUUID()
-  chamaId: string;
+  chamaId!: string;
 
   @ApiProperty({
     description: 'The email address of the user to invite',
@@ -16,7 +16,7 @@ export class CreateInviteDto {
   })
   @IsNotEmpty()
   @IsEmail()
-  email: string;
+  email!: string;
 }
 
 export class AcceptInviteDto {
@@ -26,6 +26,6 @@ export class AcceptInviteDto {
   })
   @IsNotEmpty()
   @IsString()
-  token: string;
+  token!: string;
 }
 

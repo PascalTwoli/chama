@@ -84,7 +84,7 @@ export class TransactionService {
       };
     } catch (error) {
       throw new BadRequestException(
-        `Failed to create transaction: ${error.message}`,
+        `Failed to create transaction: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
     }
   }

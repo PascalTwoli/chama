@@ -43,7 +43,8 @@ let ChamaController = class ChamaController {
             catch (error) {
                 if (error instanceof common_1.BadRequestException)
                     throw error;
-                throw new common_1.BadRequestException(`Failed to create chama: ${error.message}`);
+                const message = error instanceof Error ? error.message : 'Unknown error';
+                throw new common_1.BadRequestException(`Failed to create chama: ${message}`);
             }
         });
     }
@@ -59,7 +60,8 @@ let ChamaController = class ChamaController {
                 if (error instanceof common_1.BadRequestException) {
                     throw error;
                 }
-                throw new common_1.InternalServerErrorException(`Failed to fetch chamas: ${error.message}`);
+                const message = error instanceof Error ? error.message : 'Unknown error';
+                throw new common_1.InternalServerErrorException(`Failed to fetch chamas: ${message}`);
             }
         });
     }
@@ -78,7 +80,8 @@ let ChamaController = class ChamaController {
                 if (error instanceof common_1.BadRequestException) {
                     throw error;
                 }
-                throw new common_1.InternalServerErrorException(`Failed to fetch chama: ${error.message}`);
+                const message = error instanceof Error ? error.message : 'Unknown error';
+                throw new common_1.InternalServerErrorException(`Failed to fetch chama: ${message}`);
             }
         });
     }

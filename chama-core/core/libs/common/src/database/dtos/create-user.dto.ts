@@ -220,7 +220,7 @@ export class LoginUserDto {
     example: 'john.doe@example.com',
   })
   @IsString()
-  identifier: string;
+  identifier!: string;
 
   /**
    * User password
@@ -230,7 +230,7 @@ export class LoginUserDto {
     example: 'SecurePassword123!',
   })
   @IsString()
-  password: string;
+  password!: string;
 }
 
 /**

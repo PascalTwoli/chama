@@ -58,7 +58,7 @@ export class EmailService {
       };
 
       if (replyTo) {
-        emailData['replyTo'] = { email: replyTo };
+        (emailData as any)['replyTo'] = { email: replyTo };
       }
 
       // Use fetch directly to send the email via Brevo API
@@ -80,8 +80,10 @@ export class EmailService {
       const responseData = await response.json();
       this.logger.log(`Email sent successfully: ${JSON.stringify(responseData)}`);
       return true;
-    } catch (error) {
-      this.logger.error(`Failed to send email: ${error.message}`, error.stack);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      const stack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(`Failed to send email: ${message}`, stack);
       return false;
     }
   }

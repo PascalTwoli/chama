@@ -10,7 +10,7 @@ export class UserEntity {
     example: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
   })
   @IsUUID()
-  id: string;
+  id!: string;
 
   @ApiProperty({
     description: 'The name of the user',
@@ -54,7 +54,7 @@ export class UserEntity {
   })
   @IsDate()
   @Transform(({ value }) => value instanceof Date ? value : new Date(value))
-  createdAt: Date;
+  createdAt!: Date;
 
   @ApiProperty({
     description: 'The date when the user was last updated',
@@ -62,7 +62,7 @@ export class UserEntity {
   })
   @IsDate()
   @Transform(({ value }) => value instanceof Date ? value : new Date(value))
-  updatedAt: Date;
+  updatedAt!: Date;
 
   // Exclude password hash from responses
   @Exclude()
@@ -81,7 +81,7 @@ export class FirebaseUserEntity {
     example: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
   })
   @IsString()
-  uid: string;
+  uid!: string;
 
   @ApiProperty({
     description: 'The email address of the user',
@@ -129,7 +129,7 @@ export class UserResponseEntity {
     description: 'Local user information',
     type: UserEntity,
   })
-  localUser: UserEntity;
+  localUser!: UserEntity;
 
   constructor(partial: Partial<UserResponseEntity>) {
     if (partial.localUser) {

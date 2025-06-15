@@ -53,7 +53,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserService = void 0;
 const common_1 = require("@nestjs/common");
@@ -94,7 +93,8 @@ let UserService = class UserService {
                 if (error instanceof common_1.NotFoundException) {
                     throw error;
                 }
-                throw new common_1.BadRequestException(`Failed to update user type: ${error.message}`);
+                const message = error instanceof Error ? error.message : 'Unknown error';
+                throw new common_1.BadRequestException(`Failed to update user type: ${message}`);
             }
         });
     }
@@ -146,28 +146,32 @@ let UserService = class UserService {
             }
             catch (error) {
                 console.error('Error creating user:', error);
+                // Type check for error with code property
+                const errorWithCode = error;
                 // If Firebase user was created but local user creation failed,
                 // attempt to delete the Firebase user to maintain consistency
-                if (error.code !== 'auth/email-already-exists' && error.firebaseUid) {
+                if (errorWithCode.code !== 'auth/email-already-exists' && errorWithCode.firebaseUid) {
                     try {
-                        yield firebaseAdmin.auth().deleteUser(error.firebaseUid);
-                        console.log(`Rolled back Firebase user creation for UID: ${error.firebaseUid}`);
+                        yield firebaseAdmin.auth().deleteUser(errorWithCode.firebaseUid);
+                        console.log(`Rolled back Firebase user creation for UID: ${errorWithCode.firebaseUid}`);
                     }
                     catch (deleteError) {
                         console.error('Error rolling back Firebase user creation:', deleteError);
                     }
                 }
                 // Provide more specific error messages based on error type
-                if (error.code === 'auth/email-already-exists') {
+                if (errorWithCode.code === 'auth/email-already-exists') {
                     throw new common_1.BadRequestException('Email address is already in use');
                 }
-                else if (error.code === 'auth/invalid-phone-number') {
+                else if (errorWithCode.code === 'auth/invalid-phone-number') {
                     throw new common_1.BadRequestException('The phone number is invalid');
                 }
-                else if ((_a = error.code) === null || _a === void 0 ? void 0 : _a.includes('prisma')) {
-                    throw new common_1.BadRequestException(`Database error: ${error.message}`);
+                else if ((_a = errorWithCode.code) === null || _a === void 0 ? void 0 : _a.includes('prisma')) {
+                    const message = error instanceof Error ? error.message : 'Database error';
+                    throw new common_1.BadRequestException(`Database error: ${message}`);
                 }
-                throw new common_1.BadRequestException(`User registration failed: ${error.message}`);
+                const message = error instanceof Error ? error.message : 'Unknown error';
+                throw new common_1.BadRequestException(`User registration failed: ${message}`);
             }
         });
     }
@@ -282,11 +286,13 @@ let UserService = class UserService {
                 return decodedToken;
             }
             catch (error) {
-                console.error('Token verification failed:', error.message);
-                if (error.code === 'auth/id-token-expired') {
+                const errorWithCode = error;
+                const message = error instanceof Error ? error.message : 'Unknown error';
+                console.error('Token verification failed:', message);
+                if (errorWithCode.code === 'auth/id-token-expired') {
                     console.error('Token has expired.');
                 }
-                else if (error.code === 'auth/invalid-id-token') {
+                else if (errorWithCode.code === 'auth/invalid-id-token') {
                     console.error('Invalid ID token provided.');
                 }
                 return null;
@@ -339,7 +345,8 @@ let UserService = class UserService {
             }
             catch (error) {
                 console.error('Error listing users:', error);
-                throw new common_1.BadRequestException(`Failed to fetch users: ${error.message}`);
+                const message = error instanceof Error ? error.message : 'Unknown error';
+                throw new common_1.BadRequestException(`Failed to fetch users: ${message}`);
             }
         });
     }
@@ -405,7 +412,8 @@ let UserService = class UserService {
                 };
             }
             catch (error) {
-                if (error.code === 'auth/user-not-found') {
+                const errorWithCode = error;
+                if (errorWithCode.code === 'auth/user-not-found') {
                     // If Firebase user not found, check if local user exists
                     const localUser = yield this.databaseService.user.findUnique({
                         where: { id: uid },
@@ -431,7 +439,8 @@ let UserService = class UserService {
                     throw new common_1.NotFoundException(`User with ID ${uid} not found in Firebase or local database`);
                 }
                 console.error(`Error fetching user with ID ${uid}:`, error);
-                throw new common_1.BadRequestException(`Failed to fetch user: ${error.message}`);
+                const message = error instanceof Error ? error.message : 'Unknown error';
+                throw new common_1.BadRequestException(`Failed to fetch user: ${message}`);
             }
         });
     }
@@ -476,11 +485,13 @@ let UserService = class UserService {
                 return userRecord;
             }
             catch (error) {
-                if (error.code === 'auth/user-not-found') {
+                const errorWithCode = error;
+                if (errorWithCode.code === 'auth/user-not-found') {
                     throw new common_1.NotFoundException(`User with ID ${uid} not found`);
                 }
                 console.error(`Error updating user with ID ${uid}:`, error);
-                throw new common_1.BadRequestException(`Failed to update user: ${error.message}`);
+                const message = error instanceof Error ? error.message : 'Unknown error';
+                throw new common_1.BadRequestException(`Failed to update user: ${message}`);
             }
         });
     }
@@ -572,7 +583,8 @@ let UserService = class UserService {
                 if (error instanceof common_1.NotFoundException) {
                     throw error;
                 }
-                throw new common_1.BadRequestException(`Failed to update local user: ${error.message}`);
+                const message = error instanceof Error ? error.message : 'Unknown error';
+                throw new common_1.BadRequestException(`Failed to update local user: ${message}`);
             }
         });
     }
@@ -607,7 +619,8 @@ let UserService = class UserService {
                 };
             }
             catch (error) {
-                if (error.code === 'auth/user-not-found') {
+                const errorWithCode = error;
+                if (errorWithCode.code === 'auth/user-not-found') {
                     // If Firebase user doesn't exist but local user might, try to delete just local user
                     try {
                         const localUser = yield this.databaseService.user.findFirst({
@@ -628,11 +641,13 @@ let UserService = class UserService {
                     }
                     catch (localError) {
                         console.error(`Error deleting local user with ID ${uid}:`, localError);
-                        throw new common_1.BadRequestException(`Failed to delete local user: ${localError.message}`);
+                        const message = localError instanceof Error ? localError.message : 'Unknown error';
+                        throw new common_1.BadRequestException(`Failed to delete local user: ${message}`);
                     }
                 }
                 console.error(`Error deleting user with ID ${uid}:`, error);
-                throw new common_1.BadRequestException(`Failed to delete user: ${error.message}`);
+                const message = error instanceof Error ? error.message : 'Unknown error';
+                throw new common_1.BadRequestException(`Failed to delete user: ${message}`);
             }
         });
     }
@@ -640,5 +655,5 @@ let UserService = class UserService {
 exports.UserService = UserService;
 exports.UserService = UserService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [typeof (_a = typeof prisma_service_1.PrismaService !== "undefined" && prisma_service_1.PrismaService) === "function" ? _a : Object])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
 ], UserService);

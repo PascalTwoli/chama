@@ -41,7 +41,7 @@ export class ContributionEntity extends Entity<ContributionEntity> implements Co
     example: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
   })
   @IsString()
-  chamaId: string;
+  chamaId!: string;
 
   /**
    * ID of the user making the contribution
@@ -51,7 +51,7 @@ export class ContributionEntity extends Entity<ContributionEntity> implements Co
     example: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
   })
   @IsString()
-  userId: string;
+  userId!: string;
 
   /**
    * Contribution amount (Decimal field mapped to number)
@@ -65,7 +65,7 @@ export class ContributionEntity extends Entity<ContributionEntity> implements Co
     message: 'Amount must be a number with at most 2 decimal places',
   })
   @DecimalTransformer()
-  amount: Decimal;
+  amount!: Decimal;
 
   /**
    * Currency code
@@ -75,7 +75,7 @@ export class ContributionEntity extends Entity<ContributionEntity> implements Co
     example: 'KES',
   })
   @IsString()
-  currency: string;
+  currency!: string;
 
   /**
    * Contribution status
@@ -88,7 +88,7 @@ export class ContributionEntity extends Entity<ContributionEntity> implements Co
   @IsEnum(ContributionStatus, {
     message: `Status must be one of: ${Object.values(ContributionStatus).join(', ')}`,
   })
-  status: ContributionStatus;
+  status!: ContributionStatus;
 
   /**
    * Date of the contribution
@@ -99,7 +99,7 @@ export class ContributionEntity extends Entity<ContributionEntity> implements Co
   })
   @IsDate()
   @Type(() => Date)
-  date: Date;
+  date!: Date;
 
   constructor(partial: Partial<ContributionEntity>) {
     super(partial);
