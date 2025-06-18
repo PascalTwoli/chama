@@ -145,7 +145,7 @@ export function ChamaUserType({
                 htmlFor='admin'
                 className='text-white cursor-pointer flex-1'
               >
-                I'm an Admin
+                I&apos;m an Admin
               </label>
             </div>
             <div className='flex flex-1 items-center space-x-3 p-2 bg-gray-700 rounded hover:bg-gray-600 transition-colors width-full'>
@@ -160,7 +160,7 @@ export function ChamaUserType({
                 htmlFor='member'
                 className='text-white cursor-pointer flex-1'
               >
-                I'm a Member
+                I&apos;m a Member
               </label>
             </div>
           </div>

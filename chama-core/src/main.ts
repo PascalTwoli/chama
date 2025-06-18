@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { VersioningType } from '@nestjs/common';
+import { VersioningType, ValidationPipe } from '@nestjs/common';
 import * as firebaseAdmin from 'firebase-admin';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -21,6 +21,18 @@ async function bootstrap() {
 
   // Set global API prefix
   app.setGlobalPrefix('api');
+
+  // Enable global validation pipes
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true, // Remove non-decorated properties
+      forbidNonWhitelisted: true, // Throw error for non-decorated properties
+      transform: true, // Transform payload to DTO instance
+      transformOptions: {
+        enableImplicitConversion: true, // Convert types automatically
+      },
+    }),
+  );
 
   // Enable CORS for frontend requests
   app.enableCors({

@@ -4,6 +4,8 @@ import { Button } from 'primereact/button';
 import { useNavigate } from 'react-router-dom';
 import { ExtendedChamaFormData } from '../models/chamas';
 import ChamaService from '../services/chama-services';
+import { Countries } from '../models/data/Countries';
+import { UserRole } from '../models/user';
 
 const tabs = ['Basic', 'Features', 'Terms'];
 
@@ -21,11 +23,9 @@ const CreateChama: React.FC = () => {
     name: '',
     membersCount: 0,
     description: '',
-    country: 'kenya',
-    location: '',
+    country: '',
     organizationRole: '',
-    image: null,
-    terms: '',
+    rules: '',
   });
 
   const handleInputChange = (
@@ -57,7 +57,7 @@ const CreateChama: React.FC = () => {
     switch (step) {
       case 0: // Basic Information
         if (!formData.name.trim()) {
-          errors.chamaName = 'Organisation name is required';
+          errors.name = 'Organisation name is required';
         }
         if (!formData.membersCount || formData.membersCount <= 0) {
           errors.membersCount = 'Number of members must be greater than 0';
@@ -71,8 +71,8 @@ const CreateChama: React.FC = () => {
         break;
 
       case 2: // Terms
-        if (!formData.terms.trim()) {
-          errors.terms = 'Terms and conditions are required';
+        if (!formData.rules.trim()) {
+          errors.rules = 'Terms and conditions are required';
         }
         break;
 
@@ -114,14 +114,15 @@ const CreateChama: React.FC = () => {
         description: formData.description,
         membersCount: formData.membersCount,
         country: formData.country,
-        location: formData.location,
         organizationRole: formData.organizationRole,
-        terms: formData.terms,
-        image: formData.image,
+        rules: formData.rules,
       };
 
       // Make API call to create a chama
       const response = await ChamaService.createNewChama(submitData);
+
+      // Debug logging to see the actual response structure
+      console.log('Chama creation response:', response);
 
       // If your API returns a 'success' or 'status' property, check it here.
       // Adjust the property name as per your actual response type.
@@ -129,18 +130,26 @@ const CreateChama: React.FC = () => {
         !response ||
         (typeof response.success !== 'undefined' && !response.success)
       ) {
-        throw new Error(response?.message || 'Failed to create chama');
+        throw new Error('Failed to create chama');
       }
 
       // Use the response directly as data
       const data = response;
+      // Validate that required fields exist
+      if (!data.chamaId) {
+        throw new Error('No chama ID returned from server');
+      }
+
+      // Safe navigation for chama name - provide fallback
+      const chamaName = data.chama?.name || formData.name;
+      console.log('Chama created successfully:', chamaName);
 
       // Mark chama creation as complete
       AuthService.markChamaCreationComplete(data.chamaId);
 
       // Redirect to admin dashboard
       navigate(`/admin/chamas/${data.chamaId}`, {
-        state: { name: data.chama.name, chamaId: data.chamaId },
+        state: { name: chamaName, chamaId: data.chamaId },
       });
     } catch (err) {
       setError(
@@ -173,16 +182,16 @@ const CreateChama: React.FC = () => {
                   </div>
                   <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
                     <div>
-                      <label htmlFor='chamaName' className='font-bold'>
+                      <label htmlFor='name' className='font-bold'>
                         Organisation Name{' '}
                         <span className='text-red-500'>*</span>
                         <input
                           type='text'
-                          name='chamaName'
-                          id='chamaName'
+                          name='name'
+                          id='name'
                           placeholder='Chama Name'
                           className={`p-2 rounded-md border bg-transparent text-white w-full outline-[#4084B9] focus:outline-2 ${
-                            validationErrors.chamaName
+                            validationErrors.name
                               ? 'border-red-500'
                               : 'border-[#525A644D]'
                           }`}
@@ -190,9 +199,9 @@ const CreateChama: React.FC = () => {
                           onChange={handleInputChange}
                           required
                         />
-                        {validationErrors.chamaName && (
+                        {validationErrors.name && (
                           <p className='text-red-500 text-sm mt-1'>
-                            {validationErrors.chamaName}
+                            {validationErrors.name}
                           </p>
                         )}
                       </label>
@@ -241,10 +250,13 @@ const CreateChama: React.FC = () => {
                           <option value='' disabled>
                             --Select organisation role--
                           </option>
-                          <option value='chair-person'>Chair person</option>
-                          <option value='secretary'>Secretary</option>
-                          <option value='treasurer'>Treasurer</option>
-                          <option value='member'>Member</option>
+                          {Object.entries(UserRole).map(([key, value]) => (
+                            <option key={key} value={value}>
+                              {value
+                                .replace(/_/g, ' ')
+                                .replace(/\b\w/g, l => l.toUpperCase())}
+                            </option>
+                          ))}
                         </select>
                         {validationErrors.organizationRole && (
                           <p className='text-red-500 text-sm mt-1'>
@@ -269,10 +281,16 @@ const CreateChama: React.FC = () => {
                           onChange={handleInputChange}
                           required
                         >
-                          <option value='kenya'>Kenya</option>
-                          <option value='uganda'>Uganda</option>
-                          <option value='tanzania'>Tanzania</option>
-                          <option value='nigeria'>Nigeria</option>
+                          <option value='' disabled>
+                            --Select Country--
+                          </option>
+                          {Object.entries(Countries).map(([key, value]) => (
+                            <option key={key} value={value}>
+                              {value
+                                .replace(/_/g, ' ')
+                                .replace(/\b\w/g, l => l.toUpperCase())}
+                            </option>
+                          ))}
                         </select>
                         {validationErrors.country && (
                           <p className='text-red-500 text-sm mt-1'>
@@ -357,27 +375,27 @@ const CreateChama: React.FC = () => {
             </div>
             <div>
               <label
-                htmlFor='chamaTerms'
+                htmlFor='chamaRules'
                 className='block text-sm font-medium text-gray-300 mb-2'
               >
                 Chama Terms and Conditions{' '}
                 <span className='text-red-500'>*</span>
               </label>
               <textarea
-                name='terms'
-                id='chamaTerms'
+                name='rules'
+                id='chamaRules'
                 placeholder='Please enter the terms and conditions for your chama here...'
                 rows={8}
                 required
-                value={formData.terms}
+                value={formData.rules}
                 onChange={handleInputChange}
                 className={`w-full px-4 py-2 bg-gray-700 border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-green-500 ${
-                  validationErrors.terms ? 'border-red-500' : 'border-gray-600'
+                  validationErrors.rules ? 'border-red-500' : 'border-gray-600'
                 }`}
               />
-              {validationErrors.terms && (
+              {validationErrors.rules && (
                 <p className='text-red-500 text-sm mt-1'>
-                  {validationErrors.terms}
+                  {validationErrors.rules}
                 </p>
               )}
             </div>

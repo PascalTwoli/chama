@@ -1,5 +1,5 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import Navbar from '../components/Navbar';
+import Navbar from '../components/navbars/Navbar';
 import Sidebar from '../components/Sidebar';
 
 const AdminLayout = () => {

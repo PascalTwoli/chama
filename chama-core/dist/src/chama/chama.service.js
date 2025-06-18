@@ -21,6 +21,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ChamaService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
+const client_1 = require("@prisma/client");
 let ChamaService = class ChamaService {
     constructor(prisma) {
         this.prisma = prisma;
@@ -40,13 +41,15 @@ let ChamaService = class ChamaService {
                     data: {
                         name: createChamaDto.name,
                         description: createChamaDto.description,
+                        rules: createChamaDto.rules,
                         userId: user.id,
-                        country: 'KENYA', // Default country - you might want to make this configurable
-                        membersCount: 1, // Starting with the creator as the first member
+                        country: createChamaDto.country || client_1.Countries.KENYA, // Use provided country or default to KENYA
+                        membersCount: createChamaDto.membersCount || 1, // Use provided count or default to 1
+                        organizationRole: createChamaDto.organizationRole,
                         memberships: {
                             create: {
                                 userId: user.id,
-                                role: 'ADMIN', // Creator is admin
+                                role: client_1.UserRole.CHAIRPERSON, // Creator is chairperson
                             },
                         },
                     },

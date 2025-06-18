@@ -159,7 +159,7 @@ model Transaction {
 
 /// Roles that users can have within the system or within a Chama
 enum UserRole {
-  ADMIN
+  CHAIRPERSON
   MEMBER
   TREASURER
   SECRETARY
