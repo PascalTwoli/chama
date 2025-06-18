@@ -30,6 +30,7 @@ import { type CurrentUser as CurrentUserType } from '../decorators/current-user.
 import { AuthGuard } from '../guards/auth.guard';
 import { ChamaService } from './chama.service';
 import { CreateChamaDto } from './dto/create-chama.dto';
+import { UserRole, Countries } from '@prisma/client';
 
 /**
  * Interface for Chama response with membership details
@@ -42,18 +43,18 @@ interface ChamaResponse {
   userId: string;
   createdAt: Date;
   updatedAt: Date;
-  country: string;
+  country: Countries;
   membersCount: number;
-  organizationRole: string | null;
-  memberships: {
+  organizationRole: UserRole | null;
+  memberships: Array<{
     id: string;
     chamaId: string;
     userId: string;
-    role: string;
+    role: UserRole;
     joinedAt: Date;
     createdAt: Date;
     updatedAt: Date;
-  }[];
+  }>;
 }
 
 @ApiTags('Chama')

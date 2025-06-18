@@ -68,7 +68,7 @@ let InviteService = InviteService_1 = class InviteService {
                 }
                 // Verify the requesting user is an admin of the chama
                 // Note: memberships array is already filtered to only include the requesting user's memberships from the query above
-                const isUserAdmin = chama.memberships.some((membership) => membership.role === client_1.UserRole.ADMIN);
+                const isUserAdmin = chama.memberships.some((membership) => membership.role === client_1.UserRole.CHAIRPERSON);
                 this.logger.debug(`Invite permission check for user ${requestUserId} in chama ${chamaId}: isAdmin=${isUserAdmin}`);
                 if (!isUserAdmin) {
                     throw new common_1.UnauthorizedException('Only chama admins can send invites');
@@ -284,7 +284,7 @@ let InviteService = InviteService_1 = class InviteService {
                 throw new common_1.NotFoundException(`Chama with ID ${chamaId} not found`);
             }
             // Verify the requesting user is an admin of the chama
-            const isChamaAdmin = chama.memberships.some((membership) => membership.role === client_1.UserRole.ADMIN);
+            const isChamaAdmin = chama.memberships.some((membership) => membership.role === client_1.UserRole.CHAIRPERSON);
             if (!isChamaAdmin && chama.userId !== requestUserId) {
                 throw new common_1.UnauthorizedException('Only chama admins can view pending invites');
             }

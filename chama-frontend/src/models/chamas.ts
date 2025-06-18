@@ -1,5 +1,6 @@
 import { UserType } from '../data/user-type';
-import { User } from './user';
+import { Countries } from './data/Countries';
+import { User, UserRole } from './user';
 
 export interface ChamaFormData {
   name: string;
@@ -15,25 +16,27 @@ export interface Chama {
   id: string;
   userType: UserType;
   name: string;
-  location: string;
-  registrationNumber: string;
-  registrationDate: string;
-  description: string;
+  rules: string;
+  userId: string;
+  description?: string;
+  organizationRole?: UserRole;
+  country: Countries;
   image?: File | null; // or string if you store the URL
   members: User[];
   imageUrl: string;
   membersCount: number;
   createdAt: string;
   updatedAt: string;
+  createdBy: User;
 }
 
 export interface ChamaResponse {
-  chamaId: string;
+  chamaId: Chama['id'];
   chama: {
     name: string;
-    description: string;
-    imageUrl: string; // URL to the chama's image
-    membersCount: number; // Total number of members in the chama
+    description?: string;
+    imageUrl?: string; // URL to the chama's image
+    membersCount?: number; // Total number of members in the chama
   };
   success: boolean;
   message: string;
@@ -42,7 +45,7 @@ export interface ChamaResponse {
 
 // Extended interface for complete form data including terms
 export interface ExtendedChamaFormData extends ChamaFormData {
-  terms: string;
+  rules: string;
 }
 
 //Interface for response when requesting to join a chama
@@ -58,7 +61,7 @@ export interface JoinChamaFormData {
   userId: number;
   role: string;
   termsAccepted: boolean;
-  terms: string;
+  rules: string;
   image: File | null; // or string if you store the URL
 }
 

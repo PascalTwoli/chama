@@ -65,6 +65,15 @@ function bootstrap() {
         });
         // Set global API prefix
         app.setGlobalPrefix('api');
+        // Enable global validation pipes
+        app.useGlobalPipes(new common_1.ValidationPipe({
+            whitelist: true, // Remove non-decorated properties
+            forbidNonWhitelisted: true, // Throw error for non-decorated properties
+            transform: true, // Transform payload to DTO instance
+            transformOptions: {
+                enableImplicitConversion: true, // Convert types automatically
+            },
+        }));
         // Enable CORS for frontend requests
         app.enableCors({
             origin: [

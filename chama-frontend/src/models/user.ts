@@ -90,3 +90,10 @@ export interface OnboardingStatus {
   needsChama: boolean;
   activeUserType: UserType | null;
 }
+
+export enum UserRole {
+  CHAIRPERSON = 'CHAIRPERSON',
+  SECRETARY = 'SECRETARY',
+  TREASURER = 'TREASURER',
+  MEMBER = 'MEMBER',
+}

@@ -7,6 +7,40 @@ import {
   JoinChamaResponse,
 } from '../models/chamas';
 
+// Additional interfaces for API responses
+interface UserChamasResponse {
+  chamas: Chama[];
+  success: boolean;
+  message: string;
+  error?: string;
+}
+
+interface InviteValidationResponse {
+  valid: boolean;
+  chama?: {
+    id: string;
+    name: string;
+    description?: string;
+  };
+  success: boolean;
+  message: string;
+  error?: string;
+}
+
+interface InviteAcceptanceResponse {
+  success: boolean;
+  message: string;
+  chamaId?: string;
+  error?: string;
+}
+
+interface InviteCreationResponse {
+  success: boolean;
+  message: string;
+  inviteToken?: string;
+  error?: string;
+}
+
 export class ChamaService {
   static normalizeChamaType(chamaType: string | null): string | null {
     if (!chamaType) return null;
@@ -39,7 +73,7 @@ export class ChamaService {
         '/chama',
         data,
         {
-          headers: { 'Content-Type': 'multipart/form-data' },
+          headers: { 'Content-Type': 'application/json' },
         }
       );
       return response.data;

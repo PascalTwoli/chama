@@ -14,7 +14,7 @@ const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
 var UserRole;
 (function (UserRole) {
-    UserRole["ADMIN"] = "admin";
+    UserRole["CHAIRPERSON"] = "chairperson";
     UserRole["MEMBER"] = "member";
     UserRole["TREASURER"] = "treasurer";
     UserRole["SECRETARY"] = "secretary";

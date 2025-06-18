@@ -120,7 +120,9 @@ const AppRoutes = () => {
           path='/create-chama'
           element={
             <ProtectedRoute allowedRole='admin'>
-              <NavbarOnlyLayout children={<CreateChama />} />
+              <NavbarOnlyLayout>
+                <CreateChama />
+              </NavbarOnlyLayout>
             </ProtectedRoute>
           }
         />
@@ -148,7 +150,9 @@ const AppRoutes = () => {
           path='/chama-list-view'
           element={
             <ProtectedRoute allowedRole='member'>
-              <NavbarOnlyLayout children={<ChamaListView />} />
+              <NavbarOnlyLayout>
+                <ChamaListView />
+              </NavbarOnlyLayout>
             </ProtectedRoute>
           }
         />

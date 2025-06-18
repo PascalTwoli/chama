@@ -1,5 +1,6 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsEnum, isEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Countries, UserRole } from '@prisma/client';
 
 export class CreateChamaDto {
   @ApiProperty({
@@ -18,5 +19,29 @@ export class CreateChamaDto {
   @IsOptional()
   @IsString()
   description?: string;
+
+ 
+  @IsOptional()
+  @IsString()
+  @IsEnum(UserRole)
+  organizationRole?: UserRole   
+  
+  @IsOptional()
+  @IsNumber()
+  membersCount?: number; // Assuming this is a number representing the count of members
+
+
+  
+  @IsOptional()
+  @IsEnum(Countries) 
+  country?: Countries           
+ 
+  @IsString()
+  @IsNotEmpty()
+  rules!: string; // Assuming this is a string representing the rules of the chama
+
+
+
+
 }
 

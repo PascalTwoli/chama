@@ -71,7 +71,7 @@ export class InviteService {
       // Verify the requesting user is an admin of the chama
       // Note: memberships array is already filtered to only include the requesting user's memberships from the query above
       const isUserAdmin = chama.memberships.some(
-        (membership) => membership.role === UserRole.ADMIN
+        (membership) => membership.role === UserRole.CHAIRPERSON
       );
       
       this.logger.debug(`Invite permission check for user ${requestUserId} in chama ${chamaId}: isAdmin=${isUserAdmin}`);
@@ -324,7 +324,7 @@ export class InviteService {
 
     // Verify the requesting user is an admin of the chama
     const isChamaAdmin = chama.memberships.some(
-      (membership) => membership.role === UserRole.ADMIN
+      (membership) => membership.role === UserRole.CHAIRPERSON
     );
 
     if (!isChamaAdmin && chama.userId !== requestUserId) {

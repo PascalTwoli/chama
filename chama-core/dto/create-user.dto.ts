@@ -2,7 +2,7 @@ import { Expose } from 'class-transformer';
 import { IsString, IsEmail, IsNotEmpty, MinLength, Matches, IsEnum } from 'class-validator';
 
 export enum UserRole {
-  ADMIN = 'admin',
+  CHAIRPERSON = 'chairperson',
   MEMBER = 'member',
   TREASURER = 'treasurer',
   SECRETARY = 'secretary'

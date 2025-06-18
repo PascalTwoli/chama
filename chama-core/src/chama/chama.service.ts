@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateChamaDto } from './dto/create-chama.dto';
+import { UserRole, Countries } from '@prisma/client';
 
 @Injectable()
 export class ChamaService {
@@ -25,13 +26,15 @@ export class ChamaService {
         data: {
           name: createChamaDto.name,
           description: createChamaDto.description,
+          rules: createChamaDto.rules,
           userId: user.id,
-          country: 'KENYA', // Default country - you might want to make this configurable
-          membersCount: 1, // Starting with the creator as the first member
+          country: createChamaDto.country || Countries.KENYA, // Use provided country or default to KENYA
+          membersCount: createChamaDto.membersCount || 1, // Use provided count or default to 1
+          organizationRole: createChamaDto.organizationRole,
           memberships: {
             create: {
               userId: user.id,
-              role: 'ADMIN', // Creator is admin
+              role: UserRole.CHAIRPERSON, // Creator is chairperson
             },
           },
         },

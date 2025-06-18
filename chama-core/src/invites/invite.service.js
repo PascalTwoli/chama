@@ -68,10 +68,10 @@ let InviteService = InviteService_1 = class InviteService {
                 }
                 // Verify the requesting user is an admin of the chama
                 // Note: memberships array is already filtered to only include the requesting user's memberships from the query above
-                const isUserAdmin = chama.memberships.some((membership) => membership.role === client_1.UserRole.ADMIN);
+                const isUserAdmin = chama.memberships.some((membership) => membership.role === client_1.UserRole.CHAIRPERSON);
                 this.logger.debug(`Invite permission check for user ${requestUserId} in chama ${chamaId}: isAdmin=${isUserAdmin}`);
                 if (!isUserAdmin) {
-                    throw new common_1.UnauthorizedException('Only chama admins can send invites');
+                    throw new common_1.UnauthorizedException('Only chama admins/chairpersons can send invites');
                 }
                 // Check if user with the email already exists
                 let targetUser = yield this.prisma.user.findUnique({
