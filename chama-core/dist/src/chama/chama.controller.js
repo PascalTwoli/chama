@@ -66,6 +66,23 @@ let ChamaController = class ChamaController {
         });
     }
     /**
+     * Gets all available chamas (public chamas that users can join)
+     */
+    findAllAvailable(currentUser) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield this.chamaService.findAllAvailable(currentUser.id);
+            }
+            catch (error) {
+                if (error instanceof common_1.BadRequestException) {
+                    throw error;
+                }
+                const message = error instanceof Error ? error.message : 'Unknown error';
+                throw new common_1.InternalServerErrorException(`Failed to fetch available chamas: ${message}`);
+            }
+        });
+    }
+    /**
      * Gets a specific chama by ID
      */
     findOne(id, currentUser) {
@@ -219,6 +236,50 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], ChamaController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Get)('available'),
+    (0, common_1.UseGuards)(auth_guard_1.AuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, swagger_1.ApiOperation)({ summary: 'Get all available chamas that users can join' }),
+    (0, swagger_1.ApiOkResponse)({
+        description: 'List of all available chamas',
+        schema: {
+            type: 'array',
+            items: {
+                type: 'object',
+                properties: {
+                    id: { type: 'string', description: 'Unique chama identifier' },
+                    name: { type: 'string', description: 'Name of the chama' },
+                    description: {
+                        type: 'string',
+                        description: 'Description of the chama',
+                    },
+                    userId: { type: 'string', description: 'ID of the creator' },
+                    createdAt: {
+                        type: 'string',
+                        format: 'date-time',
+                        description: 'Creation timestamp',
+                    },
+                    updatedAt: {
+                        type: 'string',
+                        format: 'date-time',
+                        description: 'Last update timestamp',
+                    },
+                    membersCount: { type: 'number', description: 'Number of members' },
+                    country: { type: 'string', description: 'Country of the chama' },
+                },
+            },
+        },
+    }),
+    (0, swagger_1.ApiUnauthorizedResponse)({
+        description: 'Unauthorized - User not authenticated',
+    }),
+    __param(0, (0, current_user_decorator_1.CurrentUser)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], ChamaController.prototype, "findAllAvailable", null);
 __decorate([
     (0, common_1.Get)(':id'),
     (0, common_1.UseGuards)(auth_guard_1.AuthGuard),

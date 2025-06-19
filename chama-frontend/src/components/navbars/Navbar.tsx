@@ -2,7 +2,7 @@
 import { Menu } from 'primereact/menu';
 import type { MenuItem } from 'primereact/menuitem';
 import { useRef } from 'react';
-import { NavLink, useParams } from 'react-router-dom';
+import { NavLink, useNavigate, useParams } from 'react-router-dom';
 import AuthService from '../../services/auth/signup-service';
 import { useEffect, useState } from 'react';
 import NavbarLinks from './navbar-links';
@@ -16,7 +16,6 @@ interface NavbarProps {
 
 const Navbar = ({ chamas, onCreateChama, handleJoinChama }: NavbarProps) => {
   const menuRef = useRef<any>(null);
-  const chamaId = useParams();
   const [user, setUser] = useState<any>(null);
   const [userName, setUserName] = useState<string | null>(null);
   const [displayNavbarLinks, setDisplayNavbarLinks] = useState(false);
@@ -25,7 +24,13 @@ const Navbar = ({ chamas, onCreateChama, handleJoinChama }: NavbarProps) => {
   useEffect(() => {
     AuthService.getCurrentUser().then((user: any) => {
       setUser(user);
-      setUserName(user.firstName + ' ' + user.lastName);
+      setUserName(
+        user.firstName.charAt(0).toUpperCase() +
+          user.firstName.slice(1) +
+          ' ' +
+          user.lastName.charAt(0).toUpperCase() +
+          user.lastName.slice(1)
+      );
     });
   }, []);
 

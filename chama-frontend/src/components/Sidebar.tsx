@@ -1,24 +1,42 @@
 import { useState, useEffect } from 'react';
 import { NavLink, useParams, useNavigate } from 'react-router-dom';
 import logoutUser from '../services/auth/logout';
+import { MembershipProps } from '../models/chamas';
+import ChamaService from '../services/chama-services';
 
 function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const { chamaId } = useParams();
+  const { chamaId } = useParams<MembershipProps>();
   const navigate = useNavigate();
-  const [userRole, setUserRole] = useState<string | null>(null);
-
-  useEffect(() => {
-    // Get user role from localStorage
-    const role = localStorage.getItem('userRole');
-    setUserRole(role);
-  }, []);
+  const [chamaName, setChamaName] = useState<string>('Loading...');
+  const [isLoading, setIsLoading] = useState(true);
 
   // Set the base link according to user role
-  const baselink =
-    userRole === 'admin'
-      ? `/admin/chamas/${chamaId}`
-      : `/member/chamas/${chamaId}`;
+  const baselink = `/admin/chamas/${chamaId}`;
+
+  // Fetch chama data when component mounts or chamaId changes
+  useEffect(() => {
+    const fetchChamaData = async () => {
+      if (!chamaId) {
+        setChamaName('Unknown Chama');
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        const chamaData = await ChamaService.getChamaById(chamaId);
+        setChamaName(chamaData.name || 'Unknown Chama');
+      } catch (error) {
+        console.error('Error fetching chama data:', error);
+        setChamaName('Error loading chama name');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchChamaData();
+  }, [chamaId]);
 
   const handleLogout = async () => {
     try {
@@ -32,8 +50,6 @@ function Sidebar() {
     }
   };
 
-  if (!userRole) return null; // Don't render sidebar until we know the user role
-
   return (
     <div
       className={`flex flex-col justify-between  sidebar text-white ${isCollapsed ? 'w-fit p-2' : 'w-[350px] pl-6 pr-6'} transition-all duration-500 ease-in-out`}
@@ -43,7 +59,7 @@ function Sidebar() {
       <div className={``}>
         {/* sidebar toggle button */}
         <div
-          className='sidebar-toggle-btn bg-gray-700 hover:bg-gray-500 cursor-pointer'
+          className=' sidebar-toggle-btn bg-gray-700 hover:bg-gray-500 cursor-pointer'
           onClick={() => setIsCollapsed(!isCollapsed)}
         >
           <div className='text-gray-300 hover:text-white transition-colors duration-200  flex items-center justify-center w-full'>
@@ -58,7 +74,7 @@ function Sidebar() {
             className={`sidebar-header flex items-center ${!isCollapsed ? 'pl-2 gap-2' : ''}`}
           >
             <div
-              className='chama-profile-image-div'
+              className='chama-profile-image-div min-w-[50px]'
               style={{
                 backgroundImage: "url('/assets/chamaprofileimage.png')",
                 backgroundSize: 'cover',
@@ -70,7 +86,7 @@ function Sidebar() {
               <div className={`flex flex-col text-center `}>
                 <p className='text-gray-400 m-0'>Chama name</p>
                 <h3 className='font-bold m-0'>
-                  Chama {chamaId} contribution group
+                  {isLoading ? 'Loading...' : chamaName} contribution group
                 </h3>
               </div>
             )}
