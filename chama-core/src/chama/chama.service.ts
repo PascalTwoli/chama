@@ -75,6 +75,29 @@ export class ChamaService {
     }
   }
 
+  async findAllAvailable(userId: string) {
+    try {
+      // Get all chamas that the user is NOT already a member of
+      const chamas = await this.prisma.chama.findMany({
+        where: {
+          NOT: {
+            memberships: {
+              some: { userId },
+            },
+          },
+        },
+        include: {
+          memberships: true,
+        },
+      });
+      return chamas;
+    } catch (error: unknown) {
+      console.error('Error finding available chamas:', error);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new BadRequestException(`Failed to fetch available chamas: ${message}`);
+    }
+  }
+
   async findOne(id: string, userId: string) {
     try {
       const chama = await this.prisma.chama.findFirst({

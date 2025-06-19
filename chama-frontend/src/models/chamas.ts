@@ -106,3 +106,7 @@ export interface ChamaDetails {
   image: File | null; // or string if you store the URL
   imageFile: File | null; // File object for the chama's image
 }
+
+export type MembershipProps = {
+  chamaId?: string;
+};

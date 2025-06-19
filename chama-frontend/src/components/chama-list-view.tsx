@@ -6,13 +6,29 @@ import ChamaService from '../services/chama-services';
 
 const ChamaListView: React.FC = () => {
   const [chamas, setChamas] = useState<Chama[]>([]);
+  const [allChamas, setAllChamas] = useState<Chama[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>('');
   const navigate = useNavigate();
 
   useEffect(() => {
     displayChamas();
   }, []);
+
+  const handleSearchChama = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const searchValue = e.target.value;
+    setSearchTerm(searchValue);
+    const searchTermLower = searchValue.toLowerCase();
+    if (searchTermLower === '') {
+      setChamas(allChamas);
+    } else {
+      const filteredChamas = allChamas.filter(chama =>
+        chama.name.toLowerCase().includes(searchTermLower)
+      );
+      setChamas(filteredChamas);
+    }
+  };
 
   const displayChamas = async () => {
     setIsLoading(true);
@@ -39,6 +55,8 @@ const ChamaListView: React.FC = () => {
         updatedAt: chama.updatedAt ?? '',
         createdBy: chama.createdBy,
       }));
+      setChamas(data);
+      setAllChamas(data);
       setChamas(data);
     } catch (err) {
       setError(
@@ -116,15 +134,15 @@ const ChamaListView: React.FC = () => {
   }
 
   return (
-    <div className='min-h-screen bg-gray-900 p-6'>
+    <div className='min-h-screen py-3 px-4'>
       <div className='max-w-5xl mx-auto'>
-        <h1 className='text-3xl font-bold text-white mb-8'>Available Chamas</h1>
+        <h1 className='text-lg font-bold text-white mb-8'>Join a Chama</h1>
 
         {error && (
           <div className='bg-red-800 text-white p-4 rounded mb-6'>{error}</div>
         )}
 
-        {chamas.length === 0 && !isLoading ? (
+        {allChamas.length === 0 && !isLoading ? (
           <div className='bg-gray-800 rounded-lg p-8 text-center'>
             <p className='text-xl text-gray-300 mb-4'>
               No chamas available to join right now.
@@ -134,33 +152,56 @@ const ChamaListView: React.FC = () => {
             </p>
           </div>
         ) : (
-          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-            {chamas.map(chama => (
-              <div
-                key={chama.id}
-                className='bg-gray-800 rounded-lg overflow-hidden shadow-lg'
-              >
-                <div className='p-6'>
-                  <h2 className='text-xl font-bold text-white mb-2'>
-                    {chama.name}
-                  </h2>
-                  <p className='text-gray-300 mb-4'>{chama.description}</p>
-                  <div className='flex justify-between text-sm text-gray-400 mb-4'>
-                    <span>Members: {chama.membersCount}</span>
-                    <span>
-                      Created: {new Date(chama.createdAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => handleJoinChama(chama.id)}
-                    disabled={isLoading}
-                    className='w-full py-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors'
-                  >
-                    Join Chama
-                  </button>
-                </div>
+          <div className='bg-[#242E3B] rounded-lg py-2 px-2 mb-8'>
+            <div>
+              <input
+                type='text'
+                placeholder='Search chamas...'
+                className='w-full p-4 outline-none rounded bg-gray-100 border-none text-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 rounded-xl placeholder:text-gray-400'
+                onChange={handleSearchChama}
+              />
+            </div>
+            <p className='mb-[6px] mt-4 font-bold text-sm'>Available chamas</p>
+            {chamas.length === 0 && searchTerm !== '' ? (
+              <div className='text-center py-8'>
+                <p className='text-gray-400 text-lg'>
+                  No chamas found matching &quot;{searchTerm}&quot;
+                </p>
+                <p className='text-gray-500 text-sm mt-2'>
+                  Try searching with different keywords
+                </p>
               </div>
-            ))}
+            ) : (
+              <div className='grid grid-cols-1 lg:grid-cols-1 gap-6 '>
+                {chamas.map(chama => (
+                  <div
+                    key={chama.id}
+                    className='bg-gray-800 rounded-lg overflow-hidden shadow-lg'
+                  >
+                    <div className='p-6'>
+                      <h2 className='text-xl font-bold text-white mb-2'>
+                        {chama.name}
+                      </h2>
+                      <p className='text-gray-300 mb-4'>{chama.description}</p>
+                      <div className='flex justify-between text-sm text-gray-400 mb-4'>
+                        <span>Members: {chama.membersCount}</span>
+                        <span>
+                          Created:
+                          {new Date(chama.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => handleJoinChama(chama.id)}
+                        disabled={isLoading}
+                        className='w-full py-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors'
+                      >
+                        Join Chama
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>

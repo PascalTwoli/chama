@@ -92,6 +92,31 @@ let ChamaService = class ChamaService {
             }
         });
     }
+    findAllAvailable(userId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                // Get all chamas that the user is NOT already a member of
+                const chamas = yield this.prisma.chama.findMany({
+                    where: {
+                        NOT: {
+                            memberships: {
+                                some: { userId },
+                            },
+                        },
+                    },
+                    include: {
+                        memberships: true,
+                    },
+                });
+                return chamas;
+            }
+            catch (error) {
+                console.error('Error finding available chamas:', error);
+                const message = error instanceof Error ? error.message : 'Unknown error';
+                throw new common_1.BadRequestException(`Failed to fetch available chamas: ${message}`);
+            }
+        });
+    }
     findOne(id, userId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {

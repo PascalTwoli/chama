@@ -217,6 +217,63 @@ export class ChamaController {
   }
 
   /**
+   * Gets all available chamas (public chamas that users can join)
+   */
+  @Get('available')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get all available chamas that users can join' })
+  @ApiOkResponse({
+    description: 'List of all available chamas',
+    schema: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', description: 'Unique chama identifier' },
+          name: { type: 'string', description: 'Name of the chama' },
+          description: {
+            type: 'string',
+            description: 'Description of the chama',
+          },
+          userId: { type: 'string', description: 'ID of the creator' },
+          createdAt: {
+            type: 'string',
+            format: 'date-time',
+            description: 'Creation timestamp',
+          },
+          updatedAt: {
+            type: 'string',
+            format: 'date-time',
+            description: 'Last update timestamp',
+          },
+          membersCount: { type: 'number', description: 'Number of members' },
+          country: { type: 'string', description: 'Country of the chama' },
+        },
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized - User not authenticated',
+  })
+  async findAllAvailable(
+    @CurrentUser() currentUser: CurrentUserType,
+  ): Promise<ChamaResponse[]> {
+    try {
+      return await this.chamaService.findAllAvailable(currentUser.id);
+    } catch (error: unknown) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new InternalServerErrorException(
+        `Failed to fetch available chamas: ${message}`,
+      );
+    }
+  }
+
+  /**
    * Gets a specific chama by ID
    */
   @Get(':id')

@@ -124,32 +124,28 @@ const CreateChama: React.FC = () => {
       // Debug logging to see the actual response structure
       console.log('Chama creation response:', response);
 
-      // If your API returns a 'success' or 'status' property, check it here.
-      // Adjust the property name as per your actual response type.
-      if (
-        !response ||
-        (typeof response.success !== 'undefined' && !response.success)
-      ) {
-        throw new Error('Failed to create chama');
-      }
-
-      // Use the response directly as data
-      const data = response;
+      // The backend returns the chama object directly with an 'id' property
       // Validate that required fields exist
-      if (!data.chamaId) {
+      if (!response || !response.id) {
         throw new Error('No chama ID returned from server');
       }
 
-      // Safe navigation for chama name - provide fallback
-      const chamaName = data.chama?.name || formData.name;
-      console.log('Chama created successfully:', chamaName);
+      // Use response.id as the chama ID and response.name as the chama name
+      const chamaId = response.id;
+      const chamaName = response.name || formData.name;
+      console.log(
+        'Chama created successfully:',
+        chamaName,
+        'with ID:',
+        chamaId
+      );
 
       // Mark chama creation as complete
-      AuthService.markChamaCreationComplete(data.chamaId);
+      AuthService.markChamaCreationComplete(chamaId);
 
       // Redirect to admin dashboard
-      navigate(`/admin/chamas/${data.chamaId}`, {
-        state: { name: chamaName, chamaId: data.chamaId },
+      navigate(`/admin/chamas/${chamaId}`, {
+        state: { name: chamaName, chamaId: chamaId },
       });
     } catch (err) {
       setError(

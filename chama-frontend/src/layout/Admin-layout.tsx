@@ -4,9 +4,9 @@ import Sidebar from '../components/Sidebar';
 
 const AdminLayout = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const hideSidebarRoutes = ['/create-chama'];
-  const shouldHideSidebar = hideSidebarRoutes.includes(location.pathname);
+  // const location = useLocation();
+  // const hideSidebarRoutes = ['/create-chama'];
+  // const shouldHideSidebar = hideSidebarRoutes.includes(location.pathname);
 
   const chamas = [
     { id: 1, name: 'Chama One' },
@@ -26,7 +26,6 @@ const AdminLayout = () => {
         handleJoinChama={handleJoinChama}
       />
       <div className='flex main-section'>
-        {/*!shouldHideSidebar && */}
         <Sidebar />
         <div className='flex-1 flex rounded-xl ml-1 overflow-auto'>
           {' '}

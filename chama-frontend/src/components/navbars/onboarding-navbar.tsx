@@ -10,7 +10,13 @@ function OnBoardingNavbar() {
 
   useEffect(() => {
     AuthService.getCurrentUser().then((user: any) => {
-      setUserName(user.firstName + ' ' + user.lastName);
+      setUserName(
+        user.firstName.charAt(0).toUpperCase() +
+          user.firstName.slice(1) +
+          ' ' +
+          user.lastName.charAt(0).toUpperCase() +
+          user.lastName.slice(1)
+      );
       setUser(user);
     });
   }, []);

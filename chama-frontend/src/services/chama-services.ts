@@ -48,34 +48,17 @@ export class ChamaService {
     return typeStr === 'SAVINGS' || typeStr === 'INVESTMENT' ? typeStr : null;
   }
 
-  static async getUserChamas(): Promise<any> {
+  //create a new chama for a user
+  static async createNewChama(data: ExtendedChamaFormData): Promise<any> {
     try {
-      const response: AxiosResponse<any> = await apiClient.get('/chamas/user');
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching user chamas:', error);
-      const axiosError = error as AxiosError;
-      if (!axiosError.response) {
-        throw new Error(
-          'Could not connect to the server. Please check your internet connection and try again.'
-        );
-      }
-      const errorData = axiosError.response.data as { message?: string };
-      throw new Error(errorData?.message || 'Failed to fetch user chamas.');
-    }
-  }
-
-  static async createNewChama(
-    data: ExtendedChamaFormData
-  ): Promise<ChamaResponse> {
-    try {
-      const response: AxiosResponse<ChamaResponse> = await apiClient.post(
+      const response: AxiosResponse<any> = await apiClient.post(
         '/chama',
         data,
         {
           headers: { 'Content-Type': 'application/json' },
         }
       );
+      // Backend returns the chama object directly with id, name, etc.
       return response.data;
     } catch (error) {
       console.error('Error creating chama:', error);
@@ -90,9 +73,47 @@ export class ChamaService {
     }
   }
 
-  static async fetchAllChamas(): Promise<Chama[]> {
+  static async getChamaById(chamaId: string): Promise<any> {
     try {
-      const response: AxiosResponse<Chama[]> = await apiClient.get('/chamas');
+      const response: AxiosResponse<any> = await apiClient.get(
+        `/chama/${chamaId}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching chama by ID:', error);
+      const axiosError = error as AxiosError;
+      if (!axiosError.response) {
+        throw new Error(
+          'Could not connect to the server. Please check your internet connection and try again.'
+        );
+      }
+      const errorData = axiosError.response.data as { message?: string };
+      throw new Error(errorData?.message || 'Failed to fetch chama details.');
+    }
+  }
+
+  //chamas that a user is part of/belongs to
+  static async getUserChamas(): Promise<any[]> {
+    try {
+      const response: AxiosResponse<any[]> = await apiClient.get('/chama');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching user chamas:', error);
+      const axiosError = error as AxiosError;
+      if (!axiosError.response) {
+        throw new Error(
+          'Could not connect to the server. Please check your internet connection and try again.'
+        );
+      }
+      const errorData = axiosError.response.data as { message?: string };
+      throw new Error(errorData?.message || 'Failed to fetch user chamas.');
+    }
+  }
+
+  static async fetchAllChamas(): Promise<any[]> {
+    try {
+      const response: AxiosResponse<any[]> =
+        await apiClient.get('/chama/available');
       return response.data;
     } catch (error) {
       console.error('Error fetching all chamas:', error);
