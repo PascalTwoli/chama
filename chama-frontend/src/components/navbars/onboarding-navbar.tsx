@@ -1,12 +1,17 @@
 import { useEffect, useState } from 'react';
 import AuthService from '../../services/auth/signup-service';
+import NavbarLinks from './navbar-links';
+import ProfileTemplate from '../../utils/profile-template';
 
 function OnBoardingNavbar() {
   const [userName, setUserName] = useState<string | null>(null);
+  const [displayNavbarLinks, setDisplayNavbarLinks] = useState<boolean>(false);
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
     AuthService.getCurrentUser().then((user: any) => {
       setUserName(user.firstName + ' ' + user.lastName);
+      setUser(user);
     });
   }, []);
 
@@ -60,9 +65,18 @@ function OnBoardingNavbar() {
       </div>
       <div className='flex gap-x-4 items-center'>
         <i className='pi pi-bell' />
-        <div className='flex items-center gap-x-2'>
+        <div
+          className='profile-div flex items-center gap-x-2 relative cursor-pointer'
+          onClick={() => setDisplayNavbarLinks(!displayNavbarLinks)}
+        >
+          {user && ProfileTemplate(user, 5, 5)}
           <span>{userName}</span>
-          <i className='pi pi-chevron-down' />
+          <i className='pi pi-chevron-down text-xs' />
+          {displayNavbarLinks && (
+            <div className='fixed top-16 right-6 z-50'>
+              <NavbarLinks />
+            </div>
+          )}
         </div>
       </div>
     </div>

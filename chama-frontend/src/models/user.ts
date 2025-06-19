@@ -19,6 +19,7 @@ export interface User {
   email: string;
   phoneNumber: string;
   activeUserType: UserType;
+  profilepic?: string; // Optional profile picture field
   app_metadata?: UserAppMetadata;
   metadata?: UserMetadata; // Optional metadata field
   createdAt?: string;
