@@ -5,6 +5,8 @@ import { useRef } from 'react';
 import { NavLink, useParams } from 'react-router-dom';
 import AuthService from '../../services/auth/signup-service';
 import { useEffect, useState } from 'react';
+import NavbarLinks from './navbar-links';
+import ProfileTemplate from '../../utils/profile-template';
 
 interface NavbarProps {
   chamas: { id: number; name: string }[];
@@ -15,18 +17,17 @@ interface NavbarProps {
 const Navbar = ({ chamas, onCreateChama, handleJoinChama }: NavbarProps) => {
   const menuRef = useRef<any>(null);
   const chamaId = useParams();
-  const [userId, setUserId] = useState<number | null>(null);
+  const [user, setUser] = useState<any>(null);
   const [userName, setUserName] = useState<string | null>(null);
+  const [displayNavbarLinks, setDisplayNavbarLinks] = useState(false);
 
   // this for getting the currently logged in user's id
   useEffect(() => {
     AuthService.getCurrentUser().then((user: any) => {
-      setUserId(user.id);
+      setUser(user);
       setUserName(user.firstName + ' ' + user.lastName);
     });
   }, []);
-
-  console.log('another log for userId:', userId);
 
   const menuItems: MenuItem[] = [
     ...chamas.map(chama => ({
@@ -100,13 +101,19 @@ const Navbar = ({ chamas, onCreateChama, handleJoinChama }: NavbarProps) => {
       </div>
       <div className='flex gap-x-4 items-center'>
         <i className='pi pi-bell' />
-        <NavLink
-          to={`/chamas/${chamaId}/account_settings`}
-          className='flex items-center gap-x-2'
+        <div
+          className='profile-div flex items-center gap-x-2 relative cursor-pointer'
+          onClick={() => setDisplayNavbarLinks(!displayNavbarLinks)}
         >
+          {user && ProfileTemplate(user, 5, 5)}
           <span>{userName}</span>
-          <i className='pi pi-chevron-down' />
-        </NavLink>
+          <i className='pi pi-chevron-down text-xs' />
+          {displayNavbarLinks && (
+            <div className='fixed top-16 right-6 z-50'>
+              <NavbarLinks />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
