@@ -30,7 +30,7 @@
 }
 
 .navbar{
-  padding: 2px 40px;
+  /* padding: 2px 40px; */
   border-bottom: 1px solid  var(--border-1-color);
 }
 

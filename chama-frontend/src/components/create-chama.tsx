@@ -176,7 +176,7 @@ const CreateChama: React.FC = () => {
                       Set up the fundamental details of your chama
                     </p>
                   </div>
-                  <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+                  <div className='grid grid-cols-1 md:grid-cols-2 gap-6 mb-3'>
                     <div>
                       <label htmlFor='name' className='font-bold'>
                         Organisation Name{' '}
@@ -277,11 +277,15 @@ const CreateChama: React.FC = () => {
                           onChange={handleInputChange}
                           required
                         >
-                          <option value='' disabled>
+                          <option
+                            value=''
+                            disabled
+                            className='text-gray-500 placeholder:text-gray-500'
+                          >
                             --Select Country--
                           </option>
                           {Object.entries(Countries).map(([key, value]) => (
-                            <option key={key} value={value}>
+                            <option className='' key={key} value={value}>
                               {value
                                 .replace(/_/g, ' ')
                                 .replace(/\b\w/g, l => l.toUpperCase())}
@@ -311,8 +315,8 @@ const CreateChama: React.FC = () => {
                     />
                   </div>
                 </div>
-                <div className='flex flex-col items-center justify-center gap-2 text-gray-400'>
-                  <i className='bi bi-image fs-1 text-7xl'></i>
+                <div className='flex flex-col items-left justify-center gap-2 text-gray-400'>
+                  {/* <i className='bi bi-image fs-1 text-7xl'></i> */}
                   <span>Upload an Image / Profile of the Chama</span>
                   <input
                     type='file'

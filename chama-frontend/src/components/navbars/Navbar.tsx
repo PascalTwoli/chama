@@ -48,7 +48,7 @@ const Navbar = ({ chamas, onCreateChama, handleJoinChama }: NavbarProps) => {
   ];
 
   return (
-    <div className='navbar flex justify-between items-center px-6 py-4 bg-gray-900 text-white'>
+    <div className='navbar flex justify-between items-center pl-7  pr-5 text-white'>
       <div className='flex items-center gap-x-6'>
         <span>
           <svg
@@ -114,7 +114,7 @@ const Navbar = ({ chamas, onCreateChama, handleJoinChama }: NavbarProps) => {
           <span>{userName}</span>
           <i className='pi pi-chevron-down text-xs' />
           {displayNavbarLinks && (
-            <div className='fixed top-16 right-6 z-50'>
+            <div className='fixed top-16 right-5 z-50'>
               <NavbarLinks />
             </div>
           )}
