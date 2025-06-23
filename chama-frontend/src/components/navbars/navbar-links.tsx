@@ -34,15 +34,8 @@ function NavbarLinks() {
     { label: 'Logout', icon: 'pi pi-fw pi-envelope', onClick: handleLogout },
   ];
 
-  //   //when the user clicks on a link, it should redirect to the corresponding page
-  //   const handleItemClick = (item: NavbarLink) => {
-  //     setSelectedItem(item);
-  //     // Navigate to the selected item's link
-  //    window.location.href = item.to;
-  //   };
-
   return (
-    <div className='card flex justify-content-center'>
+    <div className='card flex justify-content-center w-[160px]'>
       <ListBox
         value={selectedItem}
         onChange={e => {
