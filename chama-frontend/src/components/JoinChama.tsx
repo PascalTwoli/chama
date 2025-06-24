@@ -221,7 +221,9 @@ function JoinChama() {
         </h2>
         {inviteDetails && (
           <div className='mb-6'>
-            <p className='text-gray-300 mb-2'>You've been invited to join:</p>
+            <p className='text-gray-300 mb-2'>
+              You&apos;ve been invited to join:
+            </p>
             <h3 className='text-white text-lg font-bold mb-4'>
               {inviteDetails.chamaName}
             </h3>
@@ -249,7 +251,7 @@ function JoinChama() {
             onClick={handleLoginRedirect}
           />
           <div className='text-center text-gray-400 my-2'>
-            Don't have an account?
+            Don&apos;t have an account?
           </div>
           <Button
             label='Create Account'

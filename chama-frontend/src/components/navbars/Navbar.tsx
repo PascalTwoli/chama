@@ -7,6 +7,7 @@ import AuthService from '../../services/auth/signup-service';
 import { useEffect, useState } from 'react';
 import NavbarLinks from './navbar-links';
 import ProfileTemplate from '../../utils/profile-template';
+import LogoutModal from '../logoutModal';
 
 interface NavbarProps {
   chamas: { id: number; name: string }[];
@@ -19,6 +20,7 @@ const Navbar = ({ chamas, onCreateChama, handleJoinChama }: NavbarProps) => {
   const [user, setUser] = useState<any>(null);
   const [userName, setUserName] = useState<string | null>(null);
   const [displayNavbarLinks, setDisplayNavbarLinks] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   // this for getting the currently logged in user's id
   useEffect(() => {
@@ -115,11 +117,22 @@ const Navbar = ({ chamas, onCreateChama, handleJoinChama }: NavbarProps) => {
           <i className='pi pi-chevron-down text-xs' />
           {displayNavbarLinks && (
             <div className='fixed top-16 right-5 z-50'>
-              <NavbarLinks />
+              <NavbarLinks
+                onLogoutClick={() => {
+                  setShowLogoutModal(true);
+                  setDisplayNavbarLinks(false); // Close the dropdown when logout is clicked
+                }}
+              />
             </div>
           )}
         </div>
       </div>
+
+      {/* Logout Modal - managed at navbar level to persist across component unmounts */}
+      <LogoutModal
+        visible={showLogoutModal}
+        onHide={() => setShowLogoutModal(false)}
+      />
     </div>
   );
 };

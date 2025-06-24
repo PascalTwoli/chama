@@ -2,7 +2,7 @@ import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
 import { useState, useEffect } from 'react';
 import MembersTable from './membership.table';
-import ChamaService from '../services/chama-services';
+import ChamaService from '../services/chama/chama-services';
 import { MembershipProps } from '../models/chamas';
 
 function Membership({ chamaId }: MembershipProps) {

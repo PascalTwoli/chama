@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthService from '../services/auth/signup-service';
 import { Chama } from '../models/chamas';
-import ChamaService from '../services/chama-services';
+import ChamaService from '../services/chama/chama-services';
 import { Button } from 'primereact/button';
 import ProfileTemplate from '../utils/profile-template';
 
