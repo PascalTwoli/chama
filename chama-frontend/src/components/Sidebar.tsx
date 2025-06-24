@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { NavLink, useParams, useNavigate } from 'react-router-dom';
 import logoutUser from '../services/auth/logout';
 import { MembershipProps } from '../models/chamas';
-import ChamaService from '../services/chama-services';
+import ChamaService from '../services/chama/chama-services';
+import LogoutModal from './logoutModal';
 
 function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -10,6 +11,7 @@ function Sidebar() {
   const navigate = useNavigate();
   const [chamaName, setChamaName] = useState<string>('Loading...');
   const [isLoading, setIsLoading] = useState(true);
+  const [showLogoutModal, setShowLogoutModal] = useState<boolean>(false);
 
   // Set the base link according to user role
   const baselink = `/admin/chamas/${chamaId}`;
@@ -38,17 +40,17 @@ function Sidebar() {
     fetchChamaData();
   }, [chamaId]);
 
-  const handleLogout = async () => {
-    try {
-      await logoutUser();
-      // The logoutUser function now handles the navigation
-    } catch (error) {
-      console.error('Logout failed:', error);
-      // If logout fails, try to clear localStorage and redirect anyway
-      localStorage.clear();
-      navigate('/signin');
-    }
-  };
+  // const handleLogout = async () => {
+  //   try {
+  //     await logoutUser();
+  //     // The logoutUser function now handles the navigation
+  //   } catch (error) {
+  //     console.error('Logout failed:', error);
+  //     // If logout fails, try to clear localStorage and redirect anyway
+  //     localStorage.clear();
+  //     navigate('/signin');
+  //   }
+  // };
 
   return (
     <div
@@ -153,11 +155,15 @@ function Sidebar() {
       <div
         className={`flex gap-x-4 text-red-300 font-bold py-3 px-2 hover:bg-gray-700 rounded cursor-pointer pl-4
             ${isCollapsed ? 'justify-center' : 'ml-2 '}`}
-        onClick={handleLogout}
+        onClick={() => setShowLogoutModal(true)}
       >
         <i className='bi bi-box-arrow-right'></i>
         {!isCollapsed && <span>Log Out</span>}
       </div>
+      <LogoutModal
+        visible={showLogoutModal}
+        onHide={() => setShowLogoutModal(false)}
+      />
     </div>
   );
 }

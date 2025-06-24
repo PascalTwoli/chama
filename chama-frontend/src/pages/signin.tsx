@@ -5,6 +5,7 @@ import AuthService from '../services/auth/signup-service';
 import { UserType } from '../data/user-type';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import ChamaService from '../services/chama/chama-services';
 
 const SignIn = () => {
   const navigate = useNavigate();
@@ -63,16 +64,14 @@ const SignIn = () => {
       // Sign in with credentials
       await SigninService.signIn(formData as SignInCredentials);
 
-      // toast.success("Login successful! Checking account status...");
-
-      // After successful login, check if user has a type
+      // After successful login, check if user has a type and recent chama
       setIsCheckingUserType(true);
 
       try {
         // Get user type from the backend API
         const activeUserType = await AuthService.getUserType();
 
-        // Determine redirect path based on user type
+        // Determine redirect path based on user type and onboarding status
         let redirectPath: string;
         let redirectMessage: string;
 
@@ -81,21 +80,76 @@ const SignIn = () => {
           redirectPath = '/user-type';
           redirectMessage =
             'Login successful! Redirecting to select your role...';
-        } else if (activeUserType === UserType.ADMIN) {
-          // Admin user, redirect to admin dashboard
-          redirectPath = '/admin/chamas/1';
-          redirectMessage =
-            'Login successful! Redirecting to admin dashboard...';
-        } else if (activeUserType === UserType.MEMBER) {
-          // Member user, redirect to chama list view
-          redirectPath = '/chama-list-view';
-          redirectMessage =
-            'Login successful! Redirecting to member dashboard...';
         } else {
-          // Fallback for unexpected user type
-          redirectPath = '/chose-user';
-          redirectMessage =
-            'Login successful! Redirecting to verify your account...';
+          // User has completed onboarding (has activeUserType), check for recent chama
+          try {
+            const userChamas = await ChamaService.getUserChamas();
+
+            if (userChamas && userChamas.length > 0) {
+              // User has chamas, get the most recent one (or the active one from localStorage)
+              const activeChamaId = localStorage.getItem('activeChamaId');
+              let recentChama;
+
+              if (activeChamaId) {
+                // Find the active chama from the list
+                recentChama = userChamas.find(
+                  chama => chama.id === activeChamaId
+                );
+              }
+
+              // If no active chama found or none set, use the most recent (first in list)
+              if (!recentChama && userChamas.length > 0) {
+                recentChama = userChamas[0]; // Assuming the API returns chamas in recent order
+              }
+
+              if (recentChama) {
+                // Redirect to the chama dashboard
+                if (activeUserType === UserType.ADMIN) {
+                  redirectPath = `/admin/chamas/${recentChama.id}`;
+                  redirectMessage = `Welcome back! Redirecting to ${recentChama.name} dashboard...`;
+                } else {
+                  redirectPath = `/member/chamas/${recentChama.id}`;
+                  redirectMessage = `Welcome back! Redirecting to ${recentChama.name} dashboard...`;
+                }
+
+                // Update the active chama in localStorage for future use
+                localStorage.setItem('activeChamaId', recentChama.id);
+              } else {
+                // User has chamas but something went wrong, fallback to default flow
+                redirectPath =
+                  activeUserType === UserType.ADMIN
+                    ? '/admin/dashboard'
+                    : '/chama-list-view';
+                redirectMessage =
+                  'Login successful! Redirecting to dashboard...';
+              }
+            } else {
+              // User has completed onboarding but no chamas yet
+              if (activeUserType === UserType.ADMIN) {
+                // Admin should create a chama
+                redirectPath = '/create-chama';
+                redirectMessage =
+                  'Login successful! Please create your first chama...';
+              } else {
+                // Member should join a chama
+                redirectPath = '/chama-list-view';
+                redirectMessage =
+                  'Login successful! Please join a chama to get started...';
+              }
+            }
+          } catch (chamaError) {
+            console.error('Error fetching user chamas:', chamaError);
+            // Fallback to default paths if chama fetching fails
+            if (activeUserType === UserType.ADMIN) {
+              redirectPath = '/admin/dashboard';
+              redirectMessage =
+                'Login successful! Redirecting to admin dashboard...';
+            } else {
+              redirectPath = '/chama-list-view';
+              redirectMessage =
+                'Login successful! Redirecting to member dashboard...';
+            }
+          }
         }
 
         // Update success message

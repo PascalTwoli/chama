@@ -1,11 +1,11 @@
 import { AxiosError, AxiosResponse } from 'axios';
-import apiClient from '../config/axios-config';
+import apiClient from '../../config/axios-config';
 import {
   Chama,
   ChamaResponse,
   ExtendedChamaFormData,
   JoinChamaResponse,
-} from '../models/chamas';
+} from '../../models/chamas';
 
 // Additional interfaces for API responses
 interface UserChamasResponse {

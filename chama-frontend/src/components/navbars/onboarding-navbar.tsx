@@ -80,7 +80,12 @@ function OnBoardingNavbar() {
           <i className='pi pi-chevron-down text-xs' />
           {displayNavbarLinks && (
             <div className='fixed top-16 right-6 z-50'>
-              <NavbarLinks />
+              <NavbarLinks
+                onLogoutClick={() => {
+                  // Add your logout logic here, e.g. AuthService.logout();
+                  setDisplayNavbarLinks(false);
+                }}
+              />
             </div>
           )}
         </div>

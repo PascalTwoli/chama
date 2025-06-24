@@ -3,7 +3,7 @@ import AuthService from '../services/auth/signup-service';
 import { Button } from 'primereact/button';
 import { useNavigate } from 'react-router-dom';
 import { ExtendedChamaFormData } from '../models/chamas';
-import ChamaService from '../services/chama-services';
+import ChamaService from '../services/chama/chama-services';
 import { Countries } from '../models/data/Countries';
 import { UserRole } from '../models/user';
 
