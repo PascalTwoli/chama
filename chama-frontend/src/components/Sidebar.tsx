@@ -1,14 +1,11 @@
 import { useState, useEffect } from 'react';
-import { NavLink, useParams, useNavigate } from 'react-router-dom';
-import logoutUser from '../services/auth/logout';
-import { MembershipProps } from '../models/chamas';
+import { NavLink, useParams } from 'react-router-dom';
 import ChamaService from '../services/chama/chama-services';
 import LogoutModal from './logoutModal';
 
 function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const { chamaId } = useParams<MembershipProps>();
-  const navigate = useNavigate();
+  const { chamaId } = useParams<{ chamaId: string }>();
   const [chamaName, setChamaName] = useState<string>('Loading...');
   const [isLoading, setIsLoading] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState<boolean>(false);
@@ -39,18 +36,6 @@ function Sidebar() {
 
     fetchChamaData();
   }, [chamaId]);
-
-  // const handleLogout = async () => {
-  //   try {
-  //     await logoutUser();
-  //     // The logoutUser function now handles the navigation
-  //   } catch (error) {
-  //     console.error('Logout failed:', error);
-  //     // If logout fails, try to clear localStorage and redirect anyway
-  //     localStorage.clear();
-  //     navigate('/signin');
-  //   }
-  // };
 
   return (
     <div
@@ -103,20 +88,21 @@ function Sidebar() {
             </h4>
 
             {[
-              ['bi-people-fill', 'Membership', `${baselink}`],
+              ['bi-house-door', 'Dashboard', `${baselink}`],
+              ['bi-people-fill', 'Membership', `${baselink}/membership`],
               ['bi-newspaper', 'Soft loans', `${baselink}/softloans`],
               ['bi-house-check', 'Meetings', `${baselink}/meetings`],
               ['bi-graph-up', 'Shares', `${baselink}/shares`],
               ['bi-bell', 'Notifications', `${baselink}/notifications`],
               ['bi-diagram-2', 'Mpesa', `${baselink}/mpesa`],
             ].map(([icon, label, path]) => {
-              const isMembership = label === 'Membership';
+              const isDashboard = label === 'Dashboard';
 
               return (
                 <NavLink
                   key={label}
                   to={path}
-                  end={isMembership}
+                  end={isDashboard}
                   className={({ isActive }) =>
                     `flex items-center gap-x-4 py-3 px-2 rounded transition-all duration-300 hover:bg-gray-700 no-underline ${
                       isCollapsed ? 'justify-center' : ''

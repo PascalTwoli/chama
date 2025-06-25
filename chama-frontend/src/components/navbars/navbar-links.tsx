@@ -1,7 +1,6 @@
 import { ListBox } from 'primereact/listbox';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { MembershipProps } from '../../models/chamas';
 
 interface NavbarLink {
   label: string;
@@ -15,7 +14,7 @@ interface NavbarLinksProps {
 
 function NavbarLinks({ onLogoutClick }: NavbarLinksProps) {
   const [selectedItem, setSelectedItem] = useState<NavbarLink | null>(null);
-  const { chamaId } = useParams<MembershipProps>();
+  const { chamaId } = useParams<{ chamaId: string }>();
   const settings = `/admin/chamas/${chamaId}/settings`;
   const navigate = useNavigate();
 

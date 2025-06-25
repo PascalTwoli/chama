@@ -1,11 +1,12 @@
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
 import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import MembersTable from './membership.table';
 import ChamaService from '../services/chama/chama-services';
-import { MembershipProps } from '../models/chamas';
 
-function Membership({ chamaId }: MembershipProps) {
+function Membership() {
+  const { chamaId } = useParams<{ chamaId: string }>();
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [chamaName, setChamaName] = useState<string>('Loading...');
   const [isLoading, setIsLoading] = useState(true);
