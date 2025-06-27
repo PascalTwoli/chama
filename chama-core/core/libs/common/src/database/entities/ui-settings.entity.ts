@@ -77,7 +77,7 @@ export class UiSettingsEntity implements UiSettings {
     example: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
   })
   @IsString()
-  userId: string;
+  userId!: string;
 
   /**
    * Whether to show tutorial to the user
@@ -87,7 +87,7 @@ export class UiSettingsEntity implements UiSettings {
     example: true,
   })
   @IsBoolean()
-  showTutorial: boolean;
+  showTutorial!: boolean;
 
   /**
    * UI theme preference
@@ -98,7 +98,7 @@ export class UiSettingsEntity implements UiSettings {
   })
   @IsString()
   @IsOptional()
-  theme: string | null;
+  theme!: string | null;
 
   /**
    * Last seen widgets configuration (JSON field)
@@ -107,7 +107,7 @@ export class UiSettingsEntity implements UiSettings {
   @IsOptional()
   @ValidateNested()
   @Type(() => Object)
-  lastSeenWidgets: Prisma.JsonValue | null;
+  lastSeenWidgets!: Prisma.JsonValue | null;
 
   constructor(partial: Partial<UiSettingsEntity>) {
     Object.assign(this, partial);

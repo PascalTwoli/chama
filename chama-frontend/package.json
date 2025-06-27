@@ -14,6 +14,7 @@
     "@types/react-dom": "^19.0.4",
     "axios": "^1.9.0",
     "bootstrap-icons": "^1.11.3",
+    "lucide-react": "^0.522.0",
     "primeflex": "^4.0.0",
     "primeicons": "^7.0.0",
     "primereact": "^10.9.5",
@@ -50,10 +51,14 @@
   "devDependencies": {
     "@craco/craco": "^7.1.0",
     "@types/babel__core": "^7.20.5",
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/parser": "^5.62.0",
     "autoprefixer": "^10.4.14",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.4.1",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
     "postcss": "^8.4.31",
     "prettier": "^3.5.3",
     "tailwindcss": "^3.3.0"

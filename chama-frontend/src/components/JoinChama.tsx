@@ -51,6 +51,25 @@ function JoinChama() {
     null
   );
 
+  //apart from inviting a user, we also need to handle the case where a user is trying to join a chama
+  // This component handles both inviting a user and joining a chama
+  // for the case where a user is trying to join a chama, a request should just be sent to the admin of the chama who will then approve the request
+  // and the user will be notified via email
+  // This is done by checking if the user is authenticated and if the email matches the invited email
+  // If the user is authenticated, we will try to accept the invite immediately
+  // If the user is not authenticated, we will store the token in session storage and redirect to login/signup
+  // This way, after the user logs in or signs up, we can check for any pending invites and process them
+  // This is done using the useAuth context to check if the user is authenticated
+  // and the user object to get the email of the authenticated user
+  // We will also use the useEffect hook to check if the user is authenticated and process the invite accordingly
+  // const isUserAuthenticated = useRef(isAuthenticated);
+  // useEffect(() => {
+  //   isUserAuthenticated.current = isAuthenticated;
+  // }, [isAuthenticated]);
+
+  // // If the user is authenticated, we can access the user object
+  // const isUserEmailMatchingInvite = user?.email === inviteDetails?.invitedEmail;
+
   // Check authentication and process invite
   useEffect(() => {
     if (!token) {
@@ -202,7 +221,9 @@ function JoinChama() {
         </h2>
         {inviteDetails && (
           <div className='mb-6'>
-            <p className='text-gray-300 mb-2'>You've been invited to join:</p>
+            <p className='text-gray-300 mb-2'>
+              You&apos;ve been invited to join:
+            </p>
             <h3 className='text-white text-lg font-bold mb-4'>
               {inviteDetails.chamaName}
             </h3>
@@ -230,7 +251,7 @@ function JoinChama() {
             onClick={handleLoginRedirect}
           />
           <div className='text-center text-gray-400 my-2'>
-            Don't have an account?
+            Don&apos;t have an account?
           </div>
           <Button
             label='Create Account'

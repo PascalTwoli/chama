@@ -76,8 +76,9 @@ export class AuthController {
   async registerUser(@Body() registerUserDto: RegisterUserDto): Promise<LoginResponse> {
     try {
       return await this.userService.registerUser(registerUserDto);
-    } catch (error) {
-      throw new BadRequestException(`Registration failed: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new BadRequestException(`Registration failed: ${message}`);
     }
   }
 
@@ -113,8 +114,9 @@ export class AuthController {
   async login(@Body() loginDto: LoginDto): Promise<LoginResponse> {
     try {
       return await this.userService.loginUser(loginDto);
-    } catch (error) {
-      throw new BadRequestException(`Authentication failed: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new BadRequestException(`Authentication failed: ${message}`);
     }
   }
 
@@ -152,8 +154,9 @@ export class AuthController {
 
     try {
       return await this.userService.refreshAuthToken(refreshToken);
-    } catch (error) {
-      throw new BadRequestException(`Token refresh failed: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new BadRequestException(`Token refresh failed: ${message}`);
     }
   }
 
@@ -182,8 +185,9 @@ export class AuthController {
       return new UserResponseEntity({
         localUser: userResponse.localUser
       });
-    } catch (error) {
-      throw new BadRequestException(`Failed to fetch current user: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new BadRequestException(`Failed to fetch current user: ${message}`);
     }
   }
 }

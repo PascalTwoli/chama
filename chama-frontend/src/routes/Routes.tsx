@@ -26,6 +26,7 @@ import MemberDashboard from '../pages/MemberDashboard';
 import AuthService from '../services/auth/signup-service';
 import { useEffect, useState } from 'react';
 import { OnboardingStatus } from '../models/user';
+import Membership from '../components/membership';
 
 interface ProtectedRouteProps {
   children: React.ReactElement;
@@ -120,7 +121,9 @@ const AppRoutes = () => {
           path='/create-chama'
           element={
             <ProtectedRoute allowedRole='admin'>
-              <NavbarOnlyLayout children={<CreateChama />} />
+              <NavbarOnlyLayout>
+                <CreateChama />
+              </NavbarOnlyLayout>
             </ProtectedRoute>
           }
         />
@@ -134,6 +137,7 @@ const AppRoutes = () => {
           }
         >
           <Route index element={<AdminDashboard />} />
+          <Route path='membership' element={<Membership />} />
           <Route path='softloans' element={<Softloans />} />
           <Route path='meetings' element={<Meetings />} />
           <Route path='shares' element={<Shares />} />
@@ -148,7 +152,9 @@ const AppRoutes = () => {
           path='/chama-list-view'
           element={
             <ProtectedRoute allowedRole='member'>
-              <NavbarOnlyLayout children={<ChamaListView />} />
+              <NavbarOnlyLayout>
+                <ChamaListView />
+              </NavbarOnlyLayout>
             </ProtectedRoute>
           }
         />

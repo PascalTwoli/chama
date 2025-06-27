@@ -1,4 +1,4 @@
-import { Toast } from 'primereact/toast';
+import { toast } from 'react-toastify';
 import { useRef, useState } from 'react';
 
 interface ProfileImageUploadProps {
@@ -17,8 +17,8 @@ function ProfileImageUpload({
     const file = e.target.files?.[0];
     if (file) {
       if (!file.type.startsWith('image/')) {
-        // Toast.show({ severity: 'error', summary: "Please upload an image file (JPG, PNG, etc.)" });
-        // return;
+        toast.error('Please upload an image file (JPG, PNG, etc.)');
+        return;
       }
       const reader = new FileReader();
       reader.onloadend = () => {

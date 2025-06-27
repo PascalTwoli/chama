@@ -75,7 +75,7 @@ export class SecureAuthService {
       const errorResponse = axiosError.response?.data;
 
       // Extract and format error message
-      let errorMessageRaw = this.extractErrorMessage(errorResponse);
+      const errorMessageRaw = this.extractErrorMessage(errorResponse);
       const errorMessageLower = errorMessageRaw.toLowerCase();
 
       // Handle specific error types

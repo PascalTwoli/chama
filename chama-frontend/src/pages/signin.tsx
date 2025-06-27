@@ -5,6 +5,7 @@ import AuthService from '../services/auth/signup-service';
 import { UserType } from '../data/user-type';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import ChamaService from '../services/chama/chama-services';
 
 const SignIn = () => {
   const navigate = useNavigate();
@@ -63,16 +64,14 @@ const SignIn = () => {
       // Sign in with credentials
       await SigninService.signIn(formData as SignInCredentials);
 
-      // toast.success("Login successful! Checking account status...");
-
-      // After successful login, check if user has a type
+      // After successful login, check if user has a type and recent chama
       setIsCheckingUserType(true);
 
       try {
         // Get user type from the backend API
         const activeUserType = await AuthService.getUserType();
 
-        // Determine redirect path based on user type
+        // Determine redirect path based on user type and onboarding status
         let redirectPath: string;
         let redirectMessage: string;
 
@@ -81,21 +80,76 @@ const SignIn = () => {
           redirectPath = '/user-type';
           redirectMessage =
             'Login successful! Redirecting to select your role...';
-        } else if (activeUserType === UserType.ADMIN) {
-          // Admin user, redirect to admin dashboard
-          redirectPath = '/admin/chamas/1';
-          redirectMessage =
-            'Login successful! Redirecting to admin dashboard...';
-        } else if (activeUserType === UserType.MEMBER) {
-          // Member user, redirect to chama list view
-          redirectPath = '/chama-list-view';
-          redirectMessage =
-            'Login successful! Redirecting to member dashboard...';
         } else {
-          // Fallback for unexpected user type
-          redirectPath = '/chose-user';
-          redirectMessage =
-            'Login successful! Redirecting to verify your account...';
+          // User has completed onboarding (has activeUserType), check for recent chama
+          try {
+            const userChamas = await ChamaService.getUserChamas();
+
+            if (userChamas && userChamas.length > 0) {
+              // User has chamas, get the most recent one (or the active one from localStorage)
+              const activeChamaId = localStorage.getItem('activeChamaId');
+              let recentChama;
+
+              if (activeChamaId) {
+                // Find the active chama from the list
+                recentChama = userChamas.find(
+                  chama => chama.id === activeChamaId
+                );
+              }
+
+              // If no active chama found or none set, use the most recent (first in list)
+              if (!recentChama && userChamas.length > 0) {
+                recentChama = userChamas[0]; // Assuming the API returns chamas in recent order
+              }
+
+              if (recentChama) {
+                // Redirect to the chama dashboard
+                if (activeUserType === UserType.ADMIN) {
+                  redirectPath = `/admin/chamas/${recentChama.id}`;
+                  redirectMessage = `Welcome back! Redirecting to ${recentChama.name} dashboard...`;
+                } else {
+                  redirectPath = `/member/chamas/${recentChama.id}`;
+                  redirectMessage = `Welcome back! Redirecting to ${recentChama.name} dashboard...`;
+                }
+
+                // Update the active chama in localStorage for future use
+                localStorage.setItem('activeChamaId', recentChama.id);
+              } else {
+                // User has chamas but something went wrong, fallback to default flow
+                redirectPath =
+                  activeUserType === UserType.ADMIN
+                    ? '/admin/dashboard'
+                    : '/chama-list-view';
+                redirectMessage =
+                  'Login successful! Redirecting to dashboard...';
+              }
+            } else {
+              // User has completed onboarding but no chamas yet
+              if (activeUserType === UserType.ADMIN) {
+                // Admin should create a chama
+                redirectPath = '/create-chama';
+                redirectMessage =
+                  'Login successful! Please create your first chama...';
+              } else {
+                // Member should join a chama
+                redirectPath = '/chama-list-view';
+                redirectMessage =
+                  'Login successful! Please join a chama to get started...';
+              }
+            }
+          } catch (chamaError) {
+            console.error('Error fetching user chamas:', chamaError);
+            // Fallback to default paths if chama fetching fails
+            if (activeUserType === UserType.ADMIN) {
+              redirectPath = '/admin/dashboard';
+              redirectMessage =
+                'Login successful! Redirecting to admin dashboard...';
+            } else {
+              redirectPath = '/chama-list-view';
+              redirectMessage =
+                'Login successful! Redirecting to member dashboard...';
+            }
+          }
         }
 
         // Update success message
@@ -305,242 +359,3 @@ const SignIn = () => {
 };
 
 export default SignIn;
-
-// import React, { useState, useRef, useEffect } from "react";
-// import { useNavigate } from "react-router-dom";
-// import { Toast } from "primereact/toast";
-// import { UserType } from "../data/user-type";
-
-// interface LoginCredentials {
-//   email: string;
-//   password: string;
-// }
-
-// const SignIn: React.FC = () => {
-//   const [credentials, setCredentials] = useState<LoginCredentials>({
-//     email: "",
-//     password: "",
-//   });
-//   const [isLoading, setIsLoading] = useState<boolean>(false);
-//   const [error, setError] = useState<string | null>(null);
-//   const toast = useRef<Toast>(null);
-//   const navigate = useNavigate();
-
-//   useEffect(() => {
-//     // Check if user is already logged in
-//     const authToken = localStorage.getItem("authToken");
-//     if (authToken) {
-//       // Redirect based on user type and onboarding status
-//       redirectBasedOnUserType();
-//     }
-//   }, []);
-
-//   // Redirect based on user type and onboarding status
-//   const redirectBasedOnUserType = () => {
-//     const userType = localStorage.getItem("userType");
-//     const isFirstLogin = localStorage.getItem("isFirstLogin") !== "false";
-
-//     // If user hasn't completed onboarding, redirect to user type selection
-//     if (!userType || isFirstLogin) {
-//       navigate("/chose-user");
-//       return;
-//     }
-
-//     // Redirect based on user type and chama status
-//     if (userType === UserType.ADMIN.toString() || userType === UserType.ADMIN) {
-//       const hasCreatedChama = localStorage.getItem("hasCreatedChama") === "true";
-//       if (!hasCreatedChama) {
-//         navigate("/create-chama");
-//       } else {
-//         const activeChamaId = localStorage.getItem("activeChamaId") || "1";
-//         navigate(`/admin/chamas/${activeChamaId}`);
-//       }
-//     } else if (userType === UserType.MEMBER.toString() || userType === UserType.MEMBER) {
-//       const hasJoinedChama = localStorage.getItem("hasJoinedChama") === "true";
-//       if (!hasJoinedChama) {
-//         navigate("/chama-list-view");
-//       } else {
-//         const activeChamaId = localStorage.getItem("activeChamaId") || "1";
-//         navigate(`/member/chamas/${activeChamaId}`);
-//       }
-//     } else {
-//       // If user type is invalid, redirect to user type selection
-//       navigate("/chose-user");
-//     }
-//   };
-
-//   // Display error messages with toast
-//   useEffect(() => {
-//     if (error && toast.current) {
-//       toast.current.show({
-//         severity: "error",
-//         summary: "Error",
-//         detail: error,
-//         life: 5000,
-//       });
-//     }
-//   }, [error]);
-
-//   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-//     const { name, value } = e.target;
-//     setCredentials((prev) => ({ ...prev, [name]: value }));
-//   };
-
-//   const handleSubmit = async (e: React.FormEvent) => {
-//     e.preventDefault();
-//     setError(null);
-//     setIsLoading(true);
-
-//     try {
-//       // Make API request to sign in
-//       const response = await fetch("/api/auth/signin", {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify(credentials),
-//       });
-
-//       if (!response.ok) {
-//         const errorData = await response.json();
-//         throw new Error(
-//           errorData.message || "Invalid credentials. Please try again."
-//         );
-//       }
-
-//       const data = await response.json();
-
-//       // Store auth token and user info
-//       localStorage.setItem("authToken", data.token);
-//       localStorage.setItem("userId", data.userId);
-
-//       // If user has a userType already, store it
-//       if (data.userType) {
-//         localStorage.setItem("userType", data.userType);
-//       }
-
-//       // Check if this is first login by looking at isFirstLogin in response
-//       if (data.isFirstLogin !== undefined) {
-//         localStorage.setItem(
-//           "isFirstLogin",
-//           data.isFirstLogin ? "true" : "false"
-//         );
-//       } else {
-//         // If not provided, default to true to ensure user completes onboarding
-//         localStorage.setItem("isFirstLogin", "true");
-//       }
-
-//       // Redirect based on user type and onboarding status
-//       redirectBasedOnUserType();
-//     } catch (err) {
-//       setError(
-//         err instanceof Error
-//           ? err.message
-//           : "Failed to sign in. Please try again."
-//       );
-//       console.error("Sign in error:", err);
-//     } finally {
-//       setIsLoading(false);
-//     }
-//   };
-
-//   return (
-//     <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-//       <Toast ref={toast} position="top-right" />
-//       <div className="bg-gray-800 p-8 rounded-lg shadow-lg max-w-md w-full">
-//         <h1 className="text-2xl font-bold text-white mb-6 text-center">
-//           Sign In
-//         </h1>
-
-//         <form onSubmit={handleSubmit} className="space-y-6">
-//           <div>
-//             <label
-//               htmlFor="email"
-//               className="block text-sm font-medium text-gray-300 mb-1"
-//             >
-//               Email
-//             </label>
-//             <input
-//               id="email"
-//               name="email"
-//               type="email"
-//               required
-//               value={credentials.email}
-//               onChange={handleInputChange}
-//               className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-green-500"
-//               placeholder="Your email"
-//             />
-//           </div>
-
-//           <div>
-//             <label
-//               htmlFor="password"
-//               className="block text-sm font-medium text-gray-300 mb-1"
-//             >
-//               Password
-//             </label>
-//             <input
-//               id="password"
-//               name="password"
-//               type="password"
-//               required
-//               value={credentials.password}
-//               onChange={handleInputChange}
-//               className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-green-500"
-//               placeholder="Your password"
-//             />
-//           </div>
-
-//           <div>
-//             <button
-//               type="submit"
-//               disabled={isLoading}
-//               className={`w-full py-3 px-4 ${
-//                 isLoading ? "bg-gray-500" : "bg-green-500 hover:bg-green-600"
-//               } text-white rounded-md font-semibold transition-colors flex justify-center items-center`}
-//             >
-//               {isLoading ? (
-//                 <>
-//                   <svg
-//                     className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-//                     xmlns="http://www.w3.org/2000/svg"
-//                     fill="none"
-//                     viewBox="0 0 24 24"
-//                   >
-//                     <circle
-//                       className="opacity-25"
-//                       cx="12"
-//                       cy="12"
-//                       r="10"
-//                       stroke="currentColor"
-//                       strokeWidth="4"
-//                     ></circle>
-//                     <path
-//                       className="opacity-75"
-//                       fill="currentColor"
-//                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-//                     ></path>
-//                   </svg>
-//                   Signing in...
-//                 </>
-//               ) : (
-//                 "Sign In"
-//               )}
-//             </button>
-//           </div>
-//         </form>
-
-//         <div className="mt-6 text-center">
-//           <p className="text-gray-400">
-//             Don't have an account?{" "}
-//             <a href="/signup" className="text-green-400 hover:text-green-300">
-//               Sign up
-//             </a>
-//           </p>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default SignIn;

@@ -19,6 +19,7 @@ export interface User {
   email: string;
   phoneNumber: string;
   activeUserType: UserType;
+  profilepic?: string; // Optional profile picture field
   app_metadata?: UserAppMetadata;
   metadata?: UserMetadata; // Optional metadata field
   createdAt?: string;
@@ -91,8 +92,9 @@ export interface OnboardingStatus {
   activeUserType: UserType | null;
 }
 
-// interface OnboardingStatus {
-//     needsUserType: boolean;
-//     needsChama: boolean;
-//     userType: UserType | null;
-// }
+export enum UserRole {
+  CHAIRPERSON = 'CHAIRPERSON',
+  SECRETARY = 'SECRETARY',
+  TREASURER = 'TREASURER',
+  MEMBER = 'MEMBER',
+}

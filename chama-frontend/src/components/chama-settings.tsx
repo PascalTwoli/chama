@@ -113,7 +113,7 @@ function ChamaSettings({ chamaId, chamaName }: ChamaSettingsProps) {
 
   return (
     <>
-      <h1 className='font-bold text-lg mb-4'>{chamaName}'s Settings</h1>
+      <h1 className='font-bold text-lg mb-4'>{chamaName}&apos;s Settings</h1>
 
       {/* InviteLink component for admin to generate invitation links */}
       <div className='mb-6'>

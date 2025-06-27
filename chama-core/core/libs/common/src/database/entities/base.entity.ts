@@ -19,7 +19,7 @@ export abstract class Entity<T = any> {
     example: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
   })
   @IsUUID(4)
-  id: string;
+  id!: string;
 
   /**
    * Timestamp when the entity was created
@@ -30,7 +30,7 @@ export abstract class Entity<T = any> {
   })
   @IsDate()
   @Transform(({ value }) => value instanceof Date ? value : new Date(value))
-  createdAt: Date;
+  createdAt!: Date;
 
   /**
    * Timestamp when the entity was last updated
@@ -41,7 +41,7 @@ export abstract class Entity<T = any> {
   })
   @IsDate()
   @Transform(({ value }) => value instanceof Date ? value : new Date(value))
-  updatedAt: Date;
+  updatedAt!: Date;
 
   /**
    * Constructor that allows partial initialization of the entity
