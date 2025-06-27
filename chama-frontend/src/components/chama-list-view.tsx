@@ -1,39 +1,64 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthService from '../services/auth/signup-service';
-
-interface Chama {
-  id: string;
-  name: string;
-  description: string;
-  memberCount: number;
-  createdAt: string;
-}
+import { Chama } from '../models/chamas';
+import ChamaService from '../services/chama/chama-services';
+import { Button } from 'primereact/button';
+import ProfileTemplate from '../utils/profile-template';
 
 const ChamaListView: React.FC = () => {
   const [chamas, setChamas] = useState<Chama[]>([]);
+  const [allChamas, setAllChamas] = useState<Chama[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>('');
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchChamas();
+    displayChamas();
   }, []);
 
-  const fetchChamas = async () => {
+  const handleSearchChama = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const searchValue = e.target.value;
+    setSearchTerm(searchValue);
+    const searchTermLower = searchValue.toLowerCase();
+    if (searchTermLower === '') {
+      setChamas(allChamas);
+    } else {
+      const filteredChamas = allChamas.filter(chama =>
+        chama.name.toLowerCase().includes(searchTermLower)
+      );
+      setChamas(filteredChamas);
+    }
+  };
+
+  const displayChamas = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/chamas', {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-        },
-      });
+      const response = await ChamaService.fetchAllChamas();
 
-      if (!response.ok) {
+      if (!response || !Array.isArray(response)) {
         throw new Error('Failed to fetch chamas');
       }
 
-      const data = await response.json();
+      const data = response.map((chama: Chama) => ({
+        id: chama.id,
+        name: chama.name,
+        description: chama.description,
+        membersCount: chama.membersCount,
+        organisationRole: chama.organizationRole,
+        rules: chama.rules,
+        userId: chama.userId,
+        userType: chama.userType,
+        country: chama.country,
+        createdAt: chama.createdAt,
+        members: chama.members ?? [],
+        imageUrl: chama.imageUrl ?? '',
+        updatedAt: chama.updatedAt ?? '',
+        createdBy: chama.createdBy,
+      }));
+      setChamas(data);
+      setAllChamas(data);
       setChamas(data);
     } catch (err) {
       setError(
@@ -111,16 +136,20 @@ const ChamaListView: React.FC = () => {
   }
 
   return (
-    <div className='min-h-screen bg-gray-900 p-6'>
-      <div className='max-w-5xl mx-auto'>
-        <h1 className='text-3xl font-bold text-white mb-8'>Available Chamas</h1>
+    <div className='h-screen flex flex-col py-3 px-4'>
+      <div className='flex flex-col h-full'>
+        <h1 className='text-lg font-bold text-white mb-8 flex-shrink-0'>
+          Join Chama
+        </h1>
 
         {error && (
-          <div className='bg-red-800 text-white p-4 rounded mb-6'>{error}</div>
+          <div className='bg-red-800 text-white p-4 rounded mb-6 flex-shrink-0'>
+            {error}
+          </div>
         )}
 
-        {chamas.length === 0 && !isLoading ? (
-          <div className='bg-gray-800 rounded-lg p-8 text-center'>
+        {allChamas.length === 0 && !isLoading ? (
+          <div className='bg-gray-800 rounded-lg p-8 text-center flex-shrink-0'>
             <p className='text-xl text-gray-300 mb-4'>
               No chamas available to join right now.
             </p>
@@ -129,33 +158,94 @@ const ChamaListView: React.FC = () => {
             </p>
           </div>
         ) : (
-          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-            {chamas.map(chama => (
-              <div
-                key={chama.id}
-                className='bg-gray-800 rounded-lg overflow-hidden shadow-lg'
-              >
-                <div className='p-6'>
-                  <h2 className='text-xl font-bold text-white mb-2'>
-                    {chama.name}
-                  </h2>
-                  <p className='text-gray-300 mb-4'>{chama.description}</p>
-                  <div className='flex justify-between text-sm text-gray-400 mb-4'>
-                    <span>Members: {chama.memberCount}</span>
-                    <span>
-                      Created: {new Date(chama.createdAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => handleJoinChama(chama.id)}
-                    disabled={isLoading}
-                    className='w-full py-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors'
-                  >
-                    Join Chama
-                  </button>
+          <div className='bg-[#242E3B] rounded-lg py-2 px-2 mb-8 flex flex-col flex-1 min-h-0'>
+            <div className='relative flex-shrink-0'>
+              <i className='pi pi-search absolute text-gray-500 font-normal top-[15px] left-4 text-xl'></i>
+              <input
+                type='text'
+                placeholder='Search chamas...'
+                className='w-full p-4 pl-14 outline-none rounded-lg bg-gray-100 border-none text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#4084B9] placeholder:text-gray-400'
+                onChange={handleSearchChama}
+              />
+            </div>
+            <p className='mb-[6px] mt-4 font-bold text-sm flex-shrink-0'>
+              {' '}
+              Available chamas{' '}
+            </p>
+            {chamas.length === 0 && searchTerm !== '' ? (
+              <div className='text-center py-8 flex-shrink-0'>
+                <p className='text-gray-400 text-lg'>
+                  No chamas found matching &quot;{searchTerm}&quot;
+                </p>
+                <p className='text-gray-500 text-sm mt-2'>
+                  Try searching with different keywords
+                </p>
+              </div>
+            ) : (
+              <div className='flex-1 overflow-y-auto min-h-0'>
+                <div className='grid grid-cols-1 lg:grid-cols-1 gap-6 pr-2'>
+                  {chamas.map(chama => (
+                    <div
+                      key={chama.id}
+                      className='bg-gray-800 rounded-lg overflow-hidden shadow-lg'
+                    >
+                      <div className='p-6 flex flex-col lg:flex-row items-start gap-4'>
+                        <div className='flex-auto w-2/3'>
+                          <h2 className='text-lg m-0 font-bold text-[#A0A1A2] mt-0 mb-2'>
+                            {chama.name}
+                          </h2>
+                          <div className='flex flex-col justify-between'>
+                            <div>
+                              {' '}
+                              <p className='text-[#61758A] m-0 text-sm'>
+                                {chama.description}
+                              </p>
+                              <div className='flex justify-between text-sm text-gray-400 mb-4'>
+                                <span>Members: {chama.membersCount}</span>
+                                <span>
+                                  Created:
+                                  {new Date(
+                                    chama.createdAt
+                                  ).toLocaleDateString()}
+                                </span>
+                              </div>
+                            </div>
+                            <div>
+                              <div className='text-center'>
+                                <Button
+                                  onClick={() => handleJoinChama(chama.id)}
+                                  disabled={isLoading}
+                                  className='py-2 border-none text-white rounded-full transition-colors bg-gradient-to-br from-[#4084B9] to-[#2D3748] hover:from-[#2D3748] hover:to-[#488ec3]'
+                                >
+                                  Request to Join
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className='flex-auto w-1/3 rounded-2xl overflow-hidden'>
+                          <div
+                            className='h-[170px] rounded-lg flex items-center justify-center'
+                            style={{
+                              background:
+                                'linear-gradient(135deg, #4084B9 0%, #2D3748 100%)',
+                            }}
+                          >
+                            {ProfileTemplate(
+                              {
+                                profilepic: chama.imageUrl,
+                              },
+                              500,
+                              500
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            ))}
+            )}
           </div>
         )}
       </div>
@@ -164,292 +254,3 @@ const ChamaListView: React.FC = () => {
 };
 
 export default ChamaListView;
-
-// import { DataTable } from 'primereact/datatable';
-// import { Column } from 'primereact/column';
-// import { useEffect, useState } from 'react';
-// import { ColumnBodyOptions } from 'primereact/column';
-// import { useNavigate, useParams } from 'react-router-dom';
-// import { Button } from 'primereact/button';
-
-// const profileTemplate = (rowData: any, options: ColumnBodyOptions) => {
-//     <img src={rowData.profilepic} alt="profile" className="w-10 h-10 rounded-full" />
-// };
-
-// const actionsTemplate = (rowData: any, options: ColumnBodyOptions) => (
-//     <div className="flex gap-2">
-//         <button className="text-blue-500">Edit</button>
-//         <button className="text-red-500">Delete</button>
-//     </div>
-// );
-
-// const ChamaListView = ()  => {
-
-//     const navigate = useNavigate();
-//     const [loading, setLoading] = useState(false);
-//     const [error, setError] = useState<string | null>(null);
-//     const [members, setMembers] = useState([]);
-
-//     const columns = [
-//         {field: 'profilepic', header: '#', width: '15%'},
-//         {field: 'name', header: 'Name', width: '20%'},
-//         {field: 'email', header: 'E-mail', width: '20%'},
-//         {field: 'phonenumber', header: 'Phone Number', width: '15%'},
-//         {field: 'shares', header: 'Share', width: '15%'},
-//         {field: 'actions', header: 'Actions', width: '15%'},
-//     ]
-
-//     const chamaId = useParams().chamaId;
-
-//                 // test data
-//                 useEffect (() => {
-//                     const mockData = [
-//                         {
-//                             id: 1,
-//                             profilepic: '/assets/avatar1.png',
-//                             name: 'Alice Wanjiru',
-//                             email: 'alice@example.com',
-//                             phonenumber: '0712345678',
-//                             shares: 100,
-//                             actions: 'Edit/Delete'
-//                         },
-//                         {
-//                             id: 2,
-//                             profilepic: '/assets/avatar2.png',
-//                             name: 'Brian Otieno',
-//                             email: 'brian@example.com',
-//                             phonenumber: '0798765432',
-//                             shares: 80,
-//                             actions: 'Edit/Delete'
-//                         },
-//                         {
-//                             id: 1,
-//                             profilepic: '/assets/avatar1.png',
-//                             name: 'Alice Wanjiru',
-//                             email: 'alice@example.com',
-//                             phonenumber: '0712345678',
-//                             shares: 100,
-//                             actions: 'Edit/Delete'
-//                         },
-//                         {
-//                             id: 2,
-//                             profilepic: '/assets/avatar2.png',
-//                             name: 'Brian Otieno',
-//                             email: 'brian@example.com',
-//                             phonenumber: '0798765432',
-//                             shares: 80,
-//                             actions: 'Edit/Delete'
-//                         },
-//                         {
-//                             id: 1,
-//                             profilepic: '/assets/avatar1.png',
-//                             name: 'Alice Wanjiru',
-//                             email: 'alice@example.com',
-//                             phonenumber: '0712345678',
-//                             shares: 100,
-//                             actions: 'Edit/Delete'
-//                         },
-//                         {
-//                             id: 2,
-//                             profilepic: '/assets/avatar2.png',
-//                             name: 'Brian Otieno',
-//                             email: 'brian@example.com',
-//                             phonenumber: '0798765432',
-//                             shares: 80,
-//                             actions: 'Edit/Delete'
-//                         },
-//                         {
-//                             id: 1,
-//                             profilepic: '/assets/avatar1.png',
-//                             name: 'Alice Wanjiru',
-//                             email: 'alice@example.com',
-//                             phonenumber: '0712345678',
-//                             shares: 100,
-//                             actions: 'Edit/Delete'
-//                         },
-//                         {
-//                             id: 2,
-//                             profilepic: '/assets/avatar2.png',
-//                             name: 'Brian Otieno',
-//                             email: 'brian@example.com',
-//                             phonenumber: '0798765432',
-//                             shares: 80,
-//                             actions: 'Edit/Delete'
-//                         },
-//                         {
-//                             id: 1,
-//                             profilepic: '/assets/avatar1.png',
-//                             name: 'Alice Wanjiru',
-//                             email: 'alice@example.com',
-//                             phonenumber: '0712345678',
-//                             shares: 100,
-//                             actions: 'Edit/Delete'
-//                         },
-//                         {
-//                             id: 2,
-//                             profilepic: '/assets/avatar2.png',
-//                             name: 'Brian Otieno',
-//                             email: 'brian@example.com',
-//                             phonenumber: '0798765432',
-//                             shares: 80,
-//                             actions: 'Edit/Delete'
-//                         },
-//                         {
-//                             id: 1,
-//                             profilepic: '/assets/avatar1.png',
-//                             name: 'Alice Wanjiru',
-//                             email: 'alice@example.com',
-//                             phonenumber: '0712345678',
-//                             shares: 100,
-//                             actions: 'Edit/Delete'
-//                         },
-//                         {
-//                             id: 2,
-//                             profilepic: '/assets/avatar2.png',
-//                             name: 'Brian Otieno',
-//                             email: 'brian@example.com',
-//                             phonenumber: '0798765432',
-//                             shares: 80,
-//                             actions: 'Edit/Delete'
-//                         },
-//                         {
-//                             id: 1,
-//                             profilepic: '/assets/avatar1.png',
-//                             name: 'Alice Wanjiru',
-//                             email: 'alice@example.com',
-//                             phonenumber: '0712345678',
-//                             shares: 100,
-//                             actions: 'Edit/Delete'
-//                         },
-//                         {
-//                             id: 2,
-//                             profilepic: '/assets/avatar2.png',
-//                             name: 'Brian Otieno',
-//                             email: 'brian@example.com',
-//                             phonenumber: '0798765432',
-//                             shares: 80,
-//                             actions: 'Edit/Delete'
-//                         },
-//                         {
-//                             id: 1,
-//                             profilepic: '/assets/avatar1.png',
-//                             name: 'Alice Wanjiru',
-//                             email: 'alice@example.com',
-//                             phonenumber: '0712345678',
-//                             shares: 100,
-//                             actions: 'Edit/Delete'
-//                         },
-//                         {
-//                             id: 2,
-//                             profilepic: '/assets/avatar2.png',
-//                             name: 'Brian Otieno',
-//                             email: 'brian@example.com',
-//                             phonenumber: '0798765432',
-//                             shares: 80,
-//                             actions: 'Edit/Delete'
-//                         },
-//                         {
-//                             id: 1,
-//                             profilepic: '/assets/avatar1.png',
-//                             name: 'Alice Wanjiru',
-//                             email: 'alice@example.com',
-//                             phonenumber: '0712345678',
-//                             shares: 100,
-//                             actions: 'Edit/Delete'
-//                         },
-//                         {
-//                             id: 2,
-//                             profilepic: '/assets/avatar2.png',
-//                             name: 'Brian Otieno',
-//                             email: 'brian@example.com',
-//                             phonenumber: '0798765432',
-//                             shares: 80,
-//                             actions: 'Edit/Delete'
-//                         },
-//                         {
-//                             id: 1,
-//                             profilepic: '/assets/avatar1.png',
-//                             name: 'Alice Wanjiru',
-//                             email: 'alice@example.com',
-//                             phonenumber: '0712345678',
-//                             shares: 100,
-//                             actions: 'Edit/Delete'
-//                         },
-//                         {
-//                             id: 2,
-//                             profilepic: '/assets/avatar2.png',
-//                             name: 'Brian Otieno',
-//                             email: 'brian@example.com',
-//                             phonenumber: '0798765432',
-//                             shares: 80,
-//                             actions: 'Edit/Delete'
-//                         },
-//                         {
-//                             id: 1,
-//                             profilepic: '/assets/avatar1.png',
-//                             name: 'Alice Wanjiru',
-//                             email: 'alice@example.com',
-//                             phonenumber: '0712345678',
-//                             shares: 100,
-//                             actions: 'Edit/Delete'
-//                         },
-//                         {
-//                             id: 2,
-//                             profilepic: '/assets/avatar2.png',
-//                             name: 'Brian Otieno',
-//                             email: 'brian@example.com',
-//                             phonenumber: '0798765432',
-//                             shares: 80,
-//                             actions: 'Edit/Delete'
-//                         },
-//                         {
-//                             id: 1,
-//                             profilepic: '/assets/avatar1.png',
-//                             name: 'Alice Wanjiru',
-//                             email: 'alice@example.com',
-//                             phonenumber: '0712345678',
-//                             shares: 100,
-//                             actions: 'Edit/Delete'
-//                         },
-//                         {
-//                             id: 2,
-//                             profilepic: '/assets/avatar2.png',
-//                             name: 'Brian Otieno',
-//                             email: 'brian@example.com',
-//                             phonenumber: '0798765432',
-//                             shares: 80,
-//                             actions: 'Edit/Delete'
-//                         }
-//                     ];
-
-//                     setMembers (mockData => mockData)
-//                 }, [])
-//     return (
-//         <>
-//             <div className="card">
-//                     <DataTable value={members} paginator rows={5} rowsPerPageOptions={[5, 10, 25, 50]} tableStyle={{ minWidth: '50rem' }}>
-//                         {columns.map((col) => (
-//                             <Column
-//                                 key={col.field}
-//                                 field={col.field}
-//                                 header={col.header}
-//                                 style={{width: col.width, padding: '2px 0'}}
-//                                 // body={col.field === 'profilepic' ? profileTemplate : col.field === 'actions' ? actionsTemplate : undefined }
-//                             />
-//                         ))}
-//                     </DataTable>
-//                 </div>
-
-//             <div className='mt-10 flex justify-end'>
-//                 <Button className="p-button-success" onClick={
-//                     () => navigate(`/chama/${chamaId}/join`)
-
-//                     }>
-//                     Join Chama {chamaId}
-//                 </Button>
-//             </div>
-//         </>
-//     )
-// }
-
-// export default ChamaListView;

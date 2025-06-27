@@ -1,11 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { VersioningType } from '@nestjs/common';
+import { VersioningType, ValidationPipe } from '@nestjs/common';
 import * as firebaseAdmin from 'firebase-admin';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as cookieParser from 'cookie-parser';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -21,6 +21,18 @@ async function bootstrap() {
 
   // Set global API prefix
   app.setGlobalPrefix('api');
+
+  // Enable global validation pipes
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true, // Remove non-decorated properties
+      forbidNonWhitelisted: true, // Throw error for non-decorated properties
+      transform: true, // Transform payload to DTO instance
+      transformOptions: {
+        enableImplicitConversion: true, // Convert types automatically
+      },
+    }),
+  );
 
   // Enable CORS for frontend requests
   app.enableCors({
@@ -76,8 +88,9 @@ async function bootstrap() {
       });
       console.log('Firebase Application initialized successfully.');
     }
-  } catch (error) {
-    console.error('Firebase initialization error:', error.message);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    console.error('Firebase initialization error:', message);
     process.exit(1); // Exit the application on Firebase initialization error
   }
 

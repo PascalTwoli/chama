@@ -63,11 +63,30 @@
 
   /* Button component */
   .p-button {
-    @apply transition-all duration-200;
+    @apply transition-all duration-200 h-9 px-4 py-2 rounded-md text-sm font-semibold text-white; 
+
+  }
+  .p-button:hover {
+    @apply bg-[#488ec3];
+  }
+  .p-button:focus {
+    @apply outline-none   shadow-[0_0_1_2px_#4084B9] ring-2  ring-[#4084B9];  /* ring-2  ring-[#4084B9] */ 
+  }
+  .p-button:active {
+    @apply bg-blue-600;
+  }
+  .p-button.p-button-text {
+    @apply text-blue-500 hover:bg-blue-100;
+  }
+  .p-button.p-button-text:hover {
+    @apply bg-blue-600 text-white;
+  }
+  .p-button.p-button-text:focus {
+    @apply ring-2 ring-blue-500;
   }
 
   .p-button.p-button-outlined {
-    @apply border-2;
+    @apply border-2  ;
   }
 
   /* Input components */

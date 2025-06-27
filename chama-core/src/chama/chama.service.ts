@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateChamaDto } from './dto/create-chama.dto';
+import { UserRole, Countries } from '@prisma/client';
 
 @Injectable()
 export class ChamaService {
@@ -25,13 +26,15 @@ export class ChamaService {
         data: {
           name: createChamaDto.name,
           description: createChamaDto.description,
+          rules: createChamaDto.rules,
           userId: user.id,
-          country: 'KENYA', // Default country - you might want to make this configurable
-          membersCount: 1, // Starting with the creator as the first member
+          country: createChamaDto.country || Countries.KENYA, // Use provided country or default to KENYA
+          membersCount: createChamaDto.membersCount || 1, // Use provided count or default to 1
+          organizationRole: createChamaDto.organizationRole,
           memberships: {
             create: {
               userId: user.id,
-              role: 'ADMIN', // Creator is admin
+              role: UserRole.CHAIRPERSON, // Creator is chairperson
             },
           },
         },
@@ -41,12 +44,14 @@ export class ChamaService {
       });
 
       return chama;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error creating chama:', error);
-      if (error.code === 'P2002') {
+      const errorWithCode = error as any;
+      if (errorWithCode.code === 'P2002') {
         throw new BadRequestException('A chama with this name already exists');
       }
-      throw new BadRequestException(`Failed to create chama: ${error.message}`);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new BadRequestException(`Failed to create chama: ${message}`);
     }
   }
 
@@ -63,9 +68,33 @@ export class ChamaService {
         },
       });
       return chamas;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error finding chamas:', error);
-      throw new BadRequestException(`Failed to fetch chamas: ${error.message}`);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new BadRequestException(`Failed to fetch chamas: ${message}`);
+    }
+  }
+
+  async findAllAvailable(userId: string) {
+    try {
+      // Get all chamas that the user is NOT already a member of
+      const chamas = await this.prisma.chama.findMany({
+        where: {
+          NOT: {
+            memberships: {
+              some: { userId },
+            },
+          },
+        },
+        include: {
+          memberships: true,
+        },
+      });
+      return chamas;
+    } catch (error: unknown) {
+      console.error('Error finding available chamas:', error);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new BadRequestException(`Failed to fetch available chamas: ${message}`);
     }
   }
 
@@ -88,10 +117,11 @@ export class ChamaService {
         );
       }
       return chama;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error(`Error finding chama with ID ${id}:`, error);
       if (error instanceof NotFoundException) throw error;
-      throw new BadRequestException(`Failed to fetch chama: ${error.message}`);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new BadRequestException(`Failed to fetch chama: ${message}`);
     }
   }
 }

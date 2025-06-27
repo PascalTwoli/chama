@@ -1,38 +1,41 @@
 import { useState, useEffect } from 'react';
-import { NavLink, useParams, useNavigate } from 'react-router-dom';
-import logoutUser from '../services/auth/logout';
+import { NavLink, useParams } from 'react-router-dom';
+import ChamaService from '../services/chama/chama-services';
+import LogoutModal from './logoutModal';
 
 function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const { chamaId } = useParams();
-  const navigate = useNavigate();
-  const [userRole, setUserRole] = useState<string | null>(null);
-
-  useEffect(() => {
-    // Get user role from localStorage
-    const role = localStorage.getItem('userRole');
-    setUserRole(role);
-  }, []);
+  const { chamaId } = useParams<{ chamaId: string }>();
+  const [chamaName, setChamaName] = useState<string>('Loading...');
+  const [isLoading, setIsLoading] = useState(true);
+  const [showLogoutModal, setShowLogoutModal] = useState<boolean>(false);
 
   // Set the base link according to user role
-  const baselink =
-    userRole === 'admin'
-      ? `/admin/chamas/${chamaId}`
-      : `/member/chamas/${chamaId}`;
+  const baselink = `/admin/chamas/${chamaId}`;
 
-  const handleLogout = async () => {
-    try {
-      await logoutUser();
-      // The logoutUser function now handles the navigation
-    } catch (error) {
-      console.error('Logout failed:', error);
-      // If logout fails, try to clear localStorage and redirect anyway
-      localStorage.clear();
-      navigate('/signin');
-    }
-  };
+  // Fetch chama data when component mounts or chamaId changes
+  useEffect(() => {
+    const fetchChamaData = async () => {
+      if (!chamaId) {
+        setChamaName('Unknown Chama');
+        setIsLoading(false);
+        return;
+      }
 
-  if (!userRole) return null; // Don't render sidebar until we know the user role
+      try {
+        setIsLoading(true);
+        const chamaData = await ChamaService.getChamaById(chamaId);
+        setChamaName(chamaData.name || 'Unknown Chama');
+      } catch (error) {
+        console.error('Error fetching chama data:', error);
+        setChamaName('Error loading chama name');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchChamaData();
+  }, [chamaId]);
 
   return (
     <div
@@ -43,7 +46,7 @@ function Sidebar() {
       <div className={``}>
         {/* sidebar toggle button */}
         <div
-          className='sidebar-toggle-btn bg-gray-700 hover:bg-gray-500 cursor-pointer'
+          className=' sidebar-toggle-btn bg-gray-700 hover:bg-gray-500 cursor-pointer'
           onClick={() => setIsCollapsed(!isCollapsed)}
         >
           <div className='text-gray-300 hover:text-white transition-colors duration-200  flex items-center justify-center w-full'>
@@ -58,7 +61,7 @@ function Sidebar() {
             className={`sidebar-header flex items-center ${!isCollapsed ? 'pl-2 gap-2' : ''}`}
           >
             <div
-              className='chama-profile-image-div'
+              className='chama-profile-image-div min-w-[50px]'
               style={{
                 backgroundImage: "url('/assets/chamaprofileimage.png')",
                 backgroundSize: 'cover',
@@ -70,7 +73,7 @@ function Sidebar() {
               <div className={`flex flex-col text-center `}>
                 <p className='text-gray-400 m-0'>Chama name</p>
                 <h3 className='font-bold m-0'>
-                  Chama {chamaId} contribution group
+                  {isLoading ? 'Loading...' : chamaName} contribution group
                 </h3>
               </div>
             )}
@@ -85,20 +88,21 @@ function Sidebar() {
             </h4>
 
             {[
-              ['bi-people-fill', 'Membership', `${baselink}`],
+              ['bi-house-door', 'Dashboard', `${baselink}`],
+              ['bi-people-fill', 'Membership', `${baselink}/membership`],
               ['bi-newspaper', 'Soft loans', `${baselink}/softloans`],
               ['bi-house-check', 'Meetings', `${baselink}/meetings`],
               ['bi-graph-up', 'Shares', `${baselink}/shares`],
               ['bi-bell', 'Notifications', `${baselink}/notifications`],
               ['bi-diagram-2', 'Mpesa', `${baselink}/mpesa`],
             ].map(([icon, label, path]) => {
-              const isMembership = label === 'Membership';
+              const isDashboard = label === 'Dashboard';
 
               return (
                 <NavLink
                   key={label}
                   to={path}
-                  end={isMembership}
+                  end={isDashboard}
                   className={({ isActive }) =>
                     `flex items-center gap-x-4 py-3 px-2 rounded transition-all duration-300 hover:bg-gray-700 no-underline ${
                       isCollapsed ? 'justify-center' : ''
@@ -137,11 +141,15 @@ function Sidebar() {
       <div
         className={`flex gap-x-4 text-red-300 font-bold py-3 px-2 hover:bg-gray-700 rounded cursor-pointer pl-4
             ${isCollapsed ? 'justify-center' : 'ml-2 '}`}
-        onClick={handleLogout}
+        onClick={() => setShowLogoutModal(true)}
       >
         <i className='bi bi-box-arrow-right'></i>
         {!isCollapsed && <span>Log Out</span>}
       </div>
+      <LogoutModal
+        visible={showLogoutModal}
+        onHide={() => setShowLogoutModal(false)}
+      />
     </div>
   );
 }

@@ -30,6 +30,7 @@ import { type CurrentUser as CurrentUserType } from '../decorators/current-user.
 import { AuthGuard } from '../guards/auth.guard';
 import { ChamaService } from './chama.service';
 import { CreateChamaDto } from './dto/create-chama.dto';
+import { UserRole, Countries } from '@prisma/client';
 
 /**
  * Interface for Chama response with membership details
@@ -42,18 +43,18 @@ interface ChamaResponse {
   userId: string;
   createdAt: Date;
   updatedAt: Date;
-  country: string;
+  country: Countries;
   membersCount: number;
-  organizationRole: string | null;
-  memberships: {
+  organizationRole: UserRole | null;
+  memberships: Array<{
     id: string;
     chamaId: string;
     userId: string;
-    role: string;
+    role: UserRole;
     joinedAt: Date;
     createdAt: Date;
     updatedAt: Date;
-  }[];
+  }>;
 }
 
 @ApiTags('Chama')
@@ -127,9 +128,10 @@ export class ChamaController {
   ): Promise<ChamaResponse> {
     try {
       return await this.chamaService.create(createChamaDto, currentUser.id);
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof BadRequestException) throw error;
-      throw new BadRequestException(`Failed to create chama: ${error.message}`);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new BadRequestException(`Failed to create chama: ${message}`);
     }
   }
 
@@ -203,12 +205,70 @@ export class ChamaController {
   ): Promise<ChamaResponse[]> {
     try {
       return await this.chamaService.findAll(currentUser.id);
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof BadRequestException) {
         throw error;
       }
+      const message = error instanceof Error ? error.message : 'Unknown error';
       throw new InternalServerErrorException(
-        `Failed to fetch chamas: ${error.message}`,
+        `Failed to fetch chamas: ${message}`,
+      );
+    }
+  }
+
+  /**
+   * Gets all available chamas (public chamas that users can join)
+   */
+  @Get('available')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get all available chamas that users can join' })
+  @ApiOkResponse({
+    description: 'List of all available chamas',
+    schema: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', description: 'Unique chama identifier' },
+          name: { type: 'string', description: 'Name of the chama' },
+          description: {
+            type: 'string',
+            description: 'Description of the chama',
+          },
+          userId: { type: 'string', description: 'ID of the creator' },
+          createdAt: {
+            type: 'string',
+            format: 'date-time',
+            description: 'Creation timestamp',
+          },
+          updatedAt: {
+            type: 'string',
+            format: 'date-time',
+            description: 'Last update timestamp',
+          },
+          membersCount: { type: 'number', description: 'Number of members' },
+          country: { type: 'string', description: 'Country of the chama' },
+        },
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized - User not authenticated',
+  })
+  async findAllAvailable(
+    @CurrentUser() currentUser: CurrentUserType,
+  ): Promise<ChamaResponse[]> {
+    try {
+      return await this.chamaService.findAllAvailable(currentUser.id);
+    } catch (error: unknown) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new InternalServerErrorException(
+        `Failed to fetch available chamas: ${message}`,
       );
     }
   }
@@ -285,15 +345,16 @@ export class ChamaController {
   ): Promise<ChamaResponse> {
     try {
       return await this.chamaService.findOne(id, currentUser.id);
-    } catch (error) {
+    } catch (error: unknown) {
       if (error instanceof NotFoundException) {
         throw error;
       }
       if (error instanceof BadRequestException) {
         throw error;
       }
+      const message = error instanceof Error ? error.message : 'Unknown error';
       throw new InternalServerErrorException(
-        `Failed to fetch chama: ${error.message}`,
+        `Failed to fetch chama: ${message}`,
       );
     }
   }

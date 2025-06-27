@@ -230,6 +230,13 @@ const SignUp = () => {
                       errors.phoneNumber ? 'border-red-500' : ''
                     }`}
                   />
+                  {/* red border if the length of the number is less than 14 characters */}
+                  {formData.phoneNumber &&
+                    formData.phoneNumber.length != 14 && (
+                      <p className='text-red-500 text-xs mt-1'>
+                        Phone number must be 14 characters.
+                      </p>
+                    )}
                   {errors.phoneNumber && (
                     <p className='text-red-500 text-xs mt-1'>
                       {errors.phoneNumber}

@@ -5,7 +5,7 @@ export class RegisterUserDto {
   @IsNotEmpty()
   @IsString()
   @ApiProperty({ description: "The user's first name" })
-  firstName: string;
+  firstName!: string;
 
 
   @IsOptional()
@@ -16,7 +16,7 @@ export class RegisterUserDto {
   @IsNotEmpty()
   @IsEmail()
   @ApiProperty({ description: "The user's email address" })
-  email: string;
+  email!: string;
 
   @IsOptional()
   @Matches(/^\+[1-9]\d{7,14}$/, {
@@ -28,7 +28,7 @@ export class RegisterUserDto {
   @ApiProperty({ description: "The user's password" })
   @IsNotEmpty()
   @Length(8, 20)
-  password: string;
+  password!: string;
 
   @ApiProperty({ enum: UserType })
   @IsOptional()

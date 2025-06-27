@@ -28,8 +28,11 @@ export class AuthService {
         '/auth/signup',
         userData
       );
-      localStorage.setItem('authToken', response.data.token ?? '');
-      localStorage.setItem('userId', response.data.id || response.data.userId);
+      // localStorage.setItem("authToken", response.data.token ?? "");
+      // localStorage.setItem(
+      // 	"userId",
+      // 	response.data.id || response.data.userId
+      // );
       console.log('Sign-up successful:', response.data);
       return response.data;
     } catch (error) {
@@ -148,9 +151,7 @@ export class AuthService {
     }
   }
 
-  static async getUserType(
-    forceCheck: boolean = false
-  ): Promise<UserType | null> {
+  static async getUserType(forceCheck = false): Promise<UserType | null> {
     try {
       const user = await this.getCurrentUser();
       return this.normalizeUserType(user.activeUserType);

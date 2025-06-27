@@ -71,7 +71,7 @@ export class InviteService {
       // Verify the requesting user is an admin of the chama
       // Note: memberships array is already filtered to only include the requesting user's memberships from the query above
       const isUserAdmin = chama.memberships.some(
-        (membership) => membership.role === UserRole.ADMIN
+        (membership) => membership.role === UserRole.CHAIRPERSON
       );
       
       this.logger.debug(`Invite permission check for user ${requestUserId} in chama ${chamaId}: isAdmin=${isUserAdmin}`);
@@ -167,7 +167,9 @@ export class InviteService {
       }
       
       // Log and wrap unknown errors
-      this.logger.error(`Error creating invite: ${error.message}`, error.stack);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      const stack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(`Error creating invite: ${message}`, stack);
       throw new InternalServerErrorException('Failed to create invite');
     }
   }
@@ -290,7 +292,9 @@ export class InviteService {
       }
       
       // Log and wrap unknown errors
-      this.logger.error(`Error accepting invite: ${error.message}`, error.stack);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      const stack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(`Error accepting invite: ${message}`, stack);
       throw new InternalServerErrorException('Failed to accept invite');
     }
   }
@@ -320,7 +324,7 @@ export class InviteService {
 
     // Verify the requesting user is an admin of the chama
     const isChamaAdmin = chama.memberships.some(
-      (membership) => membership.role === UserRole.ADMIN
+      (membership) => membership.role === UserRole.CHAIRPERSON
     );
 
     if (!isChamaAdmin && chama.userId !== requestUserId) {
@@ -429,7 +433,9 @@ export class InviteService {
         return false;
       }
     } catch (error) {
-      this.logger.error(`Error sending invite email: ${error.message}`, error.stack);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      const stack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(`Error sending invite email: ${message}`, stack);
       return false;
     }
   }

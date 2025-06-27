@@ -20,10 +20,19 @@ module.exports = {
           context: path.resolve(__dirname, 'src'),
           cache: true,
           cacheLocation: path.resolve(__dirname, 'node_modules/.cache/.eslintcache'),
+          configFile: path.resolve(__dirname, '.eslintrc.js'),
+          baseConfig: undefined, // Remove base config to avoid conflicts
+          useEslintrc: true,
           failOnError: false,
           failOnWarning: false,
         };
       }
+      
+      // Configure module resolution to prefer local node_modules
+      webpackConfig.resolve.modules = [
+        path.resolve(__dirname, 'node_modules'),
+        'node_modules'
+      ];
       
       return webpackConfig;
     },

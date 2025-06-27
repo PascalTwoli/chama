@@ -21,7 +21,7 @@ export class UserEntity extends Entity<UserEntity> implements User {
   })
   @IsString()
   @IsOptional()
-  name: string | null;
+  name!: string | null;
 
   /**
    * User's email address
@@ -33,7 +33,7 @@ export class UserEntity extends Entity<UserEntity> implements User {
   })
   @IsEmail()
   @IsOptional()
-  email: string | null;
+  email!: string | null;
 
   /**
    * User's phone number
@@ -45,13 +45,13 @@ export class UserEntity extends Entity<UserEntity> implements User {
   })
   @IsString()
   @IsOptional()
-  phone: string | null;
+  phone!: string | null;
 
   /**
    * Password hash (excluded from responses)
    */
   @Exclude()
-  passwordHash: string | null;
+  passwordHash!: string | null;
 
   /**
    * User's role in the system
@@ -64,7 +64,7 @@ export class UserEntity extends Entity<UserEntity> implements User {
   @IsEnum(UserRole, {
     message: `Role must be one of: ${Object.values(UserRole).join(', ')}`,
   })
-  role: UserRole;
+  role!: UserRole;
 
   /**
    * Active user type
@@ -79,7 +79,7 @@ export class UserEntity extends Entity<UserEntity> implements User {
     message: `Active user type must be one of: ${Object.values(UserType).join(', ')}`,
   })
   @IsOptional()
-  activeUserType: UserType | null;
+  activeUserType!: UserType | null;
 
   constructor(partial: Partial<UserEntity>) {
     super(partial);

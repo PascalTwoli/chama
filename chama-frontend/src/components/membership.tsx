@@ -1,14 +1,40 @@
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import MembersTable from './membership.table';
+import ChamaService from '../services/chama/chama-services';
 
-type MembershipProps = {
-  chamaId?: string;
-};
-
-function Membership({ chamaId }: MembershipProps) {
+function Membership() {
+  const { chamaId } = useParams<{ chamaId: string }>();
   const [selectedFilter, setSelectedFilter] = useState('all');
+  const [chamaName, setChamaName] = useState<string>('Loading...');
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch chama data when component mounts or chamaId changes
+  useEffect(() => {
+    const fetchChamaData = async () => {
+      if (!chamaId) {
+        setChamaName('Unknown Chama');
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        const chamaData = await ChamaService.getChamaById(chamaId);
+        setChamaName(chamaData.name || 'Unknown Chama');
+      } catch (error) {
+        console.error('Error fetching chama data:', error);
+        setChamaName('Error loading chama name');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchChamaData();
+  }, [chamaId]);
+
   const filters = [
     { label: 'All members', value: 'all' },
     { label: 'Active', value: 'active' },
@@ -19,10 +45,14 @@ function Membership({ chamaId }: MembershipProps) {
       {/* membership header */}
       <div className='flex justify-between items-center rounded-md'>
         {/* Title */}
-        <h2 className='text-white text-xl font-bold'>
-          {' '}
-          Chama {chamaId} group members
-        </h2>
+        <div>
+          <h2 className='text-white text-xl font-bold'>
+            {isLoading ? 'Loading...' : chamaName} - Group Members
+          </h2>
+          <p className='text-gray-400 text-sm'>
+            Chama ID: {chamaId || 'Unknown'}
+          </p>
+        </div>
 
         {/* Actions */}
         <div className='flex items-center gap-4'>
