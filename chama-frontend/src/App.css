@@ -3,6 +3,7 @@
   --border-1-color: #525A644D;
   --primary-color: #4084B9;
   --primary-color-hover: #488ec3;
+  --secondary-bg-color: #BEC0C5;
   --info-btn: #4084B9;
   --info-btn-hover: #4084B9;
   --info-btn-active: #4084B9;
@@ -21,6 +22,7 @@
   --purple-700: #44337a;
   --purple-800: #322659;      
 }
+
 
 
 .App {}
@@ -67,7 +69,7 @@
   /* padding: 20px 40px; */
   padding-top: 20px;
   padding-bottom: 20px;
-  border-right: 0.5px solid  rgb(100, 100, 100);
+  border-right: 1px solid  var(--border-1-color);
   /* max-width: 100px; */
   position: relative;
   /* transition: .5s ease-in-out; */
@@ -251,3 +253,39 @@
 .basic-info-cont{
   border-bottom: solid 1px var(--border-1-color);
 }
+
+
+/* Admin dashboard */
+.admin-head-stats, .chamas-container, .chamas-div, .quick-actions-div, .quick-action-btn, .border1{
+  border: 0.5px solid var(--border-1-color, 30%);
+}
+
+.chamas-container-header, .quick-actions-head, .border2{
+  border-bottom: 0.5px solid var(--border-1-color, 30%);
+}
+
+/* member invitation */
+.select-chama-header {
+  border-bottom: 0.5px solid var(--border-1-color, 30%);
+}
+
+.input-border {
+  border: 0.5px solid var(--border-1-color, 30%);
+}
+
+.border-white {
+  border: 1px solid white;
+}
+
+.border-left{
+  border-left: 0.5px solid var(--border-1-color, 30%);
+}
+
+.invitation-link:hover {
+  border: solid 1px white;
+}
+
+.invitation-link:hover .copy-link-icon {
+  border-left: 0.5px solid white;
+}
+
