@@ -15,7 +15,7 @@ interface NavbarLinksProps {
 function NavbarLinks({ onLogoutClick }: NavbarLinksProps) {
   const [selectedItem, setSelectedItem] = useState<NavbarLink | null>(null);
   const { chamaId } = useParams<{ chamaId: string }>();
-  const settings = `/admin/chamas/${chamaId}/settings`;
+  const settings = `/admin/chamas/${chamaId}/account-settings`;
   const navigate = useNavigate();
 
   const items = [

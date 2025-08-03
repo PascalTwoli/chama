@@ -4,7 +4,10 @@ import ChamaService from '../services/chama/chama-services';
 import LogoutModal from './logoutModal';
 
 function Sidebar() {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    const savedState = localStorage.getItem('sidebarCollapsed');
+    return savedState ? JSON.parse(savedState) : false;
+  });
   const { chamaId } = useParams<{ chamaId: string }>();
   const [chamaName, setChamaName] = useState<string>('Loading...');
   const [isLoading, setIsLoading] = useState(true);
@@ -39,7 +42,7 @@ function Sidebar() {
 
   return (
     <div
-      className={`flex flex-col justify-between  sidebar text-white ${isCollapsed ? 'w-fit p-2' : 'w-[350px] pl-6 pr-6'} transition-all duration-500 ease-in-out`}
+      className={`flex flex-col justify-between  sidebar text-white ${isCollapsed ? 'w-fit p-2' : 'max-w-[320px] pl-6 pr-6'} transition-all duration-500 ease-in-out`}
     >
       {' '}
       {/**bg-[#19222C] */}
@@ -47,7 +50,11 @@ function Sidebar() {
         {/* sidebar toggle button */}
         <div
           className=' sidebar-toggle-btn bg-gray-700 hover:bg-gray-500 cursor-pointer'
-          onClick={() => setIsCollapsed(!isCollapsed)}
+          onClick={() => {
+            const newState = !isCollapsed;
+            setIsCollapsed(newState);
+            localStorage.setItem('sidebarCollapsed', JSON.stringify(newState));
+          }}
         >
           <div className='text-gray-300 hover:text-white transition-colors duration-200  flex items-center justify-center w-full'>
             <i
@@ -71,8 +78,8 @@ function Sidebar() {
             </div>
             {!isCollapsed && (
               <div className={`flex flex-col text-center `}>
-                <p className='text-gray-400 m-0'>Chama name</p>
-                <h3 className='font-bold m-0'>
+                <p className='text-gray-400 m-0 text-sm'>Chama name</p>
+                <h3 className='font-bold m-0 text-sm'>
                   {isLoading ? 'Loading...' : chamaName} contribution group
                 </h3>
               </div>
@@ -81,9 +88,11 @@ function Sidebar() {
 
           {/* nav links */}
           <div
-            className={`sidebar-nav flex flex-col gap-y-2 pt-4 pb-7 text-gray-400 font-bold mb-6 ${!isCollapsed ? 'pl-2' : ''}`}
+            className={`sidebar-nav flex flex-col gap-y-2 pt-1 pb-3 text-gray-400 font-bold mb-6 ${!isCollapsed ? 'pl-2' : ''}`}
           >
-            <h4 className={`flex mb-2 ${isCollapsed ? 'justify-center' : ''}`}>
+            <h4
+              className={`flex mb-2 text-sm ${isCollapsed ? 'justify-center' : ''}`}
+            >
               Main
             </h4>
 
@@ -94,7 +103,7 @@ function Sidebar() {
               ['bi-house-check', 'Meetings', `${baselink}/meetings`],
               ['bi-graph-up', 'Shares', `${baselink}/shares`],
               ['bi-bell', 'Notifications', `${baselink}/notifications`],
-              ['bi-diagram-2', 'Mpesa', `${baselink}/mpesa`],
+              ['bi-diagram-2', 'Disbursements', `${baselink}/disbursements`],
             ].map(([icon, label, path]) => {
               const isDashboard = label === 'Dashboard';
 
@@ -104,13 +113,13 @@ function Sidebar() {
                   to={path}
                   end={isDashboard}
                   className={({ isActive }) =>
-                    `flex items-center gap-x-4 py-3 px-2 rounded transition-all duration-300 hover:bg-gray-700 no-underline ${
+                    `flex items-center gap-x-4 py-3 px-2 rounded transition-all duration-300 hover:bg-gray-700 no-underline text-sm ${
                       isCollapsed ? 'justify-center' : ''
                     } ${isActive ? 'bg-gray-700 text-white' : 'text-gray-400'}`
                   }
                 >
                   <i
-                    className={`bi ${icon} sidebar-icon text-xl text-gray-300`}
+                    className={`bi ${icon} sidebar-icon text-base text-gray-300`}
                   ></i>
                   {!isCollapsed && <p className='p-0 m-0'>{label}</p>}
                 </NavLink>
@@ -121,17 +130,17 @@ function Sidebar() {
           {/* Settings */}
           <div className={` ${isCollapsed ? '' : 'pl-2'}`}>
             <NavLink
-              to={`${baselink}/chama_settings`}
+              to={`${baselink}/chama-settings`}
               className={({ isActive }) =>
                 `flex items-center gap-x-4 py-3 px-2 rounded transition-all duration-300 hover:bg-gray-700  no-underline ${
                   isCollapsed ? 'justify-center' : ''
                 } ${isActive ? 'bg-gray-700 text-white' : 'text-gray-400'}`
               }
             >
-              <i className='bi bi-gear text-gray-300'></i>
+              <i className='bi bi-gear text-gray-300 text-base'></i>
               {!isCollapsed && (
                 <div className='flex gap-x-4 text-gray-400 font-bold'>
-                  <p className='m-0'>Settings</p>
+                  <p className='m-0 text-sm'>Settings</p>
                 </div>
               )}
             </NavLink>
@@ -139,12 +148,12 @@ function Sidebar() {
         </div>
       </div>
       <div
-        className={`flex gap-x-4 text-red-300 font-bold py-3 px-2 hover:bg-gray-700 rounded cursor-pointer pl-4
+        className={`flex gap-x-4 text-red-300 font-bold py-3 px-2 hover:bg-gray-700 rounded cursor-pointer 
             ${isCollapsed ? 'justify-center' : 'ml-2 '}`}
         onClick={() => setShowLogoutModal(true)}
       >
-        <i className='bi bi-box-arrow-right'></i>
-        {!isCollapsed && <span>Log Out</span>}
+        <i className='bi bi-box-arrow-right text-base'></i>
+        {!isCollapsed && <span className='text-sm'>Log Out</span>}
       </div>
       <LogoutModal
         visible={showLogoutModal}

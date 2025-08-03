@@ -264,7 +264,7 @@ const SignIn = () => {
                     onChange={handleChange}
                     required
                     autoComplete='email'
-                    className={`w-full p-3 mt-4 border rounded bg-gray-700 placeholder:font-bold placeholder:text-gray-300 focus:outline focus:outline-sky-500 ${error.email ? 'border-red-500' : ''}`}
+                    className={`w-full p-3 mt-2 border rounded bg-gray-700 placeholder:font-bold placeholder:text-gray-300 focus:outline focus:outline-sky-500 ${error.email ? 'border-red-500' : ''}`}
                     placeholder='example@gmail.com'
                   />
                   {error.email && (
@@ -273,7 +273,7 @@ const SignIn = () => {
                 </label>
               </div>
 
-              <div className='mt-20 relative'>
+              <div className='mt-6 relative'>
                 <label className='pass-input' htmlFor='password'>
                   Password
                   <input
@@ -284,7 +284,7 @@ const SignIn = () => {
                     onChange={handleChange}
                     required
                     placeholder='min 8 characters'
-                    className={`w-full p-3 mt-4 border rounded bg-gray-700 placeholder:font-bold placeholder:text-gray-300 focus:outline focus:outline-sky-500 ${error.password ? 'border-red-500' : ''}`}
+                    className={`w-full p-3 mt-2 border rounded bg-gray-700 placeholder:font-bold placeholder:text-gray-300 focus:outline focus:outline-sky-500 ${error.password ? 'border-red-500' : ''}`}
                   />
                   {error.password && (
                     <p className='text-red-500 text-sm mt-1'>
@@ -316,7 +316,7 @@ const SignIn = () => {
 
               <div className=''>
                 <button
-                  className='w-full p-2 mt-20 mb-10 text-white bg-[#54B685] rounded hover:bg-green-400 transition duration-300 border-0 text-center'
+                  className='w-full p-2 mt-6 mb-6 text-white bg-[#54B685] rounded hover:bg-green-400 transition duration-300 border-0 text-center'
                   type='submit'
                   disabled={isLoading || isCheckingUserType}
                 >
@@ -328,7 +328,7 @@ const SignIn = () => {
                 </button>
               </div>
 
-              <div className='flex items-center my-6 mb-10 mt-14'>
+              <div className='flex items-center my-6 mb-10'>
                 <div className='flex-grow  hor-line'></div>
                 <button className=' google-login bg-gray-700 p-2 rounded flex justify-around items-center ml-4 mr-4 gap-4 hover:bg-gray-600 transition duration-300  border-0'>
                   <img
