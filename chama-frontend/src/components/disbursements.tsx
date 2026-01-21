@@ -27,6 +27,7 @@ function Disbursements() {
     const targetDateTime = new Date(
       `${disbursementDate}T${disbursementTime}:00`
     );
+
     const now = new Date();
     const difference = targetDateTime.getTime() - now.getTime();
 
@@ -188,60 +189,68 @@ function Disbursements() {
       <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
         {/* Left Column - Disbursement Overview & Breakdown */}
         <div className='lg:col-span-2 space-y-8'>
-          {/* Disbursement Overview */}
-          <div>
-            <h3 className='text-base font-semibold mb-6 text-gray-300'>
-              Disbursement Overview
-            </h3>
-            <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
-              <div className='text-center bg-primarybg p-2 rounded-md '>
-                <div className='text-base font-bold text-success m-0'>
-                  Kes 95,000
+          <div className='bg-primarybg rounded-lg'>
+            {/* Disbursement Overview */}
+            <div className=''>
+              <h3 className='text-sm font-semibol text-default m-0 p-4 pb-0 '>
+                Disbursement Overview
+              </h3>
+              <div className='grid grid-cols-1 md:grid-cols-3 gap-6 border2 p-4'>
+                <div className='text-center bg-[#242E3B] p-2 rounded-md '>
+                  <div className='text-sm font-bold text-success m-0'>
+                    Kes 95,000
+                  </div>
+                  <div className='text-sm font-light text-default m-0'>
+                    Total pool
+                  </div>
                 </div>
-                <div className='text-sm text-gray-400 m-0'>Total pool</div>
-              </div>
-              <div className='text-center bg-primarybg p-2 rounded-md '>
-                <div className='text-base font-bold text-secondary m-0'>15</div>
-                <div className='text-sm text-gray-400 m-0'>
-                  Eligible members{' '}
+                <div className='text-center bg-[#242E3B] p-2 rounded-md '>
+                  <div className='text-sm font-bold text-secondary m-0'>15</div>
+                  <div className='text-sm font-light  text-default m-0'>
+                    Eligible members{' '}
+                  </div>
                 </div>
-              </div>
-              <div className='text-center bg-primarybg p-2 rounded-md '>
-                <div className='text-base font-bold text-yellow m-0'>
-                  Equally
-                </div>
-                <div className='text-sm text-gray-400 m-0'>
-                  Based on contribution
+                <div className='text-center bg-[#242E3B] p-2 rounded-md '>
+                  <div className='text-sm font-bold text-yellow m-0'>
+                    Equally
+                  </div>
+                  <div className='text-sm font-light text-default m-0'>
+                    Based on contribution
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Disbursement Breakdown */}
-          <div>
-            <h3 className='text-base font-semibold mb-6 text-gray-300'>
-              Disbursement Breakdown
-            </h3>
-            <div className='bg-gray-800/30 rounded-lg p-6'>
-              <div className='space-y-4 text-sm'>
-                <div className='flex justify-between items-center'>
-                  <span className='text-gray-400'>Total Contributions</span>
-                  <span className='text-white font-medium'>Ksh 95000</span>
-                </div>
-                <div className='flex justify-between items-center'>
-                  <span className='text-gray-400'>Administrative Fee (5%)</span>
-                  <span className='text-red-400 font-medium'>-Ksh 4,750</span>
-                </div>
-                <div className='flex justify-between items-center'>
-                  <span className='text-gray-400'>Emergency Funds (1%)</span>
-                  <span className='text-red-400 font-medium'>-Ksh 950</span>
-                </div>
-                <div className='border-t border-gray-700 pt-4'>
-                  <div className='flex justify-between items-center'>
-                    <span className='text-gray-300 font-semibold'>
-                      Net Disbursement
+            {/* Disbursement Breakdown */}
+            <div>
+              <h3 className='text-sm text-default font-semibold p-4 m-0'>
+                Disbursement Breakdown
+              </h3>
+              <div className='rounded-lg '>
+                <div className='space-y-4 text-sm'>
+                  <div className='flex justify-between items-center font-light px-4'>
+                    <span className='text-default'>Total Contributions</span>
+                    <span className='text-default '>Ksh 95000</span>
+                  </div>
+                  <div className='flex justify-between items-center font-light px-4'>
+                    <span className='text-default'>
+                      Administrative Fee (5%)
                     </span>
-                    <span className='text-success font-bold '>Kes 89,300</span>
+                    <span className='text-red-400 '>-Ksh 4,750</span>
+                  </div>
+                  <div className='flex justify-between items-center font-light border2 px-4 pb-4'>
+                    <span className='text-default'>Emergency Funds (1%)</span>
+                    <span className='text-red-400 '>-Ksh 950</span>
+                  </div>
+                  <div className='border-t border-gray-700 pb-4 px-4'>
+                    <div className='flex justify-between items-center'>
+                      <span className='font-semibold text-default'>
+                        Net Disbursement
+                      </span>
+                      <span className='text-success font-bold '>
+                        Kes 89,300
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -249,36 +258,51 @@ function Disbursements() {
           </div>
 
           {/* Terms & Conditions */}
-          <div>
-            <h3 className='text-base font-semibold mb-6 text-gray-300'>
+          <div className='bg-primarybg p-4 rounded-lg'>
+            <h3 className='text-sm font-semibold mb-4 m-0 text-gray-400 '>
               Terms & Conditions
             </h3>
             <div className='space-y-4'>
               <div className='flex items-start gap-3'>
-                <div className='w-6 h-6 bg-green-500 rounded-full flex items-center justify-center mt-1 flex-shrink-0'>
-                  <i className='bi bi-check text-white text-sm'></i>
+                <div className='w-10 h-10 bg-success/30 rounded-full flex items-center justify-center  flex-shrink-0'>
+                  <i className='bi bi-check text-4xl text-success'></i>
                 </div>
+
                 <div>
-                  <h4 className='font-semibold text-gray-300 text-sm m-0'>
+                  <h4 className='font-semibold text-gray-400 text-sm m-0'>
                     Eligibility Requirements
                   </h4>
-                  <p className='text-gray-400 text-sm m-0'>
+                  <p className='text-default font-light text-sm m-0'>
                     A member must have completed their monthly contributions for
                     the entire cycle period (6 months).
                   </p>
                 </div>
               </div>
               <div className='flex items-start gap-3'>
-                <div className='w-6 h-6 bg-green-500 rounded-full flex items-center justify-center mt-1 flex-shrink-0'>
-                  <i className='bi bi-check text-white text-sm'></i>
+                <div className='w-10 h-10 bg-success/30 rounded-full flex items-center justify-center flex-shrink-0'>
+                  <i className='bi bi-check text-4xl text-success'></i>
                 </div>
                 <div>
-                  <h4 className='font-semibold text-gray-300 text-sm m-0'>
+                  <h4 className='font-semibold text-gray-400 text-sm m-0'>
                     Disbursement Method
                   </h4>
-                  <p className='text-gray-400 text-sm m-0'>
+                  <p className='text-default font-light text-sm m-0'>
                     Funds will be disbursed equally to all eligible members
                     within 24 hours of scheduled disbursement.
+                  </p>
+                </div>
+              </div>
+              <div className='flex items-start gap-3'>
+                <div className='w-10 h-10 bg-success/30 rounded-full flex items-center justify-center flex-shrink-0'>
+                  <i className='bi bi-check text-4xl text-success'></i>
+                </div>
+                <div>
+                  <h4 className='font-semibold text-gray-400 text-sm m-0'>
+                    Dispute resolution
+                  </h4>
+                  <p className='text-default font-light text-sm m-0'>
+                    Any disputes regarding disbursement amounts must be raised
+                    within 7 days of released
                   </p>
                 </div>
               </div>
@@ -289,15 +313,15 @@ function Disbursements() {
         {/* Right Column - Disbursement Action & Cycle Summary */}
         <div className='space-y-8'>
           {/* Disbursement Action */}
-          <div>
-            <h3 className='text-base font-semibold mb-6 text-gray-300'>
+          <div className='bg-primarybg rounded-lg p-6'>
+            <h3 className='text-sm font-semibold m-0 mb-6 text-gray-400'>
               Disbursement Action
             </h3>
-            <div className='bg-gray-800/30 rounded-lg p-6'>
+            <div>
               <button
                 className={`w-full flex items-center justify-center gap-3 py-3 px-4 rounded-lg mb-4 transition-colors ${
                   isExpired
-                    ? 'bg-green-600 hover:bg-green-700 text-white cursor-pointer'
+                    ? 'bg-green-600 hover:bg-green-700 text-white cursor-pointer border-none '
                     : 'bg-gray-700 text-gray-400 cursor-not-allowed'
                 }`}
                 disabled={!isExpired}
@@ -306,29 +330,29 @@ function Disbursements() {
                 <span className='font-medium'>Release Disbursement</span>
               </button>
               <div className='text-center mb-4'>
-                <p className='text-sm text-gray-400 mb-1'>Available on</p>
-                <p className='font-semibold text-white'>
+                <p className='text-sm text-default mb-1'>Available on</p>
+                <p className='font-semibold text-default'>
                   {formatDisbursementDate()}
                 </p>
               </div>
               <div
-                className={`rounded-lg p-4 ${
+                className={`rounded-lg p-3 ${
                   isExpired
                     ? 'bg-green-900/20 border border-green-600/30'
-                    : 'bg-yellow-900/20 border border-yellow-600/30 bg-yellowbg'
+                    : 'border border-2  border-green-500 bg-[#FEFCEA]'
                 }`}
               >
                 <div className='flex items-start gap-3'>
                   <i
-                    className={`mt-1 ${
+                    className={` ${
                       isExpired
-                        ? 'bi bi-check-circle text-green-400'
-                        : 'bi bi-info-circle text-yellow'
+                        ? 'bi bi-check-circle text-success'
+                        : 'bi bi-info-circle text-[#996523]'
                     }`}
                   ></i>
                   <p
-                    className={`text-sm ${
-                      isExpired ? 'text-green-400' : 'text-yellow'
+                    className={`text-sm m-0 ${
+                      isExpired ? 'text-success' : 'text-[#996523]'
                     }`}
                   >
                     {isExpired
@@ -341,27 +365,23 @@ function Disbursements() {
           </div>
 
           {/* Cycle Summary */}
-          <div>
-            <h3 className='text-base font-semibold mb-6 text-gray-300'>
+          <div className='bg-primarybg p-4 rounded-lg'>
+            <h3 className='text-sm font-semibold mb-6 m-0  text-gray-400'>
               Cycle Summary
             </h3>
-            <div className='bg-gray-800/30 rounded-lg p-6'>
+            <div className=' '>
               <div className='space-y-4 text-sm'>
-                <div className='flex justify-between items-center'>
-                  <span className='text-gray-400'>Cycle duration</span>
-                  <span className='text-white font-medium'>12 Months</span>
+                <div className='flex justify-between items-center text-default'>
+                  <span className=''>Cycle duration</span>
+                  <span className='font-medium'>12 Months</span>
                 </div>
-                <div className='flex justify-between items-center'>
-                  <span className='text-gray-400'>Start Date</span>
-                  <span className='text-white font-medium'>
-                    January 15, 2025
-                  </span>
+                <div className='flex justify-between items-center text-default'>
+                  <span className=''>Start Date</span>
+                  <span className='font-medium'>January 15, 2025</span>
                 </div>
-                <div className='flex justify-between items-center'>
-                  <span className='text-gray-400'>End Date</span>
-                  <span className='text-white font-medium'>
-                    December 15, 2025
-                  </span>
+                <div className='flex justify-between items-center text-default'>
+                  <span className=''>End Date</span>
+                  <span className='font-medium'>December 15, 2025</span>
                 </div>
               </div>
             </div>
