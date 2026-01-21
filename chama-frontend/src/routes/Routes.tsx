@@ -232,9 +232,9 @@ const AppRoutes = () => {
         <Route
           path='/admin/chamas/:chamaId/*'
           element={
-            <ProtectedRoute allowedRole='admin'>
-              <AdminLayout />
-            </ProtectedRoute>
+            // <ProtectedRoute allowedRole='admin'>
+            <AdminLayout />
+            // </ProtectedRoute>
           }
         >
           <Route index element={<AdminDashboard />} />
