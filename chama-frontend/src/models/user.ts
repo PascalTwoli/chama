@@ -9,7 +9,17 @@ export interface UserAppMetadata {
 }
 
 export interface UserMetadata {
-  [key: string]: any;
+  [key: string]: unknown;
+}
+
+// Chama membership for a user
+export interface ChamaMembership {
+  chamaId: string;
+  chamaName: string;
+  role: 'ADMIN' | 'MEMBER';
+  isActive: boolean;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  joinedAt?: string;
 }
 
 export interface User {
@@ -19,6 +29,8 @@ export interface User {
   email: string;
   phoneNumber: string;
   activeUserType: UserType;
+  chamas?: ChamaMembership[]; // User's chama memberships
+  activeChama?: ChamaMembership; // Currently active chama
   profilepic?: string; // Optional profile picture field
   app_metadata?: UserAppMetadata;
   metadata?: UserMetadata; // Optional metadata field
@@ -40,8 +52,10 @@ export interface SignInCredentials {
 }
 
 export interface SignInResponse {
-  token: string;
+  idToken?: string; // API returns idToken
+  token?: string; // Fallback for compatibility
   refreshToken: string;
+  expiresIn?: number;
   user: User;
 }
 

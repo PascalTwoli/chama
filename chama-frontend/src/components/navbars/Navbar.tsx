@@ -1,150 +1,132 @@
-// components/Navbar.tsx
-import { Menu } from 'primereact/menu';
-import type { MenuItem } from 'primereact/menuitem';
-import { useRef } from 'react';
-import { NavLink, useNavigate, useParams } from 'react-router-dom';
-import AuthService from '../../services/auth/signup-service';
 import { useEffect, useState } from 'react';
-import NavbarLinks from './navbar-links';
-import ProfileTemplate from '../../utils/profile-template';
+import { useNavigate } from 'react-router-dom';
+import { Bell, Moon, Sun, LogOut, User, ChevronDown } from 'lucide-react';
+import AuthService from '../../services/auth/signup-service';
 import LogoutModal from '../logoutModal';
 import Logo1 from '../../logos/logo1';
+import { useTheme } from '../../context/ThemeContext';
+import { Button } from '../ui/button';
 
-interface NavbarProps {
-  chamas: { id: number; name: string }[];
-  onCreateChama: () => void;
-  handleJoinChama: (chamaId: number) => void;
-}
-
-const Navbar = ({ chamas, onCreateChama, handleJoinChama }: NavbarProps) => {
-  const menuRef = useRef<any>(null);
+const Navbar = () => {
   const [user, setUser] = useState<any>(null);
   const [userName, setUserName] = useState<string | null>(null);
-  const [displayNavbarLinks, setDisplayNavbarLinks] = useState(false);
+  const [displayProfileMenu, setDisplayProfileMenu] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const { theme, toggleTheme } = useTheme();
+  const navigate = useNavigate();
 
-  // this for getting the currently logged in user's id
   useEffect(() => {
-    AuthService.getCurrentUser().then((user: any) => {
-      setUser(user);
-      setUserName(
-        user.firstName.charAt(0).toUpperCase() +
-          user.firstName.slice(1) +
-          ' ' +
-          user.lastName.charAt(0).toUpperCase() +
-          user.lastName.slice(1)
-      );
-    });
+    AuthService.getCurrentUser()
+      .then((userData: any) => {
+        setUser(userData);
+        setUserName(
+          userData.firstName.charAt(0).toUpperCase() +
+            userData.firstName.slice(1) +
+            ' ' +
+            userData.lastName.charAt(0).toUpperCase() +
+            userData.lastName.slice(1)
+        );
+      })
+      .catch(() => {
+        // User not logged in - this is fine
+      });
   }, []);
 
-  const menuItems: MenuItem[] = [
-    ...chamas.map(chama => ({
-      label: chama.name,
-      command: () => handleJoinChama(chama.id),
-    })),
-    { separator: true },
-    {
-      label: 'Create New Chama',
-      icon: 'pi pi-plus',
-      command: onCreateChama,
-    },
-  ];
+  const getInitials = () => {
+    if (!user) return '?';
+    return `${user.firstName?.charAt(0) || ''}${user.lastName?.charAt(0) || ''}`.toUpperCase();
+  };
 
   return (
-    <div className='navbar flex justify-between items-center pl-7  pr-5 text-white'>
-      <div className='flex items-center gap-x-6'>
-        <span>
+    <header className='bg-card px-6 py-3'>
+      <div className='flex justify-between items-center'>
+        {/* Left: Logo */}
+        <div className='flex items-center'>
           <Logo1 />
-        </span>
-        <div className='relative'>
-          <div
-            className='text-white rounded px-4 py-2'
-            onClick={e => menuRef.current.toggle(e)}
-          >
-            Select Chama <i className='pi pi-chevron-down ml-2' />
-          </div>
-          <Menu model={menuItems} popup ref={menuRef} />
         </div>
-      </div>
-      <div className='flex gap-x-4 items-center'>
-        <i className='pi pi-bell' />
-        <div
-          className='profile-div flex items-center gap-x-2 relative cursor-pointer'
-          onClick={() => setDisplayNavbarLinks(!displayNavbarLinks)}
-        >
-          {user && ProfileTemplate(user, 5, 5)}
-          <span>{userName}</span>
-          <i className='pi pi-chevron-down text-xs' />
-          {displayNavbarLinks && (
-            <div className='fixed top-16 right-5 z-50'>
-              <NavbarLinks
-                onLogoutClick={() => {
-                  setShowLogoutModal(true);
-                  setDisplayNavbarLinks(false); // Close the dropdown when logout is clicked
-                }}
-              />
-            </div>
-          )}
+
+        {/* Right: Theme Toggle, Notifications, Profile */}
+        <div className='flex items-center gap-4'>
+          {/* Theme Toggle */}
+          <Button
+            variant='ghost'
+            size='icon'
+            onClick={toggleTheme}
+            className='text-muted-foreground hover:text-foreground'
+            title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+          >
+            {theme === 'light' ? (
+              <Moon className='w-5 h-5' />
+            ) : (
+              <Sun className='w-5 h-5' />
+            )}
+          </Button>
+
+          {/* Notifications */}
+          <Button
+            variant='ghost'
+            size='icon'
+            className='relative text-muted-foreground hover:text-foreground'
+          >
+            <Bell className='w-5 h-5' />
+            <span className='absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground rounded-full text-xs flex items-center justify-center'>
+              3
+            </span>
+          </Button>
+
+          {/* Profile */}
+          <div className='relative'>
+            <button
+              onClick={() => setDisplayProfileMenu(!displayProfileMenu)}
+              className='flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-muted transition-colors'
+            >
+              <div className='w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center'>
+                <span className='text-sm font-bold text-primary'>
+                  {getInitials()}
+                </span>
+              </div>
+              <span className='text-sm font-medium text-foreground hidden sm:block'>
+                {userName}
+              </span>
+              <ChevronDown className='w-4 h-4 text-muted-foreground' />
+            </button>
+
+            {displayProfileMenu && (
+              <div className='absolute top-full right-0 mt-2 w-48 bg-card border border-border rounded-lg shadow-lg z-50'>
+                <div className='p-2'>
+                  <button
+                    onClick={() => {
+                      setDisplayProfileMenu(false);
+                      navigate('/account-settings');
+                    }}
+                    className='w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground rounded-lg hover:bg-muted transition-colors'
+                  >
+                    <User className='w-4 h-4' />
+                    Profile
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowLogoutModal(true);
+                      setDisplayProfileMenu(false);
+                    }}
+                    className='w-full flex items-center gap-2 px-3 py-2 text-sm text-destructive rounded-lg hover:bg-destructive/10 transition-colors'
+                  >
+                    <LogOut className='w-4 h-4' />
+                    Log Out
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Logout Modal - managed at navbar level to persist across component unmounts */}
       <LogoutModal
         visible={showLogoutModal}
         onHide={() => setShowLogoutModal(false)}
       />
-    </div>
+    </header>
   );
 };
 
 export default Navbar;
-
-// import { FC } from "react";
-
-// interface Chama {
-//   id: number;
-//   name: string;
-// }
-
-// interface NavbarProps {
-//   chamas: Chama[];
-//   handleCreateChama: () => void;
-//   handleJoinChama: (chamaId: number) => void;
-// }
-
-// const Navbar: FC<NavbarProps> = ({
-//   chamas,
-//   handleCreateChama,
-//   handleJoinChama,
-// }) => {
-//   return (
-//     <div className="navbar p-4 flex justify-between items-center bg-[#111827]">
-//       <h1 className="text-xl font-bold">My Chama App</h1>
-
-//       <div className="flex items-center gap-4">
-//         <div className="relative group">
-//           <button className="hover:text-blue-400">Switch Chama</button>
-//           <div className="absolute hidden group-hover:block bg-white text-black shadow-md rounded mt-2">
-//             {chamas.map((chama) => (
-//               <div
-//                 key={chama.id}
-//                 onClick={() => handleJoinChama(chama.id)}
-//                 className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
-//               >
-//                 {chama.name}
-//               </div>
-//             ))}
-//             <div
-//               onClick={handleCreateChama}
-//               className="px-4 py-2 bg-blue-50 hover:bg-blue-100 cursor-pointer font-semibold border-t"
-//             >
-//               + Create New Chama
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Navbar;
