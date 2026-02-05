@@ -21,12 +21,7 @@ module.exports = {
       jsx: true,
     },
   },
-  plugins: [
-    '@typescript-eslint',
-    'react',
-    'react-hooks',
-    'prettier',
-  ],
+  plugins: ['@typescript-eslint', 'react', 'react-hooks', 'prettier'],
   rules: {
     'prettier/prettier': 'error',
     'react/react-in-jsx-scope': 'off',
@@ -42,4 +37,3 @@ module.exports = {
     },
   },
 };
-

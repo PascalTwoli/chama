@@ -1,8 +1,19 @@
-import { useNavigate } from 'react-router-dom';
-import React, { useState, FormEvent, ChangeEvent } from 'react';
+import { useState, FormEvent, ChangeEvent } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Users, Eye, EyeOff } from 'lucide-react';
+import { toast } from 'react-toastify';
 import AuthService from '../services/auth/signup-service';
 import { SignupRequest, FormErrors } from '../models/user';
-import { toast } from 'react-toastify';
+import { Button } from '../components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '../components/ui/card';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -23,7 +34,6 @@ const SignUp = () => {
       ...formData,
       [name]: value,
     });
-    // Clear field-specific error when user starts typing
     if (errors[name]) {
       setErrors({
         ...errors,
@@ -47,17 +57,18 @@ const SignUp = () => {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Email is invalid';
-    } else if (newErrors.email) {
-      newErrors.email = 'Email is already registered';
     }
+
     if (!formData.phoneNumber.trim()) {
       newErrors.phoneNumber = 'Phone number is required';
+    } else if (formData.phoneNumber.length < 10) {
+      newErrors.phoneNumber = 'Please enter a valid phone number';
     }
 
     if (!formData.password.trim()) {
       newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters';
     }
 
     setErrors(newErrors);
@@ -76,18 +87,14 @@ const SignUp = () => {
     try {
       await AuthService.signup(formData as SignupRequest);
       toast.success(
-        'Registration successful! Redirecting to user type selection...'
+        'Registration successful! Please create or join a chama to get started.'
       );
-
-      // Redirect to user type selection page after short delay
-      // This allows users to select their role in the system (e.g., admin, member, etc.)
       setTimeout(() => {
-        navigate('/chose-user');
-      }, 2000);
+        navigate('/onboarding/chama-choice');
+      }, 1500);
     } catch (error) {
       console.error('Registration error:', error);
 
-      // Check if error is related to email already existing
       if (
         error instanceof Error &&
         (error.message.includes('Email is already registered') ||
@@ -103,251 +110,221 @@ const SignUp = () => {
         toast.error(
           'Email is already registered. Please use a different email or sign in.'
         );
-      }
-      // Check for validation errors
-      else if (
+      } else if (
         error instanceof Error &&
-        error.message.includes('Validation error')
-      ) {
-        const fieldMatch = /field:\s*(\w+)/i.exec(error.message);
-        if (fieldMatch && fieldMatch[1]) {
-          const field = fieldMatch[1].toLowerCase();
-          setErrors({
-            ...errors,
-            [field]: error.message.replace(/Validation error:\s*/i, ''),
-          });
-        }
-        toast.error(error.message.replace(/Validation error:\s*/i, ''));
-      }
-      // Check for server errors
-      else if (
-        error instanceof Error &&
-        (error.message.includes('internal server error') ||
-          error.message.includes('Our team has been notified'))
+        error.message.includes('Could not connect')
       ) {
         toast.error(
-          'An internal server error occurred. Please try again later.'
+          'Could not connect to the server. Please check your internet connection.'
         );
-      }
-      // Check for network errors
-      else if (
-        error instanceof Error &&
-        error.message.includes('Could not connect to the server')
-      ) {
-        toast.error(
-          'Could not connect to the server. Please check your internet connection and try again.'
-        );
-        // setApiError("Email is already registered. Please use a different email or sign in.");
-      }
-      // For other errors
-      else {
+      } else {
         toast.error(
           error instanceof Error
             ? error.message
             : 'Registration failed. Please try again.'
         );
       }
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   return (
-    <div className='bg-gray-900 flex justify-center min-h-screen items-center'>
-      <div className='signin-container flex flex-row justify-center items-center rounded-xl'>
-        <div className='signup-details flex items-center justify-center min-h-full bg-black '>
-          <div className='w-full  px-10 rounded-xl font-bold overflow-y-auto h-[93vh] pt-2'>
-            <form onSubmit={handleRegister}>
-              <div className='flex gap-6'>
-                <label htmlFor='firstName' className='w-full'>
-                  First Name
-                  <input
-                    type='text'
+    <div className='min-h-screen flex items-center justify-center px-4 py-12 bg-gradient-to-b from-secondary-light to-background'>
+      <div className='w-full max-w-md'>
+        {/* Logo & Header */}
+        <div className='text-center mb-8'>
+          <div className='flex items-center justify-center mb-4'>
+            <div className='w-12 h-12 rounded-lg bg-primary flex items-center justify-center'>
+              <Users className='w-7 h-7 text-primary-foreground' />
+            </div>
+          </div>
+          <h2 className='text-2xl font-bold mb-2'>Create Account</h2>
+          <p className='text-muted-foreground'>
+            Join ChamaPlus to manage your savings group
+          </p>
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Sign Up</CardTitle>
+            <CardDescription>
+              Enter your details to create an account
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleRegister} className='space-y-4'>
+              {/* Name Row */}
+              <div className='grid grid-cols-2 gap-4'>
+                <div className='space-y-2'>
+                  <Label htmlFor='firstName'>First Name</Label>
+                  <Input
                     id='firstName'
                     name='firstName'
-                    placeholder='First Name'
+                    type='text'
+                    placeholder='John'
                     value={formData.firstName}
                     onChange={handleChange}
-                    className={`w-full p-3 mt-2 border rounded bg-gray-700 focus:outline focus:outline-sky-500 ${
-                      errors.firstName ? 'border-red-500' : ''
-                    }`}
+                    className={errors.firstName ? 'border-destructive' : ''}
+                    autoComplete='given-name'
                   />
                   {errors.firstName && (
-                    <p className='text-red-500 text-xs mt-1'>
+                    <p className='text-destructive text-xs'>
                       {errors.firstName}
                     </p>
                   )}
-                </label>
-                <label htmlFor='lastName' className='w-full'>
-                  Last Name
-                  <input
-                    type='text'
+                </div>
+                <div className='space-y-2'>
+                  <Label htmlFor='lastName'>Last Name</Label>
+                  <Input
                     id='lastName'
                     name='lastName'
-                    placeholder='Last Name'
+                    type='text'
+                    placeholder='Doe'
                     value={formData.lastName}
                     onChange={handleChange}
-                    className={`w-full p-3 mt-2 border rounded bg-gray-700 focus:outline focus:outline-sky-500 ${
-                      errors.lastName ? 'border-red-500' : ''
-                    }`}
+                    className={errors.lastName ? 'border-destructive' : ''}
+                    autoComplete='family-name'
                   />
                   {errors.lastName && (
-                    <p className='text-red-500 text-xs mt-1'>
+                    <p className='text-destructive text-xs'>
                       {errors.lastName}
                     </p>
                   )}
-                </label>
+                </div>
               </div>
-              <div className='mt-8'>
-                <label htmlFor='email' className='w-full'>
-                  Email address
-                  <input
-                    type='email'
-                    id='email'
-                    name='email'
-                    placeholder='Email'
-                    value={formData.email}
-                    onChange={handleChange}
-                    className={`w-full p-3 mt-2 border rounded bg-gray-700 placeholder:font-bold placeholder:text-gray-400 focus:outline focus:outline-sky-500 ${
-                      errors.email ? 'border-red-500' : ''
-                    }`}
-                  />
-                  {errors.email && (
-                    <p className='text-red-500 text-xs mt-1'>{errors.email}</p>
-                  )}
-                </label>
+
+              {/* Email */}
+              <div className='space-y-2'>
+                <Label htmlFor='email'>Email Address</Label>
+                <Input
+                  id='email'
+                  name='email'
+                  type='email'
+                  placeholder='example@gmail.com'
+                  value={formData.email}
+                  onChange={handleChange}
+                  className={errors.email ? 'border-destructive' : ''}
+                  autoComplete='email'
+                />
+                {errors.email && (
+                  <p className='text-destructive text-xs'>{errors.email}</p>
+                )}
               </div>
-              <div className='mt-8'>
-                <label htmlFor='phoneNumber' className='w-full'>
-                  Phone Number
-                  <input
-                    type='tel'
-                    id='phoneNumber'
-                    name='phoneNumber'
-                    placeholder='Phone Number'
-                    value={formData.phoneNumber}
-                    onChange={handleChange}
-                    className={`w-full p-3 mt-2 border rounded bg-gray-700 focus:outline focus:outline-sky-500 ${
-                      errors.phoneNumber ? 'border-red-500' : ''
-                    }`}
-                  />
-                  {/* red border if the length of the number is less than 14 characters */}
-                  {formData.phoneNumber &&
-                    formData.phoneNumber.length != 14 && (
-                      <p className='text-red-500 text-xs mt-1'>
-                        Phone number must be 14 characters.
-                      </p>
-                    )}
-                  {errors.phoneNumber && (
-                    <p className='text-red-500 text-xs mt-1'>
-                      {errors.phoneNumber}
-                    </p>
-                  )}
-                </label>
+
+              {/* Phone Number */}
+              <div className='space-y-2'>
+                <Label htmlFor='phoneNumber'>Phone Number</Label>
+                <Input
+                  id='phoneNumber'
+                  name='phoneNumber'
+                  type='tel'
+                  placeholder='+254 712 345 678'
+                  value={formData.phoneNumber}
+                  onChange={handleChange}
+                  className={errors.phoneNumber ? 'border-destructive' : ''}
+                  autoComplete='tel'
+                />
+                {errors.phoneNumber && (
+                  <p className='text-destructive text-xs'>
+                    {errors.phoneNumber}
+                  </p>
+                )}
               </div>
-              <div className='mt-8 relative'>
-                <label htmlFor='password' className='w-full'>
-                  Password
-                  <input
-                    type={showPassword ? 'text' : 'password'}
+
+              {/* Password */}
+              <div className='space-y-2'>
+                <Label htmlFor='password'>Password</Label>
+                <div className='relative'>
+                  <Input
                     id='password'
                     name='password'
-                    placeholder='Password'
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder='Min 8 characters'
                     value={formData.password}
                     onChange={handleChange}
-                    className={`w-full p-3 mt-2 border rounded bg-gray-700 focus:outline focus:outline-sky-500 ${
-                      errors.password ? 'border-red-500' : ''
-                    }`}
+                    className={
+                      errors.password ? 'border-destructive pr-10' : 'pr-10'
+                    }
+                    autoComplete='new-password'
                   />
-                  {errors.password && (
-                    <p className='text-red-500 text-xs mt-1'>
-                      {errors.password}
-                    </p>
-                  )}
-                </label>
-                <button
-                  type='button'
-                  className='absolute right-3 top-[36px] text-gray-400 hover:text-gray-200 transition duration-300 bg-transparent border-0 focus:outline-none'
-                  onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                >
-                  {showPassword ? (
-                    <i className='bi bi-eye-slash text-2xl'></i>
-                  ) : (
-                    <i className='bi bi-eye text-2xl'></i>
-                  )}
-                </button>
+                  <button
+                    type='button'
+                    className='absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors'
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label={
+                      showPassword ? 'Hide password' : 'Show password'
+                    }
+                  >
+                    {showPassword ? (
+                      <EyeOff className='w-5 h-5' />
+                    ) : (
+                      <Eye className='w-5 h-5' />
+                    )}
+                  </button>
+                </div>
+                {errors.password && (
+                  <p className='text-destructive text-xs'>{errors.password}</p>
+                )}
               </div>
-              <p className='text-gray-400 mt-8 font-normal'>
-                By creating an account, you agree to our{' '}
-                <button
-                  onClick={() => {
-                    /* TODO: Add terms page navigation */
-                  }}
-                  className='text-white bg-transparent border-0 p-0 cursor-pointer underline'
-                >
-                  Terms
-                </button>{' '}
-                and{' '}
-                <button
-                  onClick={() => {
-                    /* TODO: Add privacy policy page navigation */
-                  }}
-                  className='text-white bg-transparent border-0 p-0 cursor-pointer underline'
-                >
-                  privacy policy
-                </button>
-              </p>
-              <button
-                type='submit'
-                className='w-full p-2 mt-4 text-white bg-[#54B685] rounded hover:bg-green-400 transition duration-300 border-0 disabled:bg-gray-500 disabled:cursor-not-allowed cursor-pointer'
-                disabled={isLoading}
-              >
-                {isLoading ? 'Creating account...' : 'Create Account'}
-              </button>
 
-              <div className='flex items-center my-6 mb-10 mt-14'>
-                <div className='flex-grow  hor-line'></div>
-                <button className=' google-login bg-gray-700 p-2 rounded flex justify-around items-center ml-4 mr-4 gap-4 hover:bg-gray-600 transition duration-300  border-0'>
-                  <img
-                    className='google-logo'
-                    src='/assets/Google__G__logo.svg.webp'
-                    alt='Google'
-                  />
-                  <span>Google Sign up</span>
-                </button>
-                <div className=' flex-grow hor-line'></div>
+              {/* Terms Text */}
+              <p className='text-xs text-muted-foreground'>
+                By creating an account, you agree to our{' '}
+                <Link to='/terms' className='text-primary hover:underline'>
+                  Terms
+                </Link>{' '}
+                and{' '}
+                <Link to='/privacy' className='text-primary hover:underline'>
+                  Privacy Policy
+                </Link>
+              </p>
+
+              <Button type='submit' className='w-full' disabled={isLoading}>
+                {isLoading ? 'Creating account...' : 'Create Account'}
+              </Button>
+
+              {/* Divider */}
+              <div className='relative my-6'>
+                <div className='absolute inset-0 flex items-center'>
+                  <div className='w-full border-t border-border'></div>
+                </div>
+                <div className='relative flex justify-center text-xs uppercase'>
+                  <span className='bg-card px-2 text-muted-foreground'>
+                    Or continue with
+                  </span>
+                </div>
               </div>
+
+              {/* Google Sign Up */}
+              <Button variant='outline' className='w-full' type='button'>
+                <img
+                  src='/assets/Google__G__logo.svg.webp'
+                  alt='Google'
+                  className='w-5 h-5 mr-2'
+                />
+                Sign Up with Google
+              </Button>
             </form>
 
-            <p className='mt-4 text-center text-gray-400 font-bold'>
+            <p className='mt-6 text-center text-muted-foreground'>
               Already have an account?{' '}
-              <a
-                href='/signin'
-                className='text-[#54B685] hover:text-green-400 transition duration-300'
+              <Link
+                to='/signin'
+                className='text-primary hover:underline font-medium'
               >
                 Sign In
-              </a>
+              </Link>
             </p>
-          </div>
-        </div>
-        <div
-          className='signup-image flex-1'
-          style={{
-            backgroundImage: "url('/assets/signinimage.png')",
-            backgroundSize: 'cover',
-          }}
-        >
-          <div className=' flex flex-col justify-center signup-image-overlay text-center p-14'>
-            <p className='font-bold welcome-p mb-4 '>
-              Welcome To <br />{' '}
-              <span className='underline'>ChamaPlus System</span>
-            </p>
-            <p className='font-bold text-2xl p-7 pt-0 mt-0 text-center'>
-              We provide easy-to-use tools for managing group finances and
-              working together efficiently!
-            </p>
-          </div>
-        </div>
+            <Button
+              variant='ghost'
+              className='w-full mt-4'
+              onClick={() => navigate('/')}
+            >
+              Back Home
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

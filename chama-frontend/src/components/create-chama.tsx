@@ -6,6 +6,8 @@ import { ExtendedChamaFormData } from '../models/chamas';
 import ChamaService from '../services/chama/chama-services';
 import { Countries } from '../models/data/Countries';
 import { UserRole } from '../models/user';
+import { useChamaMembership } from '../context/ChamaMembershipContext';
+import { ArrowLeft } from 'lucide-react';
 
 const tabs = ['Basic', 'Features', 'Terms'];
 
@@ -17,6 +19,7 @@ const CreateChama: React.FC = () => {
     Record<string, string>
   >({});
   const navigate = useNavigate();
+  const { refreshMemberships } = useChamaMembership();
 
   const [activeStep, setActiveStep] = useState(0);
   const [formData, setFormData] = useState<ExtendedChamaFormData>({
@@ -142,6 +145,9 @@ const CreateChama: React.FC = () => {
 
       // Mark chama creation as complete
       AuthService.markChamaCreationComplete(chamaId);
+
+      // Refresh memberships to update context
+      await refreshMemberships();
 
       // Redirect to admin dashboard
       navigate(`/admin/chamas/${chamaId}`, {
@@ -409,19 +415,21 @@ const CreateChama: React.FC = () => {
   return (
     <div className='w-full max-h-full  p-8 pt-0 text-white px-40'>
       <div className='flex justify-between items-center mb-8'>
-        <div>
-          <h2 className='text-lg font-bold m-0 '>Create a new Chama</h2>
-          <p className='font-[200] m-0 text-sm'>
-            Start your savings journey with a new chama group
-          </p>
+        <div className='flex items-center gap-4'>
+          <button
+            className='flex items-center gap-2 text-gray-400 hover:text-white transition-colors'
+            onClick={() => navigate('/onboarding/chama-choice')}
+          >
+            <ArrowLeft className='w-5 h-5' />
+            <span>Back</span>
+          </button>
+          <div>
+            <h2 className='text-lg font-bold m-0 '>Create a new Chama</h2>
+            <p className='font-[200] m-0 text-sm'>
+              Start your savings journey with a new chama group
+            </p>
+          </div>
         </div>
-        <button
-          className='flex items-center gap-2 text-gray-400 hover:text-white transition-colors h-[35px] rounded border-none'
-          onClick={() => navigate('/chamas')}
-        >
-          <i className='bi bi-list '></i>
-          <span className='ml-2'>My Chamas</span>
-        </button>
       </div>
 
       {/* Tabs */}

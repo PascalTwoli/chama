@@ -2,299 +2,65 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Base styles for dark theme */
+@import './styles/theme.css';
+
 @layer base {
   html {
-    font-size: theme('fontSize.base');
-    @apply bg-gray-900 text-gray-100;
+    font-size: var(--font-size, 16px);
   }
+
   body {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    font-family:
+      'Inter',
+      'Roboto',
+      'Open Sans',
+      -apple-system,
+      BlinkMacSystemFont,
+      'Segoe UI',
       sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    @apply bg-gray-900;
-  }
-  code {
-    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-      monospace;
+    background-color: var(--background);
+    color: var(--foreground);
   }
 
-  input,
-  textarea{
-    font-family: monospace;
-    font-weight: bold;
-  }
-
-  input::placeholder {
-    font-weight: 600
+  * {
+    border-color: var(--border);
   }
 }
 
-/* PrimeReact component overrides */
 @layer components {
-  /* Menu component */
-  .p-menu {
-    @apply bg-red-900 border-blue-500;
+  /* Toast styling */
+  .Toastify__toast {
+    @apply bg-card text-foreground border border-border rounded-lg;
   }
 
-  .p-submenu-header {
-    @apply bg-inherit;
+  .Toastify__toast--success {
+    border-color: var(--success);
+  }
+
+  .Toastify__toast--error {
+    border-color: var(--destructive);
+  }
+
+  /* PrimeReact Menu Override for theme compatibility */
+  .p-menu {
+    background: var(--card) !important;
+    border-color: var(--border) !important;
+    color: var(--foreground) !important;
   }
 
   .p-menu .p-menuitem-link {
-    @apply text-gray-200;
+    color: var(--foreground) !important;
   }
 
   .p-menu .p-menuitem-link:hover {
-    
+    background: var(--muted) !important;
   }
 
-  /* Toast component */
-  .p-toast {
-    @apply opacity-100;
-  }
-
-  .p-toast .p-toast-message {
-    @apply border-0 rounded-md shadow-lg;
-  }
-
-  /* React Toastify Custom Colors */
-  .Toastify__toast {
-    @apply bg-gray-800 text-white border border-gray-600 rounded-lg;
-  }
-
-  /* Success toast */
-  .Toastify__toast--success {
-    @apply bg-green-800 border-green-600;
-  }
-
-  .Toastify__toast--success .Toastify__progress-bar {
-    @apply bg-green-400;
-  }
-
-  /* Error toast */
-  .Toastify__toast--error {
-    @apply bg-red-800 border-red-600;
-  }
-
-  .Toastify__toast--error .Toastify__progress-bar {
-    @apply bg-red-400;
-  }
-
-  /* Warning toast */
-  .Toastify__toast--warning {
-    @apply bg-yellow-800 border-yellow-600;
-  }
-
-  .Toastify__toast--warning .Toastify__progress-bar {
-    @apply bg-yellow-400;
-  }
-
-  /* Info toast */
-  .Toastify__toast--info {
-    @apply bg-blue-800 border-blue-600;
-  }
-
-  .Toastify__toast--info .Toastify__progress-bar {
-    @apply bg-blue-400;
-  }
-
-  /* Toast container */
-  .Toastify__toast-container {
-    @apply font-sans;
-  }
-
-  /* Close button */
-  .Toastify__close-button {
-    @apply text-gray-300 hover:text-white;
-  }
-
-  /* DataTable Component Styling - Force transparent backgrounds */
-  .p-datatable {
-    background: transparent !important;
-    border: none !important;
-    @apply rounded-lg overflow-hidden;
-  }
-
-  .p-datatable .p-datatable-wrapper {
-    background: transparent !important;
-  }
-
-  .p-datatable .p-datatable-table {
-    background: transparent !important;
-  }
-
-  /* DataTable header */
-  .p-datatable .p-datatable-thead > tr > th {
-    background: transparent !important;
-    @apply text-default border-b border-[#525A644D] py-3 px-4 font-semibold text-sm;
-  }
-
-  /* DataTable header hover */
-  .p-datatable .p-datatable-thead > tr > th:hover {
-    background: rgba(42, 52, 65, 0.5) !important;
-  }
-
-  /* DataTable body rows */
-  .p-datatable .p-datatable-tbody > tr {
-    background: transparent !important;
-    @apply transition-colors duration-200;
-  }
-
-  .p-datatable .p-datatable-tbody > tr:hover {
-    background: rgba(42, 52, 65, 0.3) !important;
-  }
-
-  /* DataTable body cells */
-  .p-datatable .p-datatable-tbody > tr > td {
-    background: transparent !important;
-    @apply font-bold  py-3 px-4 border-[#525A644D] text-xs;
-  }
-
-  /* Force remove alternating row colors */
-  .p-datatable .p-datatable-tbody > tr:nth-child(even) {
-    background: transparent !important;
-  }
-
-  .p-datatable .p-datatable-tbody > tr:nth-child(even):hover {
-    background: rgba(42, 52, 65, 0.3) !important;
-  }
-
-  /* DataTable footer */
-  .p-datatable .p-datatable-tfoot > tr > td {
-    background: transparent !important;
-    @apply text-gray-200 border-t border-gray-600;
-  }
-
-  /* Remove any other potential backgrounds */
-  .p-datatable .p-datatable-scrollable-body,
-  .p-datatable .p-datatable-scrollable-header,
-  .p-datatable .p-datatable-scrollable-footer {
-    background: transparent !important;
-  }
-
-  /* Paginator styling */
-  .p-paginator {
-    background: transparent !important;
-    @apply border-none rounded-b-lg;
-  }
-
-  .p-paginator .p-paginator-pages .p-paginator-page {
-    @apply bg-transparent text-gray-300 border border-gray-600 hover:bg-[#4084B9] hover:text-white transition-colors;
-  }
-
-  .p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
-    @apply bg-[#4084B9] text-white border-[#4084B9];
-  }
-
-  .p-paginator .p-paginator-first,
-  .p-paginator .p-paginator-prev,
-  .p-paginator .p-paginator-next,
-  .p-paginator .p-paginator-last {
-    @apply text-gray-300 hover:text-white hover:bg-[#4084B9] transition-colors;
-  }
-
-  /* Row selection */
-  .p-datatable .p-datatable-tbody > tr.p-highlight {
-    @apply bg-[#4084B9] bg-opacity-20 text-white;
-  }
-
-  /* Scrollbar styling for DataTable */
-  .p-datatable .p-datatable-scrollable-body::-webkit-scrollbar {
-    @apply w-2;
-  }
-
-  .p-datatable .p-datatable-scrollable-body::-webkit-scrollbar-track {
-    @apply bg-gray-800 rounded;
-  }
-
-  .p-datatable .p-datatable-scrollable-body::-webkit-scrollbar-thumb {
-    @apply bg-gray-600 rounded hover:bg-gray-500;
-  }
-
-  /* Button component */
-  .p-button {
-    @apply transition-all duration-200 h-9 px-4 py-2 rounded-md text-sm font-semibold text-white; 
-
-  }
-  .p-button:hover {
-    @apply bg-[#488ec3];
-  }
-  .p-button:focus {
-    @apply outline-none   shadow-[0_0_1_2px_#4084B9] ring-2  ring-[#4084B9];  /* ring-2  ring-[#4084B9] */ 
-  }
-  .p-button:active {
-    @apply bg-blue-600;
-  }
-  .p-button.p-button-text {
-    @apply text-blue-500 hover:bg-blue-100;
-  }
-  .p-button.p-button-text:hover {
-    @apply bg-blue-600 text-white;
-  }
-  .p-button.p-button-text:focus {
-    @apply ring-2 ring-blue-500;
-  }
-
-  .p-button.p-button-outlined {
-    @apply border-2  ;
-  }
-
-  /* Input components */
-  .p-inputtext, .p-inputtextarea {
-    @apply bg-inherit border border-gray-600 text-gray-300;
-  }
-
-  .p-inputtext:hover, .p-inputtextarea:hover {
-    @apply border-blue-300;
-  }
-
-  .p-inputtext:focus, .p-inputtextarea:focus {
-    @apply shadow-none ;
-    /* box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.5); */
-    border: 2px solid rgba(64, 132, 185, 0.5)
-
-  }
- /* dropdown components */
-  .p-dropdown{
-    @apply bg-white text-blue-900;
-  }
-
-  .p-dropdown .focus{
-    /* @apply bg-yellow-700 */
-  }
-
-  .membership-dropdown .p-dropdown-label {
-    @apply p-1.5
-  }
-  
-  .p-dropdown-label {
-    @apply  bg-inherit w-fit;
-  }
-
-  .p-inputtext {
-    @apply text-gray-400; 
-  }
-
-  .p-dropdown-trigger {
-    @apply text-black;
-  }
-
-  .p-dropdown-items {
-    
-  }
-
-  /* Card components */
-
-  .p-card-body {
-    
-  }
-  .p-card-content {
-    @apply p-0;
+  .p-submenu-header {
+    background: var(--card) !important;
+    color: var(--muted-foreground) !important;
   }
 }
-
-
