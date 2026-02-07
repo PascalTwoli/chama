@@ -13,9 +13,23 @@ export class AuthService {
         '/auth/login',
         credentials
       );
-      //save tokens to local storage
-      localStorage.setItem('authToken', response.data.token);
-      localStorage.setItem('refreshToken', response.data.refreshToken);
+
+      // API returns idToken, not token
+      const authToken = response.data.idToken || response.data.token;
+      const refreshToken = response.data.refreshToken;
+
+      // Clear stale chama-related localStorage to prevent incorrect routing
+      // This ensures a fresh start for determining where to redirect
+      localStorage.removeItem('activeChamaId');
+      localStorage.removeItem('hasCreatedChama');
+      localStorage.removeItem('hasJoinedChama');
+      localStorage.removeItem('userRole');
+
+      // Save tokens to local storage
+      if (authToken) {
+        localStorage.setItem('authToken', authToken);
+      }
+      localStorage.setItem('refreshToken', refreshToken);
 
       // Check if user has a role already
       const existingRole = localStorage.getItem('userRole');
@@ -28,8 +42,8 @@ export class AuthService {
         localStorage.setItem('isFirstLogin', 'false');
       }
 
-      // Update the Authorization header
-      setAuthHeader(apiClient, response.data.token);
+      // Update the Authorization header immediately
+      setAuthHeader(apiClient, authToken ?? null);
       console.log('Sign-in successful:', response.data);
       return response.data;
     } catch (error) {

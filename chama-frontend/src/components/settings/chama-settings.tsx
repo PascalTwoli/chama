@@ -128,7 +128,9 @@ const ChamaSettings: React.FC<ChamaSettingsProps> = () => {
 
   return (
     <>
-      <h1 className='font-bold text-lg mb-4'>Twoli Contribution's Settings</h1>
+      <h1 className='font-bold text-lg mb-4'>
+        Twoli Contribution&apos;s Settings
+      </h1>
       <div className='flex gap-3'>
         <div className='rounded-lg shadow-lg min-w-[220px] h-40'>
           <Menu
