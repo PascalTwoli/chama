@@ -14,12 +14,12 @@ function DecimalTransformer() {
     if (value === null || value === undefined) {
       return value;
     }
-    
+
     // If it's already a Decimal, convert to number
     if (value instanceof Decimal) {
       return value.toNumber();
     }
-    
+
     // If it's a string or number, ensure it's a valid decimal
     const decimal = new Decimal(value);
     return decimal.toNumber();
@@ -28,11 +28,14 @@ function DecimalTransformer() {
 
 /**
  * Contribution entity class demonstrating Decimal field handling
- * 
+ *
  * Shows how to properly handle Prisma Decimal fields with transformers
  * for API serialization while maintaining type safety.
  */
-export class ContributionEntity extends Entity<ContributionEntity> implements Contribution {
+export class ContributionEntity
+  extends Entity<ContributionEntity>
+  implements Contribution
+{
   /**
    * ID of the associated Chama
    */
@@ -58,12 +61,15 @@ export class ContributionEntity extends Entity<ContributionEntity> implements Co
    */
   @ApiProperty({
     description: 'Amount of the contribution',
-    example: 1000.50,
+    example: 1000.5,
     type: Number,
   })
-  @IsNumber({ maxDecimalPlaces: 2 }, {
-    message: 'Amount must be a number with at most 2 decimal places',
-  })
+  @IsNumber(
+    { maxDecimalPlaces: 2 },
+    {
+      message: 'Amount must be a number with at most 2 decimal places',
+    },
+  )
   @DecimalTransformer()
   amount!: Decimal;
 
@@ -117,15 +123,15 @@ export class DecimalUtils {
     if (decimal === null || decimal === undefined) {
       return null;
     }
-    
+
     if (typeof decimal === 'number') {
       return decimal;
     }
-    
+
     if (decimal instanceof Decimal) {
       return decimal.toNumber();
     }
-    
+
     return new Decimal(decimal).toNumber();
   }
 
@@ -136,24 +142,26 @@ export class DecimalUtils {
     if (value === null || value === undefined) {
       return null;
     }
-    
+
     if (value instanceof Decimal) {
       return value;
     }
-    
+
     return new Decimal(value);
   }
 
   /**
    * Format decimal as currency string
    */
-  static formatCurrency(decimal: Decimal | number | string | null, currency = 'KES'): string {
+  static formatCurrency(
+    decimal: Decimal | number | string | null,
+    currency = 'KES',
+  ): string {
     const num = DecimalUtils.toNumber(decimal);
     if (num === null) {
       return `${currency} 0.00`;
     }
-    
+
     return `${currency} ${num.toFixed(2)}`;
   }
 }
-

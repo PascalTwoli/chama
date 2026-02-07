@@ -2,26 +2,26 @@
 
 :root {
   --font-size: 16px;
-  
+
   /* ChamaPlus Color Scheme */
   --background: #ffffff;
   --foreground: #1a1a1a;
-  
+
   /* Primary Blue - Trust & action */
-  --primary: #2F7CF7;
+  --primary: #2f7cf7;
   --primary-foreground: #ffffff;
   --primary-light: #e3f2fd;
-  
+
   /* Secondary Green - Kenyan savings & growth */
   --secondary: #0f7a3e;
   --secondary-foreground: #ffffff;
   --secondary-light: #e8f5e9;
-  
+
   /* Accent Yellow - Community & warmth */
   --accent: #ffa000;
   --accent-foreground: #1a1a1a;
   --accent-light: #fff8e1;
-  
+
   /* Neutral tones */
   --card: #ffffff;
   --card-foreground: #1a1a1a;
@@ -33,27 +33,27 @@
   --input: transparent;
   --input-background: #f9f9f9;
   --switch-background: #bdbdbd;
-  --ring: #2F7CF7;
-  
+  --ring: #2f7cf7;
+
   /* Success - M-Pesa green */
   --success: #00a86b;
   --success-foreground: #ffffff;
-  
+
   /* Destructive */
   --destructive: #d32f2f;
   --destructive-foreground: #ffffff;
-  
+
   /* Chart colors */
   --chart-1: #0f7a3e;
   --chart-2: #1976d2;
   --chart-3: #ffa000;
   --chart-4: #7e57c2;
   --chart-5: #26c6da;
-  
+
   --font-weight-medium: 500;
   --font-weight-normal: 400;
   --radius: 0.5rem;
-  
+
   /* Sidebar */
   --sidebar: #fafafa;
   --sidebar-foreground: #1a1a1a;
@@ -150,7 +150,12 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Roboto', 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family:
+      'Roboto',
+      'Open Sans',
+      -apple-system,
+      BlinkMacSystemFont,
+      sans-serif;
   }
 
   /**

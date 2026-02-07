@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
@@ -30,9 +36,22 @@ import {
   ClipboardList,
   Moon,
   Sun,
-  CreditCard
+  CreditCard,
 } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  PieChart,
+  Pie,
+  Cell,
+} from 'recharts';
 import RecordContribution from './RecordContribution';
 import InviteMember from './InviteMember';
 import ScheduleMeeting from './ScheduleMeeting';
@@ -58,12 +77,35 @@ interface DashboardProps {
   contributionModel?: 'fixed' | 'flexible';
 }
 
-type ActivePage = 'dashboard' | 'record-contribution' | 'invite-member' | 'schedule-meeting' | 'generate-report' | 'members' | 'settings' | 'contributions' | 'reports' | 'meetings' | 'expenses' | 'loans' | 'activity-log' | 'roles' | 'communication' | 'make-payment' | 'notifications';
+type ActivePage =
+  | 'dashboard'
+  | 'record-contribution'
+  | 'invite-member'
+  | 'schedule-meeting'
+  | 'generate-report'
+  | 'members'
+  | 'settings'
+  | 'contributions'
+  | 'reports'
+  | 'meetings'
+  | 'expenses'
+  | 'loans'
+  | 'activity-log'
+  | 'roles'
+  | 'communication'
+  | 'make-payment'
+  | 'notifications';
 
-export default function Dashboard({ role, onLogout, contributionModel: initialModel = 'fixed' }: DashboardProps) {
+export default function Dashboard({
+  role,
+  onLogout,
+  contributionModel: initialModel = 'fixed',
+}: DashboardProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activePage, setActivePage] = useState<ActivePage>('dashboard');
-  const [contributionModel, setContributionModel] = useState<'fixed' | 'flexible'>(initialModel);
+  const [contributionModel, setContributionModel] = useState<
+    'fixed' | 'flexible'
+  >(initialModel);
   const { theme, toggleTheme } = useTheme();
 
   // Render different pages based on activePage
@@ -118,7 +160,10 @@ export default function Dashboard({ role, onLogout, contributionModel: initialMo
   if (activePage === 'contributions') {
     return (
       <div className="min-h-screen bg-background p-4 lg:p-6">
-        <ContributionsPage onBack={() => setActivePage('dashboard')} role={role} />
+        <ContributionsPage
+          onBack={() => setActivePage('dashboard')}
+          role={role}
+        />
       </div>
     );
   }
@@ -158,7 +203,10 @@ export default function Dashboard({ role, onLogout, contributionModel: initialMo
   if (activePage === 'activity-log') {
     return (
       <div className="min-h-screen bg-background p-4 lg:p-6">
-        <ActivityLogPage onBack={() => setActivePage('dashboard')} role={role} />
+        <ActivityLogPage
+          onBack={() => setActivePage('dashboard')}
+          role={role}
+        />
       </div>
     );
   }
@@ -166,7 +214,10 @@ export default function Dashboard({ role, onLogout, contributionModel: initialMo
   if (activePage === 'roles') {
     return (
       <div className="min-h-screen bg-background p-4 lg:p-6">
-        <MemberRolesPage onBack={() => setActivePage('dashboard')} role={role} />
+        <MemberRolesPage
+          onBack={() => setActivePage('dashboard')}
+          role={role}
+        />
       </div>
     );
   }
@@ -174,7 +225,10 @@ export default function Dashboard({ role, onLogout, contributionModel: initialMo
   if (activePage === 'communication') {
     return (
       <div className="min-h-screen bg-background p-4 lg:p-6">
-        <CommunicationPage onBack={() => setActivePage('dashboard')} role={role} />
+        <CommunicationPage
+          onBack={() => setActivePage('dashboard')}
+          role={role}
+        />
       </div>
     );
   }
@@ -182,7 +236,10 @@ export default function Dashboard({ role, onLogout, contributionModel: initialMo
   if (activePage === 'make-payment') {
     return (
       <div className="min-h-screen bg-background p-4 lg:p-6">
-        <MakePaymentPage onBack={() => setActivePage('dashboard')} role={role} />
+        <MakePaymentPage
+          onBack={() => setActivePage('dashboard')}
+          role={role}
+        />
       </div>
     );
   }
@@ -190,7 +247,10 @@ export default function Dashboard({ role, onLogout, contributionModel: initialMo
   if (activePage === 'notifications') {
     return (
       <div className="min-h-screen bg-background p-4 lg:p-6">
-        <NotificationsPage onBack={() => setActivePage('dashboard')} role={role} />
+        <NotificationsPage
+          onBack={() => setActivePage('dashboard')}
+          role={role}
+        />
       </div>
     );
   }
@@ -211,7 +271,11 @@ export default function Dashboard({ role, onLogout, contributionModel: initialMo
           <div className="p-6 border-b border-border">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <img src={logoImage} alt="ChamaPlus Logo" className="h-8 w-auto" />
+                <img
+                  src={logoImage}
+                  alt="ChamaPlus Logo"
+                  className="h-8 w-auto"
+                />
               </div>
               <button
                 className="lg:hidden"
@@ -227,23 +291,78 @@ export default function Dashboard({ role, onLogout, contributionModel: initialMo
 
           {/* Navigation */}
           <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-            <NavItem icon={<Home className="w-5 h-5" />} label="Dashboard" active={activePage === 'dashboard'} onClick={() => setActivePage('dashboard')} />
-            <NavItem icon={<DollarSign className="w-5 h-5" />} label="Contributions" active={activePage === 'contributions'} onClick={() => setActivePage('contributions')} />
-            <NavItem icon={<Users className="w-5 h-5" />} label="Members" active={activePage === 'members'} onClick={() => setActivePage('members')} />
+            <NavItem
+              icon={<Home className="w-5 h-5" />}
+              label="Dashboard"
+              active={activePage === 'dashboard'}
+              onClick={() => setActivePage('dashboard')}
+            />
+            <NavItem
+              icon={<DollarSign className="w-5 h-5" />}
+              label="Contributions"
+              active={activePage === 'contributions'}
+              onClick={() => setActivePage('contributions')}
+            />
+            <NavItem
+              icon={<Users className="w-5 h-5" />}
+              label="Members"
+              active={activePage === 'members'}
+              onClick={() => setActivePage('members')}
+            />
             {role === 'admin' && (
               <>
-                <NavItem icon={<Receipt className="w-5 h-5" />} label="Expenses" active={activePage === 'expenses'} onClick={() => setActivePage('expenses')} />
-                <NavItem icon={<Banknote className="w-5 h-5" />} label="Loans" active={activePage === 'loans'} onClick={() => setActivePage('loans')} />
+                <NavItem
+                  icon={<Receipt className="w-5 h-5" />}
+                  label="Expenses"
+                  active={activePage === 'expenses'}
+                  onClick={() => setActivePage('expenses')}
+                />
+                <NavItem
+                  icon={<Banknote className="w-5 h-5" />}
+                  label="Loans"
+                  active={activePage === 'loans'}
+                  onClick={() => setActivePage('loans')}
+                />
               </>
             )}
-            <NavItem icon={<BarChart3 className="w-5 h-5" />} label="Reports" active={activePage === 'reports'} onClick={() => setActivePage('reports')} />
-            <NavItem icon={<Calendar className="w-5 h-5" />} label="Meetings" active={activePage === 'meetings'} onClick={() => setActivePage('meetings')} />
+            <NavItem
+              icon={<BarChart3 className="w-5 h-5" />}
+              label="Reports"
+              active={activePage === 'reports'}
+              onClick={() => setActivePage('reports')}
+            />
+            <NavItem
+              icon={<Calendar className="w-5 h-5" />}
+              label="Meetings"
+              active={activePage === 'meetings'}
+              onClick={() => setActivePage('meetings')}
+            />
             {role === 'admin' && (
               <>
-                <NavItem icon={<MessageSquare className="w-5 h-5" />} label="Communication" active={activePage === 'communication'} onClick={() => setActivePage('communication')} />
-                <NavItem icon={<Shield className="w-5 h-5" />} label="Roles & Permissions" active={activePage === 'roles'} onClick={() => setActivePage('roles')} />
-                <NavItem icon={<ClipboardList className="w-5 h-5" />} label="Activity Log" active={activePage === 'activity-log'} onClick={() => setActivePage('activity-log')} />
-                <NavItem icon={<Settings className="w-5 h-5" />} label="Settings" active={activePage === 'settings'} onClick={() => setActivePage('settings')} />
+                <NavItem
+                  icon={<MessageSquare className="w-5 h-5" />}
+                  label="Communication"
+                  active={activePage === 'communication'}
+                  onClick={() => setActivePage('communication')}
+                />
+                <NavItem
+                  icon={<Shield className="w-5 h-5" />}
+                  label="Roles & Permissions"
+                  active={activePage === 'roles'}
+                  onClick={() => setActivePage('roles')}
+                />
+                <NavItem
+                  icon={<ClipboardList className="w-5 h-5" />}
+                  label="Activity Log"
+                  active={activePage === 'activity-log'}
+                  onClick={() => setActivePage('activity-log')}
+                />
+                <NavItem
+                  icon={<Settings className="w-5 h-5" />}
+                  label="Settings"
+                  active={activePage === 'settings'}
+                  onClick={() => setActivePage('settings')}
+                />
               </>
             )}
           </nav>
@@ -320,7 +439,11 @@ export default function Dashboard({ role, onLogout, contributionModel: initialMo
   );
 }
 
-function AdminDashboard({ setActivePage }: { setActivePage: (page: ActivePage) => void }) {
+function AdminDashboard({
+  setActivePage,
+}: {
+  setActivePage: (page: ActivePage) => void;
+}) {
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
@@ -401,19 +524,34 @@ function AdminDashboard({ setActivePage }: { setActivePage: (page: ActivePage) =
             <CardDescription>Common tasks</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
-            <Button className="w-full justify-start bg-primary hover:bg-primary/90" onClick={() => setActivePage('record-contribution')}>
+            <Button
+              className="w-full justify-start bg-primary hover:bg-primary/90"
+              onClick={() => setActivePage('record-contribution')}
+            >
               <Plus className="w-4 h-4 mr-2" />
               Record Contribution
             </Button>
-            <Button variant="outline" className="w-full justify-start" onClick={() => setActivePage('invite-member')}>
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={() => setActivePage('invite-member')}
+            >
               <UserPlus className="w-4 h-4 mr-2" />
               Invite Member
             </Button>
-            <Button variant="outline" className="w-full justify-start" onClick={() => setActivePage('schedule-meeting')}>
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={() => setActivePage('schedule-meeting')}
+            >
               <Calendar className="w-4 h-4 mr-2" />
               Schedule Meeting
             </Button>
-            <Button variant="outline" className="w-full justify-start" onClick={() => setActivePage('generate-report')}>
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={() => setActivePage('generate-report')}
+            >
               <FileText className="w-4 h-4 mr-2" />
               Generate Report
             </Button>
@@ -541,16 +679,27 @@ function MemberDashboard() {
   );
 }
 
-function NavItem({ icon, label, active = false, onClick }: { icon: React.ReactNode; label: string; active?: boolean; onClick?: () => void }) {
+function NavItem({
+  icon,
+  label,
+  active = false,
+  onClick,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  active?: boolean;
+  onClick?: () => void;
+}) {
   return (
     <button
       onClick={onClick}
       className={`
         w-full flex items-center gap-3 px-3 py-2 rounded-lg
         transition-colors
-        ${active
-          ? 'bg-primary text-primary-foreground'
-          : 'hover:bg-muted text-muted-foreground hover:text-foreground'
+        ${
+          active
+            ? 'bg-primary text-primary-foreground'
+            : 'hover:bg-muted text-muted-foreground hover:text-foreground'
         }
       `}
     >
@@ -565,7 +714,7 @@ function StatCard({
   value,
   change,
   trend,
-  icon
+  icon,
 }: {
   title: string;
   value: string;
@@ -576,7 +725,7 @@ function StatCard({
   const trendColors = {
     up: 'text-green-600',
     down: 'text-red-600',
-    neutral: 'text-muted-foreground'
+    neutral: 'text-muted-foreground',
   };
 
   return (
@@ -588,8 +737,12 @@ function StatCard({
         </div>
         <p className="text-2xl font-bold mb-1">{value}</p>
         <div className="flex items-center gap-1">
-          {trend === 'up' && <ArrowUpRight className="w-4 h-4 text-green-600" />}
-          {trend === 'down' && <ArrowDownRight className="w-4 h-4 text-red-600" />}
+          {trend === 'up' && (
+            <ArrowUpRight className="w-4 h-4 text-green-600" />
+          )}
+          {trend === 'down' && (
+            <ArrowDownRight className="w-4 h-4 text-red-600" />
+          )}
           <p className={`text-sm ${trendColors[trend]}`}>{change}</p>
         </div>
       </CardContent>
@@ -620,9 +773,12 @@ function MonthlyContributionsChart() {
             borderRadius: '8px',
             color: '#1a1a1a',
             fontSize: '14px',
-            fontWeight: '500'
+            fontWeight: '500',
           }}
-          formatter={(value: any) => [`KSh ${value.toLocaleString()}`, 'Amount']}
+          formatter={(value: any) => [
+            `KSh ${value.toLocaleString()}`,
+            'Amount',
+          ]}
         />
         <Bar dataKey="amount" fill="#2F7CF7" radius={[8, 8, 0, 0]} />
       </BarChart>
@@ -645,7 +801,9 @@ function ContributionPieChart() {
           cx="50%"
           cy="50%"
           labelLine={false}
-          label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+          label={({ name, percent }) =>
+            `${name}: ${(percent * 100).toFixed(0)}%`
+          }
           outerRadius={80}
           fill="#8884d8"
           dataKey="value"
@@ -661,7 +819,7 @@ function ContributionPieChart() {
             borderRadius: '8px',
             color: '#1a1a1a',
             fontSize: '14px',
-            fontWeight: '500'
+            fontWeight: '500',
           }}
         />
       </PieChart>
@@ -692,11 +850,20 @@ function MemberContributionChart() {
             borderRadius: '8px',
             color: '#1a1a1a',
             fontSize: '14px',
-            fontWeight: '500'
+            fontWeight: '500',
           }}
-          formatter={(value: any) => [`KSh ${value.toLocaleString()}`, 'Amount']}
+          formatter={(value: any) => [
+            `KSh ${value.toLocaleString()}`,
+            'Amount',
+          ]}
         />
-        <Line type="monotone" dataKey="amount" stroke="#2F7CF7" strokeWidth={2} dot={{ fill: '#2F7CF7' }} />
+        <Line
+          type="monotone"
+          dataKey="amount"
+          stroke="#2F7CF7"
+          strokeWidth={2}
+          dot={{ fill: '#2F7CF7' }}
+        />
       </LineChart>
     </ResponsiveContainer>
   );
@@ -704,16 +871,46 @@ function MemberContributionChart() {
 
 function RecentContributionsTable() {
   const contributions = [
-    { id: 1, name: 'Mary Wanjiku', amount: 5000, date: 'Jan 12, 2026', status: 'completed' },
-    { id: 2, name: 'Peter Kamau', amount: 7500, date: 'Jan 12, 2026', status: 'completed' },
-    { id: 3, name: 'Grace Achieng', amount: 5000, date: 'Jan 11, 2026', status: 'completed' },
-    { id: 4, name: 'David Omondi', amount: 5000, date: 'Jan 10, 2026', status: 'completed' },
-    { id: 5, name: 'Faith Njeri', amount: 5000, date: 'Jan 10, 2026', status: 'completed' },
+    {
+      id: 1,
+      name: 'Mary Wanjiku',
+      amount: 5000,
+      date: 'Jan 12, 2026',
+      status: 'completed',
+    },
+    {
+      id: 2,
+      name: 'Peter Kamau',
+      amount: 7500,
+      date: 'Jan 12, 2026',
+      status: 'completed',
+    },
+    {
+      id: 3,
+      name: 'Grace Achieng',
+      amount: 5000,
+      date: 'Jan 11, 2026',
+      status: 'completed',
+    },
+    {
+      id: 4,
+      name: 'David Omondi',
+      amount: 5000,
+      date: 'Jan 10, 2026',
+      status: 'completed',
+    },
+    {
+      id: 5,
+      name: 'Faith Njeri',
+      amount: 5000,
+      date: 'Jan 10, 2026',
+      status: 'completed',
+    },
   ];
 
   return (
     <div className="space-y-3">
-      {contributions.map((contribution) => (
+      {contributions.map(contribution => (
         <div
           key={contribution.id}
           className="flex items-center justify-between p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors"
@@ -721,17 +918,27 @@ function RecentContributionsTable() {
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
               <span className="font-bold text-primary text-sm">
-                {contribution.name.split(' ').map(n => n[0]).join('')}
+                {contribution.name
+                  .split(' ')
+                  .map(n => n[0])
+                  .join('')}
               </span>
             </div>
             <div>
               <p className="font-medium">{contribution.name}</p>
-              <p className="text-sm text-muted-foreground">{contribution.date}</p>
+              <p className="text-sm text-muted-foreground">
+                {contribution.date}
+              </p>
             </div>
           </div>
           <div className="text-right">
-            <p className="font-bold">KSh {contribution.amount.toLocaleString()}</p>
-            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+            <p className="font-bold">
+              KSh {contribution.amount.toLocaleString()}
+            </p>
+            <Badge
+              variant="outline"
+              className="bg-green-50 text-green-700 border-green-200"
+            >
               <CheckCircle2 className="w-3 h-3 mr-1" />
               Paid
             </Badge>
@@ -744,15 +951,39 @@ function RecentContributionsTable() {
 
 function MemberPaymentHistory() {
   const payments = [
-    { id: 1, amount: 5000, date: 'Jan 5, 2026', ref: 'QBX7H2K9LM', status: 'completed' },
-    { id: 2, amount: 5000, date: 'Dec 5, 2025', ref: 'PNM3G8T4WQ', status: 'completed' },
-    { id: 3, amount: 5000, date: 'Nov 5, 2025', ref: 'ZRT9K5L2NP', status: 'completed' },
-    { id: 4, amount: 5000, date: 'Oct 5, 2025', ref: 'XYZ1A6B7CD', status: 'completed' },
+    {
+      id: 1,
+      amount: 5000,
+      date: 'Jan 5, 2026',
+      ref: 'QBX7H2K9LM',
+      status: 'completed',
+    },
+    {
+      id: 2,
+      amount: 5000,
+      date: 'Dec 5, 2025',
+      ref: 'PNM3G8T4WQ',
+      status: 'completed',
+    },
+    {
+      id: 3,
+      amount: 5000,
+      date: 'Nov 5, 2025',
+      ref: 'ZRT9K5L2NP',
+      status: 'completed',
+    },
+    {
+      id: 4,
+      amount: 5000,
+      date: 'Oct 5, 2025',
+      ref: 'XYZ1A6B7CD',
+      status: 'completed',
+    },
   ];
 
   return (
     <div className="space-y-3">
-      {payments.map((payment) => (
+      {payments.map(payment => (
         <div
           key={payment.id}
           className="flex items-center justify-between p-3 rounded-lg border border-border"
@@ -762,7 +993,10 @@ function MemberPaymentHistory() {
             <p className="text-sm text-muted-foreground">{payment.date}</p>
             <p className="text-xs text-muted-foreground">Ref: {payment.ref}</p>
           </div>
-          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+          <Badge
+            variant="outline"
+            className="bg-green-50 text-green-700 border-green-200"
+          >
             Confirmed
           </Badge>
         </div>
@@ -773,11 +1007,41 @@ function MemberPaymentHistory() {
 
 function MembersTable() {
   const members = [
-    { id: 1, name: 'Mary Wanjiku', phone: '0712345678', total: 75000, status: 'paid' },
-    { id: 2, name: 'Peter Kamau', phone: '0723456789', total: 120000, status: 'paid' },
-    { id: 3, name: 'Grace Achieng', phone: '0734567890', total: 85000, status: 'paid' },
-    { id: 4, name: 'David Omondi', phone: '0745678901', total: 95000, status: 'pending' },
-    { id: 5, name: 'Faith Njeri', phone: '0756789012', total: 68000, status: 'paid' },
+    {
+      id: 1,
+      name: 'Mary Wanjiku',
+      phone: '0712345678',
+      total: 75000,
+      status: 'paid',
+    },
+    {
+      id: 2,
+      name: 'Peter Kamau',
+      phone: '0723456789',
+      total: 120000,
+      status: 'paid',
+    },
+    {
+      id: 3,
+      name: 'Grace Achieng',
+      phone: '0734567890',
+      total: 85000,
+      status: 'paid',
+    },
+    {
+      id: 4,
+      name: 'David Omondi',
+      phone: '0745678901',
+      total: 95000,
+      status: 'pending',
+    },
+    {
+      id: 5,
+      name: 'Faith Njeri',
+      phone: '0756789012',
+      total: 68000,
+      status: 'paid',
+    },
   ];
 
   return (
@@ -785,27 +1049,43 @@ function MembersTable() {
       <table className="w-full">
         <thead className="border-b border-border">
           <tr className="text-left">
-            <th className="pb-3 text-sm font-medium text-muted-foreground">Member</th>
-            <th className="pb-3 text-sm font-medium text-muted-foreground">Phone</th>
-            <th className="pb-3 text-sm font-medium text-muted-foreground">Total Savings</th>
-            <th className="pb-3 text-sm font-medium text-muted-foreground">Status</th>
+            <th className="pb-3 text-sm font-medium text-muted-foreground">
+              Member
+            </th>
+            <th className="pb-3 text-sm font-medium text-muted-foreground">
+              Phone
+            </th>
+            <th className="pb-3 text-sm font-medium text-muted-foreground">
+              Total Savings
+            </th>
+            <th className="pb-3 text-sm font-medium text-muted-foreground">
+              Status
+            </th>
           </tr>
         </thead>
         <tbody>
-          {members.map((member) => (
-            <tr key={member.id} className="border-b border-border last:border-0">
+          {members.map(member => (
+            <tr
+              key={member.id}
+              className="border-b border-border last:border-0"
+            >
               <td className="py-3">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
                     <span className="font-bold text-primary text-xs">
-                      {member.name.split(' ').map(n => n[0]).join('')}
+                      {member.name
+                        .split(' ')
+                        .map(n => n[0])
+                        .join('')}
                     </span>
                   </div>
                   <span className="font-medium">{member.name}</span>
                 </div>
               </td>
               <td className="py-3 text-muted-foreground">{member.phone}</td>
-              <td className="py-3 font-medium">KSh {member.total.toLocaleString()}</td>
+              <td className="py-3 font-medium">
+                KSh {member.total.toLocaleString()}
+              </td>
               <td className="py-3">
                 <Badge
                   variant="outline"
@@ -828,14 +1108,32 @@ function MembersTable() {
 
 function UpcomingEvents() {
   const events = [
-    { id: 1, title: 'Monthly Meeting', date: 'Jan 15, 2026', time: '6:00 PM', type: 'meeting' },
-    { id: 2, title: 'Contribution Deadline', date: 'Jan 20, 2026', time: '11:59 PM', type: 'deadline' },
-    { id: 3, title: 'Quarterly Report', date: 'Feb 1, 2026', time: '9:00 AM', type: 'report' },
+    {
+      id: 1,
+      title: 'Monthly Meeting',
+      date: 'Jan 15, 2026',
+      time: '6:00 PM',
+      type: 'meeting',
+    },
+    {
+      id: 2,
+      title: 'Contribution Deadline',
+      date: 'Jan 20, 2026',
+      time: '11:59 PM',
+      type: 'deadline',
+    },
+    {
+      id: 3,
+      title: 'Quarterly Report',
+      date: 'Feb 1, 2026',
+      time: '9:00 AM',
+      type: 'report',
+    },
   ];
 
   return (
     <div className="space-y-3">
-      {events.map((event) => (
+      {events.map(event => (
         <div
           key={event.id}
           className="flex items-start gap-3 p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors"

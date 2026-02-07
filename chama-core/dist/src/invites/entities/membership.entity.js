@@ -83,7 +83,7 @@ __decorate([
         example: '2025-06-01T14:57:46.109Z',
     }),
     (0, class_validator_1.IsDate)(),
-    (0, class_transformer_1.Transform)(({ value }) => value instanceof Date ? value : new Date(value)),
+    (0, class_transformer_1.Transform)(({ value }) => (value instanceof Date ? value : new Date(value))),
     __metadata("design:type", Date)
 ], MembershipEntity.prototype, "joinedAt", void 0);
 __decorate([
@@ -92,7 +92,7 @@ __decorate([
         example: '2025-06-01T14:57:46.109Z',
     }),
     (0, class_validator_1.IsDate)(),
-    (0, class_transformer_1.Transform)(({ value }) => value instanceof Date ? value : new Date(value)),
+    (0, class_transformer_1.Transform)(({ value }) => (value instanceof Date ? value : new Date(value))),
     __metadata("design:type", Date)
 ], MembershipEntity.prototype, "createdAt", void 0);
 __decorate([
@@ -101,7 +101,7 @@ __decorate([
         example: '2025-06-01T14:57:46.109Z',
     }),
     (0, class_validator_1.IsDate)(),
-    (0, class_transformer_1.Transform)(({ value }) => value instanceof Date ? value : new Date(value)),
+    (0, class_transformer_1.Transform)(({ value }) => (value instanceof Date ? value : new Date(value))),
     __metadata("design:type", Date)
 ], MembershipEntity.prototype, "updatedAt", void 0);
 exports.MembershipEntity = MembershipEntity = __decorate([

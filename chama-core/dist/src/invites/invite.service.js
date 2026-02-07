@@ -47,7 +47,7 @@ let InviteService = InviteService_1 = class InviteService {
                 // Get the requesting user
                 const requestingUser = yield this.prisma.user.findUnique({
                     where: { id: requestUserId },
-                    select: { id: true, name: true, email: true }
+                    select: { id: true, name: true, email: true },
                 });
                 if (!requestingUser) {
                     throw new common_1.BadRequestException('User not found');
@@ -68,7 +68,7 @@ let InviteService = InviteService_1 = class InviteService {
                 }
                 // Verify the requesting user is an admin of the chama
                 // Note: memberships array is already filtered to only include the requesting user's memberships from the query above
-                const isUserAdmin = chama.memberships.some((membership) => membership.role === client_1.UserRole.CHAIRPERSON);
+                const isUserAdmin = chama.memberships.some(membership => membership.role === client_1.UserRole.CHAIRPERSON);
                 this.logger.debug(`Invite permission check for user ${requestUserId} in chama ${chamaId}: isAdmin=${isUserAdmin}`);
                 if (!isUserAdmin) {
                     throw new common_1.UnauthorizedException('Only chama admins can send invites');
@@ -121,8 +121,8 @@ let InviteService = InviteService_1 = class InviteService {
                             select: {
                                 id: true,
                                 name: true,
-                                description: true
-                            }
+                                description: true,
+                            },
                         },
                     },
                 });
@@ -134,7 +134,7 @@ let InviteService = InviteService_1 = class InviteService {
                 }
                 return {
                     invite,
-                    inviteLink
+                    inviteLink,
                 };
             }
             catch (error) {
@@ -167,9 +167,9 @@ let InviteService = InviteService_1 = class InviteService {
                             select: {
                                 id: true,
                                 name: true,
-                                description: true
-                            }
-                        }
+                                description: true,
+                            },
+                        },
                     },
                 });
                 if (!invite) {
@@ -186,7 +186,7 @@ let InviteService = InviteService_1 = class InviteService {
                 // Get user information
                 const user = yield this.prisma.user.findUnique({
                     where: { id: userId },
-                    select: { id: true, email: true }
+                    select: { id: true, email: true },
                 });
                 if (!user) {
                     throw new common_1.BadRequestException('User not found');
@@ -227,8 +227,8 @@ let InviteService = InviteService_1 = class InviteService {
                                 select: {
                                     id: true,
                                     name: true,
-                                    description: true
-                                }
+                                    description: true,
+                                },
                             },
                             user: {
                                 select: {
@@ -238,9 +238,9 @@ let InviteService = InviteService_1 = class InviteService {
                                     phone: true,
                                     createdAt: true,
                                     updatedAt: true,
-                                    activeUserType: true
-                                }
-                            }
+                                    activeUserType: true,
+                                },
+                            },
                         },
                     });
                     return membership;
@@ -284,7 +284,7 @@ let InviteService = InviteService_1 = class InviteService {
                 throw new common_1.NotFoundException(`Chama with ID ${chamaId} not found`);
             }
             // Verify the requesting user is an admin of the chama
-            const isChamaAdmin = chama.memberships.some((membership) => membership.role === client_1.UserRole.CHAIRPERSON);
+            const isChamaAdmin = chama.memberships.some(membership => membership.role === client_1.UserRole.CHAIRPERSON);
             if (!isChamaAdmin && chama.userId !== requestUserId) {
                 throw new common_1.UnauthorizedException('Only chama admins can view pending invites');
             }
@@ -302,9 +302,9 @@ let InviteService = InviteService_1 = class InviteService {
                         select: {
                             id: true,
                             name: true,
-                            description: true
-                        }
-                    }
+                            description: true,
+                        },
+                    },
                 },
                 orderBy: {
                     createdAt: 'desc',
@@ -331,8 +331,8 @@ let InviteService = InviteService_1 = class InviteService {
                         select: {
                             id: true,
                             name: true,
-                            description: true
-                        }
+                            description: true,
+                        },
                     },
                 },
                 orderBy: {

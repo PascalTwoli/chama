@@ -47,10 +47,10 @@ const statusTemp = (rowData: Member, options: ColumnBodyOptions) => (
   <span
     className={`px-3 py-2 rounded-full text-xs font-semibold ${
       rowData.status === 'Active'
-        ? 'bg-[#54B68526] text-[#54B685]'
+        ? 'bg-success/20 text-success'
         : rowData.status === 'Inactive'
-          ? 'bg-[#F7C34426] text-[#F7C344]'
-          : 'bg-gray-400'
+          ? 'bg-accent/20 text-accent'
+          : 'bg-muted text-muted-foreground'
     }`}
   >
     {rowData.status}
@@ -74,7 +74,12 @@ function MembersTable() {
       width: '20%',
       className: 'text-default',
     },
-    { field: 'role', header: 'Role', width: '20%', className: 'text-gray-500' },
+    {
+      field: 'role',
+      header: 'Role',
+      width: '20%',
+      className: 'text-muted-foreground',
+    },
     {
       field: 'phonenumber',
       header: 'Phone Number',

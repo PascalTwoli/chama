@@ -1,6 +1,6 @@
 /**
  * Main database layer exports
- * 
+ *
  * This file provides a centralized entry point for all database-related
  * functionality including models, entities, services, and utilities.
  */
@@ -30,4 +30,3 @@ export {
   LoginUserDto,
   DtoValidationUtils,
 } from './dtos/create-user.dto';
-

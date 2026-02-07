@@ -25,10 +25,10 @@ export interface PaginatedResult<T> {
 
 /**
  * Extended Prisma Client with pagination functionality
- * 
+ *
  * This extension adds a `paginate` method to all Prisma models
  * that provides consistent pagination across the application.
- * 
+ *
  * @example
  * ```typescript
  * const result = await extendedPrisma.user.paginate({
@@ -44,16 +44,16 @@ export const extendedPrisma = new PrismaClient().$extends({
     $allModels: {
       /**
        * Paginate query results with filtering and sorting
-       * 
+       *
        * @param args - Pagination arguments including page, perPage, filters, and orderBy
        * @returns Promise containing paginated results with metadata
        */
       async paginate<T>(
         this: T,
-        args: PaginationArgs
+        args: PaginationArgs,
       ): Promise<PaginatedResult<Prisma.Result<T, any, 'findMany'>>> {
         const { page, perPage, filters = {}, orderBy = {} } = args;
-        
+
         // Validate pagination parameters
         if (page < 1) {
           throw new Error('Page number must be greater than 0');
@@ -106,4 +106,3 @@ export type ExtendedPrismaClient = typeof extendedPrisma;
  * Export the extended client instance
  */
 export default extendedPrisma;
-

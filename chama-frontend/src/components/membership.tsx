@@ -1,9 +1,9 @@
-import { Button } from 'primereact/button';
-import { Dropdown } from 'primereact/dropdown';
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { Search, UserPlus } from 'lucide-react';
 import MembersTable from './membership.table';
 import ChamaService from '../services/chama/chama-services';
+import { Button } from './ui/button';
 
 function Membership() {
   const { chamaId } = useParams<{ chamaId: string }>();
@@ -12,7 +12,6 @@ function Membership() {
   const [chamaName, setChamaName] = useState<string>('Loading...');
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch chama data when component mounts or chamaId changes
   useEffect(() => {
     const fetchChamaData = async () => {
       if (!chamaId) {
@@ -41,103 +40,74 @@ function Membership() {
     { label: 'Active', value: 'active' },
     { label: 'Disabled', value: 'disabled' },
   ];
-  const status = [
+
+  const statusOptions = [
     { label: 'All status', value: 'all' },
     { label: 'Active', value: 'active' },
     { label: 'Inactive', value: 'inactive' },
     { label: 'Pending', value: 'pending' },
   ];
+
   return (
-    <div className=' p-3 '>
-      {/* membership header */}
-      <div className='flex justify-between items-center rounded-md'>
-        {/* Title */}
+    <div className='p-6'>
+      {/* Header */}
+      <div className='flex justify-between items-center mb-6'>
         <div>
-          {/* <h2 className='text-white text-xl font-bold'>
-            {isLoading ? 'Loading...' : chamaName} - Group Members
-          </h2>
-          <p className='text-gray-400 text-sm'>
-            Chama ID: {chamaId || 'Unknown'}
-          </p> */}
-          <h2 className='text-white text-base font-bold m-0'>
+          <h2 className='text-xl font-bold text-foreground mb-1'>
             Membership Management
           </h2>
-          <p className='text-gray-400 text-sm m-0'>
+          <p className='text-sm text-muted-foreground'>
             Manage members across all your chamas
           </p>
         </div>
 
-        {/* Actions */}
-        <div className='flex items-center gap-4'>
-          {/* Add Member Button */}
-          <Button
-            type='button'
-            className=' flex gap-3 p-button-outlined p-button-info text-[#4084B9]  border-solid border rounded-xl p-2'
-          >
-            <i className='pi bi-person-plus'></i>
-            Add Member
-          </Button>
-        </div>
+        <Button className='gap-2'>
+          <UserPlus className='w-4 h-4' />
+          Add Member
+        </Button>
       </div>
-      <div className='mt-8 p-6 bg-primarybg rounded-lg'>
-        <div className='flex gap-20 items-start flex-row'>
-          <div className='flex-1 text-gray-400 font-bold relative mb-10'>
-            <i className='pi pi-search absolute top-2.5 left-3 text-xl text-[#A0A1A24D]'></i>
+
+      {/* Filters Card */}
+      <div className='p-6 bg-card border border-border rounded-xl'>
+        <div className='flex gap-6 items-start flex-col md:flex-row mb-6'>
+          {/* Search */}
+          <div className='flex-1 relative'>
+            <Search className='absolute top-1/2 left-3 -translate-y-1/2 w-5 h-5 text-muted-foreground' />
             <input
               type='text'
               placeholder='Search members...'
-              className='w-full p-3 pl-10 border-none rounded-lg bg-[#525A6433] placeholder:font-bold placeholder:text-[#A0A1A24D]   px-2'
+              className='w-full p-3 pl-10 border border-border rounded-lg bg-muted text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors'
             />
           </div>
-          <div className='flex flex-row gap-5'>
-            <div className='card flex justify-content-center'>
-              <Dropdown
-                value={selectedRole}
-                onChange={e => setSelectedRole(e.value)}
-                options={roles}
-                optionLabel='label'
-                placeholder=''
-                className={`membership-dropdown w-37 hover:bg-[#4084B9] rounded-md text-black hover:text-white`}
-                panelClassName=' rounded-md mt-2 '
-                pt={{
-                  root: {
-                    className: '',
-                  },
-                  panel: {
-                    className: 'bg-gray-800 rounded-md py-2',
-                  },
-                  item: {
-                    className:
-                      'hover:bg-gray-400 hover:text-black px-3 py-2 cursor-pointer bg-blue text-white',
-                  },
-                }}
-              />
-            </div>
-            <div className='card flex justify-content-center'>
-              <Dropdown
-                value={selectedStatus}
-                onChange={e => setSelectedStatus(e.value)}
-                options={status}
-                optionLabel='label'
-                placeholder=''
-                className={`membership-dropdown w-30 hover:bg-[#4084B9] rounded-md text-black hover:text-white`}
-                panelClassName=' rounded-md mt-2 '
-                pt={{
-                  root: {
-                    className: '',
-                  },
-                  panel: {
-                    className: 'bg-gray-800 rounded-md py-2',
-                  },
-                  item: {
-                    className:
-                      'hover:bg-gray-400 hover:text-black px-3 py-2 cursor-pointer bg-blue text-white',
-                  },
-                }}
-              />
-            </div>
+
+          {/* Dropdowns */}
+          <div className='flex gap-4'>
+            <select
+              value={selectedRole}
+              onChange={e => setSelectedRole(e.target.value)}
+              className='px-4 py-3 border border-border rounded-lg bg-muted text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors'
+            >
+              {roles.map(role => (
+                <option key={role.value} value={role.value}>
+                  {role.label}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={selectedStatus}
+              onChange={e => setSelectedStatus(e.target.value)}
+              className='px-4 py-3 border border-border rounded-lg bg-muted text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors'
+            >
+              {statusOptions.map(status => (
+                <option key={status.value} value={status.value}>
+                  {status.label}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
+
         <MembersTable />
       </div>
     </div>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Copy, UserPlus, Mail, Link as LinkIcon, X } from 'lucide-react';
-import { Button } from 'primereact/button';
+import { Button } from './ui/button';
 import ProfileTemplate from '../utils/profile-template';
 
 const InviteMembers = () => {
@@ -26,62 +26,69 @@ const InviteMembers = () => {
   };
 
   return (
-    <div className='p-6 text-white min-h-screen'>
+    <div className='p-6 text-foreground min-h-screen bg-background'>
+      {/* Header */}
       <div className='flex justify-between items-center mb-6'>
         <div>
-          <h2 className='text-base font-bold m-0'>Invite Members</h2>
-          <p className='text-sm text-gray-400 m-0'>
+          <h2 className='text-base font-bold m-0 text-foreground'>
+            Invite Members
+          </h2>
+          <p className='text-sm text-muted-foreground m-0'>
             Grow your chama by inviting new members
           </p>
         </div>
-        <Button className='bg-primary text-white px-4 py-2 rounded flex items-center gap-2 hover:bg-blue-400 border-none'>
-          <UserPlus size={16} /> Add member Directly
+        <Button className='gap-2'>
+          <UserPlus className='w-4 h-4' />
+          Add member Directly
         </Button>
       </div>
 
       {/* Select Chama */}
-      <div className='bg-primarybg border1 rounded-xl mb-6'>
-        <div className='select-chama-header'>
-          <h3 className='text-sm p-3 m-0'>Select chama</h3>
+      <div className='bg-card border border-border rounded-xl mb-6'>
+        <div className='border-b border-border'>
+          <h3 className='text-sm p-4 m-0 text-foreground font-semibold'>
+            Select chama
+          </h3>
         </div>
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-4  p-2'>
-          <div className='flex flex-row items-start justify-between border1 p-3 rounded-lg'>
-            <div className=' '>
-              <p className='font-semibold m-0 text-base text-default'>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-4 p-4'>
+          <div className='flex flex-row items-start justify-between border border-border p-4 rounded-lg bg-muted/50'>
+            <div>
+              <p className='font-semibold m-0 text-base text-foreground'>
                 Family Saving Chama
               </p>
-              <p className='text-sm text-gray-400 m-0'>
+              <p className='text-sm text-muted-foreground m-0'>
                 8 Members. Ksh 35,000 total
               </p>
               <p className='text-success text-sm m-0 mt-2'>Admin access</p>
             </div>
-            <Button className='bg-[#54B68526] border-none rounded-full text-success font-normal'>
+            <span className='bg-success/20 border-none rounded-full text-success font-normal px-3 py-1 text-sm'>
               Active
-            </Button>
+            </span>
           </div>
 
-          <div className='flex flex-row items-start justify-between border1 p-3 rounded-lg'>
-            <div className=''>
-              <p className='font-semibold m-0 text-base text-default'>
+          <div className='flex flex-row items-start justify-between border border-border p-4 rounded-lg bg-muted/50'>
+            <div>
+              <p className='font-semibold m-0 text-base text-foreground'>
                 Business Investment Club
               </p>
-              <p className='text-sm text-gray-400 m-0'>
+              <p className='text-sm text-muted-foreground m-0'>
                 12 Members. Ksh 102,300 total
               </p>
               <p className='text-success text-sm m-0 mt-2'>Admin access</p>
             </div>
-            <Button className='bg-[#54B68526] border-none rounded-full text-success font-normal'>
+            <span className='bg-success/20 border-none rounded-full text-success font-normal px-3 py-1 text-sm'>
               Active
-            </Button>
+            </span>
           </div>
         </div>
       </div>
 
       <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-6'>
         {/* Email Invitation */}
-        <div className='bg-primarybg rounded-xl border1'>
-          <h3 className='flex items-center border2 gap-2 m-0 mb-4 p-4 font-semibold text-sm'>
-            <Mail className='text-secondary1' size={16} /> E-mail invitation
+        <div className='bg-card border border-border rounded-xl'>
+          <h3 className='flex items-center border-b border-border gap-2 m-0 p-4 font-semibold text-sm text-foreground'>
+            <Mail className='text-primary w-4 h-4' />
+            E-mail invitation
           </h3>
           <div className='p-4'>
             <input
@@ -89,45 +96,46 @@ const InviteMembers = () => {
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder='Enter email address'
-              className='w-full p-3 mb-3 rounded bg-inherit border-none input-border placeholder:text-gray-400 focus:outline-secondary1'
+              className='w-full p-3 mb-3 rounded-lg bg-muted border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors'
             />
             <textarea
               rows={3}
               value={message}
               onChange={e => setMessage(e.target.value)}
               placeholder='Add a personal message to your invitation'
-              className='w-full p-3 mb-3 rounded bg-inherit input-border placeholder:text-gray-400 focus:outline-secondary1'
+              className='w-full p-3 mb-3 rounded-lg bg-muted border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors resize-none'
             ></textarea>
-            <Button className='w-full bg-secondary border-none text-white py-2 rounded hover:bg-sky-500'>
-              Send Email Invitation
-            </Button>
+            <Button className='w-full'>Send Email Invitation</Button>
           </div>
         </div>
 
         {/* Invitation Link */}
-        <div className='bg-primarybg p-4 rounded-xl border1'>
-          <h3 className='flex items-center gap-2 m-0 mb-4 font-semibold text-sm'>
-            <LinkIcon className='text-secondary1' size={16} /> Invitation link
+        <div className='bg-card border border-border p-4 rounded-xl'>
+          <h3 className='flex items-center gap-2 m-0 mb-4 font-semibold text-sm text-foreground'>
+            <LinkIcon className='text-primary w-4 h-4' />
+            Invitation link
           </h3>
-          <div className='invitation-link flex items-center rounded mb-3 text-default border1 hover:text-white'>
+          <div className='flex items-center rounded-lg mb-3 border border-border overflow-hidden'>
             <input
               type='text'
               readOnly
               value='https://chamaplus.com/invite/family-saving/chama'
-              className='bg-transparent w-full border-none focus:outline-none p-3 text-default hover:text-white hover:border-white'
+              className='bg-muted w-full border-none focus:outline-none p-3 text-foreground'
             />
-            <i className=' bi bi-copy copy-link-icon cursor-pointer px-3 py-2 hover:text-white hover:border-white border-left bg-gray-700 rounded-tr rounded-br'></i>
+            <button className='px-3 py-3 bg-muted hover:bg-primary/10 transition-colors border-l border-border'>
+              <Copy className='w-4 h-4 text-muted-foreground' />
+            </button>
           </div>
           <div className='flex gap-2'>
-            <button className='flex gap-2 bg-green-600 text-white px-2 py-1 rounded'>
+            <button className='flex gap-2 items-center bg-success hover:bg-success/90 text-success-foreground px-3 py-2 rounded-lg transition-colors'>
               <i className='bi bi-whatsapp'></i>
               WhatsApp
             </button>
-            <button className='flex gap-2 bg-cyan-600 text-white px-2 py-1 rounded'>
+            <button className='flex gap-2 items-center bg-primary hover:bg-primary/90 text-primary-foreground px-3 py-2 rounded-lg transition-colors'>
               <i className='bi bi-telegram'></i>
               Telegram
             </button>
-            <button className='flex gap-2 bg-teal-600 text-white px-2 py-1 rounded'>
+            <button className='flex gap-2 items-center bg-muted hover:bg-muted/80 text-foreground px-3 py-2 rounded-lg transition-colors border border-border'>
               <i className='bi bi-twitter-x'></i>
               Twitter
             </button>
@@ -136,48 +144,47 @@ const InviteMembers = () => {
       </div>
 
       {/* Pending Invitations */}
-      <div className='bg-primarybg rounded-xl pb-3'>
-        <h3 className='font-semibold mb-4 p-4 border2 text-sm'>
+      <div className='bg-card border border-border rounded-xl'>
+        <h3 className='font-semibold p-4 border-b border-border text-sm text-foreground m-0'>
           Pending Invitations
         </h3>
-        {pendingInvites.map((invite, index) => (
-          <div
-            key={index}
-            className='flex justify-between items-center p-3 border1 mb-3 rounded mx-4'
-          >
-            <div className='flex items-center gap-3'>
-              {invite.type === 'email' ? (
-                <div
-                  className='w-10 h-10 rounded-full flex items-center justify-center font-bold text-white'
-                  style={{ backgroundColor: '#39eb' }} // blue background for email
-                >
-                  {invite.contact.charAt(0).toUpperCase()}
+        <div className='p-4 space-y-3'>
+          {pendingInvites.map((invite, index) => (
+            <div
+              key={index}
+              className='flex justify-between items-center p-3 border border-border rounded-lg bg-muted/50'
+            >
+              <div className='flex items-center gap-3'>
+                {invite.type === 'email' ? (
+                  <div className='w-10 h-10 rounded-full flex items-center justify-center font-bold text-primary-foreground bg-primary'>
+                    {invite.contact.charAt(0).toUpperCase()}
+                  </div>
+                ) : (
+                  ProfileTemplate(invite, 10, 10)
+                )}
+                <div>
+                  <p className='font-semibold text-sm m-0 text-foreground'>
+                    {invite.contact}
+                  </p>
+                  <p className='text-xs text-muted-foreground m-0'>
+                    Sent {invite.time} via {invite.type}
+                  </p>
                 </div>
-              ) : (
-                ProfileTemplate(invite, 10, 10)
-              )}
-              <div>
-                <p className='font-semibold text-sm m-0 text-default'>
-                  {invite.contact}
-                </p>
-                <p className='text-xs text-gray-400 m-0'>
-                  Sent {invite.time} via {invite.type}
-                </p>
+              </div>
+              <div className='flex items-center gap-2'>
+                <span className='bg-accent/20 text-accent text-xs px-3 py-2 rounded-full'>
+                  Pending
+                </span>
+                <button
+                  className='p-1 hover:bg-destructive/10 rounded-full transition-colors'
+                  onClick={() => handleRemoveInvite(index)}
+                >
+                  <X className='w-5 h-5 text-muted-foreground hover:text-destructive' />
+                </button>
               </div>
             </div>
-            <div className='flex items-center gap-2'>
-              <span className='bg-[#F7C34426] text-yellow-300 text-xs px-3 py-2 rounded-full'>
-                Pending
-              </span>
-              <button
-                className='bg-inherit border-none hover:bg-gray-700 hover:text-red-500 cursor-pointer rounded-full'
-                onClick={() => handleRemoveInvite(index)}
-              >
-                <i className='bi bi-x text-3xl text-default hover:text-red-500 '></i>
-              </button>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );

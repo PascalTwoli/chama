@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Input } from './ui/input';
@@ -15,7 +21,7 @@ import {
   Calendar,
   Edit,
   Trash2,
-  Phone
+  Phone,
 } from 'lucide-react';
 import {
   Dialog,
@@ -52,20 +58,23 @@ interface SMSMessage {
   status: 'sent' | 'scheduled' | 'failed';
 }
 
-export default function CommunicationPage({ onBack, role }: CommunicationPageProps) {
+export default function CommunicationPage({
+  onBack,
+  role,
+}: CommunicationPageProps) {
   const [showNewAnnouncement, setShowNewAnnouncement] = useState(false);
   const [showSendSMS, setShowSendSMS] = useState(false);
   const [newAnnouncement, setNewAnnouncement] = useState({
     title: '',
     message: '',
     category: 'general' as Announcement['category'],
-    pinned: false
+    pinned: false,
   });
   const [newSMS, setNewSMS] = useState({
     subject: '',
     message: '',
     recipients: 'all' as 'all' | 'admins' | 'custom',
-    scheduleDate: ''
+    scheduleDate: '',
   });
 
   // Mock data
@@ -73,91 +82,99 @@ export default function CommunicationPage({ onBack, role }: CommunicationPagePro
     {
       id: '1',
       title: 'Important: Next Month Contribution Deadline',
-      message: 'Dear members, please note that February contributions are due by 5th February 2026. Late payment penalties will apply after the grace period.',
+      message:
+        'Dear members, please note that February contributions are due by 5th February 2026. Late payment penalties will apply after the grace period.',
       author: 'John Kamau',
       date: '2026-01-17',
       pinned: true,
-      category: 'contribution'
+      category: 'contribution',
     },
     {
       id: '2',
       title: 'Monthly Meeting - February 2026',
-      message: 'Our next monthly general meeting is scheduled for Saturday, 5th February 2026 at 2:00 PM at the Community Hall. Agenda includes contribution review and new investment proposals. Your attendance is important!',
+      message:
+        'Our next monthly general meeting is scheduled for Saturday, 5th February 2026 at 2:00 PM at the Community Hall. Agenda includes contribution review and new investment proposals. Your attendance is important!',
       author: 'Sarah Njeri',
       date: '2026-01-15',
       pinned: true,
-      category: 'meeting'
+      category: 'meeting',
     },
     {
       id: '3',
       title: 'New Member Welcome',
-      message: 'We are pleased to welcome Paul Kiptoo to Tumaini Chama! Paul has been a friend of the group for some time and we look forward to growing together.',
+      message:
+        'We are pleased to welcome Paul Kiptoo to Tumaini Chama! Paul has been a friend of the group for some time and we look forward to growing together.',
       author: 'John Kamau',
       date: '2026-01-14',
       pinned: false,
-      category: 'general'
+      category: 'general',
     },
     {
       id: '4',
       title: 'Investment Update - Treasury Bonds',
-      message: 'Great news! Our investment in treasury bonds has yielded a 8.5% return. The Treasurer will present a detailed report at the next meeting.',
+      message:
+        'Great news! Our investment in treasury bonds has yielded a 8.5% return. The Treasurer will present a detailed report at the next meeting.',
       author: 'Mary Wanjiku',
       date: '2026-01-12',
       pinned: false,
-      category: 'general'
+      category: 'general',
     },
     {
       id: '5',
       title: 'URGENT: Emergency Loan Approved',
-      message: 'The committee has approved an emergency loan of KSh 30,000 to Peter Ochieng for medical expenses. All members please note this will affect our available loan capital.',
+      message:
+        'The committee has approved an emergency loan of KSh 30,000 to Peter Ochieng for medical expenses. All members please note this will affect our available loan capital.',
       author: 'John Kamau',
       date: '2026-01-10',
       pinned: false,
-      category: 'urgent'
-    }
+      category: 'urgent',
+    },
   ];
 
   const smsHistory: SMSMessage[] = [
     {
       id: '1',
       subject: 'Meeting Reminder',
-      message: 'Reminder: Monthly meeting tomorrow at 2PM, Community Hall. Please confirm attendance.',
+      message:
+        'Reminder: Monthly meeting tomorrow at 2PM, Community Hall. Please confirm attendance.',
       sentBy: 'Sarah Njeri',
       sentDate: '2026-02-04',
       recipients: 10,
-      status: 'sent'
+      status: 'sent',
     },
     {
       id: '2',
       subject: 'Contribution Due',
-      message: 'Your monthly contribution of KSh 5,000 is due by 5th Feb. Mpesa Paybill 123456, Account: TUMAINI',
+      message:
+        'Your monthly contribution of KSh 5,000 is due by 5th Feb. Mpesa Paybill 123456, Account: TUMAINI',
       sentBy: 'Mary Wanjiku',
       sentDate: '2026-02-01',
       recipients: 10,
-      status: 'sent'
+      status: 'sent',
     },
     {
       id: '3',
       subject: 'Happy New Year 2026',
-      message: 'Tumaini Chama wishes all members a prosperous 2026! Looking forward to achieving our goals together.',
+      message:
+        'Tumaini Chama wishes all members a prosperous 2026! Looking forward to achieving our goals together.',
       sentBy: 'John Kamau',
       sentDate: '2026-01-01',
       recipients: 10,
-      status: 'sent'
-    }
+      status: 'sent',
+    },
   ];
 
   const categoryColors = {
     general: 'bg-primary/10 text-primary border-primary/20',
     meeting: 'bg-accent/10 text-accent border-accent/20',
     contribution: 'bg-secondary/10 text-secondary border-secondary/20',
-    urgent: 'bg-destructive/10 text-destructive border-destructive/20'
+    urgent: 'bg-destructive/10 text-destructive border-destructive/20',
   };
 
   const statusColors = {
     sent: 'bg-secondary/10 text-secondary border-secondary/20',
     scheduled: 'bg-accent/10 text-accent border-accent/20',
-    failed: 'bg-destructive/10 text-destructive border-destructive/20'
+    failed: 'bg-destructive/10 text-destructive border-destructive/20',
   };
 
   const handlePostAnnouncement = () => {
@@ -171,7 +188,7 @@ export default function CommunicationPage({ onBack, role }: CommunicationPagePro
       title: '',
       message: '',
       category: 'general',
-      pinned: false
+      pinned: false,
     });
   };
 
@@ -190,7 +207,7 @@ export default function CommunicationPage({ onBack, role }: CommunicationPagePro
       subject: '',
       message: '',
       recipients: 'all',
-      scheduleDate: ''
+      scheduleDate: '',
     });
   };
 
@@ -208,7 +225,9 @@ export default function CommunicationPage({ onBack, role }: CommunicationPagePro
           </Button>
           <div>
             <h1 className="text-2xl font-bold">Communication</h1>
-            <p className="text-sm text-muted-foreground">Announcements and SMS broadcast</p>
+            <p className="text-sm text-muted-foreground">
+              Announcements and SMS broadcast
+            </p>
           </div>
         </div>
       </div>
@@ -219,7 +238,9 @@ export default function CommunicationPage({ onBack, role }: CommunicationPagePro
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Total Announcements</p>
+                <p className="text-sm text-muted-foreground">
+                  Total Announcements
+                </p>
                 <p className="text-2xl font-bold">{announcements.length}</p>
               </div>
               <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -233,7 +254,9 @@ export default function CommunicationPage({ onBack, role }: CommunicationPagePro
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">SMS Sent (Month)</p>
+                <p className="text-sm text-muted-foreground">
+                  SMS Sent (Month)
+                </p>
                 <p className="text-2xl font-bold">{smsHistory.length}</p>
               </div>
               <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center">
@@ -269,7 +292,10 @@ export default function CommunicationPage({ onBack, role }: CommunicationPagePro
         <TabsContent value="announcements" className="space-y-4">
           <div className="flex justify-end">
             {role === 'admin' && (
-              <Button className="bg-primary hover:bg-primary/90" onClick={() => setShowNewAnnouncement(true)}>
+              <Button
+                className="bg-primary hover:bg-primary/90"
+                onClick={() => setShowNewAnnouncement(true)}
+              >
                 <Plus className="w-4 h-4 mr-2" />
                 New Announcement
               </Button>
@@ -283,31 +309,54 @@ export default function CommunicationPage({ onBack, role }: CommunicationPagePro
                 <Pin className="w-5 h-5 text-primary" />
                 <h3 className="font-bold">Pinned Announcements</h3>
               </div>
-              {pinnedAnnouncements.map((announcement) => (
-                <Card key={announcement.id} className="border-2 border-primary/20 bg-primary/5">
+              {pinnedAnnouncements.map(announcement => (
+                <Card
+                  key={announcement.id}
+                  className="border-2 border-primary/20 bg-primary/5"
+                >
                   <CardContent className="pt-6">
                     <div className="space-y-3">
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            <Badge variant="outline" className={categoryColors[announcement.category]}>
-                              {announcement.category === 'general' && <MessageSquare className="w-3 h-3 mr-1" />}
-                              {announcement.category === 'meeting' && <Calendar className="w-3 h-3 mr-1" />}
-                              {announcement.category === 'contribution' && <Bell className="w-3 h-3 mr-1" />}
-                              {announcement.category === 'urgent' && <Bell className="w-3 h-3 mr-1" />}
-                              {announcement.category.charAt(0).toUpperCase() + announcement.category.slice(1)}
+                            <Badge
+                              variant="outline"
+                              className={categoryColors[announcement.category]}
+                            >
+                              {announcement.category === 'general' && (
+                                <MessageSquare className="w-3 h-3 mr-1" />
+                              )}
+                              {announcement.category === 'meeting' && (
+                                <Calendar className="w-3 h-3 mr-1" />
+                              )}
+                              {announcement.category === 'contribution' && (
+                                <Bell className="w-3 h-3 mr-1" />
+                              )}
+                              {announcement.category === 'urgent' && (
+                                <Bell className="w-3 h-3 mr-1" />
+                              )}
+                              {announcement.category.charAt(0).toUpperCase() +
+                                announcement.category.slice(1)}
                             </Badge>
                             <Pin className="w-4 h-4 text-primary" />
                           </div>
-                          <h4 className="font-bold text-lg mb-2">{announcement.title}</h4>
-                          <p className="text-muted-foreground">{announcement.message}</p>
+                          <h4 className="font-bold text-lg mb-2">
+                            {announcement.title}
+                          </h4>
+                          <p className="text-muted-foreground">
+                            {announcement.message}
+                          </p>
                         </div>
                         {role === 'admin' && (
                           <div className="flex gap-1">
                             <Button variant="ghost" size="sm">
                               <Edit className="w-4 h-4" />
                             </Button>
-                            <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-destructive hover:text-destructive"
+                            >
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
@@ -317,11 +366,14 @@ export default function CommunicationPage({ onBack, role }: CommunicationPagePro
                         <span>Posted by {announcement.author}</span>
                         <span>•</span>
                         <span>
-                          {new Date(announcement.date).toLocaleDateString('en-KE', {
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric'
-                          })}
+                          {new Date(announcement.date).toLocaleDateString(
+                            'en-KE',
+                            {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric',
+                            }
+                          )}
                         </span>
                       </div>
                     </div>
@@ -336,28 +388,48 @@ export default function CommunicationPage({ onBack, role }: CommunicationPagePro
             {pinnedAnnouncements.length > 0 && (
               <h3 className="font-bold">All Announcements</h3>
             )}
-            {regularAnnouncements.map((announcement) => (
+            {regularAnnouncements.map(announcement => (
               <Card key={announcement.id}>
                 <CardContent className="pt-6">
                   <div className="space-y-3">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
-                        <Badge variant="outline" className={`${categoryColors[announcement.category]} mb-2`}>
-                          {announcement.category === 'general' && <MessageSquare className="w-3 h-3 mr-1" />}
-                          {announcement.category === 'meeting' && <Calendar className="w-3 h-3 mr-1" />}
-                          {announcement.category === 'contribution' && <Bell className="w-3 h-3 mr-1" />}
-                          {announcement.category === 'urgent' && <Bell className="w-3 h-3 mr-1" />}
-                          {announcement.category.charAt(0).toUpperCase() + announcement.category.slice(1)}
+                        <Badge
+                          variant="outline"
+                          className={`${categoryColors[announcement.category]} mb-2`}
+                        >
+                          {announcement.category === 'general' && (
+                            <MessageSquare className="w-3 h-3 mr-1" />
+                          )}
+                          {announcement.category === 'meeting' && (
+                            <Calendar className="w-3 h-3 mr-1" />
+                          )}
+                          {announcement.category === 'contribution' && (
+                            <Bell className="w-3 h-3 mr-1" />
+                          )}
+                          {announcement.category === 'urgent' && (
+                            <Bell className="w-3 h-3 mr-1" />
+                          )}
+                          {announcement.category.charAt(0).toUpperCase() +
+                            announcement.category.slice(1)}
                         </Badge>
-                        <h4 className="font-bold text-lg mb-2">{announcement.title}</h4>
-                        <p className="text-muted-foreground">{announcement.message}</p>
+                        <h4 className="font-bold text-lg mb-2">
+                          {announcement.title}
+                        </h4>
+                        <p className="text-muted-foreground">
+                          {announcement.message}
+                        </p>
                       </div>
                       {role === 'admin' && (
                         <div className="flex gap-1">
                           <Button variant="ghost" size="sm">
                             <Edit className="w-4 h-4" />
                           </Button>
-                          <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-destructive hover:text-destructive"
+                          >
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
@@ -367,11 +439,14 @@ export default function CommunicationPage({ onBack, role }: CommunicationPagePro
                       <span>Posted by {announcement.author}</span>
                       <span>•</span>
                       <span>
-                        {new Date(announcement.date).toLocaleDateString('en-KE', {
-                          month: 'short',
-                          day: 'numeric',
-                          year: 'numeric'
-                        })}
+                        {new Date(announcement.date).toLocaleDateString(
+                          'en-KE',
+                          {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                          }
+                        )}
                       </span>
                     </div>
                   </div>
@@ -385,7 +460,10 @@ export default function CommunicationPage({ onBack, role }: CommunicationPagePro
         <TabsContent value="sms" className="space-y-4">
           <div className="flex justify-end">
             {role === 'admin' && (
-              <Button className="bg-primary hover:bg-primary/90" onClick={() => setShowSendSMS(true)}>
+              <Button
+                className="bg-primary hover:bg-primary/90"
+                onClick={() => setShowSendSMS(true)}
+              >
                 <Send className="w-4 h-4 mr-2" />
                 Send SMS
               </Button>
@@ -399,17 +477,26 @@ export default function CommunicationPage({ onBack, role }: CommunicationPagePro
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {smsHistory.map((sms) => (
-                  <div key={sms.id} className="p-4 border rounded-lg hover:bg-muted/50">
+                {smsHistory.map(sms => (
+                  <div
+                    key={sms.id}
+                    className="p-4 border rounded-lg hover:bg-muted/50"
+                  >
                     <div className="flex items-start justify-between gap-4 mb-3">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <h4 className="font-bold">{sms.subject}</h4>
-                          <Badge variant="outline" className={statusColors[sms.status]}>
-                            {sms.status.charAt(0).toUpperCase() + sms.status.slice(1)}
+                          <Badge
+                            variant="outline"
+                            className={statusColors[sms.status]}
+                          >
+                            {sms.status.charAt(0).toUpperCase() +
+                              sms.status.slice(1)}
                           </Badge>
                         </div>
-                        <p className="text-muted-foreground text-sm">{sms.message}</p>
+                        <p className="text-muted-foreground text-sm">
+                          {sms.message}
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
@@ -421,7 +508,7 @@ export default function CommunicationPage({ onBack, role }: CommunicationPagePro
                         {new Date(sms.sentDate).toLocaleDateString('en-KE', {
                           month: 'short',
                           day: 'numeric',
-                          year: 'numeric'
+                          year: 'numeric',
                         })}
                       </span>
                     </div>
@@ -438,7 +525,9 @@ export default function CommunicationPage({ onBack, role }: CommunicationPagePro
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Create Announcement</DialogTitle>
-            <DialogDescription>Post a new announcement for all members</DialogDescription>
+            <DialogDescription>
+              Post a new announcement for all members
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
@@ -446,21 +535,41 @@ export default function CommunicationPage({ onBack, role }: CommunicationPagePro
               <Input
                 placeholder="e.g., Next Meeting Schedule"
                 value={newAnnouncement.title}
-                onChange={(e) => setNewAnnouncement({...newAnnouncement, title: e.target.value})}
+                onChange={e =>
+                  setNewAnnouncement({
+                    ...newAnnouncement,
+                    title: e.target.value,
+                  })
+                }
               />
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Category *</label>
+              <label className="text-sm font-medium mb-2 block">
+                Category *
+              </label>
               <div className="grid grid-cols-2 gap-2">
-                {['general', 'meeting', 'contribution', 'urgent'].map((cat) => (
+                {['general', 'meeting', 'contribution', 'urgent'].map(cat => (
                   <Button
                     key={cat}
                     type="button"
-                    variant={newAnnouncement.category === cat ? 'default' : 'outline'}
+                    variant={
+                      newAnnouncement.category === cat ? 'default' : 'outline'
+                    }
                     size="sm"
-                    onClick={() => setNewAnnouncement({...newAnnouncement, category: cat as Announcement['category']})}
-                    className={newAnnouncement.category === cat ? categoryColors[cat as Announcement['category']].replace('bg-', 'bg-').replace('/10', '') : ''}
+                    onClick={() =>
+                      setNewAnnouncement({
+                        ...newAnnouncement,
+                        category: cat as Announcement['category'],
+                      })
+                    }
+                    className={
+                      newAnnouncement.category === cat
+                        ? categoryColors[cat as Announcement['category']]
+                            .replace('bg-', 'bg-')
+                            .replace('/10', '')
+                        : ''
+                    }
                   >
                     {cat.charAt(0).toUpperCase() + cat.slice(1)}
                   </Button>
@@ -469,13 +578,20 @@ export default function CommunicationPage({ onBack, role }: CommunicationPagePro
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Message *</label>
+              <label className="text-sm font-medium mb-2 block">
+                Message *
+              </label>
               <textarea
                 className="w-full px-3 py-2 border rounded-lg bg-input-background focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                 rows={5}
                 placeholder="Write your announcement..."
                 value={newAnnouncement.message}
-                onChange={(e) => setNewAnnouncement({...newAnnouncement, message: e.target.value})}
+                onChange={e =>
+                  setNewAnnouncement({
+                    ...newAnnouncement,
+                    message: e.target.value,
+                  })
+                }
               />
             </div>
 
@@ -484,20 +600,34 @@ export default function CommunicationPage({ onBack, role }: CommunicationPagePro
                 type="checkbox"
                 id="pinned"
                 checked={newAnnouncement.pinned}
-                onChange={(e) => setNewAnnouncement({...newAnnouncement, pinned: e.target.checked})}
+                onChange={e =>
+                  setNewAnnouncement({
+                    ...newAnnouncement,
+                    pinned: e.target.checked,
+                  })
+                }
                 className="w-4 h-4"
               />
-              <label htmlFor="pinned" className="text-sm flex items-center gap-2">
+              <label
+                htmlFor="pinned"
+                className="text-sm flex items-center gap-2"
+              >
                 <Pin className="w-4 h-4" />
                 Pin this announcement to the top
               </label>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowNewAnnouncement(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowNewAnnouncement(false)}
+            >
               Cancel
             </Button>
-            <Button className="bg-primary hover:bg-primary/90" onClick={handlePostAnnouncement}>
+            <Button
+              className="bg-primary hover:bg-primary/90"
+              onClick={handlePostAnnouncement}
+            >
               Post Announcement
             </Button>
           </DialogFooter>
@@ -509,42 +639,54 @@ export default function CommunicationPage({ onBack, role }: CommunicationPagePro
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Send SMS Broadcast</DialogTitle>
-            <DialogDescription>Send SMS to all members or schedule for later</DialogDescription>
+            <DialogDescription>
+              Send SMS to all members or schedule for later
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium mb-2 block">Subject *</label>
+              <label className="text-sm font-medium mb-2 block">
+                Subject *
+              </label>
               <Input
                 placeholder="e.g., Meeting Reminder"
                 value={newSMS.subject}
-                onChange={(e) => setNewSMS({...newSMS, subject: e.target.value})}
+                onChange={e =>
+                  setNewSMS({ ...newSMS, subject: e.target.value })
+                }
               />
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Recipients *</label>
+              <label className="text-sm font-medium mb-2 block">
+                Recipients *
+              </label>
               <div className="grid grid-cols-3 gap-2">
                 <Button
                   type="button"
                   variant={newSMS.recipients === 'all' ? 'default' : 'outline'}
                   size="sm"
-                  onClick={() => setNewSMS({...newSMS, recipients: 'all'})}
+                  onClick={() => setNewSMS({ ...newSMS, recipients: 'all' })}
                 >
                   All (10)
                 </Button>
                 <Button
                   type="button"
-                  variant={newSMS.recipients === 'admins' ? 'default' : 'outline'}
+                  variant={
+                    newSMS.recipients === 'admins' ? 'default' : 'outline'
+                  }
                   size="sm"
-                  onClick={() => setNewSMS({...newSMS, recipients: 'admins'})}
+                  onClick={() => setNewSMS({ ...newSMS, recipients: 'admins' })}
                 >
                   Admins (4)
                 </Button>
                 <Button
                   type="button"
-                  variant={newSMS.recipients === 'custom' ? 'default' : 'outline'}
+                  variant={
+                    newSMS.recipients === 'custom' ? 'default' : 'outline'
+                  }
                   size="sm"
-                  onClick={() => setNewSMS({...newSMS, recipients: 'custom'})}
+                  onClick={() => setNewSMS({ ...newSMS, recipients: 'custom' })}
                 >
                   Custom
                 </Button>
@@ -552,14 +694,18 @@ export default function CommunicationPage({ onBack, role }: CommunicationPagePro
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Message * (160 characters max)</label>
+              <label className="text-sm font-medium mb-2 block">
+                Message * (160 characters max)
+              </label>
               <textarea
                 className="w-full px-3 py-2 border rounded-lg bg-input-background focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                 rows={4}
                 maxLength={160}
                 placeholder="Type your SMS message..."
                 value={newSMS.message}
-                onChange={(e) => setNewSMS({...newSMS, message: e.target.value})}
+                onChange={e =>
+                  setNewSMS({ ...newSMS, message: e.target.value })
+                }
               />
               <p className="text-xs text-muted-foreground mt-1">
                 {newSMS.message.length}/160 characters
@@ -567,11 +713,15 @@ export default function CommunicationPage({ onBack, role }: CommunicationPagePro
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Schedule (Optional)</label>
+              <label className="text-sm font-medium mb-2 block">
+                Schedule (Optional)
+              </label>
               <Input
                 type="datetime-local"
                 value={newSMS.scheduleDate}
-                onChange={(e) => setNewSMS({...newSMS, scheduleDate: e.target.value})}
+                onChange={e =>
+                  setNewSMS({ ...newSMS, scheduleDate: e.target.value })
+                }
               />
               <p className="text-xs text-muted-foreground mt-1">
                 Leave empty to send immediately
@@ -581,14 +731,19 @@ export default function CommunicationPage({ onBack, role }: CommunicationPagePro
             <div className="p-4 bg-accent/10 rounded-lg">
               <p className="text-sm font-medium mb-1">Estimated Cost</p>
               <p className="text-2xl font-bold">KSh 10</p>
-              <p className="text-xs text-muted-foreground">10 recipients × KSh 1.00 per SMS</p>
+              <p className="text-xs text-muted-foreground">
+                10 recipients × KSh 1.00 per SMS
+              </p>
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowSendSMS(false)}>
               Cancel
             </Button>
-            <Button className="bg-primary hover:bg-primary/90" onClick={handleSendSMS}>
+            <Button
+              className="bg-primary hover:bg-primary/90"
+              onClick={handleSendSMS}
+            >
               <Send className="w-4 h-4 mr-2" />
               {newSMS.scheduleDate ? 'Schedule SMS' : 'Send Now'}
             </Button>

@@ -387,7 +387,7 @@ export default function AdminDashboard() {
                     <div
                       className={`w-9 h-9 rounded-full ${getAvatarColor(contribution.name)} flex items-center justify-center`}
                     >
-                      <span className='text-white font-semibold text-xs'>
+                      <span className='text-primary-foreground font-semibold text-xs'>
                         {getInitials(contribution.name)}
                       </span>
                     </div>
@@ -504,7 +504,7 @@ export default function AdminDashboard() {
                         <div
                           className={`w-8 h-8 rounded-full ${getAvatarColor(member.name)} flex items-center justify-center`}
                         >
-                          <span className='text-white font-semibold text-xs'>
+                          <span className='text-primary-foreground font-semibold text-xs'>
                             {getInitials(member.name)}
                           </span>
                         </div>

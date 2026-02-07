@@ -1,11 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsEnum, IsOptional, IsString, Length, Matches } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsOptional,
+  IsString,
+  Length,
+  Matches,
+} from 'class-validator';
 import { Transform } from 'class-transformer';
 import { UserRole, UserType } from '../models';
 
 /**
  * Data Transfer Object for creating a new user
- * 
+ *
  * Demonstrates proper validation using Prisma enums and class-validator decorators.
  * Includes transformation and validation rules for all user creation fields.
  */
@@ -37,9 +44,12 @@ export class CreateUserDto {
     format: 'email',
     required: false,
   })
-  @IsEmail({}, {
-    message: 'Please provide a valid email address',
-  })
+  @IsEmail(
+    {},
+    {
+      message: 'Please provide a valid email address',
+    },
+  )
   @IsOptional()
   @Transform(({ value }) => value?.toLowerCase().trim())
   email?: string;
@@ -56,7 +66,8 @@ export class CreateUserDto {
   @IsString()
   @IsOptional()
   @Matches(/^\+[1-9]\d{1,14}$/, {
-    message: 'Phone number must be in international format (e.g., +254712345678)',
+    message:
+      'Phone number must be in international format (e.g., +254712345678)',
   })
   phone?: string;
 
@@ -76,7 +87,8 @@ export class CreateUserDto {
     message: 'Password must be between 8 and 128 characters',
   })
   @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, {
-    message: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
+    message:
+      'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
   })
   password?: string;
 
@@ -154,9 +166,12 @@ export class UpdateUserDto {
     format: 'email',
     required: false,
   })
-  @IsEmail({}, {
-    message: 'Please provide a valid email address',
-  })
+  @IsEmail(
+    {},
+    {
+      message: 'Please provide a valid email address',
+    },
+  )
   @IsOptional()
   @Transform(({ value }) => value?.toLowerCase().trim())
   email?: string;
@@ -173,7 +188,8 @@ export class UpdateUserDto {
   @IsString()
   @IsOptional()
   @Matches(/^\+[1-9]\d{1,14}$/, {
-    message: 'Phone number must be in international format (e.g., +254712345678)',
+    message:
+      'Phone number must be in international format (e.g., +254712345678)',
   })
   phone?: string;
 
@@ -281,4 +297,3 @@ export class DtoValidationUtils {
     return name.trim().replace(/\s+/g, ' ');
   }
 }
-

@@ -25,7 +25,7 @@ export class AuthGuard implements CanActivate {
     // 2. auth_token cookie (fallback)
     // 3. admin_token cookie (for admin routes)
     let token: string | null = null;
-    
+
     // Try to get token from Authorization header first
     const authHeader = request.headers['authorization'];
     if (authHeader) {
@@ -34,22 +34,22 @@ export class AuthGuard implements CanActivate {
         token = headerToken;
       }
     }
-    
+
     // If no valid Authorization header, try cookies
     if (!token && request.cookies) {
       // Try auth_token cookie first
       token = request.cookies['auth_token'];
-      
+
       // If no auth_token and this might be an admin route, try admin_token
       if (!token && request.url?.includes('/admin')) {
         token = request.cookies['admin_token'];
       }
     }
-    
+
     // If still no token found, deny access
     if (!token) {
       throw new UnauthorizedException(
-        'Authentication required: No valid token found in Authorization header or cookies'
+        'Authentication required: No valid token found in Authorization header or cookies',
       );
     }
 
@@ -63,7 +63,8 @@ export class AuthGuard implements CanActivate {
     };
 
     // Validate token using UserService
-    const decodedToken = await this.userService.validateRequestAndGetToken(modifiedRequest);
+    const decodedToken =
+      await this.userService.validateRequestAndGetToken(modifiedRequest);
     if (!decodedToken) {
       throw new UnauthorizedException('Token verification failed');
     }

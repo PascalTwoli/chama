@@ -63,4 +63,136 @@
     background: var(--card) !important;
     color: var(--muted-foreground) !important;
   }
+
+  /* PrimeReact ListBox Override for theme compatibility */
+  .p-listbox {
+    background: var(--card) !important;
+    border-color: var(--border) !important;
+    color: var(--foreground) !important;
+    border-radius: 0.5rem;
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  .p-listbox .p-listbox-list {
+    padding: 0.25rem;
+  }
+
+  .p-listbox .p-listbox-item {
+    color: var(--foreground) !important;
+    border-radius: 0.375rem;
+    margin: 0.125rem 0;
+  }
+
+  .p-listbox .p-listbox-item:hover {
+    background: var(--muted) !important;
+  }
+
+  .p-listbox .p-listbox-item.p-highlight {
+    background: var(--primary) !important;
+    color: var(--primary-foreground) !important;
+  }
+
+  /* PrimeReact Dialog Override for theme compatibility */
+  .p-dialog {
+    background: var(--card) !important;
+    border-color: var(--border) !important;
+    color: var(--foreground) !important;
+  }
+
+  .p-dialog .p-dialog-header {
+    background: var(--card) !important;
+    color: var(--foreground) !important;
+    border-bottom: 1px solid var(--border) !important;
+  }
+
+  .p-dialog .p-dialog-content {
+    background: var(--card) !important;
+    color: var(--foreground) !important;
+  }
+
+  .p-dialog .p-dialog-footer {
+    background: var(--card) !important;
+    border-top: 1px solid var(--border) !important;
+  }
+
+  /* PrimeReact Button Override for theme compatibility */
+  .p-button {
+    background: var(--primary) !important;
+    border-color: var(--primary) !important;
+    color: var(--primary-foreground) !important;
+  }
+
+  .p-button:hover {
+    background: var(--primary) !important;
+    opacity: 0.9;
+  }
+
+  .p-button.p-button-text {
+    background: transparent !important;
+    color: var(--foreground) !important;
+    border: none !important;
+  }
+
+  .p-button.p-button-text:hover {
+    background: var(--muted) !important;
+  }
+
+  .p-button.p-button-outlined {
+    background: transparent !important;
+    color: var(--primary) !important;
+    border-color: var(--primary) !important;
+  }
+
+  .p-button.p-button-outlined:hover {
+    background: var(--primary) !important;
+    color: var(--primary-foreground) !important;
+  }
+
+  /* PrimeReact InputText Override for theme compatibility */
+  .p-inputtext {
+    background: var(--muted) !important;
+    border-color: var(--border) !important;
+    color: var(--foreground) !important;
+  }
+
+  .p-inputtext:focus {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2) !important;
+  }
+
+  .p-inputtext::placeholder {
+    color: var(--muted-foreground) !important;
+  }
+
+  /* PrimeReact DataTable Override for theme compatibility */
+  .p-datatable {
+    background: var(--card) !important;
+  }
+
+  .p-datatable .p-datatable-header {
+    background: var(--card) !important;
+    color: var(--foreground) !important;
+    border-color: var(--border) !important;
+  }
+
+  .p-datatable .p-datatable-thead > tr > th {
+    background: var(--muted) !important;
+    color: var(--foreground) !important;
+    border-color: var(--border) !important;
+  }
+
+  .p-datatable .p-datatable-tbody > tr {
+    background: var(--card) !important;
+    color: var(--foreground) !important;
+  }
+
+  .p-datatable .p-datatable-tbody > tr:hover {
+    background: var(--muted) !important;
+  }
+
+  .p-datatable .p-datatable-tbody > tr > td {
+    border-color: var(--border) !important;
+  }
 }

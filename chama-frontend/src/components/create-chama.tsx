@@ -1,117 +1,81 @@
 import React, { useState } from 'react';
-import AuthService from '../services/auth/signup-service';
-import { Button } from 'primereact/button';
 import { useNavigate } from 'react-router-dom';
 import { ExtendedChamaFormData } from '../models/chamas';
 import ChamaService from '../services/chama/chama-services';
-import { Countries } from '../models/data/Countries';
-import { UserRole } from '../models/user';
 import { useChamaMembership } from '../context/ChamaMembershipContext';
-import { ArrowLeft } from 'lucide-react';
+import {
+  ArrowLeft,
+  Users,
+  FileText,
+  MapPin,
+  Calendar,
+  DollarSign,
+} from 'lucide-react';
+import toast from 'react-hot-toast';
 
-const tabs = ['Basic', 'Features', 'Terms'];
+type ContributionModel = 'FIXED' | 'FLEXIBLE';
 
-// Component for creating a new chama (for admin users)
+interface CreateChamaFormData {
+  name: string;
+  description: string;
+  location: string;
+  contributionModel: ContributionModel;
+  meetingSchedule: string;
+  membersCount: number;
+  country: string;
+  organizationRole: string;
+  rules: string;
+}
+
 const CreateChama: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
   >({});
   const navigate = useNavigate();
   const { refreshMemberships } = useChamaMembership();
 
-  const [activeStep, setActiveStep] = useState(0);
-  const [formData, setFormData] = useState<ExtendedChamaFormData>({
+  const [formData, setFormData] = useState<CreateChamaFormData>({
     name: '',
-    membersCount: 0,
     description: '',
-    country: '',
-    organizationRole: '',
-    rules: '',
+    location: '',
+    contributionModel: 'FIXED',
+    meetingSchedule: '',
+    membersCount: 1,
+    country: 'KENYA',
+    organizationRole: 'CHAIRPERSON',
+    rules: 'Standard chama rules apply.',
   });
 
   const handleInputChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    const { name, value, type } = e.target;
-    if (type === 'file') {
-      const input = e.target as HTMLInputElement;
-      setFormData(prev => ({
-        ...prev,
-        [name]: input.files ? input.files[0] : null,
-      }));
-    } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
-    }
-
-    // Clear validation error for this field when user starts typing
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
     if (validationErrors[name]) {
       setValidationErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
 
-  // Validate current step
-  const validateStep = (step: number): boolean => {
+  const validateForm = (): boolean => {
     const errors: Record<string, string> = {};
-
-    switch (step) {
-      case 0: // Basic Information
-        if (!formData.name.trim()) {
-          errors.name = 'Organisation name is required';
-        }
-        if (!formData.membersCount || formData.membersCount <= 0) {
-          errors.membersCount = 'Number of members must be greater than 0';
-        }
-        if (!formData.organizationRole) {
-          errors.organizationRole = 'Organisation role is required';
-        }
-        if (!formData.country) {
-          errors.country = 'Country is required';
-        }
-        break;
-
-      case 2: // Terms
-        if (!formData.rules.trim()) {
-          errors.rules = 'Terms and conditions are required';
-        }
-        break;
-
-      default:
-        break;
-    }
-
+    if (!formData.name.trim()) errors.name = 'Chama name is required';
+    if (!formData.description.trim())
+      errors.description = 'Description is required';
+    if (!formData.location.trim()) errors.location = 'Location is required';
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  // Handle next step
-  const handleNext = () => {
-    if (validateStep(activeStep)) {
-      setActiveStep(prev => prev + 1);
-    }
-  };
-
-  // Handle previous step
-  const handlePrevious = () => {
-    setActiveStep(prev => prev - 1);
-  };
-
-  // Handle final form submission
-  const handleSubmit = async () => {
-    // Validate all required steps
-    if (!validateStep(0) || !validateStep(2)) {
-      setError('Please fill in all required fields');
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateForm()) {
+      toast.error('Please fill in all required fields');
       return;
     }
 
     setIsLoading(true);
-    setError(null);
-
     try {
-      // Prepare form data for API
       const submitData: ExtendedChamaFormData = {
         name: formData.name,
         description: formData.description,
@@ -121,43 +85,27 @@ const CreateChama: React.FC = () => {
         rules: formData.rules,
       };
 
-      // Make API call to create a chama
       const response = await ChamaService.createNewChama(submitData);
-
-      // Debug logging to see the actual response structure
-      console.log('Chama creation response:', response);
-
-      // The backend returns the chama object directly with an 'id' property
-      // Validate that required fields exist
       if (!response || !response.id) {
         throw new Error('No chama ID returned from server');
       }
 
-      // Use response.id as the chama ID and response.name as the chama name
       const chamaId = response.id;
       const chamaName = response.name || formData.name;
-      console.log(
-        'Chama created successfully:',
-        chamaName,
-        'with ID:',
-        chamaId
-      );
 
-      // Mark chama creation as complete
-      AuthService.markChamaCreationComplete(chamaId);
+      localStorage.setItem('activeChamaId', chamaId);
+      localStorage.setItem('hasCreatedChama', 'true');
+      localStorage.setItem('userRole', 'ADMIN');
 
-      // Refresh memberships to update context
       await refreshMemberships();
+      toast.success(`${chamaName} created successfully!`);
 
-      // Redirect to admin dashboard
       navigate(`/admin/chamas/${chamaId}`, {
         state: { name: chamaName, chamaId: chamaId },
       });
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : 'Failed to create chama. Please try again.'
+      toast.error(
+        err instanceof Error ? err.message : 'Failed to create chama'
       );
       console.error('Error creating chama:', err);
     } finally {
@@ -165,351 +113,251 @@ const CreateChama: React.FC = () => {
     }
   };
 
-  const renderStepContent = () => {
-    switch (activeStep) {
-      case 0:
-        return (
-          <div className='bg-[#242E3B4D] p-3 pb-18 rounded-xl text-gray-500'>
-            {' '}
-            {/**bg-[#242E3B] */}
-            <form onSubmit={handleSubmit} className='w-full'>
-              {/* Basic Information Section */}
-              <div className='flex flex-col gap-6'>
-                <div className=''>
-                  <div className='basic-info-cont  mb-4'>
-                    <h4 className='m-0'>Basic Information</h4>
-                    <p className='m-0 mb-2 text-sm'>
-                      Set up the fundamental details of your chama
-                    </p>
-                  </div>
-                  <div className='grid grid-cols-1 md:grid-cols-2 gap-6 mb-3'>
-                    <div>
-                      <label htmlFor='name' className='font-bold'>
-                        Organisation Name{' '}
-                        <span className='text-red-500'>*</span>
-                        <input
-                          type='text'
-                          name='name'
-                          id='name'
-                          placeholder='Chama Name'
-                          className={`p-2 rounded-md border bg-transparent text-white w-full outline-[#4084B9] focus:outline-2 ${
-                            validationErrors.name
-                              ? 'border-red-500'
-                              : 'border-[#525A644D]'
-                          }`}
-                          value={formData.name}
-                          onChange={handleInputChange}
-                          required
-                        />
-                        {validationErrors.name && (
-                          <p className='text-red-500 text-sm mt-1'>
-                            {validationErrors.name}
-                          </p>
-                        )}
-                      </label>
-                    </div>
-                    <div>
-                      <label htmlFor='numberOfMembers' className='font-bold'>
-                        How many members in your organisation{' '}
-                        <span className='text-red-500'>*</span>
-                        <input
-                          type='number'
-                          name='membersCount'
-                          placeholder='Number of Members'
-                          className={`p-2 rounded border bg-transparent text-white w-full outline-[#4084B9] focus:outline-2 ${
-                            validationErrors.membersCount
-                              ? 'border-red-500'
-                              : 'border-[#525A644D]'
-                          }`}
-                          id='numberOfMembers'
-                          value={formData.membersCount || ''}
-                          onChange={handleInputChange}
-                          required
-                        />
-                        {validationErrors.membersCount && (
-                          <p className='text-red-500 text-sm mt-1'>
-                            {validationErrors.membersCount}
-                          </p>
-                        )}
-                      </label>
-                    </div>
-                    <div>
-                      <label htmlFor='organizationRole' className='font-bold'>
-                        Your organisation role{' '}
-                        <span className='text-red-500'>*</span>
-                        <select
-                          name='organizationRole'
-                          id='organizationRole'
-                          className={`p-2 rounded border bg-transparent text-white w-full outline-[#4084B9] focus:outline-2 ${
-                            validationErrors.organizationRole
-                              ? 'border-red-500'
-                              : 'border-[#525A644D]'
-                          }`}
-                          value={formData.organizationRole}
-                          onChange={handleInputChange}
-                          required
-                        >
-                          <option value='' disabled>
-                            --Select organisation role--
-                          </option>
-                          {Object.entries(UserRole).map(([key, value]) => (
-                            <option key={key} value={value}>
-                              {value
-                                .replace(/_/g, ' ')
-                                .replace(/\b\w/g, l => l.toUpperCase())}
-                            </option>
-                          ))}
-                        </select>
-                        {validationErrors.organizationRole && (
-                          <p className='text-red-500 text-sm mt-1'>
-                            {validationErrors.organizationRole}
-                          </p>
-                        )}
-                      </label>
-                    </div>
-                    <div>
-                      <label htmlFor='country' className='font-bold'>
-                        Country of operation{' '}
-                        <span className='text-red-500'>*</span>
-                        <select
-                          name='country'
-                          id='country'
-                          className={`p-2 rounded border bg-transparent text-white w-full outline-[#4084B9] focus:outline-2 ${
-                            validationErrors.country
-                              ? 'border-red-500'
-                              : 'border-[#525A644D]'
-                          }`}
-                          value={formData.country}
-                          onChange={handleInputChange}
-                          required
-                        >
-                          <option
-                            value=''
-                            disabled
-                            className='text-gray-500 placeholder:text-gray-500'
-                          >
-                            --Select Country--
-                          </option>
-                          {Object.entries(Countries).map(([key, value]) => (
-                            <option className='' key={key} value={value}>
-                              {value
-                                .replace(/_/g, ' ')
-                                .replace(/\b\w/g, l => l.toUpperCase())}
-                            </option>
-                          ))}
-                        </select>
-                        {validationErrors.country && (
-                          <p className='text-red-500 text-sm mt-1'>
-                            {validationErrors.country}
-                          </p>
-                        )}
-                      </label>
-                    </div>
-                  </div>
-                  <div>
-                    <label className='font-bold'>
-                      Description of the group
-                    </label>
-                    <textarea
-                      name='description'
-                      placeholder='Description of the Group'
-                      className='p-2 rounded border border-[#525A644D] bg-transparent text-white w-full outline-[#4084B9] focus:outline-2'
-                      id='chamaDescription'
-                      rows={3}
-                      value={formData.description}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                </div>
-                <div className='flex flex-col items-left justify-center gap-2 text-gray-400'>
-                  {/* <i className='bi bi-image fs-1 text-7xl'></i> */}
-                  <span>Upload an Image / Profile of the Chama</span>
-                  <input
-                    type='file'
-                    name='image'
-                    onChange={handleInputChange}
-                    className='text-white'
-                    accept='image/*'
-                  />
-                </div>
-              </div>
-            </form>
+  const handleCancel = () => navigate('/onboarding/chama-choice');
+
+  return (
+    <div className='min-h-screen bg-background py-8 px-4'>
+      <div className='max-w-[600px] mx-auto'>
+        {/* Header */}
+        <div className='flex items-center gap-3 mb-6'>
+          <button
+            type='button'
+            onClick={handleCancel}
+            className='flex items-center gap-2 px-3 py-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors text-sm font-medium'
+          >
+            <ArrowLeft className='w-4 h-4' />
+            <span>Back</span>
+          </button>
+          <div className='w-px h-6 bg-border' />
+          <div>
+            <h1 className='text-xl font-bold text-foreground'>
+              Create Your Chama
+            </h1>
+            <p className='text-sm text-muted-foreground'>
+              Set up your savings group in minutes
+            </p>
           </div>
-        );
-      case 1:
-        return (
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-y-12 gap-x-14  bg-[#242E3B4D] p-8 pb-18 rounded-xl overflow-y-auto '>
-            <div className='create-chama-features flex gap-2 p-3 rounded text-gray-400'>
-              <div>
-                <i className='bi bi-person-circle w-24'></i>
-              </div>
-              <div className='flex-1 '>
-                <h4 className='m-0 font-bold'>Membership</h4>
-                <p className='m-0'>Manage, add, remove and disable group...</p>
-              </div>
-            </div>
-            <div className='create-chama-features flex gap-2 p-3 rounded text-gray-400'>
-              <div>
-                <i className='bi bi-pie-chart-fill'></i>
-              </div>
-              <div className='flex-1 '>
-                <h4 className='m-0 font-bold'>Shares</h4>
-                <p className='m-0'>Members are able to contribute towards...</p>
-              </div>
-            </div>
-            <div className='create-chama-features flex gap-2 p-3 rounded text-gray-400'>
-              <div>
-                <i className='bi bi-snow3'></i>
-              </div>
-              <div className='flex-1 overflow-hidden'>
-                <h4 className='m-0 font-bold'>Meetings</h4>
-                <p className='m-0'>
-                  Ability to manage meetings, have minutes...
-                </p>
-              </div>
-            </div>
-          </div>
-        );
-      case 2:
-        return (
-          <div className='bg-[#242E3B4D] p-3 pb-18 rounded-xl text-white'>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          {/* Basic Information */}
+          <div className='bg-card border border-border rounded-xl p-6 mb-4'>
+            <h2 className='text-base font-semibold text-foreground mb-1'>
+              Basic Information
+            </h2>
+            <p className='text-sm text-muted-foreground mb-5'>
+              Tell us about your Chama
+            </p>
+
+            {/* Chama Name */}
             <div className='mb-4'>
-              <h4 className='m-0 font-bold'>Terms and Conditions</h4>
-              <p className='m-0 mb-4 text-sm text-gray-400'>
-                Define the terms and conditions for your chama
-              </p>
-            </div>
-            <div>
-              <label
-                htmlFor='chamaRules'
-                className='block text-sm font-medium text-gray-300 mb-2'
-              >
-                Chama Terms and Conditions{' '}
-                <span className='text-red-500'>*</span>
+              <label className='block text-sm font-medium text-foreground mb-2'>
+                Chama Name <span className='text-destructive'>*</span>
               </label>
-              <textarea
-                name='rules'
-                id='chamaRules'
-                placeholder='Please enter the terms and conditions for your chama here...'
-                rows={8}
-                required
-                value={formData.rules}
-                onChange={handleInputChange}
-                className={`w-full px-4 py-2 bg-gray-700 border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-green-500 ${
-                  validationErrors.rules ? 'border-red-500' : 'border-gray-600'
-                }`}
-              />
-              {validationErrors.rules && (
-                <p className='text-red-500 text-sm mt-1'>
-                  {validationErrors.rules}
+              <div className='relative'>
+                <Users className='absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground' />
+                <input
+                  type='text'
+                  name='name'
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  placeholder='e.g., Tumaini Chama'
+                  className={`w-full pl-11 pr-4 py-3 bg-muted border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors ${
+                    validationErrors.name ? 'border-destructive' : ''
+                  }`}
+                />
+              </div>
+              {validationErrors.name && (
+                <p className='mt-1 text-sm text-destructive'>
+                  {validationErrors.name}
+                </p>
+              )}
+            </div>
+
+            {/* Description */}
+            <div className='mb-4'>
+              <label className='block text-sm font-medium text-foreground mb-2'>
+                Description <span className='text-destructive'>*</span>
+              </label>
+              <div className='relative'>
+                <FileText className='absolute left-3 top-3 w-5 h-5 text-muted-foreground' />
+                <textarea
+                  name='description'
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  placeholder='Describe the purpose and goals of your Chama'
+                  rows={4}
+                  className={`w-full pl-11 pr-4 py-3 bg-muted border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors resize-none ${
+                    validationErrors.description ? 'border-destructive' : ''
+                  }`}
+                />
+              </div>
+              {validationErrors.description && (
+                <p className='mt-1 text-sm text-destructive'>
+                  {validationErrors.description}
+                </p>
+              )}
+            </div>
+
+            {/* Location */}
+            <div>
+              <label className='block text-sm font-medium text-foreground mb-2'>
+                Location <span className='text-destructive'>*</span>
+              </label>
+              <div className='relative'>
+                <MapPin className='absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground' />
+                <input
+                  type='text'
+                  name='location'
+                  value={formData.location}
+                  onChange={handleInputChange}
+                  placeholder='e.g., Nairobi, Kenya'
+                  className={`w-full pl-11 pr-4 py-3 bg-muted border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors ${
+                    validationErrors.location ? 'border-destructive' : ''
+                  }`}
+                />
+              </div>
+              {validationErrors.location && (
+                <p className='mt-1 text-sm text-destructive'>
+                  {validationErrors.location}
                 </p>
               )}
             </div>
           </div>
-        );
-      default:
-        return null;
-    }
-  };
 
-  return (
-    <div className='w-full max-h-full  p-8 pt-0 text-white px-40'>
-      <div className='flex justify-between items-center mb-8'>
-        <div className='flex items-center gap-4'>
-          <button
-            className='flex items-center gap-2 text-gray-400 hover:text-white transition-colors'
-            onClick={() => navigate('/onboarding/chama-choice')}
-          >
-            <ArrowLeft className='w-5 h-5' />
-            <span>Back</span>
-          </button>
-          <div>
-            <h2 className='text-lg font-bold m-0 '>Create a new Chama</h2>
-            <p className='font-[200] m-0 text-sm'>
-              Start your savings journey with a new chama group
+          {/* Contribution Model */}
+          <div className='bg-card border border-border rounded-xl p-6 mb-4'>
+            <h2 className='text-base font-semibold text-foreground mb-1'>
+              Contribution Model
+            </h2>
+            <p className='text-sm text-muted-foreground mb-5'>
+              Choose how members will contribute
             </p>
+
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+              {/* Fixed */}
+              <button
+                type='button'
+                onClick={() =>
+                  setFormData(prev => ({ ...prev, contributionModel: 'FIXED' }))
+                }
+                className={`p-5 rounded-xl border-2 text-left transition-all ${
+                  formData.contributionModel === 'FIXED'
+                    ? 'border-primary bg-primary/10'
+                    : 'border-border hover:border-muted-foreground/50 hover:bg-muted/50'
+                }`}
+              >
+                <div className='w-10 h-10 rounded-lg bg-muted flex items-center justify-center mb-3'>
+                  <DollarSign className='w-5 h-5 text-foreground' />
+                </div>
+                <h3 className='font-semibold text-foreground mb-1'>
+                  Fixed Contribution
+                </h3>
+                <p className='text-sm text-muted-foreground'>
+                  Members contribute a specific amount at specific times (e.g.,
+                  monthly)
+                </p>
+              </button>
+
+              {/* Flexible */}
+              <button
+                type='button'
+                onClick={() =>
+                  setFormData(prev => ({
+                    ...prev,
+                    contributionModel: 'FLEXIBLE',
+                  }))
+                }
+                className={`p-5 rounded-xl border-2 text-left transition-all ${
+                  formData.contributionModel === 'FLEXIBLE'
+                    ? 'border-primary bg-primary/10'
+                    : 'border-border hover:border-muted-foreground/50 hover:bg-muted/50'
+                }`}
+              >
+                <div className='w-10 h-10 rounded-lg bg-muted flex items-center justify-center mb-3'>
+                  <DollarSign className='w-5 h-5 text-foreground' />
+                </div>
+                <h3 className='font-semibold text-foreground mb-1'>
+                  Flexible Contribution
+                </h3>
+                <p className='text-sm text-muted-foreground'>
+                  Members can contribute any amount at any time
+                </p>
+              </button>
+            </div>
           </div>
-        </div>
-      </div>
 
-      {/* Tabs */}
-      <div className='flex mb-6 justify-between gap-60'>
-        {tabs.map((tab, index) => (
-          <Button
-            key={tab}
-            className={`py-1 px-4 rounded flex-1 border-0 h-8  font-bold ${activeStep === index ? 'bg-[#4084B9] text-white' : 'bg-white text-gray-300'} hover:bg-[#4084B9] hover:text-white transition-colors`}
-            onClick={() => setActiveStep(index)}
-          >
-            {tab}
-          </Button>
-        ))}
-      </div>
+          {/* Meeting Schedule */}
+          <div className='bg-card border border-border rounded-xl p-6 mb-4'>
+            <h2 className='text-base font-semibold text-foreground mb-1'>
+              Meeting Schedule
+            </h2>
+            <p className='text-sm text-muted-foreground mb-5'>
+              When will your Chama meet?
+            </p>
 
-      {/* Step Content */}
-      {renderStepContent()}
+            <div>
+              <label className='block text-sm font-medium text-foreground mb-2'>
+                Meeting Schedule *
+              </label>
+              <div className='relative'>
+                <Calendar className='absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground' />
+                <input
+                  type='text'
+                  name='meetingSchedule'
+                  value={formData.meetingSchedule}
+                  onChange={handleInputChange}
+                  placeholder='e.g., First Saturday of every month'
+                  className='w-full pl-11 pr-4 py-3 bg-muted border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors'
+                />
+              </div>
+            </div>
+          </div>
 
-      {/* Error Display */}
-      {error && (
-        <div className='bg-red-800 text-white p-3 rounded mt-4'>{error}</div>
-      )}
-
-      {/* Navigation Buttons */}
-      <div className='flex justify-end gap-4 mt-6'>
-        {activeStep > 0 && (
-          <Button
-            className='bg-[#4084B9] border-0'
-            onClick={handlePrevious}
-            disabled={isLoading}
-          >
-            Previous
-          </Button>
-        )}
-        {activeStep < tabs.length - 1 && (
-          <Button
-            className='bg-[#4084B9] border-0'
-            onClick={handleNext}
-            disabled={isLoading}
-          >
-            Next
-          </Button>
-        )}
-        {activeStep === tabs.length - 1 && (
-          <Button
-            onClick={handleSubmit}
-            disabled={isLoading}
-            className={` py-3 px-4 border-none ${
-              isLoading ? 'bg-gray-500' : 'bg-green-500 hover:bg-green-600'
-            } text-white rounded-md font-semibold transition-colors flex justify-center items-center`}
-          >
-            {isLoading ? (
-              <>
-                <svg
-                  className='animate-spin -ml-1 mr-3 h-5 w-5 text-white'
-                  xmlns='http://www.w3.org/2000/svg'
-                  fill='none'
-                  viewBox='0 0 24 24'
-                >
-                  <circle
-                    className='opacity-25'
-                    cx='12'
-                    cy='12'
-                    r='10'
-                    stroke='currentColor'
-                    strokeWidth='4'
-                  ></circle>
-                  <path
-                    className='opacity-75'
-                    fill='currentColor'
-                    d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
-                  ></path>
-                </svg>
-                Creating Chama...
-              </>
-            ) : (
-              'Create Chama'
-            )}
-          </Button>
-        )}
+          {/* Buttons */}
+          <div className='flex gap-4 mt-6'>
+            <button
+              type='button'
+              onClick={handleCancel}
+              disabled={isLoading}
+              className='flex-1 py-3 px-6 bg-card border border-border rounded-lg text-foreground font-medium hover:bg-muted transition-colors disabled:opacity-50'
+            >
+              Cancel
+            </button>
+            <button
+              type='submit'
+              disabled={isLoading}
+              className='flex-1 py-3 px-6 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2'
+            >
+              {isLoading ? (
+                <>
+                  <svg
+                    className='animate-spin h-5 w-5'
+                    viewBox='0 0 24 24'
+                    fill='none'
+                  >
+                    <circle
+                      className='opacity-25'
+                      cx='12'
+                      cy='12'
+                      r='10'
+                      stroke='currentColor'
+                      strokeWidth='4'
+                    />
+                    <path
+                      className='opacity-75'
+                      fill='currentColor'
+                      d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
+                    />
+                  </svg>
+                  <span>Creating...</span>
+                </>
+              ) : (
+                'Create Chama'
+              )}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

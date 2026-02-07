@@ -4,10 +4,10 @@ import { Transform } from 'class-transformer';
 
 /**
  * Base entity class that implements common fields for all database entities
- * 
+ *
  * This abstract class provides the standard id, createdAt, and updatedAt fields
  * that are common across most database models in the application.
- * 
+ *
  * @template T - The type of the entity that extends this base class
  */
 export abstract class Entity<T = any> {
@@ -29,7 +29,7 @@ export abstract class Entity<T = any> {
     example: '2025-06-07T09:35:54.000Z',
   })
   @IsDate()
-  @Transform(({ value }) => value instanceof Date ? value : new Date(value))
+  @Transform(({ value }) => (value instanceof Date ? value : new Date(value)))
   createdAt!: Date;
 
   /**
@@ -40,16 +40,15 @@ export abstract class Entity<T = any> {
     example: '2025-06-07T09:35:54.000Z',
   })
   @IsDate()
-  @Transform(({ value }) => value instanceof Date ? value : new Date(value))
+  @Transform(({ value }) => (value instanceof Date ? value : new Date(value)))
   updatedAt!: Date;
 
   /**
    * Constructor that allows partial initialization of the entity
-   * 
+   *
    * @param partial - Partial object containing entity properties
    */
   constructor(partial: Partial<T>) {
     Object.assign(this, partial);
   }
 }
-

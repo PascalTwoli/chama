@@ -40,7 +40,7 @@ __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.MinLength)(8),
     (0, class_validator_1.Matches)(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, {
-        message: 'Password must contain at least 1 uppercase letter, 1 lowercase letter, 1 number and 1 special character'
+        message: 'Password must contain at least 1 uppercase letter, 1 lowercase letter, 1 number and 1 special character',
     }),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "password", void 0);
@@ -49,7 +49,7 @@ __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     (0, class_validator_1.Matches)(/^\+?[1-9]\d{1,14}$/, {
-        message: 'Phone number must be in international format'
+        message: 'Phone number must be in international format',
     }),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "phone", void 0);

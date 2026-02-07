@@ -1,8 +1,22 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { ArrowLeft, CreditCard, Phone, Building, CheckCircle2, Info, Wallet } from 'lucide-react';
+import {
+  ArrowLeft,
+  CreditCard,
+  Phone,
+  Building,
+  CheckCircle2,
+  Info,
+  Wallet,
+} from 'lucide-react';
 import { toast } from 'sonner';
 
 interface MakePaymentPageProps {
@@ -10,8 +24,13 @@ interface MakePaymentPageProps {
   role: 'admin' | 'member';
 }
 
-export default function MakePaymentPage({ onBack, role }: MakePaymentPageProps) {
-  const [paymentMethod, setPaymentMethod] = useState<'mpesa' | 'bank' | 'card'>('mpesa');
+export default function MakePaymentPage({
+  onBack,
+  role,
+}: MakePaymentPageProps) {
+  const [paymentMethod, setPaymentMethod] = useState<'mpesa' | 'bank' | 'card'>(
+    'mpesa'
+  );
   const [amount, setAmount] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [processing, setProcessing] = useState(false);
@@ -24,11 +43,13 @@ export default function MakePaymentPage({ onBack, role }: MakePaymentPageProps) 
     }
 
     setProcessing(true);
-    
+
     // Simulate payment processing
     setTimeout(() => {
       setProcessing(false);
-      toast.success(`Payment of KSh ${parseFloat(amount).toLocaleString()} initiated successfully!`);
+      toast.success(
+        `Payment of KSh ${parseFloat(amount).toLocaleString()} initiated successfully!`
+      );
       setAmount('');
       setPhoneNumber('');
     }, 2000);
@@ -44,7 +65,9 @@ export default function MakePaymentPage({ onBack, role }: MakePaymentPageProps) 
         </Button>
         <div>
           <h1 className="text-2xl font-bold">Make Payment</h1>
-          <p className="text-sm text-muted-foreground">Contribute to your Chama savings</p>
+          <p className="text-sm text-muted-foreground">
+            Contribute to your Chama savings
+          </p>
         </div>
       </div>
 
@@ -55,26 +78,34 @@ export default function MakePaymentPage({ onBack, role }: MakePaymentPageProps) 
           <Card>
             <CardHeader>
               <CardTitle>Select Payment Method</CardTitle>
-              <CardDescription>Choose how you want to make your contribution</CardDescription>
+              <CardDescription>
+                Choose how you want to make your contribution
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <button
                   type="button"
                   onClick={() => setPaymentMethod('mpesa')}
-                  className={`p-4 rounded-lg border-2 transition-all ${ 
+                  className={`p-4 rounded-lg border-2 transition-all ${
                     paymentMethod === 'mpesa'
                       ? 'border-primary bg-primary/5'
                       : 'border-border hover:bg-muted/50'
                   }`}
                 >
                   <div className="flex flex-col items-center gap-2">
-                    <div className={`w-12 h-12 rounded-lg ${paymentMethod === 'mpesa' ? 'bg-primary/10' : 'bg-muted'} flex items-center justify-center`}>
-                      <Phone className={`w-6 h-6 ${paymentMethod === 'mpesa' ? 'text-primary' : 'text-muted-foreground'}`} />
+                    <div
+                      className={`w-12 h-12 rounded-lg ${paymentMethod === 'mpesa' ? 'bg-primary/10' : 'bg-muted'} flex items-center justify-center`}
+                    >
+                      <Phone
+                        className={`w-6 h-6 ${paymentMethod === 'mpesa' ? 'text-primary' : 'text-muted-foreground'}`}
+                      />
                     </div>
                     <div className="text-center">
                       <p className="font-medium">M-Pesa</p>
-                      <p className="text-xs text-muted-foreground">Mobile Money</p>
+                      <p className="text-xs text-muted-foreground">
+                        Mobile Money
+                      </p>
                     </div>
                   </div>
                 </button>
@@ -89,12 +120,18 @@ export default function MakePaymentPage({ onBack, role }: MakePaymentPageProps) 
                   }`}
                 >
                   <div className="flex flex-col items-center gap-2">
-                    <div className={`w-12 h-12 rounded-lg ${paymentMethod === 'bank' ? 'bg-primary/10' : 'bg-muted'} flex items-center justify-center`}>
-                      <Building className={`w-6 h-6 ${paymentMethod === 'bank' ? 'text-primary' : 'text-muted-foreground'}`} />
+                    <div
+                      className={`w-12 h-12 rounded-lg ${paymentMethod === 'bank' ? 'bg-primary/10' : 'bg-muted'} flex items-center justify-center`}
+                    >
+                      <Building
+                        className={`w-6 h-6 ${paymentMethod === 'bank' ? 'text-primary' : 'text-muted-foreground'}`}
+                      />
                     </div>
                     <div className="text-center">
                       <p className="font-medium">Bank Transfer</p>
-                      <p className="text-xs text-muted-foreground">Direct Transfer</p>
+                      <p className="text-xs text-muted-foreground">
+                        Direct Transfer
+                      </p>
                     </div>
                   </div>
                 </button>
@@ -109,12 +146,18 @@ export default function MakePaymentPage({ onBack, role }: MakePaymentPageProps) 
                   }`}
                 >
                   <div className="flex flex-col items-center gap-2">
-                    <div className={`w-12 h-12 rounded-lg ${paymentMethod === 'card' ? 'bg-primary/10' : 'bg-muted'} flex items-center justify-center`}>
-                      <CreditCard className={`w-6 h-6 ${paymentMethod === 'card' ? 'text-primary' : 'text-muted-foreground'}`} />
+                    <div
+                      className={`w-12 h-12 rounded-lg ${paymentMethod === 'card' ? 'bg-primary/10' : 'bg-muted'} flex items-center justify-center`}
+                    >
+                      <CreditCard
+                        className={`w-6 h-6 ${paymentMethod === 'card' ? 'text-primary' : 'text-muted-foreground'}`}
+                      />
                     </div>
                     <div className="text-center">
                       <p className="font-medium">Card Payment</p>
-                      <p className="text-xs text-muted-foreground">Debit/Credit</p>
+                      <p className="text-xs text-muted-foreground">
+                        Debit/Credit
+                      </p>
                     </div>
                   </div>
                 </button>
@@ -126,7 +169,10 @@ export default function MakePaymentPage({ onBack, role }: MakePaymentPageProps) 
           <Card>
             <CardHeader>
               <CardTitle>Payment Details</CardTitle>
-              <CardDescription>Enter the amount and {paymentMethod === 'mpesa' ? 'phone number' : 'payment details'}</CardDescription>
+              <CardDescription>
+                Enter the amount and{' '}
+                {paymentMethod === 'mpesa' ? 'phone number' : 'payment details'}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handlePayment} className="space-y-4">
@@ -145,7 +191,7 @@ export default function MakePaymentPage({ onBack, role }: MakePaymentPageProps) 
                       placeholder="5000"
                       className="w-full pl-10 pr-4 py-2 border rounded-lg bg-input-background focus:outline-none focus:ring-2 focus:ring-primary"
                       value={amount}
-                      onChange={(e) => setAmount(e.target.value)}
+                      onChange={e => setAmount(e.target.value)}
                       required
                     />
                   </div>
@@ -166,7 +212,7 @@ export default function MakePaymentPage({ onBack, role }: MakePaymentPageProps) 
                           placeholder="0712345678"
                           className="w-full pl-10 pr-4 py-2 border rounded-lg bg-input-background focus:outline-none focus:ring-2 focus:ring-primary"
                           value={phoneNumber}
-                          onChange={(e) => setPhoneNumber(e.target.value)}
+                          onChange={e => setPhoneNumber(e.target.value)}
                           required
                         />
                       </div>
@@ -198,15 +244,21 @@ export default function MakePaymentPage({ onBack, role }: MakePaymentPageProps) 
                     <p className="font-medium">Bank Account Details:</p>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Bank Name:</span>
+                        <span className="text-muted-foreground">
+                          Bank Name:
+                        </span>
                         <span className="font-medium">Equity Bank</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Account Name:</span>
+                        <span className="text-muted-foreground">
+                          Account Name:
+                        </span>
                         <span className="font-medium">Tumaini Chama</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Account Number:</span>
+                        <span className="text-muted-foreground">
+                          Account Number:
+                        </span>
                         <span className="font-medium">0123456789</span>
                       </div>
                       <div className="flex justify-between">
@@ -215,7 +267,8 @@ export default function MakePaymentPage({ onBack, role }: MakePaymentPageProps) 
                       </div>
                     </div>
                     <p className="text-xs text-muted-foreground mt-3">
-                      After transferring, please notify the admin with your transaction reference
+                      After transferring, please notify the admin with your
+                      transaction reference
                     </p>
                   </div>
                 )}
@@ -224,7 +277,10 @@ export default function MakePaymentPage({ onBack, role }: MakePaymentPageProps) 
                 {paymentMethod === 'card' && (
                   <>
                     <div className="space-y-2">
-                      <label htmlFor="cardNumber" className="text-sm font-medium">
+                      <label
+                        htmlFor="cardNumber"
+                        className="text-sm font-medium"
+                      >
                         Card Number *
                       </label>
                       <input
@@ -267,12 +323,16 @@ export default function MakePaymentPage({ onBack, role }: MakePaymentPageProps) 
                   </>
                 )}
 
-                <Button 
-                  type="submit" 
-                  className="w-full bg-primary hover:bg-primary/90" 
+                <Button
+                  type="submit"
+                  className="w-full bg-primary hover:bg-primary/90"
                   disabled={processing}
                 >
-                  {processing ? 'Processing...' : paymentMethod === 'bank' ? 'Notify Admin' : 'Pay Now'}
+                  {processing
+                    ? 'Processing...'
+                    : paymentMethod === 'bank'
+                      ? 'Notify Admin'
+                      : 'Pay Now'}
                 </Button>
               </form>
             </CardContent>
@@ -292,12 +352,16 @@ export default function MakePaymentPage({ onBack, role }: MakePaymentPageProps) 
                 <p className="font-medium">Tumaini Chama</p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Your Total Savings</p>
+                <p className="text-sm text-muted-foreground">
+                  Your Total Savings
+                </p>
                 <p className="text-2xl font-bold">KSh 85,000</p>
               </div>
               {amount && (
                 <div className="pt-4 border-t">
-                  <p className="text-sm text-muted-foreground">New Total After Payment</p>
+                  <p className="text-sm text-muted-foreground">
+                    New Total After Payment
+                  </p>
                   <p className="text-2xl font-bold text-primary">
                     KSh {(85000 + parseFloat(amount)).toLocaleString()}
                   </p>
@@ -317,14 +381,22 @@ export default function MakePaymentPage({ onBack, role }: MakePaymentPageProps) 
                 { date: 'Dec 5, 2025', amount: 5000 },
                 { date: 'Nov 5, 2025', amount: 5000 },
               ].map((payment, index) => (
-                <div key={index} className="flex items-center justify-between p-3 rounded-lg border border-border">
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-3 rounded-lg border border-border"
+                >
                   <div>
                     <p className="text-sm font-medium">{payment.date}</p>
                     <p className="text-xs text-muted-foreground">M-Pesa</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold">KSh {payment.amount.toLocaleString()}</p>
-                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                    <p className="font-bold">
+                      KSh {payment.amount.toLocaleString()}
+                    </p>
+                    <Badge
+                      variant="outline"
+                      className="bg-green-50 text-green-700 border-green-200"
+                    >
                       <CheckCircle2 className="w-3 h-3 mr-1" />
                       Paid
                     </Badge>

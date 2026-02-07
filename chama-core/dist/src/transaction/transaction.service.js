@@ -171,7 +171,7 @@ let TransactionService = class TransactionService {
                 throw new common_1.NotFoundException(`Transaction with ID ${id} not found`);
             }
             // Verify the user is a member of the chama or created the transaction
-            const isMember = transaction.chama.memberships.some((membership) => membership.userId === userId);
+            const isMember = transaction.chama.memberships.some(membership => membership.userId === userId);
             const isCreator = transaction.userId === userId;
             if (!isMember && !isCreator) {
                 throw new common_1.ForbiddenException('You do not have permission to view this transaction');
@@ -195,7 +195,7 @@ let TransactionService = class TransactionService {
                     chama: true,
                 },
             });
-            const chamaIds = memberships.map((membership) => membership.chamaId);
+            const chamaIds = memberships.map(membership => membership.chamaId);
             // Get all transactions for these chamas where the user is involved
             const transactions = yield this.prisma.$transaction((prisma) => __awaiter(this, void 0, void 0, function* () {
                 return yield prisma.transaction.findMany({
@@ -212,7 +212,7 @@ let TransactionService = class TransactionService {
             let totalRepayments = 0;
             // Group by chama for chama-specific stats
             const chamaStatMap = new Map();
-            transactions.forEach((transaction) => {
+            transactions.forEach(transaction => {
                 var _a;
                 // Update overall totals
                 if (transaction.type === client_1.TransactionType.CONTRIBUTION) {
@@ -229,7 +229,7 @@ let TransactionService = class TransactionService {
                 }
                 // Update chama-specific stats
                 if (!chamaStatMap.has(transaction.chamaId)) {
-                    const chama = (_a = memberships.find((m) => m.chamaId === transaction.chamaId)) === null || _a === void 0 ? void 0 : _a.chama;
+                    const chama = (_a = memberships.find(m => m.chamaId === transaction.chamaId)) === null || _a === void 0 ? void 0 : _a.chama;
                     chamaStatMap.set(transaction.chamaId, {
                         chamaId: transaction.chamaId,
                         chamaName: (chama === null || chama === void 0 ? void 0 : chama.name) || 'Unknown Chama',
