@@ -47,7 +47,7 @@ export class SecureAuthService {
       }
 
       // Update the Authorization header for immediate API calls
-      setAuthHeader(apiClient, response.data.token);
+      setAuthHeader(apiClient, response.data.token ?? null);
 
       // Clear any existing localStorage tokens for security
       this.clearLegacyTokens();

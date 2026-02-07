@@ -1,0 +1,146 @@
+/* ChamaPlus Theme System - Light (default) and Dark modes */
+/* Optimized for color contrast and accessibility */
+
+:root {
+  --font-size: 16px;
+
+  /* Light Theme - ChamaPlus Design */
+  --background: #f8fafc;
+  --foreground: #0f172a;
+
+  /* Primary Blue */
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+  --primary-light: #dbeafe;
+
+  /* Secondary Green - M-Pesa inspired */
+  --secondary: #16a34a;
+  --secondary-foreground: #ffffff;
+  --secondary-light: #dcfce7;
+
+  /* Accent Yellow/Orange */
+  --accent: #f59e0b;
+  --accent-foreground: #1a1a1a;
+  --accent-light: #fef3c7;
+
+  /* Card/Surface */
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+
+  /* Muted - Improved contrast */
+  --muted: #f1f5f9;
+  --muted-foreground: #475569;
+
+  /* Borders & Inputs */
+  --border: #e2e8f0;
+  --input-background: #ffffff;
+  --input-border: #cbd5e1;
+  --ring: #2563eb;
+
+  /* Status colors with good contrast */
+  --success: #16a34a;
+  --success-foreground: #ffffff;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --warning: #f59e0b;
+  --warning-foreground: #1a1a1a;
+
+  /* Chart colors */
+  --chart-1: #22c55e;
+  --chart-2: #3b82f6;
+  --chart-3: #f59e0b;
+  --chart-4: #8b5cf6;
+  --chart-5: #06b6d4;
+
+  --radius: 0.5rem;
+}
+
+/* Dark Theme - High Contrast */
+.dark {
+  --background: #0f172a;
+  --foreground: #f8fafc;
+
+  /* Card/Surface */
+  --card: #1e293b;
+  --card-foreground: #f8fafc;
+  --popover: #1e293b;
+  --popover-foreground: #f8fafc;
+
+  /* Primary Blue (brighter for dark mode) */
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --primary-light: #1e3a5f;
+
+  /* Secondary Green */
+  --secondary: #22c55e;
+  --secondary-foreground: #ffffff;
+  --secondary-light: #14532d;
+
+  /* Accent Yellow */
+  --accent: #fbbf24;
+  --accent-foreground: #1a1a1a;
+  --accent-light: #422006;
+
+  /* Muted - Better visibility in dark mode */
+  --muted: #334155;
+  --muted-foreground: #cbd5e1;
+
+  /* Borders & Inputs */
+  --border: #475569;
+  --input-background: #1e293b;
+  --input-border: #475569;
+  --ring: #3b82f6;
+
+  /* Status colors for dark mode */
+  --success: #22c55e;
+  --success-foreground: #ffffff;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --warning: #fbbf24;
+  --warning-foreground: #1a1a1a;
+
+  /* Chart colors for dark mode */
+  --chart-1: #22c55e;
+  --chart-2: #3b82f6;
+  --chart-3: #fbbf24;
+  --chart-4: #a78bfa;
+  --chart-5: #22d3ee;
+}
+
+/* Smooth theme transition */
+html {
+  transition: background-color 0.2s ease;
+}
+
+* {
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+/* Prevent transition on initial load */
+.no-transition * {
+  transition: none !important;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--muted);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--muted-foreground);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--foreground);
+}

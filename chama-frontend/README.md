@@ -1,46 +1,237 @@
-# Getting Started with Create React App
+# ChamaPlus Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A modern React-based web application for ChamaPlus - a savings group (Chama) management platform built for Kenyan savings groups with M-Pesa integration.
 
-## Available Scripts
+## 📋 Table of Contents
 
-In the project directory, you can run:
+- [Prerequisites](#prerequisites)
+- [Quick Start](#quick-start)
+- [Environment Configuration](#environment-configuration)
+- [Running the Application](#running-the-application)
+- [Project Structure](#project-structure)
+- [Key Features](#key-features)
+- [Troubleshooting](#troubleshooting)
 
-### `npm start`
+## Prerequisites
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Before you begin, ensure you have the following:
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+| Tool | Version | Installation |
+|------|---------|--------------|
+| **Node.js** | v18+ | [Download](https://nodejs.org/) |
+| **npm** | v9+ | Comes with Node.js |
+| **Backend API** | Running | See [chama-core README](../chama-core/README.md) |
 
-### `npm test`
+## Quick Start
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```bash
+# 1. Navigate to frontend directory
+cd chama/chama-frontend
 
-### `npm run build`
+# 2. Install dependencies
+npm install
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+# 3. Configure environment variables (see Environment Configuration)
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+# 4. Ensure backend is running on port 5500
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+# 5. Start the development server
+npm start
+```
 
-### `npm run eject`
+The app will be available at `http://localhost:3000`
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## Environment Configuration
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Create a `.env` file in the `chama-frontend` directory:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+```env
+# ==================== API Configuration ====================
+REACT_APP_API_URL=http://localhost:5500/api/v1
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+# ==================== Firebase (for client-side auth) ====================
+REACT_APP_FIREBASE_API_KEY=your_firebase_api_key
+REACT_APP_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+REACT_APP_FIREBASE_PROJECT_ID=your_project_id
+```
 
-## Learn More
+> **Note:** Environment variables in React must be prefixed with `REACT_APP_`
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Running the Application
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Development Mode
+
+```bash
+npm start
+```
+
+Opens `http://localhost:3000` with hot-reload enabled.
+
+### Production Build
+
+```bash
+# Build for production
+npm run build
+
+# Serve the build locally (optional)
+npx serve -s build
+```
+
+### Running Tests
+
+```bash
+npm test
+```
+
+## Project Structure
+
+```
+chama-frontend/
+├── public/                 # Static assets
+├── src/
+│   ├── components/         # Reusable UI components
+│   │   ├── guards/         # Route guards (Auth, Dashboard, Onboarding)
+│   │   ├── ui/             # UI primitives (Button, Card, Input, etc.)
+│   │   └── navbars/        # Navigation components
+│   ├── config/             # Configuration (axios, etc.)
+│   ├── context/            # React Context providers
+│   ├── hooks/              # Custom React hooks
+│   ├── layout/             # Layout components (Admin, Member)
+│   ├── models/             # TypeScript interfaces
+│   ├── pages/              # Page components
+│   │   ├── onboarding/     # Onboarding pages
+│   │   └── ...             # Other pages
+│   ├── routes/             # Route configuration
+│   ├── services/           # API services
+│   │   ├── auth/           # Authentication services
+│   │   └── chama/          # Chama services
+│   ├── styles/             # Global styles and theme
+│   └── utils/              # Utility functions
+└── package.json
+```
+
+## Key Features
+
+### Authentication Flow
+- **Sign Up** → Creates account → Redirects to Chama Choice
+- **Sign In** → Authenticates → Redirects based on chama membership
+
+### Route Structure
+
+| Route | Access | Description |
+|-------|--------|-------------|
+| `/` | Public | Landing page |
+| `/auth/signin` | Public | Sign in page |
+| `/auth/signup` | Public | Sign up page |
+| `/onboarding/chama-choice` | Auth | Choose/create/join chama |
+| `/onboarding/create-chama` | Auth | Create new chama |
+| `/admin/chamas/:id/*` | Admin | Admin dashboard routes |
+| `/member/chamas/:id/*` | Member | Member dashboard routes |
+
+### Route Guards
+
+| Guard | Purpose |
+|-------|---------|
+| `AuthGuard` | Requires authentication |
+| `OnboardingGuard` | Requires auth + handles chama redirect |
+| `DashboardGuard` | Requires auth + chama + correct role |
+
+## Connecting to Backend
+
+Ensure the backend is running before starting the frontend:
+
+```bash
+# Terminal 1: Start backend (in chama-core directory)
+cd chama-core
+npm run start:dev
+
+# Terminal 2: Start frontend (in chama-frontend directory)
+cd chama-frontend
+npm start
+```
+
+The frontend expects the backend API at `http://localhost:5500/api/v1`
+
+## Troubleshooting
+
+### Common Issues
+
+#### 1. API Connection Error
+```
+Error: Network Error / CORS Error
+```
+**Solutions:**
+- Ensure backend is running on port 5500
+- Check `REACT_APP_API_URL` in `.env`
+- Verify CORS is enabled on backend
+
+#### 2. Authentication Issues
+```
+401 Unauthorized on API calls
+```
+**Solutions:**
+- Clear localStorage: `localStorage.clear()`
+- Sign in again
+- Check if authToken is being saved correctly
+
+#### 3. Blank Page After Login
+```
+User stuck on login page after successful login
+```
+**Solution:** Clear localStorage and try again
+```javascript
+// In browser console
+localStorage.clear()
+```
+
+#### 4. Port Already in Use
+```
+Error: Something is already running on port 3000
+```
+**Solution:** Kill the process or use different port
+```bash
+# Kill process on port 3000
+lsof -ti:3000 | xargs kill -9
+
+# Or use different port
+PORT=3001 npm start
+```
+
+#### 5. Module Not Found Errors
+```
+Module not found: Can't resolve '...'
+```
+**Solution:** Reinstall dependencies
+```bash
+rm -rf node_modules package-lock.json
+npm install
+```
+
+## Scripts Reference
+
+| Script | Command | Description |
+|--------|---------|-------------|
+| `start` | `npm start` | Start dev server |
+| `build` | `npm run build` | Production build |
+| `test` | `npm test` | Run tests |
+| `eject` | `npm run eject` | Eject CRA config |
+
+## Tech Stack
+
+- **React** 18.x with TypeScript
+- **React Router** v6 for routing
+- **Axios** for API calls
+- **TailwindCSS** (via custom theme) for styling
+- **Lucide React** for icons
+- **React Hot Toast** for notifications
+
+## Development Tips
+
+1. **State Management:** Use `ChamaMembershipContext` for user/chama state
+2. **API Calls:** Use services in `src/services/` for API interactions
+3. **Styling:** Use theme CSS variables defined in `src/styles/theme.css`
+4. **Components:** Prefer using UI components from `src/components/ui/`
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.

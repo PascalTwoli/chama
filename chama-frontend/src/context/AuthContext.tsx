@@ -32,8 +32,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const value: AuthContextType = {
     isAuthenticated: false,
     user: null,
-    login: async () => {},
-    logout: () => {},
+    login: async () => {
+      // TODO: Implement login logic
+    },
+    logout: () => {
+      // TODO: Implement logout logic
+    },
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -36,21 +36,21 @@ const userType = await AuthService.getUserType();
 const status = AuthService.checkOnboardingStatus();
 if (status.needsUserType) {
   // Redirect to user type selection
-  navigate("/chose-user");
+  navigate('/chose-user');
 } else if (status.needsChama) {
   if (status.userType === UserType.ADMIN) {
     // Admin needs to create a chama
-    navigate("/create-chama");
+    navigate('/create-chama');
   } else {
     // Member needs to join a chama
-    navigate("/chama-list-view");
+    navigate('/chama-list-view');
   }
 } else {
   // User has completed onboarding
   if (status.userType === UserType.ADMIN) {
-    navigate("/admin/chamas/" + localStorage.getItem("activeChamaId"));
+    navigate('/admin/chamas/' + localStorage.getItem('activeChamaId'));
   } else {
-    navigate("/member/chamas/" + localStorage.getItem("activeChamaId"));
+    navigate('/member/chamas/' + localStorage.getItem('activeChamaId'));
   }
 }
 ```
@@ -75,7 +75,7 @@ The sign-in component checks if the user has completed onboarding and redirects 
 // After successful login
 const status = AuthService.checkOnboardingStatus();
 if (status.needsUserType) {
-  navigate("/chose-user");
+  navigate('/chose-user');
 } else if (status.needsChama) {
   // Redirect to create or join chama
 } else {
@@ -114,4 +114,3 @@ The following localStorage keys are used to manage the user flow:
 - `hasCreatedChama`: Whether the admin has created a chama ("true" or "false")
 - `hasJoinedChama`: Whether the member has joined a chama ("true" or "false")
 - `activeChamaId`: ID of the active chama
-

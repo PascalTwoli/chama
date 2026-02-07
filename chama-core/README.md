@@ -1,99 +1,277 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# ChamaPlus Backend (chama-core)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A modern NestJS-based backend API for ChamaPlus - a savings group (Chama) management platform built for Kenyan savings groups with M-Pesa integration.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 📋 Table of Contents
 
-## Description
+- [Prerequisites](#prerequisites)
+- [Quick Start](#quick-start)
+- [Database Setup](#database-setup)
+- [Environment Configuration](#environment-configuration)
+- [Running the Application](#running-the-application)
+- [API Documentation](#api-documentation)
+- [Project Structure](#project-structure)
+- [Troubleshooting](#troubleshooting)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Prerequisites
 
-## Project setup
+Before you begin, ensure you have the following installed:
+
+| Tool | Version | Installation |
+|------|---------|--------------|
+| **Node.js** | v18+ | [Download](https://nodejs.org/) |
+| **npm** | v9+ | Comes with Node.js |
+| **PostgreSQL** | v14+ | `brew install postgresql@14` (macOS) |
+| **Firebase Account** | - | [Firebase Console](https://console.firebase.google.com/) |
+
+## Quick Start
 
 ```bash
-$ npm install
+# 1. Clone the repository (if not already done)
+cd chama/chama-core
+
+# 2. Install dependencies
+npm install
+
+# 3. Set up PostgreSQL database (see Database Setup section)
+
+# 4. Configure environment variables (see Environment Configuration)
+
+# 5. Run database migrations
+npx prisma migrate dev
+
+# 6. Start the development server
+npm run start:dev
 ```
 
-## Compile and run the project
+The API will be available at `http://localhost:5500/api/v1`
+
+## Database Setup
+
+### Option 1: Local PostgreSQL (Recommended for Development)
+
+#### macOS (using Homebrew)
 
 ```bash
-# development
-$ npm run start
+# Install PostgreSQL
+brew install postgresql@14
 
-# watch mode
-$ npm run start:dev
+# Start PostgreSQL service
+brew services start postgresql@14
 
-# production mode
-$ npm run start:prod
+# Create a PostgreSQL user
+createuser -s your_username
+
+# Set password for the user
+psql postgres -c "ALTER USER your_username WITH PASSWORD 'your_password';"
+
+# Create the database
+createdb chama_db -O your_username
 ```
 
-## Run tests
+#### Linux (Ubuntu/Debian)
 
 ```bash
-# unit tests
-$ npm run test
+# Install PostgreSQL
+sudo apt update
+sudo apt install postgresql postgresql-contrib
 
-# e2e tests
-$ npm run test:e2e
+# Start PostgreSQL service
+sudo systemctl start postgresql
+sudo systemctl enable postgresql
 
-# test coverage
-$ npm run test:cov
+# Switch to postgres user and create database
+sudo -u postgres psql
 ```
 
-## Deployment
+```sql
+-- In PostgreSQL shell
+CREATE USER your_username WITH PASSWORD 'your_password';
+CREATE DATABASE chama_db OWNER your_username;
+GRANT ALL PRIVILEGES ON DATABASE chama_db TO your_username;
+\q
+```
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### Option 2: Docker (Alternative)
 
 ```bash
-$ npm install -g mau
-$ mau deploy
+# Start PostgreSQL with Docker
+docker run --name chama_postgres \
+  -e POSTGRES_USER=your_username \
+  -e POSTGRES_PASSWORD=your_password \
+  -e POSTGRES_DB=chama_db \
+  -p 5432:5432 \
+  -d postgres:14
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### Verify Database Connection
 
-## Resources
+```bash
+psql -h localhost -U your_username -d chama_db -c "SELECT 1"
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+## Environment Configuration
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+Create a `.env` file in the `chama-core` directory:
 
-## Support
+```bash
+# Copy the example (or create new)
+cp .env.example .env
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### Required Environment Variables
 
-## Stay in touch
+```env
+# ==================== DATABASE ====================
+DATABASE_URL="postgresql://your_username:your_password@localhost:5432/chama_db?schema=public"
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+# ==================== SERVER ====================
+PORT=5500
+
+# ==================== FIREBASE (Authentication) ====================
+FIREBASE_API_KEY="your_firebase_api_key"
+FIREBASE_KEY_PATH=./chama-b57f4-firebase-adminsdk-fbsvc-xxxxxxxx.json
+
+# ==================== EMAIL (Brevo/Sendinblue) ====================
+BREVO_API_KEY=your_brevo_api_key
+EMAIL_SENDER_ADDRESS=your_email@example.com
+EMAIL_SENDER_NAME=ChamaPlus
+
+# ==================== FRONTEND ====================
+FRONTEND_URL=http://localhost:3000
+```
+
+### Firebase Setup
+
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Create a new project or select existing
+3. Go to **Project Settings** > **Service Accounts**
+4. Click **Generate new private key**
+5. Save the JSON file to `chama-core/` directory
+6. Update `FIREBASE_KEY_PATH` in `.env` with the filename
+
+## Running the Application
+
+### Development Mode (with hot-reload)
+
+```bash
+npm run start:dev
+```
+
+### Production Mode
+
+```bash
+# Build the application
+npm run build
+
+# Start production server
+npm run start:prod
+```
+
+### Database Migrations
+
+```bash
+# Apply pending migrations
+npx prisma migrate dev
+
+# Generate Prisma Client
+npx prisma generate
+
+# View database in Prisma Studio
+npx prisma studio
+```
+
+## API Documentation
+
+Once the server is running, access the Swagger API documentation at:
+
+**`http://localhost:5500/api`**
+
+### Main API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/auth/signup` | POST | Register new user |
+| `/api/v1/auth/login` | POST | User login |
+| `/api/v1/auth/me` | GET | Get current user |
+| `/api/v1/chama` | GET | Get user's chamas |
+| `/api/v1/chama` | POST | Create new chama |
+| `/api/v1/chama/available` | GET | Browse available chamas |
+| `/api/v1/invites` | POST | Create invite |
+| `/api/v1/invites/accept` | POST | Accept invite |
+| `/api/v1/transactions` | GET/POST | Manage transactions |
+
+## Project Structure
+
+```
+chama-core/
+├── src/
+│   ├── auth/           # Authentication module
+│   ├── chama/          # Chama management module
+│   ├── user/           # User management module
+│   ├── invite/         # Invitation system
+│   ├── transaction/    # Financial transactions
+│   ├── email/          # Email service (Brevo)
+│   └── prisma/         # Prisma database service
+├── prisma/
+│   ├── schema.prisma   # Database schema
+│   └── migrations/     # Database migrations
+├── test/               # Test files
+└── .env                # Environment variables
+```
+
+## Troubleshooting
+
+### Common Issues
+
+#### 1. Database Connection Error
+```
+Error: Can't reach database server at `localhost:5432`
+```
+**Solution:** Start PostgreSQL service
+```bash
+# macOS
+brew services start postgresql@14
+
+# Linux
+sudo systemctl start postgresql
+```
+
+#### 2. Prisma Client Not Generated
+```
+Error: @prisma/client did not initialize yet
+```
+**Solution:** Generate Prisma client
+```bash
+npx prisma generate
+```
+
+#### 3. Firebase Initialization Error
+```
+Error: Firebase initialization failed
+```
+**Solution:** Verify `FIREBASE_KEY_PATH` points to valid service account JSON file
+
+#### 4. Port Already in Use
+```
+Error: listen EADDRINUSE: address already in use :::5500
+```
+**Solution:** Kill the process using the port
+```bash
+lsof -ti:5500 | xargs kill -9
+```
+
+## Scripts Reference
+
+| Script | Command | Description |
+|--------|---------|-------------|
+| `start` | `npm run start` | Start production server |
+| `start:dev` | `npm run start:dev` | Start with hot-reload |
+| `build` | `npm run build` | Build for production |
+| `test` | `npm run test` | Run unit tests |
+| `lint` | `npm run lint` | Run ESLint |
+| `format` | `npm run format` | Format with Prettier |
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+MIT License - see [LICENSE](LICENSE) for details.
