@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Input } from './ui/input';
@@ -16,7 +22,7 @@ import {
   Download,
   Calendar,
   User,
-  Percent
+  Percent,
 } from 'lucide-react';
 import {
   Dialog,
@@ -65,7 +71,7 @@ export default function LoansPage({ onBack, role }: LoansPageProps) {
     interestRate: '5',
     duration: '12',
     purpose: '',
-    autoDeduct: false
+    autoDeduct: false,
   });
 
   // Mock data
@@ -82,7 +88,7 @@ export default function LoansPage({ onBack, role }: LoansPageProps) {
       dueDate: '2026-10-01',
       amountPaid: 15000,
       nextPayment: 4583,
-      nextPaymentDate: '2026-02-01'
+      nextPaymentDate: '2026-02-01',
     },
     {
       id: '2',
@@ -96,7 +102,7 @@ export default function LoansPage({ onBack, role }: LoansPageProps) {
       dueDate: '2026-05-15',
       amountPaid: 10000,
       nextPayment: 5250,
-      nextPaymentDate: '2026-02-15'
+      nextPaymentDate: '2026-02-15',
     },
     {
       id: '3',
@@ -110,7 +116,7 @@ export default function LoansPage({ onBack, role }: LoansPageProps) {
       dueDate: '2026-01-10',
       amountPaid: 21000,
       nextPayment: 0,
-      nextPaymentDate: '-'
+      nextPaymentDate: '-',
     },
     {
       id: '4',
@@ -124,8 +130,8 @@ export default function LoansPage({ onBack, role }: LoansPageProps) {
       dueDate: '2026-09-01',
       amountPaid: 20000,
       nextPayment: 3667,
-      nextPaymentDate: '2026-02-01'
-    }
+      nextPaymentDate: '2026-02-01',
+    },
   ];
 
   const members = [
@@ -138,7 +144,7 @@ export default function LoansPage({ onBack, role }: LoansPageProps) {
     'James Omondi',
     'Anne Chebet',
     'Paul Kiptoo',
-    'Lucy Muthoni'
+    'Lucy Muthoni',
   ];
 
   // Calculate statistics
@@ -150,13 +156,13 @@ export default function LoansPage({ onBack, role }: LoansPageProps) {
   const statusColors = {
     active: 'bg-primary/10 text-primary border-primary/20',
     completed: 'bg-secondary/10 text-secondary border-secondary/20',
-    defaulted: 'bg-destructive/10 text-destructive border-destructive/20'
+    defaulted: 'bg-destructive/10 text-destructive border-destructive/20',
   };
 
   const statusIcons = {
     active: <Clock className="w-4 h-4" />,
     completed: <CheckCircle2 className="w-4 h-4" />,
-    defaulted: <AlertCircle className="w-4 h-4" />
+    defaulted: <AlertCircle className="w-4 h-4" />,
   };
 
   const handleIssueLoan = () => {
@@ -172,7 +178,7 @@ export default function LoansPage({ onBack, role }: LoansPageProps) {
       interestRate: '5',
       duration: '12',
       purpose: '',
-      autoDeduct: false
+      autoDeduct: false,
     });
   };
 
@@ -192,7 +198,9 @@ export default function LoansPage({ onBack, role }: LoansPageProps) {
           </Button>
           <div>
             <h1 className="text-2xl font-bold">Member Loans</h1>
-            <p className="text-sm text-muted-foreground">Manage loans from group savings</p>
+            <p className="text-sm text-muted-foreground">
+              Manage loans from group savings
+            </p>
           </div>
         </div>
         {role === 'admin' && (
@@ -201,7 +209,10 @@ export default function LoansPage({ onBack, role }: LoansPageProps) {
               <Download className="w-4 h-4 mr-2" />
               Export
             </Button>
-            <Button className="bg-primary hover:bg-primary/90" onClick={() => setShowIssueLoan(true)}>
+            <Button
+              className="bg-primary hover:bg-primary/90"
+              onClick={() => setShowIssueLoan(true)}
+            >
               <Plus className="w-4 h-4 mr-2" />
               Issue Loan
             </Button>
@@ -216,7 +227,9 @@ export default function LoansPage({ onBack, role }: LoansPageProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Total Loaned</p>
-                <p className="text-2xl font-bold">KSh {totalLoaned.toLocaleString()}</p>
+                <p className="text-2xl font-bold">
+                  KSh {totalLoaned.toLocaleString()}
+                </p>
               </div>
               <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
                 <DollarSign className="w-6 h-6 text-primary" />
@@ -230,7 +243,9 @@ export default function LoansPage({ onBack, role }: LoansPageProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Total Repaid</p>
-                <p className="text-2xl font-bold text-secondary">KSh {totalRepaid.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-secondary">
+                  KSh {totalRepaid.toLocaleString()}
+                </p>
               </div>
               <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center">
                 <CheckCircle2 className="w-6 h-6 text-secondary" />
@@ -258,7 +273,9 @@ export default function LoansPage({ onBack, role }: LoansPageProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Outstanding</p>
-                <p className="text-2xl font-bold text-destructive">KSh {outstandingBalance.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-destructive">
+                  KSh {outstandingBalance.toLocaleString()}
+                </p>
               </div>
               <div className="w-12 h-12 rounded-lg bg-destructive/10 flex items-center justify-center">
                 <AlertCircle className="w-6 h-6 text-destructive" />
@@ -282,13 +299,14 @@ export default function LoansPage({ onBack, role }: LoansPageProps) {
             <Card>
               <CardHeader>
                 <CardTitle>
-                  {tab === 'all' ? 'All Loans' : `${tab.charAt(0).toUpperCase() + tab.slice(1)} Loans`}
+                  {tab === 'all'
+                    ? 'All Loans'
+                    : `${tab.charAt(0).toUpperCase() + tab.slice(1)} Loans`}
                 </CardTitle>
                 <CardDescription>
-                  {tab === 'all' 
-                    ? 'Complete loan portfolio' 
-                    : `Loans with ${tab} status`
-                  }
+                  {tab === 'all'
+                    ? 'Complete loan portfolio'
+                    : `Loans with ${tab} status`}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -297,19 +315,34 @@ export default function LoansPage({ onBack, role }: LoansPageProps) {
                   <table className="w-full">
                     <thead>
                       <tr className="border-b">
-                        <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Borrower</th>
-                        <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Amount</th>
-                        <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Progress</th>
-                        <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Next Payment</th>
-                        <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Status</th>
-                        <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Action</th>
+                        <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">
+                          Borrower
+                        </th>
+                        <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">
+                          Amount
+                        </th>
+                        <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">
+                          Progress
+                        </th>
+                        <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">
+                          Next Payment
+                        </th>
+                        <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">
+                          Status
+                        </th>
+                        <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">
+                          Action
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
                       {loans
                         .filter(loan => tab === 'all' || loan.status === tab)
-                        .map((loan) => (
-                          <tr key={loan.id} className="border-b hover:bg-muted/50">
+                        .map(loan => (
+                          <tr
+                            key={loan.id}
+                            className="border-b hover:bg-muted/50"
+                          >
                             <td className="py-3 px-4">
                               <div className="flex items-center gap-3">
                                 <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
@@ -317,18 +350,26 @@ export default function LoansPage({ onBack, role }: LoansPageProps) {
                                 </div>
                                 <div>
                                   <p className="font-medium">{loan.borrower}</p>
-                                  <p className="text-xs text-muted-foreground">{loan.purpose}</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {loan.purpose}
+                                  </p>
                                 </div>
                               </div>
                             </td>
                             <td className="py-3 px-4">
-                              <p className="font-bold">KSh {loan.amount.toLocaleString()}</p>
-                              <p className="text-xs text-muted-foreground">{loan.interestRate}% interest</p>
+                              <p className="font-bold">
+                                KSh {loan.amount.toLocaleString()}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {loan.interestRate}% interest
+                              </p>
                             </td>
                             <td className="py-3 px-4">
                               <div className="space-y-1">
                                 <div className="flex items-center justify-between text-sm">
-                                  <span className="text-muted-foreground">Repaid:</span>
+                                  <span className="text-muted-foreground">
+                                    Repaid:
+                                  </span>
                                   <span className="font-medium">
                                     KSh {loan.amountPaid.toLocaleString()}
                                   </span>
@@ -337,7 +378,7 @@ export default function LoansPage({ onBack, role }: LoansPageProps) {
                                   <div
                                     className="bg-secondary h-2 rounded-full"
                                     style={{
-                                      width: `${Math.min((loan.amountPaid / (loan.amount * (1 + loan.interestRate / 100))) * 100, 100)}%`
+                                      width: `${Math.min((loan.amountPaid / (loan.amount * (1 + loan.interestRate / 100))) * 100, 100)}%`,
                                     }}
                                   />
                                 </div>
@@ -346,11 +387,15 @@ export default function LoansPage({ onBack, role }: LoansPageProps) {
                             <td className="py-3 px-4">
                               {loan.status === 'active' ? (
                                 <div>
-                                  <p className="font-medium">KSh {loan.nextPayment.toLocaleString()}</p>
+                                  <p className="font-medium">
+                                    KSh {loan.nextPayment.toLocaleString()}
+                                  </p>
                                   <p className="text-xs text-muted-foreground">
-                                    {new Date(loan.nextPaymentDate).toLocaleDateString('en-KE', {
+                                    {new Date(
+                                      loan.nextPaymentDate
+                                    ).toLocaleDateString('en-KE', {
                                       month: 'short',
-                                      day: 'numeric'
+                                      day: 'numeric',
                                     })}
                                   </p>
                                 </div>
@@ -359,10 +404,14 @@ export default function LoansPage({ onBack, role }: LoansPageProps) {
                               )}
                             </td>
                             <td className="py-3 px-4">
-                              <Badge variant="outline" className={statusColors[loan.status]}>
+                              <Badge
+                                variant="outline"
+                                className={statusColors[loan.status]}
+                              >
                                 <span className="flex items-center gap-1">
                                   {statusIcons[loan.status]}
-                                  {loan.status.charAt(0).toUpperCase() + loan.status.slice(1)}
+                                  {loan.status.charAt(0).toUpperCase() +
+                                    loan.status.slice(1)}
                                 </span>
                               </Badge>
                             </td>
@@ -386,7 +435,7 @@ export default function LoansPage({ onBack, role }: LoansPageProps) {
                 <div className="md:hidden space-y-4">
                   {loans
                     .filter(loan => tab === 'all' || loan.status === tab)
-                    .map((loan) => (
+                    .map(loan => (
                       <Card key={loan.id} className="border">
                         <CardContent className="pt-6">
                           <div className="space-y-3">
@@ -397,21 +446,32 @@ export default function LoansPage({ onBack, role }: LoansPageProps) {
                                 </div>
                                 <div>
                                   <p className="font-medium">{loan.borrower}</p>
-                                  <p className="text-sm text-muted-foreground">{loan.purpose}</p>
+                                  <p className="text-sm text-muted-foreground">
+                                    {loan.purpose}
+                                  </p>
                                 </div>
                               </div>
-                              <Badge variant="outline" className={statusColors[loan.status]}>
+                              <Badge
+                                variant="outline"
+                                className={statusColors[loan.status]}
+                              >
                                 {statusIcons[loan.status]}
                               </Badge>
                             </div>
 
                             <div className="flex items-center justify-between pt-2 border-t">
                               <div>
-                                <p className="text-sm text-muted-foreground">Loan Amount</p>
-                                <p className="font-bold text-lg">KSh {loan.amount.toLocaleString()}</p>
+                                <p className="text-sm text-muted-foreground">
+                                  Loan Amount
+                                </p>
+                                <p className="font-bold text-lg">
+                                  KSh {loan.amount.toLocaleString()}
+                                </p>
                               </div>
                               <div className="text-right">
-                                <p className="text-sm text-muted-foreground">Repaid</p>
+                                <p className="text-sm text-muted-foreground">
+                                  Repaid
+                                </p>
                                 <p className="font-bold text-lg text-secondary">
                                   KSh {loan.amountPaid.toLocaleString()}
                                 </p>
@@ -422,7 +482,7 @@ export default function LoansPage({ onBack, role }: LoansPageProps) {
                               <div
                                 className="bg-secondary h-2 rounded-full"
                                 style={{
-                                  width: `${Math.min((loan.amountPaid / (loan.amount * (1 + loan.interestRate / 100))) * 100, 100)}%`
+                                  width: `${Math.min((loan.amountPaid / (loan.amount * (1 + loan.interestRate / 100))) * 100, 100)}%`,
                                 }}
                               />
                             </div>
@@ -452,47 +512,75 @@ export default function LoansPage({ onBack, role }: LoansPageProps) {
         <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Issue New Loan</DialogTitle>
-            <DialogDescription>Disburse a loan from group savings</DialogDescription>
+            <DialogDescription>
+              Disburse a loan from group savings
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium mb-2 block">Borrower *</label>
-              <Select value={newLoan.borrower} onValueChange={(value) => setNewLoan({...newLoan, borrower: value})}>
+              <label className="text-sm font-medium mb-2 block">
+                Borrower *
+              </label>
+              <Select
+                value={newLoan.borrower}
+                onValueChange={value =>
+                  setNewLoan({ ...newLoan, borrower: value })
+                }
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select member" />
                 </SelectTrigger>
                 <SelectContent>
                   {members.map(member => (
-                    <SelectItem key={member} value={member}>{member}</SelectItem>
+                    <SelectItem key={member} value={member}>
+                      {member}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Loan Amount (KSh) *</label>
+              <label className="text-sm font-medium mb-2 block">
+                Loan Amount (KSh) *
+              </label>
               <Input
                 type="number"
                 placeholder="0"
                 value={newLoan.amount}
-                onChange={(e) => setNewLoan({...newLoan, amount: e.target.value})}
+                onChange={e =>
+                  setNewLoan({ ...newLoan, amount: e.target.value })
+                }
               />
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Interest Rate (%) *</label>
+              <label className="text-sm font-medium mb-2 block">
+                Interest Rate (%) *
+              </label>
               <Input
                 type="number"
                 placeholder="5"
                 value={newLoan.interestRate}
-                onChange={(e) => setNewLoan({...newLoan, interestRate: e.target.value})}
+                onChange={e =>
+                  setNewLoan({ ...newLoan, interestRate: e.target.value })
+                }
               />
-              <p className="text-xs text-muted-foreground mt-1">Annual interest rate</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Annual interest rate
+              </p>
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Repayment Duration (Months) *</label>
-              <Select value={newLoan.duration} onValueChange={(value) => setNewLoan({...newLoan, duration: value})}>
+              <label className="text-sm font-medium mb-2 block">
+                Repayment Duration (Months) *
+              </label>
+              <Select
+                value={newLoan.duration}
+                onValueChange={value =>
+                  setNewLoan({ ...newLoan, duration: value })
+                }
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -506,11 +594,15 @@ export default function LoansPage({ onBack, role }: LoansPageProps) {
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Purpose *</label>
+              <label className="text-sm font-medium mb-2 block">
+                Purpose *
+              </label>
               <Input
                 placeholder="e.g., Business expansion"
                 value={newLoan.purpose}
-                onChange={(e) => setNewLoan({...newLoan, purpose: e.target.value})}
+                onChange={e =>
+                  setNewLoan({ ...newLoan, purpose: e.target.value })
+                }
               />
             </div>
 
@@ -519,7 +611,9 @@ export default function LoansPage({ onBack, role }: LoansPageProps) {
                 type="checkbox"
                 id="autoDeduct"
                 checked={newLoan.autoDeduct}
-                onChange={(e) => setNewLoan({...newLoan, autoDeduct: e.target.checked})}
+                onChange={e =>
+                  setNewLoan({ ...newLoan, autoDeduct: e.target.checked })
+                }
                 className="w-4 h-4"
               />
               <label htmlFor="autoDeduct" className="text-sm flex-1">
@@ -533,24 +627,44 @@ export default function LoansPage({ onBack, role }: LoansPageProps) {
                 <div className="space-y-1 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Principal:</span>
-                    <span className="font-medium">KSh {parseFloat(newLoan.amount).toLocaleString()}</span>
+                    <span className="font-medium">
+                      KSh {parseFloat(newLoan.amount).toLocaleString()}
+                    </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Interest ({newLoan.interestRate}%):</span>
+                    <span className="text-muted-foreground">
+                      Interest ({newLoan.interestRate}%):
+                    </span>
                     <span className="font-medium">
-                      KSh {(parseFloat(newLoan.amount) * parseFloat(newLoan.interestRate) / 100).toLocaleString()}
+                      KSh{' '}
+                      {(
+                        (parseFloat(newLoan.amount) *
+                          parseFloat(newLoan.interestRate)) /
+                        100
+                      ).toLocaleString()}
                     </span>
                   </div>
                   <div className="flex justify-between border-t pt-1">
                     <span className="font-medium">Total Repayment:</span>
                     <span className="font-bold">
-                      KSh {(parseFloat(newLoan.amount) * (1 + parseFloat(newLoan.interestRate) / 100)).toLocaleString()}
+                      KSh{' '}
+                      {(
+                        parseFloat(newLoan.amount) *
+                        (1 + parseFloat(newLoan.interestRate) / 100)
+                      ).toLocaleString()}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Monthly Payment:</span>
+                    <span className="text-muted-foreground">
+                      Monthly Payment:
+                    </span>
                     <span className="font-medium">
-                      KSh {((parseFloat(newLoan.amount) * (1 + parseFloat(newLoan.interestRate) / 100)) / parseFloat(newLoan.duration)).toLocaleString()}
+                      KSh{' '}
+                      {(
+                        (parseFloat(newLoan.amount) *
+                          (1 + parseFloat(newLoan.interestRate) / 100)) /
+                        parseFloat(newLoan.duration)
+                      ).toLocaleString()}
                     </span>
                   </div>
                 </div>
@@ -561,7 +675,10 @@ export default function LoansPage({ onBack, role }: LoansPageProps) {
             <Button variant="outline" onClick={() => setShowIssueLoan(false)}>
               Cancel
             </Button>
-            <Button className="bg-primary hover:bg-primary/90" onClick={handleIssueLoan}>
+            <Button
+              className="bg-primary hover:bg-primary/90"
+              onClick={handleIssueLoan}
+            >
               Issue Loan
             </Button>
           </DialogFooter>
@@ -583,10 +700,14 @@ export default function LoansPage({ onBack, role }: LoansPageProps) {
                 </div>
                 <div>
                   <p className="font-medium">{selectedLoan.borrower}</p>
-                  <Badge variant="outline" className={`${statusColors[selectedLoan.status]} mt-1`}>
+                  <Badge
+                    variant="outline"
+                    className={`${statusColors[selectedLoan.status]} mt-1`}
+                  >
                     <span className="flex items-center gap-1">
                       {statusIcons[selectedLoan.status]}
-                      {selectedLoan.status.charAt(0).toUpperCase() + selectedLoan.status.slice(1)}
+                      {selectedLoan.status.charAt(0).toUpperCase() +
+                        selectedLoan.status.slice(1)}
                     </span>
                   </Badge>
                 </div>
@@ -594,11 +715,17 @@ export default function LoansPage({ onBack, role }: LoansPageProps) {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Loan Amount</p>
-                  <p className="font-bold text-lg">KSh {selectedLoan.amount.toLocaleString()}</p>
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Loan Amount
+                  </p>
+                  <p className="font-bold text-lg">
+                    KSh {selectedLoan.amount.toLocaleString()}
+                  </p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Interest Rate</p>
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Interest Rate
+                  </p>
                   <p className="font-bold text-lg flex items-center gap-1">
                     <Percent className="w-4 h-4" />
                     {selectedLoan.interestRate}%
@@ -613,25 +740,33 @@ export default function LoansPage({ onBack, role }: LoansPageProps) {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Disbursed Date</p>
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Disbursed Date
+                  </p>
                   <p className="font-medium flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-muted-foreground" />
-                    {new Date(selectedLoan.disbursedDate).toLocaleDateString('en-KE', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric'
-                    })}
+                    {new Date(selectedLoan.disbursedDate).toLocaleDateString(
+                      'en-KE',
+                      {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      }
+                    )}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">Due Date</p>
                   <p className="font-medium flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-muted-foreground" />
-                    {new Date(selectedLoan.dueDate).toLocaleDateString('en-KE', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric'
-                    })}
+                    {new Date(selectedLoan.dueDate).toLocaleDateString(
+                      'en-KE',
+                      {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      }
+                    )}
                   </p>
                 </div>
               </div>
@@ -641,18 +776,29 @@ export default function LoansPage({ onBack, role }: LoansPageProps) {
                 <div className="space-y-1">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Amount Paid:</span>
-                    <span className="font-bold text-secondary">KSh {selectedLoan.amountPaid.toLocaleString()}</span>
+                    <span className="font-bold text-secondary">
+                      KSh {selectedLoan.amountPaid.toLocaleString()}
+                    </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Total Due:</span>
                     <span className="font-bold">
-                      KSh {(selectedLoan.amount * (1 + selectedLoan.interestRate / 100)).toLocaleString()}
+                      KSh{' '}
+                      {(
+                        selectedLoan.amount *
+                        (1 + selectedLoan.interestRate / 100)
+                      ).toLocaleString()}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Remaining:</span>
                     <span className="font-bold text-destructive">
-                      KSh {((selectedLoan.amount * (1 + selectedLoan.interestRate / 100)) - selectedLoan.amountPaid).toLocaleString()}
+                      KSh{' '}
+                      {(
+                        selectedLoan.amount *
+                          (1 + selectedLoan.interestRate / 100) -
+                        selectedLoan.amountPaid
+                      ).toLocaleString()}
                     </span>
                   </div>
                 </div>
@@ -660,7 +806,7 @@ export default function LoansPage({ onBack, role }: LoansPageProps) {
                   <div
                     className="bg-secondary h-2 rounded-full"
                     style={{
-                      width: `${Math.min((selectedLoan.amountPaid / (selectedLoan.amount * (1 + selectedLoan.interestRate / 100))) * 100, 100)}%`
+                      width: `${Math.min((selectedLoan.amountPaid / (selectedLoan.amount * (1 + selectedLoan.interestRate / 100))) * 100, 100)}%`,
                     }}
                   />
                 </div>
@@ -671,16 +817,24 @@ export default function LoansPage({ onBack, role }: LoansPageProps) {
                   <p className="text-sm font-medium mb-2">Next Payment</p>
                   <div className="flex justify-between items-center">
                     <div>
-                      <p className="font-bold text-lg">KSh {selectedLoan.nextPayment.toLocaleString()}</p>
+                      <p className="font-bold text-lg">
+                        KSh {selectedLoan.nextPayment.toLocaleString()}
+                      </p>
                       <p className="text-sm text-muted-foreground">
-                        Due {new Date(selectedLoan.nextPaymentDate).toLocaleDateString('en-KE', {
+                        Due{' '}
+                        {new Date(
+                          selectedLoan.nextPaymentDate
+                        ).toLocaleDateString('en-KE', {
                           month: 'long',
-                          day: 'numeric'
+                          day: 'numeric',
                         })}
                       </p>
                     </div>
                     {role === 'admin' && (
-                      <Button size="sm" className="bg-secondary hover:bg-secondary/90">
+                      <Button
+                        size="sm"
+                        className="bg-secondary hover:bg-secondary/90"
+                      >
                         Record Payment
                       </Button>
                     )}
@@ -689,7 +843,11 @@ export default function LoansPage({ onBack, role }: LoansPageProps) {
               )}
 
               <div className="pt-4 border-t flex gap-2">
-                <Button variant="outline" className="flex-1" onClick={() => setShowDetails(false)}>
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setShowDetails(false)}
+                >
                   Close
                 </Button>
                 {role === 'admin' && selectedLoan.status === 'active' && (

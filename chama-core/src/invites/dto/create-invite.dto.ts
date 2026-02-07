@@ -28,4 +28,3 @@ export class AcceptInviteDto {
   @IsString()
   token!: string;
 }
-

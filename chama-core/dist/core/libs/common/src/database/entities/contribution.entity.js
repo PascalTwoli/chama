@@ -65,7 +65,7 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiProperty)({
         description: 'Amount of the contribution',
-        example: 1000.50,
+        example: 1000.5,
         type: Number,
     }),
     (0, class_validator_1.IsNumber)({ maxDecimalPlaces: 2 }, {

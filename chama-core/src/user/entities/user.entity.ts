@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsEnum, IsOptional, IsString, IsUUID, IsDate } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsOptional,
+  IsString,
+  IsUUID,
+  IsDate,
+} from 'class-validator';
 import { Exclude, Expose, Transform } from 'class-transformer';
 import { UserType } from '@prisma/client';
 
@@ -53,7 +60,7 @@ export class UserEntity {
     example: '2025-06-01T14:57:46.109Z',
   })
   @IsDate()
-  @Transform(({ value }) => value instanceof Date ? value : new Date(value))
+  @Transform(({ value }) => (value instanceof Date ? value : new Date(value)))
   createdAt!: Date;
 
   @ApiProperty({
@@ -61,7 +68,7 @@ export class UserEntity {
     example: '2025-06-01T14:57:46.109Z',
   })
   @IsDate()
-  @Transform(({ value }) => value instanceof Date ? value : new Date(value))
+  @Transform(({ value }) => (value instanceof Date ? value : new Date(value)))
   updatedAt!: Date;
 
   // Exclude password hash from responses

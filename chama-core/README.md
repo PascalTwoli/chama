@@ -17,12 +17,12 @@ A modern NestJS-based backend API for ChamaPlus - a savings group (Chama) manage
 
 Before you begin, ensure you have the following installed:
 
-| Tool | Version | Installation |
-|------|---------|--------------|
-| **Node.js** | v18+ | [Download](https://nodejs.org/) |
-| **npm** | v9+ | Comes with Node.js |
-| **PostgreSQL** | v14+ | `brew install postgresql@14` (macOS) |
-| **Firebase Account** | - | [Firebase Console](https://console.firebase.google.com/) |
+| Tool                 | Version | Installation                                             |
+| -------------------- | ------- | -------------------------------------------------------- |
+| **Node.js**          | v18+    | [Download](https://nodejs.org/)                          |
+| **npm**              | v9+     | Comes with Node.js                                       |
+| **PostgreSQL**       | v14+    | `brew install postgresql@14` (macOS)                     |
+| **Firebase Account** | -       | [Firebase Console](https://console.firebase.google.com/) |
 
 ## Quick Start
 
@@ -189,17 +189,17 @@ Once the server is running, access the Swagger API documentation at:
 
 ### Main API Endpoints
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/v1/auth/signup` | POST | Register new user |
-| `/api/v1/auth/login` | POST | User login |
-| `/api/v1/auth/me` | GET | Get current user |
-| `/api/v1/chama` | GET | Get user's chamas |
-| `/api/v1/chama` | POST | Create new chama |
-| `/api/v1/chama/available` | GET | Browse available chamas |
-| `/api/v1/invites` | POST | Create invite |
-| `/api/v1/invites/accept` | POST | Accept invite |
-| `/api/v1/transactions` | GET/POST | Manage transactions |
+| Endpoint                  | Method   | Description             |
+| ------------------------- | -------- | ----------------------- |
+| `/api/v1/auth/signup`     | POST     | Register new user       |
+| `/api/v1/auth/login`      | POST     | User login              |
+| `/api/v1/auth/me`         | GET      | Get current user        |
+| `/api/v1/chama`           | GET      | Get user's chamas       |
+| `/api/v1/chama`           | POST     | Create new chama        |
+| `/api/v1/chama/available` | GET      | Browse available chamas |
+| `/api/v1/invites`         | POST     | Create invite           |
+| `/api/v1/invites/accept`  | POST     | Accept invite           |
+| `/api/v1/transactions`    | GET/POST | Manage transactions     |
 
 ## Project Structure
 
@@ -225,10 +225,13 @@ chama-core/
 ### Common Issues
 
 #### 1. Database Connection Error
+
 ```
 Error: Can't reach database server at `localhost:5432`
 ```
+
 **Solution:** Start PostgreSQL service
+
 ```bash
 # macOS
 brew services start postgresql@14
@@ -238,39 +241,47 @@ sudo systemctl start postgresql
 ```
 
 #### 2. Prisma Client Not Generated
+
 ```
 Error: @prisma/client did not initialize yet
 ```
+
 **Solution:** Generate Prisma client
+
 ```bash
 npx prisma generate
 ```
 
 #### 3. Firebase Initialization Error
+
 ```
 Error: Firebase initialization failed
 ```
+
 **Solution:** Verify `FIREBASE_KEY_PATH` points to valid service account JSON file
 
 #### 4. Port Already in Use
+
 ```
 Error: listen EADDRINUSE: address already in use :::5500
 ```
+
 **Solution:** Kill the process using the port
+
 ```bash
 lsof -ti:5500 | xargs kill -9
 ```
 
 ## Scripts Reference
 
-| Script | Command | Description |
-|--------|---------|-------------|
-| `start` | `npm run start` | Start production server |
-| `start:dev` | `npm run start:dev` | Start with hot-reload |
-| `build` | `npm run build` | Build for production |
-| `test` | `npm run test` | Run unit tests |
-| `lint` | `npm run lint` | Run ESLint |
-| `format` | `npm run format` | Format with Prettier |
+| Script      | Command             | Description             |
+| ----------- | ------------------- | ----------------------- |
+| `start`     | `npm run start`     | Start production server |
+| `start:dev` | `npm run start:dev` | Start with hot-reload   |
+| `build`     | `npm run build`     | Build for production    |
+| `test`      | `npm run test`      | Run unit tests          |
+| `lint`      | `npm run lint`      | Run ESLint              |
+| `format`    | `npm run format`    | Format with Prettier    |
 
 ## License
 

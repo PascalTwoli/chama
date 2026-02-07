@@ -75,21 +75,38 @@ export class TransactionController {
       type: 'object',
       properties: {
         id: { type: 'string', description: 'Transaction ID' },
-        type: { type: 'string', enum: Object.values(TransactionType), description: 'Transaction type' },
+        type: {
+          type: 'string',
+          enum: Object.values(TransactionType),
+          description: 'Transaction type',
+        },
         amount: { type: 'number', description: 'Transaction amount' },
         chamaId: { type: 'string', description: 'ID of the chama' },
-        userId: { type: 'string', description: 'ID of the user who created the transaction' },
+        userId: {
+          type: 'string',
+          description: 'ID of the user who created the transaction',
+        },
         description: { type: 'string', description: 'Transaction description' },
         reference: { type: 'string', description: 'External reference number' },
         status: { type: 'string', description: 'Transaction status' },
-        createdAt: { type: 'string', format: 'date-time', description: 'Creation timestamp' },
-        updatedAt: { type: 'string', format: 'date-time', description: 'Last update timestamp' },
+        createdAt: {
+          type: 'string',
+          format: 'date-time',
+          description: 'Creation timestamp',
+        },
+        updatedAt: {
+          type: 'string',
+          format: 'date-time',
+          description: 'Last update timestamp',
+        },
       },
     },
   })
   @ApiBadRequestResponse({ description: 'Invalid transaction data' })
   @ApiUnauthorizedResponse({ description: 'User not authenticated' })
-  @ApiForbiddenResponse({ description: 'User not authorized to create transactions for this chama' })
+  @ApiForbiddenResponse({
+    description: 'User not authorized to create transactions for this chama',
+  })
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async createTransaction(
     @Body() createTransactionDto: CreateTransactionDto,
@@ -100,7 +117,10 @@ export class TransactionController {
       // - Ensuring the user is a member of the chama
       // - Validating the transaction amount against chama rules
       // - Handling financial operations safely
-      return await this.transactionService.createTransaction(createTransactionDto, currentUser.id);
+      return await this.transactionService.createTransaction(
+        createTransactionDto,
+        currentUser.id,
+      );
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw error;
@@ -126,7 +146,8 @@ export class TransactionController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Get all transactions for a chama',
-    description: 'Returns all transactions for a specific chama the user is a member of',
+    description:
+      'Returns all transactions for a specific chama the user is a member of',
   })
   @ApiParam({ name: 'chamaId', description: 'ID of the chama', type: 'string' })
   @ApiQuery({
@@ -155,21 +176,44 @@ export class TransactionController {
         type: 'object',
         properties: {
           id: { type: 'string', description: 'Transaction ID' },
-          type: { type: 'string', enum: Object.values(TransactionType), description: 'Transaction type' },
+          type: {
+            type: 'string',
+            enum: Object.values(TransactionType),
+            description: 'Transaction type',
+          },
           amount: { type: 'number', description: 'Transaction amount' },
           chamaId: { type: 'string', description: 'ID of the chama' },
-          userId: { type: 'string', description: 'ID of the user who created the transaction' },
-          description: { type: 'string', description: 'Transaction description' },
-          reference: { type: 'string', description: 'External reference number' },
+          userId: {
+            type: 'string',
+            description: 'ID of the user who created the transaction',
+          },
+          description: {
+            type: 'string',
+            description: 'Transaction description',
+          },
+          reference: {
+            type: 'string',
+            description: 'External reference number',
+          },
           status: { type: 'string', description: 'Transaction status' },
-          createdAt: { type: 'string', format: 'date-time', description: 'Creation timestamp' },
-          updatedAt: { type: 'string', format: 'date-time', description: 'Last update timestamp' },
+          createdAt: {
+            type: 'string',
+            format: 'date-time',
+            description: 'Creation timestamp',
+          },
+          updatedAt: {
+            type: 'string',
+            format: 'date-time',
+            description: 'Last update timestamp',
+          },
         },
       },
     },
   })
   @ApiUnauthorizedResponse({ description: 'User not authenticated' })
-  @ApiForbiddenResponse({ description: 'User not authorized to view transactions for this chama' })
+  @ApiForbiddenResponse({
+    description: 'User not authorized to view transactions for this chama',
+  })
   @ApiNotFoundResponse({ description: 'Chama not found' })
   async getTransactionsByChama(
     @Param('chamaId') chamaId: string,
@@ -182,7 +226,7 @@ export class TransactionController {
       if (!currentUser) {
         throw new Error('User not authenticated');
       }
-      
+
       return await this.transactionService.getTransactionsByChama(
         chamaId,
         currentUser.id,
@@ -221,28 +265,48 @@ export class TransactionController {
       type: 'object',
       properties: {
         id: { type: 'string', description: 'Transaction ID' },
-        type: { type: 'string', enum: Object.values(TransactionType), description: 'Transaction type' },
+        type: {
+          type: 'string',
+          enum: Object.values(TransactionType),
+          description: 'Transaction type',
+        },
         amount: { type: 'number', description: 'Transaction amount' },
         chamaId: { type: 'string', description: 'ID of the chama' },
-        userId: { type: 'string', description: 'ID of the user who created the transaction' },
+        userId: {
+          type: 'string',
+          description: 'ID of the user who created the transaction',
+        },
         description: { type: 'string', description: 'Transaction description' },
         reference: { type: 'string', description: 'External reference number' },
         status: { type: 'string', description: 'Transaction status' },
-        createdAt: { type: 'string', format: 'date-time', description: 'Creation timestamp' },
-        updatedAt: { type: 'string', format: 'date-time', description: 'Last update timestamp' },
+        createdAt: {
+          type: 'string',
+          format: 'date-time',
+          description: 'Creation timestamp',
+        },
+        updatedAt: {
+          type: 'string',
+          format: 'date-time',
+          description: 'Last update timestamp',
+        },
       },
     },
   })
   @ApiUnauthorizedResponse({ description: 'User not authenticated' })
-  @ApiForbiddenResponse({ description: 'User not authorized to view this transaction' })
+  @ApiForbiddenResponse({
+    description: 'User not authorized to view this transaction',
+  })
   @ApiNotFoundResponse({ description: 'Transaction not found' })
   async getTransactionById(
     @Param('id') id: string,
     @CurrentUser() currentUser: CurrentUserType,
   ): Promise<TransactionResponse> {
     try {
-      const transaction = await this.transactionService.getTransactionById(id, currentUser.id);
-      
+      const transaction = await this.transactionService.getTransactionById(
+        id,
+        currentUser.id,
+      );
+
       // Convert to TransactionResponse format
       const response: TransactionResponse = {
         id: transaction.id,
@@ -254,9 +318,9 @@ export class TransactionController {
         reference: transaction.reference || undefined,
         status: transaction.status,
         createdAt: transaction.createdAt,
-        updatedAt: transaction.updatedAt
+        updatedAt: transaction.updatedAt,
       };
-      
+
       return response;
     } catch (error) {
       if (error instanceof NotFoundException) {
@@ -280,17 +344,27 @@ export class TransactionController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Get user transaction summary',
-    description: 'Returns a summary of all transactions for the current user across all chamas',
+    description:
+      'Returns a summary of all transactions for the current user across all chamas',
   })
   @ApiOkResponse({
     description: 'User transaction summary',
     schema: {
       type: 'object',
       properties: {
-        totalContributions: { type: 'number', description: 'Total amount contributed' },
-        totalWithdrawals: { type: 'number', description: 'Total amount withdrawn' },
+        totalContributions: {
+          type: 'number',
+          description: 'Total amount contributed',
+        },
+        totalWithdrawals: {
+          type: 'number',
+          description: 'Total amount withdrawn',
+        },
         totalLoans: { type: 'number', description: 'Total loans taken' },
-        totalRepayments: { type: 'number', description: 'Total loan repayments' },
+        totalRepayments: {
+          type: 'number',
+          description: 'Total loan repayments',
+        },
         chamaStats: {
           type: 'array',
           description: 'Transaction statistics per chama',
@@ -299,10 +373,22 @@ export class TransactionController {
             properties: {
               chamaId: { type: 'string', description: 'ID of the chama' },
               chamaName: { type: 'string', description: 'Name of the chama' },
-              contributions: { type: 'number', description: 'Total contributions to this chama' },
-              withdrawals: { type: 'number', description: 'Total withdrawals from this chama' },
-              loans: { type: 'number', description: 'Total loans from this chama' },
-              repayments: { type: 'number', description: 'Total loan repayments to this chama' },
+              contributions: {
+                type: 'number',
+                description: 'Total contributions to this chama',
+              },
+              withdrawals: {
+                type: 'number',
+                description: 'Total withdrawals from this chama',
+              },
+              loans: {
+                type: 'number',
+                description: 'Total loans from this chama',
+              },
+              repayments: {
+                type: 'number',
+                description: 'Total loan repayments to this chama',
+              },
             },
           },
         },
@@ -327,7 +413,9 @@ export class TransactionController {
     }>;
   }> {
     try {
-      return await this.transactionService.getUserTransactionSummary(currentUser.id);
+      return await this.transactionService.getUserTransactionSummary(
+        currentUser.id,
+      );
     } catch (error) {
       throw new InternalServerErrorException(
         `Failed to fetch transaction summary: ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -335,4 +423,3 @@ export class TransactionController {
     }
   }
 }
-

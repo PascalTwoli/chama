@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Search, Loader2 } from 'lucide-react';
 import AuthService from '../services/auth/signup-service';
 import { Chama } from '../models/chamas';
 import ChamaService from '../services/chama/chama-services';
-import { Button } from 'primereact/button';
+import { Button } from './ui/button';
 import ProfileTemplate from '../utils/profile-template';
 
 const ChamaListView: React.FC = () => {
@@ -59,7 +60,6 @@ const ChamaListView: React.FC = () => {
       }));
       setChamas(data);
       setAllChamas(data);
-      setChamas(data);
     } catch (err) {
       setError(
         err instanceof Error
@@ -88,10 +88,7 @@ const ChamaListView: React.FC = () => {
         throw new Error(errorData.message || 'Failed to join chama');
       }
 
-      // Mark chama joining as complete
       AuthService.markChamaJoiningComplete(chamaId);
-
-      // Redirect to member dashboard
       navigate(`/member/chamas/${chamaId}`);
     } catch (err) {
       setError(
@@ -107,28 +104,9 @@ const ChamaListView: React.FC = () => {
 
   if (isLoading && chamas.length === 0) {
     return (
-      <div className='min-h-screen bg-gray-900 flex items-center justify-center'>
-        <div className='text-white text-center'>
-          <svg
-            className='animate-spin h-12 w-12 mx-auto mb-4 text-green-500'
-            xmlns='http://www.w3.org/2000/svg'
-            fill='none'
-            viewBox='0 0 24 24'
-          >
-            <circle
-              className='opacity-25'
-              cx='12'
-              cy='12'
-              r='10'
-              stroke='currentColor'
-              strokeWidth='4'
-            ></circle>
-            <path
-              className='opacity-75'
-              fill='currentColor'
-              d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
-            ></path>
-          </svg>
+      <div className='min-h-screen bg-background flex items-center justify-center'>
+        <div className='text-foreground text-center'>
+          <Loader2 className='animate-spin h-12 w-12 mx-auto mb-4 text-primary' />
           <p className='text-xl'>Loading chamas...</p>
         </div>
       </div>
@@ -136,74 +114,75 @@ const ChamaListView: React.FC = () => {
   }
 
   return (
-    <div className='h-screen flex flex-col py-3 px-4'>
+    <div className='h-screen flex flex-col py-3 px-4 bg-background'>
       <div className='flex flex-col h-full'>
-        <h1 className='text-lg font-bold text-white mb-8 flex-shrink-0'>
+        <h1 className='text-lg font-bold text-foreground mb-8 flex-shrink-0'>
           Join Chama
         </h1>
 
         {error && (
-          <div className='bg-red-800 text-white p-4 rounded mb-6 flex-shrink-0'>
+          <div className='bg-destructive/20 text-destructive p-4 rounded-lg border border-destructive/30 mb-6 flex-shrink-0'>
             {error}
           </div>
         )}
 
         {allChamas.length === 0 && !isLoading ? (
-          <div className='bg-gray-800 rounded-lg p-8 text-center flex-shrink-0'>
-            <p className='text-xl text-gray-300 mb-4'>
+          <div className='bg-card border border-border rounded-lg p-8 text-center flex-shrink-0'>
+            <p className='text-xl text-foreground mb-4'>
               No chamas available to join right now.
             </p>
-            <p className='text-gray-400'>
+            <p className='text-muted-foreground'>
               Please check back later or contact an administrator.
             </p>
           </div>
         ) : (
-          <div className='bg-[#242E3B] rounded-lg py-2 px-2 mb-8 flex flex-col flex-1 min-h-0'>
+          <div className='bg-card border border-border rounded-lg py-4 px-4 mb-8 flex flex-col flex-1 min-h-0'>
+            {/* Search */}
             <div className='relative flex-shrink-0'>
-              <i className='pi pi-search absolute text-gray-500 font-normal top-[15px] left-4 text-xl'></i>
+              <Search className='absolute text-muted-foreground top-1/2 -translate-y-1/2 left-4 w-5 h-5' />
               <input
                 type='text'
                 placeholder='Search chamas...'
-                className='w-full p-4 pl-14 outline-none rounded-lg bg-gray-100 border-none text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#4084B9] placeholder:text-gray-400'
+                className='w-full p-4 pl-12 rounded-lg bg-muted border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary placeholder:text-muted-foreground transition-colors'
                 onChange={handleSearchChama}
               />
             </div>
-            <p className='mb-[6px] mt-4 font-bold text-sm flex-shrink-0'>
-              {' '}
-              Available chamas{' '}
+
+            <p className='mb-2 mt-4 font-bold text-sm text-foreground flex-shrink-0'>
+              Available chamas
             </p>
+
             {chamas.length === 0 && searchTerm !== '' ? (
               <div className='text-center py-8 flex-shrink-0'>
-                <p className='text-gray-400 text-lg'>
+                <p className='text-muted-foreground text-lg'>
                   No chamas found matching &quot;{searchTerm}&quot;
                 </p>
-                <p className='text-gray-500 text-sm mt-2'>
+                <p className='text-muted-foreground/70 text-sm mt-2'>
                   Try searching with different keywords
                 </p>
               </div>
             ) : (
               <div className='flex-1 overflow-y-auto min-h-0'>
-                <div className='grid grid-cols-1 lg:grid-cols-1 gap-6 pr-2'>
+                <div className='grid grid-cols-1 gap-6 pr-2'>
                   {chamas.map(chama => (
                     <div
                       key={chama.id}
-                      className='bg-gray-800 rounded-lg overflow-hidden shadow-lg'
+                      className='bg-muted border border-border rounded-lg overflow-hidden'
                     >
                       <div className='p-6 flex flex-col lg:flex-row items-start gap-4'>
                         <div className='flex-auto w-2/3'>
-                          <h2 className='text-lg m-0 font-bold text-[#A0A1A2] mt-0 mb-2'>
+                          <h2 className='text-lg m-0 font-bold text-foreground mt-0 mb-2'>
                             {chama.name}
                           </h2>
                           <div className='flex flex-col justify-between'>
                             <div>
-                              {' '}
-                              <p className='text-[#61758A] m-0 text-sm'>
+                              <p className='text-muted-foreground m-0 text-sm'>
                                 {chama.description}
                               </p>
-                              <div className='flex justify-between text-sm text-gray-400 mb-4'>
+                              <div className='flex justify-between text-sm text-muted-foreground mb-4 mt-2'>
                                 <span>Members: {chama.membersCount}</span>
                                 <span>
-                                  Created:
+                                  Created:{' '}
                                   {new Date(
                                     chama.createdAt
                                   ).toLocaleDateString()}
@@ -211,26 +190,18 @@ const ChamaListView: React.FC = () => {
                               </div>
                             </div>
                             <div>
-                              <div className='text-center'>
-                                <Button
-                                  onClick={() => handleJoinChama(chama.id)}
-                                  disabled={isLoading}
-                                  className='py-2 border-none text-white rounded-full transition-colors bg-gradient-to-br from-[#4084B9] to-[#2D3748] hover:from-[#2D3748] hover:to-[#488ec3]'
-                                >
-                                  Request to Join
-                                </Button>
-                              </div>
+                              <Button
+                                onClick={() => handleJoinChama(chama.id)}
+                                disabled={isLoading}
+                                className='rounded-full'
+                              >
+                                Request to Join
+                              </Button>
                             </div>
                           </div>
                         </div>
                         <div className='flex-auto w-1/3 rounded-2xl overflow-hidden'>
-                          <div
-                            className='h-[170px] rounded-lg flex items-center justify-center'
-                            style={{
-                              background:
-                                'linear-gradient(135deg, #4084B9 0%, #2D3748 100%)',
-                            }}
-                          >
+                          <div className='h-[170px] rounded-lg flex items-center justify-center bg-gradient-to-br from-primary to-primary/50'>
                             {ProfileTemplate(
                               {
                                 profilepic: chama.imageUrl,

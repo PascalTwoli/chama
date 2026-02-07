@@ -28,14 +28,14 @@ export default function AccountSettings() {
   };
 
   return (
-    <div className='px-6 text-gray-100'>
+    <div className='px-6 text-foreground'>
       <h2 className='text-xl font-bold mb-4 mt-0'>Augustine Twoli’s profile</h2>
 
       <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
         {/* Left Profile Panel */}
 
-        <div className='bg-[#242E3B] rounded-xl p-6'>
-          <h3 className='text-lg  text-gray-300 font-bold mt-0 mb-4'>
+        <div className='bg-card border border-border rounded-xl p-6'>
+          <h3 className='text-lg text-muted-foreground font-bold mt-0 mb-4'>
             Profile Details
           </h3>
           <div className='flex flex-col gap-8 items-center'>
@@ -56,8 +56,10 @@ export default function AccountSettings() {
         </div>
 
         {/* Account Form */}
-        <div className='md:col-span-2 bg-[#242E3B] font-bold text-gray-400 rounded-xl p-6'>
-          <h3 className='text-lg font-semibold mb-6 mt-0'>Account</h3>
+        <div className='md:col-span-2 bg-card border border-border font-bold text-muted-foreground rounded-xl p-6'>
+          <h3 className='text-lg font-semibold mb-6 mt-0 text-foreground'>
+            Account
+          </h3>
 
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
             <div>

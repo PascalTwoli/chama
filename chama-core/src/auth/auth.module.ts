@@ -7,4 +7,3 @@ import { UserModule } from '../user/user.module';
   controllers: [AuthController],
 })
 export class AuthModule {}
-

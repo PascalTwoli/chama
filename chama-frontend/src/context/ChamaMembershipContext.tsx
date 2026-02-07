@@ -61,27 +61,54 @@ export const ChamaMembershipProvider: React.FC<
       // Get user's chamas
       const userChamas = await ChamaService.getUserChamas();
 
+      // Check if user just created a chama (localStorage flag)
+      const hasCreatedChama =
+        localStorage.getItem('hasCreatedChama') === 'true';
+      const activeChamaIdFromStorage = localStorage.getItem('activeChamaId');
+
       // Transform to ChamaMembership format
       const memberships: ChamaMembership[] = userChamas.map(
         (chama: {
           id: string;
           name: string;
           role?: string;
+          organizationRole?: string;
+          userType?: string;
           status?: string;
           joinedAt?: string;
-        }) => ({
-          chamaId: chama.id,
-          chamaName: chama.name,
-          role: (chama.role?.toUpperCase() === 'ADMIN' ? 'ADMIN' : 'MEMBER') as
-            | 'ADMIN'
-            | 'MEMBER',
-          isActive: true,
-          status: (chama.status?.toUpperCase() || 'APPROVED') as
-            | 'PENDING'
-            | 'APPROVED'
-            | 'REJECTED',
-          joinedAt: chama.joinedAt,
-        })
+          createdBy?: string;
+        }) => {
+          // Check multiple sources for ADMIN role
+          const roleUpperCase = chama.role?.toUpperCase();
+          const orgRoleUpperCase = chama.organizationRole?.toUpperCase();
+          const userTypeUpperCase = chama.userType?.toUpperCase();
+
+          // User is ADMIN if:
+          // 1. role is explicitly 'ADMIN'
+          // 2. organizationRole is CHAIRPERSON, SECRETARY, TREASURER, or ADMIN
+          // 3. userType is ADMIN
+          // 4. User just created this specific chama (localStorage flag)
+          const isAdmin =
+            roleUpperCase === 'ADMIN' ||
+            orgRoleUpperCase === 'CHAIRPERSON' ||
+            orgRoleUpperCase === 'SECRETARY' ||
+            orgRoleUpperCase === 'TREASURER' ||
+            orgRoleUpperCase === 'ADMIN' ||
+            userTypeUpperCase === 'ADMIN' ||
+            (hasCreatedChama && chama.id === activeChamaIdFromStorage);
+
+          return {
+            chamaId: chama.id,
+            chamaName: chama.name,
+            role: (isAdmin ? 'ADMIN' : 'MEMBER') as 'ADMIN' | 'MEMBER',
+            isActive: true,
+            status: (chama.status?.toUpperCase() || 'APPROVED') as
+              | 'PENDING'
+              | 'APPROVED'
+              | 'REJECTED',
+            joinedAt: chama.joinedAt,
+          };
+        }
       );
 
       setChamas(memberships);

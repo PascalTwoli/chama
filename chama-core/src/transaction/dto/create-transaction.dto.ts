@@ -1,5 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, Min } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Min,
+} from 'class-validator';
 import { TransactionType } from '@prisma/client';
 
 /**
@@ -52,4 +60,3 @@ export class CreateTransactionDto {
   @IsString({ message: 'Reference must be a string' })
   reference?: string;
 }
-

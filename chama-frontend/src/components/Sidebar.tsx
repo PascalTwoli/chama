@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { NavLink, useParams } from 'react-router-dom';
+import AuthService from '../services/auth/signup-service';
 import {
   LayoutDashboard,
   Coins,
@@ -35,6 +36,8 @@ function Sidebar() {
   const [isLoading, setIsLoading] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState<boolean>(false);
   const { theme, toggleTheme } = useTheme();
+  const [user, setUser] = useState<any>(null);
+  const [userName, setUserName] = useState<string | null>(null);
 
   const baselink = `/admin/chamas/${chamaId}`;
 
@@ -60,6 +63,29 @@ function Sidebar() {
 
     fetchChamaData();
   }, [chamaId]);
+
+  useEffect(() => {
+    AuthService.getCurrentUser()
+      .then((userData: any) => {
+        setUser(userData);
+        setUserName(
+          userData.firstName.charAt(0).toUpperCase() +
+            userData.firstName.slice(1) +
+            ' ' +
+            userData.lastName.charAt(0).toUpperCase() +
+            userData.lastName.slice(1)
+        );
+      })
+      .catch(() => {
+        // User not logged in - this is fine
+      });
+  }, []);
+
+  //if two names get initials from both names. eg if john doe, initials should be JD
+  const getInitials = () => {
+    if (!user) return '?';
+    return `${user.firstName?.charAt(0) || ''}${user.lastName?.charAt(0) || ''}`.toUpperCase();
+  };
 
   // Navigation items matching the Figma design exactly
   const navItems = [
@@ -192,13 +218,15 @@ function Sidebar() {
             isCollapsed && 'justify-center px-2'
           )}
         >
-          <div className='w-8 h-8 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0'>
-            <span className='text-white font-semibold text-xs'>JD</span>
+          <div className='w-8 h-8 rounded-full bg-success flex items-center justify-center flex-shrink-0'>
+            <span className='text-success-foreground font-semibold text-xs'>
+              {getInitials()}
+            </span>
           </div>
           {!isCollapsed && (
             <div className='min-w-0'>
               <p className='text-sm font-medium text-foreground truncate'>
-                John Doe
+                {userName}
               </p>
               <p className='text-xs text-muted-foreground truncate'>
                 System Admin

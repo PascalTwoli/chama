@@ -1,8 +1,22 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { ArrowLeft, Copy, Send, CheckCircle2, Link as LinkIcon, Mail, MessageSquare } from 'lucide-react';
+import {
+  ArrowLeft,
+  Copy,
+  Send,
+  CheckCircle2,
+  Link as LinkIcon,
+  Mail,
+  MessageSquare,
+} from 'lucide-react';
 import { toast } from 'sonner';
 
 interface InviteMemberProps {
@@ -10,7 +24,9 @@ interface InviteMemberProps {
 }
 
 export default function InviteMember({ onBack }: InviteMemberProps) {
-  const [inviteLink] = useState('https://chamaplus.app/join/tumaini-chama-xyz123');
+  const [inviteLink] = useState(
+    'https://chamaplus.app/join/tumaini-chama-xyz123'
+  );
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
@@ -45,9 +61,27 @@ export default function InviteMember({ onBack }: InviteMemberProps) {
   };
 
   const pendingInvites = [
-    { id: 1, name: 'Jane Kamau', phone: '0712345678', sentDate: 'Jan 10, 2026', status: 'pending' },
-    { id: 2, name: 'Michael Ochieng', phone: '0723456789', sentDate: 'Jan 8, 2026', status: 'pending' },
-    { id: 3, name: 'Lucy Adhiambo', phone: '0734567890', sentDate: 'Jan 5, 2026', status: 'expired' },
+    {
+      id: 1,
+      name: 'Jane Kamau',
+      phone: '0712345678',
+      sentDate: 'Jan 10, 2026',
+      status: 'pending',
+    },
+    {
+      id: 2,
+      name: 'Michael Ochieng',
+      phone: '0723456789',
+      sentDate: 'Jan 8, 2026',
+      status: 'pending',
+    },
+    {
+      id: 3,
+      name: 'Lucy Adhiambo',
+      phone: '0734567890',
+      sentDate: 'Jan 5, 2026',
+      status: 'expired',
+    },
   ];
 
   return (
@@ -60,7 +94,9 @@ export default function InviteMember({ onBack }: InviteMemberProps) {
         </Button>
         <div>
           <h1 className="text-2xl font-bold">Invite Member</h1>
-          <p className="text-sm text-muted-foreground">Add new members to Tumaini Chama</p>
+          <p className="text-sm text-muted-foreground">
+            Add new members to Tumaini Chama
+          </p>
         </div>
       </div>
 
@@ -71,7 +107,9 @@ export default function InviteMember({ onBack }: InviteMemberProps) {
           <Card>
             <CardHeader>
               <CardTitle>Share Invite Link</CardTitle>
-              <CardDescription>Anyone with this link can join your Chama</CardDescription>
+              <CardDescription>
+                Anyone with this link can join your Chama
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex gap-2">
@@ -88,7 +126,11 @@ export default function InviteMember({ onBack }: InviteMemberProps) {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <Button onClick={sendViaWhatsApp} variant="outline" className="justify-start">
+                <Button
+                  onClick={sendViaWhatsApp}
+                  variant="outline"
+                  className="justify-start"
+                >
                   <MessageSquare className="w-4 h-4 mr-2 text-green-600" />
                   Share via WhatsApp
                 </Button>
@@ -104,7 +146,9 @@ export default function InviteMember({ onBack }: InviteMemberProps) {
           <Card>
             <CardHeader>
               <CardTitle>Send Personal Invite</CardTitle>
-              <CardDescription>Invite a specific person via SMS or Email</CardDescription>
+              <CardDescription>
+                Invite a specific person via SMS or Email
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -117,7 +161,7 @@ export default function InviteMember({ onBack }: InviteMemberProps) {
                   placeholder="Jane Kamau"
                   className="w-full px-4 py-2 border rounded-lg bg-input-background focus:outline-none focus:ring-2 focus:ring-primary"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={e => setName(e.target.value)}
                 />
               </div>
 
@@ -132,7 +176,7 @@ export default function InviteMember({ onBack }: InviteMemberProps) {
                     placeholder="0712345678"
                     className="w-full px-4 py-2 border rounded-lg bg-input-background focus:outline-none focus:ring-2 focus:ring-primary"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onChange={e => setPhone(e.target.value)}
                   />
                 </div>
 
@@ -146,13 +190,16 @@ export default function InviteMember({ onBack }: InviteMemberProps) {
                     placeholder="jane@example.com"
                     className="w-full px-4 py-2 border rounded-lg bg-input-background focus:outline-none focus:ring-2 focus:ring-primary"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={e => setEmail(e.target.value)}
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <Button onClick={sendViaSMS} className="bg-primary hover:bg-primary/90">
+                <Button
+                  onClick={sendViaSMS}
+                  className="bg-primary hover:bg-primary/90"
+                >
                   <Send className="w-4 h-4 mr-2" />
                   Send SMS Invite
                 </Button>
@@ -168,11 +215,13 @@ export default function InviteMember({ onBack }: InviteMemberProps) {
           <Card>
             <CardHeader>
               <CardTitle>Pending Invitations</CardTitle>
-              <CardDescription>Track sent invites and their status</CardDescription>
+              <CardDescription>
+                Track sent invites and their status
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {pendingInvites.map((invite) => (
+                {pendingInvites.map(invite => (
                   <div
                     key={invite.id}
                     className="flex items-center justify-between p-3 rounded-lg border border-border"
@@ -180,12 +229,17 @@ export default function InviteMember({ onBack }: InviteMemberProps) {
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
                         <span className="font-bold text-muted-foreground text-sm">
-                          {invite.name.split(' ').map(n => n[0]).join('')}
+                          {invite.name
+                            .split(' ')
+                            .map(n => n[0])
+                            .join('')}
                         </span>
                       </div>
                       <div>
                         <p className="font-medium">{invite.name}</p>
-                        <p className="text-sm text-muted-foreground">{invite.phone}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {invite.phone}
+                        </p>
                       </div>
                     </div>
                     <div className="text-right">
@@ -199,7 +253,9 @@ export default function InviteMember({ onBack }: InviteMemberProps) {
                       >
                         {invite.status === 'pending' ? 'Pending' : 'Expired'}
                       </Badge>
-                      <p className="text-xs text-muted-foreground mt-1">{invite.sentDate}</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {invite.sentDate}
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -268,7 +324,9 @@ export default function InviteMember({ onBack }: InviteMemberProps) {
                 <p className="text-2xl font-bold">3</p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Joined This Month</p>
+                <p className="text-sm text-muted-foreground">
+                  Joined This Month
+                </p>
                 <p className="text-2xl font-bold">2</p>
               </div>
             </CardContent>

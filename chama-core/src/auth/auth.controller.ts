@@ -60,8 +60,14 @@ export class AuthController {
       type: 'object',
       properties: {
         idToken: { type: 'string', description: 'Authentication token' },
-        refreshToken: { type: 'string', description: 'Token for refreshing authentication' },
-        expiresIn: { type: 'string', description: 'Token expiration time in seconds' },
+        refreshToken: {
+          type: 'string',
+          description: 'Token for refreshing authentication',
+        },
+        expiresIn: {
+          type: 'string',
+          description: 'Token expiration time in seconds',
+        },
         user: {
           type: 'object',
           properties: {
@@ -71,9 +77,13 @@ export class AuthController {
       },
     },
   })
-  @ApiBadRequestResponse({ description: 'Invalid registration data or user already exists' })
+  @ApiBadRequestResponse({
+    description: 'Invalid registration data or user already exists',
+  })
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  async registerUser(@Body() registerUserDto: RegisterUserDto): Promise<LoginResponse> {
+  async registerUser(
+    @Body() registerUserDto: RegisterUserDto,
+  ): Promise<LoginResponse> {
     try {
       return await this.userService.registerUser(registerUserDto);
     } catch (error: unknown) {
@@ -98,8 +108,14 @@ export class AuthController {
       type: 'object',
       properties: {
         idToken: { type: 'string', description: 'Authentication token' },
-        refreshToken: { type: 'string', description: 'Token for refreshing authentication' },
-        expiresIn: { type: 'string', description: 'Token expiration time in seconds' },
+        refreshToken: {
+          type: 'string',
+          description: 'Token for refreshing authentication',
+        },
+        expiresIn: {
+          type: 'string',
+          description: 'Token expiration time in seconds',
+        },
         user: {
           type: 'object',
           properties: {
@@ -142,12 +158,17 @@ export class AuthController {
       properties: {
         idToken: { type: 'string', description: 'New authentication token' },
         refreshToken: { type: 'string', description: 'New refresh token' },
-        expiresIn: { type: 'string', description: 'Token expiration time in seconds' },
+        expiresIn: {
+          type: 'string',
+          description: 'Token expiration time in seconds',
+        },
       },
     },
   })
   @ApiBadRequestResponse({ description: 'Invalid or expired refresh token' })
-  async refreshAuth(@Query('refreshToken') refreshToken: string): Promise<TokenRefreshResponse> {
+  async refreshAuth(
+    @Query('refreshToken') refreshToken: string,
+  ): Promise<TokenRefreshResponse> {
     if (!refreshToken) {
       throw new BadRequestException('Refresh token is required');
     }
@@ -169,21 +190,26 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Get current user information',
-    description: 'Returns the current authenticated user information including both Firebase and local user details',
+    description:
+      'Returns the current authenticated user information including both Firebase and local user details',
   })
   @ApiOkResponse({
     description: 'Current user information',
     type: UserResponseEntity,
   })
   @ApiUnauthorizedResponse({ description: 'User not authenticated' })
-  async getCurrentUser(@CurrentUser() currentUser: CurrentUserType): Promise<UserResponseEntity> {
+  async getCurrentUser(
+    @CurrentUser() currentUser: CurrentUserType,
+  ): Promise<UserResponseEntity> {
     try {
       // Use the current user's Firebase UID to get complete user details
-      const userResponse = await this.userService.findOne(currentUser.firebaseUid);
-      
+      const userResponse = await this.userService.findOne(
+        currentUser.firebaseUid,
+      );
+
       // Transform to entity instance
       return new UserResponseEntity({
-        localUser: userResponse.localUser
+        localUser: userResponse.localUser,
       });
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Unknown error';

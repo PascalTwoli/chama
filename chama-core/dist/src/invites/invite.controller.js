@@ -112,12 +112,15 @@ __decorate([
     (0, swagger_1.ApiResponse)({
         status: 201,
         description: 'Invite created successfully',
-        type: invite_entity_1.InviteEntity
+        type: invite_entity_1.InviteEntity,
     }),
     (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad request' }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
     (0, swagger_1.ApiResponse)({ status: 404, description: 'Chama not found' }),
-    (0, swagger_1.ApiResponse)({ status: 409, description: 'User already a member or has pending invite' }),
+    (0, swagger_1.ApiResponse)({
+        status: 409,
+        description: 'User already a member or has pending invite',
+    }),
     (0, common_1.UsePipes)(new common_1.ValidationPipe({ transform: true })),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, current_user_decorator_1.CurrentUser)()),
@@ -133,7 +136,7 @@ __decorate([
     (0, swagger_1.ApiResponse)({
         status: 200,
         description: 'List of pending invites',
-        type: [invite_entity_1.InviteEntity]
+        type: [invite_entity_1.InviteEntity],
     }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
     (0, swagger_1.ApiResponse)({ status: 404, description: 'Chama not found' }),
@@ -151,7 +154,7 @@ __decorate([
     (0, swagger_1.ApiResponse)({
         status: 200,
         description: 'Invite accepted successfully',
-        type: membership_entity_1.MembershipEntity
+        type: membership_entity_1.MembershipEntity,
     }),
     (0, swagger_1.ApiResponse)({ status: 400, description: 'Invalid or expired invite' }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
@@ -172,7 +175,7 @@ __decorate([
     (0, swagger_1.ApiResponse)({
         status: 200,
         description: 'List of pending invites',
-        type: [invite_entity_1.InviteEntity]
+        type: [invite_entity_1.InviteEntity],
     }),
     (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
     (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad request' }),

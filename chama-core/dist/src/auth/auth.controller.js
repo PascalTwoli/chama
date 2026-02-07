@@ -89,7 +89,7 @@ let AuthController = class AuthController {
                 const userResponse = yield this.userService.findOne(currentUser.firebaseUid);
                 // Transform to entity instance
                 return new user_entity_1.UserResponseEntity({
-                    localUser: userResponse.localUser
+                    localUser: userResponse.localUser,
                 });
             }
             catch (error) {
@@ -113,8 +113,14 @@ __decorate([
             type: 'object',
             properties: {
                 idToken: { type: 'string', description: 'Authentication token' },
-                refreshToken: { type: 'string', description: 'Token for refreshing authentication' },
-                expiresIn: { type: 'string', description: 'Token expiration time in seconds' },
+                refreshToken: {
+                    type: 'string',
+                    description: 'Token for refreshing authentication',
+                },
+                expiresIn: {
+                    type: 'string',
+                    description: 'Token expiration time in seconds',
+                },
                 user: {
                     type: 'object',
                     properties: {
@@ -124,7 +130,9 @@ __decorate([
             },
         },
     }),
-    (0, swagger_1.ApiBadRequestResponse)({ description: 'Invalid registration data or user already exists' }),
+    (0, swagger_1.ApiBadRequestResponse)({
+        description: 'Invalid registration data or user already exists',
+    }),
     (0, common_1.UsePipes)(new common_1.ValidationPipe({ transform: true, whitelist: true })),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -145,8 +153,14 @@ __decorate([
             type: 'object',
             properties: {
                 idToken: { type: 'string', description: 'Authentication token' },
-                refreshToken: { type: 'string', description: 'Token for refreshing authentication' },
-                expiresIn: { type: 'string', description: 'Token expiration time in seconds' },
+                refreshToken: {
+                    type: 'string',
+                    description: 'Token for refreshing authentication',
+                },
+                expiresIn: {
+                    type: 'string',
+                    description: 'Token expiration time in seconds',
+                },
                 user: {
                     type: 'object',
                     properties: {
@@ -183,7 +197,10 @@ __decorate([
             properties: {
                 idToken: { type: 'string', description: 'New authentication token' },
                 refreshToken: { type: 'string', description: 'New refresh token' },
-                expiresIn: { type: 'string', description: 'Token expiration time in seconds' },
+                expiresIn: {
+                    type: 'string',
+                    description: 'Token expiration time in seconds',
+                },
             },
         },
     }),

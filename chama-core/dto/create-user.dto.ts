@@ -1,11 +1,18 @@
 import { Expose } from 'class-transformer';
-import { IsString, IsEmail, IsNotEmpty, MinLength, Matches, IsEnum } from 'class-validator';
+import {
+  IsString,
+  IsEmail,
+  IsNotEmpty,
+  MinLength,
+  Matches,
+  IsEnum,
+} from 'class-validator';
 
 export enum UserRole {
   CHAIRPERSON = 'chairperson',
   MEMBER = 'member',
   TREASURER = 'treasurer',
-  SECRETARY = 'secretary'
+  SECRETARY = 'secretary',
 }
 
 export class CreateUserDto {
@@ -23,16 +30,20 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   @MinLength(8)
-  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, {
-    message: 'Password must contain at least 1 uppercase letter, 1 lowercase letter, 1 number and 1 special character'
-  })
+  @Matches(
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+    {
+      message:
+        'Password must contain at least 1 uppercase letter, 1 lowercase letter, 1 number and 1 special character',
+    },
+  )
   password!: string;
 
   @Expose()
   @IsString()
   @IsNotEmpty()
   @Matches(/^\+?[1-9]\d{1,14}$/, {
-    message: 'Phone number must be in international format'
+    message: 'Phone number must be in international format',
   })
   phone!: string;
 

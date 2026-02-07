@@ -76,38 +76,48 @@ export class UserController {
     },
   })
   @ApiUnauthorizedResponse({ description: 'User not authenticated' })
-  @ApiForbiddenResponse({ description: 'User not authorized to view all users' })
-  async findAll(@CurrentUser() currentUser: CurrentUserType): Promise<{users: UserEntity[], pageToken?: string}> {
+  @ApiForbiddenResponse({
+    description: 'User not authorized to view all users',
+  })
+  async findAll(
+    @CurrentUser() currentUser: CurrentUserType,
+  ): Promise<{ users: UserEntity[]; pageToken?: string }> {
     try {
       // For admin functionality, you might want to verify the user has admin permissions
       const response = await this.userService.findAll();
-      
+
       // Get local user data for each Firebase user
       const localUsers = await Promise.all(
-        response.users.map(async (firebaseUser) => {
+        response.users.map(async firebaseUser => {
           try {
-            const userResponse = await this.userService.findOne(firebaseUser.uid);
+            const userResponse = await this.userService.findOne(
+              firebaseUser.uid,
+            );
             return userResponse.localUser;
           } catch (error) {
             // If local user doesn't exist, skip this user
             return null;
           }
-        })
+        }),
       );
-      
+
       // Filter out null values (users without local records)
-      const validUsers = localUsers.filter(user => user !== null) as UserEntity[];
-      
+      const validUsers = localUsers.filter(
+        user => user !== null,
+      ) as UserEntity[];
+
       return {
         users: validUsers,
-        pageToken: response.pageToken
+        pageToken: response.pageToken,
       };
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw error;
       }
       const message = error instanceof Error ? error.message : 'Unknown error';
-      throw new InternalServerErrorException(`Failed to fetch users: ${message}`);
+      throw new InternalServerErrorException(
+        `Failed to fetch users: ${message}`,
+      );
     }
   }
 
@@ -125,24 +135,26 @@ export class UserController {
   @ApiParam({ name: 'id', description: 'User ID', type: 'string' })
   @ApiOkResponse({
     description: 'User details',
-    type: UserResponseEntity
+    type: UserResponseEntity,
   })
   @ApiNotFoundResponse({ description: 'User not found' })
   @ApiUnauthorizedResponse({ description: 'User not authenticated' })
   async findOne(@Param('id') id: string): Promise<UserResponseEntity> {
     try {
       const userResponse = await this.userService.findOne(id);
-      
+
       // Transform to entity instance
       return new UserResponseEntity({
-        localUser: userResponse.localUser
+        localUser: userResponse.localUser,
       });
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw error;
       }
       const message = error instanceof Error ? error.message : 'Unknown error';
-      throw new InternalServerErrorException(`Failed to fetch user: ${message}`);
+      throw new InternalServerErrorException(
+        `Failed to fetch user: ${message}`,
+      );
     }
   }
 
@@ -155,18 +167,20 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Update a user',
-    description: 'Updates a user\'s information',
+    description: "Updates a user's information",
   })
   @ApiParam({ name: 'id', description: 'User ID', type: 'string' })
   @ApiBody({ type: UpdateUserDto })
   @ApiOkResponse({
     description: 'User updated successfully',
-    type: UserEntity
+    type: UserEntity,
   })
   @ApiNotFoundResponse({ description: 'User not found' })
   @ApiBadRequestResponse({ description: 'Invalid update data' })
   @ApiUnauthorizedResponse({ description: 'User not authenticated' })
-  @ApiForbiddenResponse({ description: 'User not authorized to update this user' })
+  @ApiForbiddenResponse({
+    description: 'User not authorized to update this user',
+  })
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async update(
     @Param('id') id: string,
@@ -180,9 +194,9 @@ export class UserController {
       id: currentUser?.id,
       email: currentUser?.email,
       firebaseUid: currentUser?.firebaseUid,
-      fullUser: currentUser
+      fullUser: currentUser,
     });
-    
+
     try {
       // Check if the user is updating their own profile or has admin privileges
       // Allow both currentUser.id and currentUser.firebaseUid to match the requested id
@@ -191,28 +205,41 @@ export class UserController {
         console.log('- currentUser.id:', currentUser.id);
         console.log('- currentUser.firebaseUid:', currentUser.firebaseUid);
         console.log('- requested id:', id);
-        console.log('- Neither currentUser.id nor currentUser.firebaseUid matches the requested id');
-        throw new ForbiddenException('You are not authorized to update this user');
+        console.log(
+          '- Neither currentUser.id nor currentUser.firebaseUid matches the requested id',
+        );
+        throw new ForbiddenException(
+          'You are not authorized to update this user',
+        );
       }
-      
+
       console.log('=== AUTHORIZATION PASSED ===');
       console.log('Proceeding with user update...');
-      
-      console.log('Calling userService.update with id:', id, 'and data:', updateUserDto);
+
+      console.log(
+        'Calling userService.update with id:',
+        id,
+        'and data:',
+        updateUserDto,
+      );
       const userRecord = await this.userService.update(id, updateUserDto);
       console.log('userService.update result:', userRecord);
-      
+
       // Get the updated local user data
       const userResponse = await this.userService.findOne(id);
       return userResponse.localUser;
     } catch (error) {
-      if (error instanceof NotFoundException || 
-          error instanceof BadRequestException || 
-          error instanceof ForbiddenException) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException ||
+        error instanceof ForbiddenException
+      ) {
         throw error;
       }
       const message = error instanceof Error ? error.message : 'Unknown error';
-      throw new InternalServerErrorException(`Failed to update user: ${message}`);
+      throw new InternalServerErrorException(
+        `Failed to update user: ${message}`,
+      );
     }
   }
 
@@ -231,7 +258,9 @@ export class UserController {
   @ApiOkResponse({ description: 'User deleted successfully' })
   @ApiNotFoundResponse({ description: 'User not found' })
   @ApiUnauthorizedResponse({ description: 'User not authenticated' })
-  @ApiForbiddenResponse({ description: 'User not authorized to delete this user' })
+  @ApiForbiddenResponse({
+    description: 'User not authorized to delete this user',
+  })
   async remove(
     @Param('id') id: string,
     @CurrentUser() currentUser: CurrentUserType,
@@ -240,19 +269,25 @@ export class UserController {
       // Check if the user is deleting their own profile or has admin privileges
       if (currentUser.id !== id) {
         // In a real app, you'd check if the user has admin permissions here
-        throw new ForbiddenException('You are not authorized to delete this user');
+        throw new ForbiddenException(
+          'You are not authorized to delete this user',
+        );
       }
-      
+
       await this.userService.remove(id);
       return { message: 'User deleted successfully' };
     } catch (error) {
-      if (error instanceof NotFoundException || 
-          error instanceof BadRequestException || 
-          error instanceof ForbiddenException) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException ||
+        error instanceof ForbiddenException
+      ) {
         throw error;
       }
       const message = error instanceof Error ? error.message : 'Unknown error';
-      throw new InternalServerErrorException(`Failed to delete user: ${message}`);
+      throw new InternalServerErrorException(
+        `Failed to delete user: ${message}`,
+      );
     }
   }
 }

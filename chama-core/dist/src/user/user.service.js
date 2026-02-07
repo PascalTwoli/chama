@@ -150,7 +150,8 @@ let UserService = class UserService {
                 const errorWithCode = error;
                 // If Firebase user was created but local user creation failed,
                 // attempt to delete the Firebase user to maintain consistency
-                if (errorWithCode.code !== 'auth/email-already-exists' && errorWithCode.firebaseUid) {
+                if (errorWithCode.code !== 'auth/email-already-exists' &&
+                    errorWithCode.firebaseUid) {
                     try {
                         yield firebaseAdmin.auth().deleteUser(errorWithCode.firebaseUid);
                         console.log(`Rolled back Firebase user creation for UID: ${errorWithCode.firebaseUid}`);
