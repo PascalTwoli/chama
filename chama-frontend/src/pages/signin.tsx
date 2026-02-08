@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import { FormErrors, SignInCredentials } from '../models/user';
 import { AuthService as SigninService } from '../services/auth/signin-service';
 import ChamaService from '../services/chama/chama-services';
+import { useChamaMembership } from '../context/ChamaMembershipContext';
 import { Button } from '../components/ui/button';
 import {
   Card,
@@ -18,6 +19,7 @@ import { Label } from '../components/ui/label';
 
 const SignIn = () => {
   const navigate = useNavigate();
+  const { refreshMemberships } = useChamaMembership();
 
   const [formData, setFormData] = useState<SignInCredentials>({
     email: '',
@@ -81,6 +83,8 @@ const SignIn = () => {
         if (userChamas && userChamas.length > 0) {
           // User has chamas - find the most recent or active one
           const activeChamaId = localStorage.getItem('activeChamaId');
+          const lastDashboardContext =
+            localStorage.getItem('lastDashboardContext') || 'admin';
           let targetChama = userChamas[0];
 
           if (activeChamaId) {
@@ -95,33 +99,53 @@ const SignIn = () => {
           // Store active chama
           localStorage.setItem('activeChamaId', targetChama.id);
 
-          // Determine role based on chama ownership or membership
-          // If user is the admin/owner of this chama, redirect to admin dashboard
-          // Otherwise redirect to member dashboard
-          const role = targetChama.role?.toUpperCase() || 'MEMBER';
-          const redirectPath =
-            role === 'ADMIN'
-              ? `/admin/chamas/${targetChama.id}`
-              : `/member/chamas/${targetChama.id}`;
+          // Determine system role based on chama ownership or membership
+          const roleUpperCase = targetChama.role?.toUpperCase() || '';
+          const orgRoleUpperCase =
+            targetChama.organizationRole?.toUpperCase() || '';
+
+          // User has admin access if they're OWNER, ADMIN, or have governance roles
+          const hasAdminAccess =
+            roleUpperCase === 'OWNER' ||
+            roleUpperCase === 'ADMIN' ||
+            orgRoleUpperCase === 'CHAIRPERSON' ||
+            orgRoleUpperCase === 'SECRETARY' ||
+            orgRoleUpperCase === 'TREASURER';
+
+          // Determine redirect path based on last context and admin access
+          let redirectPath: string;
+          if (hasAdminAccess && lastDashboardContext === 'admin') {
+            // User has admin access and was last in admin view
+            redirectPath = `/admin/chamas/${targetChama.id}`;
+          } else if (hasAdminAccess && lastDashboardContext === 'member') {
+            // User has admin access but was last in member view
+            redirectPath = `/member/chamas/${targetChama.id}`;
+          } else if (hasAdminAccess) {
+            // User has admin access, default to admin dashboard for new sessions
+            redirectPath = `/admin/chamas/${targetChama.id}`;
+          } else {
+            // Regular member - always go to member dashboard
+            redirectPath = `/member/chamas/${targetChama.id}`;
+          }
 
           toast.success(`Welcome back! Redirecting to ${targetChama.name}...`);
-          setTimeout(() => {
-            navigate(redirectPath);
-          }, 500);
+
+          // Refresh context BEFORE navigating to prevent race condition
+          // This ensures guards see updated state when new route mounts
+          await refreshMemberships();
+          navigate(redirectPath);
         } else {
           // User has no chamas - redirect to chama choice
           toast.success('Login successful! Please create or join a chama.');
-          setTimeout(() => {
-            navigate('/onboarding/chama-choice');
-          }, 500);
+          await refreshMemberships();
+          navigate('/onboarding/chama-choice');
         }
       } catch (chamaError) {
         console.error('Error fetching user chamas:', chamaError);
         // If we can't fetch chamas, redirect to chama choice
         toast.success('Login successful! Redirecting...');
-        setTimeout(() => {
-          navigate('/onboarding/chama-choice');
-        }, 500);
+        await refreshMemberships();
+        navigate('/onboarding/chama-choice');
       } finally {
         setIsCheckingUserType(false);
       }

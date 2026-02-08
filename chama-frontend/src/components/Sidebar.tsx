@@ -24,7 +24,9 @@ import {
 import ChamaService from '../services/chama/chama-services';
 import LogoutModal from './logoutModal';
 import { useTheme } from '../context/ThemeContext';
+import { useChamaMembership } from '../context/ChamaMembershipContext';
 import { cn } from '../utils/cn';
+import { GovernanceRole } from '../models/user';
 
 function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(() => {
@@ -38,7 +40,9 @@ function Sidebar() {
   const { theme, toggleTheme } = useTheme();
   const [user, setUser] = useState<any>(null);
   const [userName, setUserName] = useState<string | null>(null);
-  const [userRole, setUserRole] = useState<string | null>(null);
+
+  // Get active chama role info from context
+  const { activeChama } = useChamaMembership();
 
   const baselink = `/admin/chamas/${chamaId}`;
 
@@ -88,23 +92,34 @@ function Sidebar() {
     return `${user.firstName?.charAt(0) || ''}${user.lastName?.charAt(0) || ''}`.toUpperCase();
   };
 
-  useEffect(() => {
-    AuthService.getCurrentUser()
-      .then((userData: any) => {
-        setUser(userData);
-        setUserName(
-          userData.firstName.charAt(0).toUpperCase() +
-            userData.firstName.slice(1) +
-            ' ' +
-            userData.lastName.charAt(0).toUpperCase() +
-            userData.lastName.slice(1)
-        );
-        setUserRole(userData.role);
-      })
-      .catch(() => {
-        // User not logged in - this is fine
-      });
-  }, []);
+  // Format governance role for display
+  const formatGovernanceRole = (role: GovernanceRole): string => {
+    if (!role) return '';
+    return role
+      .split('_')
+      .map(word => word.charAt(0) + word.slice(1).toLowerCase())
+      .join(' ');
+  };
+
+  // Get display role text
+  const getRoleDisplayText = (): string => {
+    if (!activeChama) return 'Member';
+
+    // Show governance role if present (e.g., "Treasurer", "Chairperson")
+    if (activeChama.governanceRole) {
+      return formatGovernanceRole(activeChama.governanceRole);
+    }
+
+    // Otherwise show system role
+    switch (activeChama.systemRole) {
+      case 'OWNER':
+        return 'Owner';
+      case 'ADMIN':
+        return 'Admin';
+      default:
+        return 'Member';
+    }
+  };
 
   // Navigation items matching the Figma design exactly
   const navItems = [
@@ -249,8 +264,13 @@ function Sidebar() {
               <p className='text-sm font-medium text-foreground truncate my-0'>
                 {userName}
               </p>
-              <p className='text-xs text-muted-foreground truncate my-0'>
-                {userRole === 'SYSTEM_ADMIN' ? 'System Admin' : 'Chama Admin'}
+              <p className='text-xs text-muted-foreground truncate my-0 flex items-center gap-1'>
+                <span>{getRoleDisplayText()}</span>
+                {activeChama?.isOwner && (
+                  <span className='inline-block px-1.5 py-0.5 bg-primary/10 text-primary text-[10px] rounded font-medium'>
+                    Owner
+                  </span>
+                )}
               </p>
             </div>
           )}
