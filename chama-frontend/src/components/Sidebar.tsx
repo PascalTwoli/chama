@@ -38,6 +38,7 @@ function Sidebar() {
   const { theme, toggleTheme } = useTheme();
   const [user, setUser] = useState<any>(null);
   const [userName, setUserName] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
 
   const baselink = `/admin/chamas/${chamaId}`;
 
@@ -86,6 +87,24 @@ function Sidebar() {
     if (!user) return '?';
     return `${user.firstName?.charAt(0) || ''}${user.lastName?.charAt(0) || ''}`.toUpperCase();
   };
+
+  useEffect(() => {
+    AuthService.getCurrentUser()
+      .then((userData: any) => {
+        setUser(userData);
+        setUserName(
+          userData.firstName.charAt(0).toUpperCase() +
+            userData.firstName.slice(1) +
+            ' ' +
+            userData.lastName.charAt(0).toUpperCase() +
+            userData.lastName.slice(1)
+        );
+        setUserRole(userData.role);
+      })
+      .catch(() => {
+        // User not logged in - this is fine
+      });
+  }, []);
 
   // Navigation items matching the Figma design exactly
   const navItems = [
@@ -149,10 +168,10 @@ function Sidebar() {
         </div>
         {!isCollapsed && (
           <div className='min-w-0'>
-            <p className='text-sm font-semibold text-foreground truncate'>
-              ChamaPlus
+            <p className='text-sm font-semibold text-foreground truncate my-0'>
+              Admin Dashboard
             </p>
-            <p className='text-xs text-muted-foreground truncate'>
+            <p className='text-xs text-muted-foreground truncate my-0'>
               {isLoading ? 'Loading...' : chamaName}
             </p>
           </div>
@@ -163,13 +182,14 @@ function Sidebar() {
       <nav className='flex-1 overflow-y-auto py-4 px-3'>
         <div className='space-y-1'>
           {navItems.map(({ icon: Icon, label, path, end }) => (
+            // remove underline on side bar links
             <NavLink
               key={label}
               to={path}
               end={end}
               className={({ isActive }) =>
                 cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
+                  'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors no-underline',
                   isCollapsed && 'justify-center px-2',
                   isActive
                     ? 'bg-primary text-primary-foreground'
@@ -225,11 +245,12 @@ function Sidebar() {
           </div>
           {!isCollapsed && (
             <div className='min-w-0'>
-              <p className='text-sm font-medium text-foreground truncate'>
+              {/* remove vertical padding from the user name and role */}
+              <p className='text-sm font-medium text-foreground truncate my-0'>
                 {userName}
               </p>
-              <p className='text-xs text-muted-foreground truncate'>
-                System Admin
+              <p className='text-xs text-muted-foreground truncate my-0'>
+                {userRole === 'SYSTEM_ADMIN' ? 'System Admin' : 'Chama Admin'}
               </p>
             </div>
           )}
