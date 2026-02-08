@@ -1,5 +1,5 @@
 import React, { ReactNode, useState, useEffect } from 'react';
-import { Navigate, useParams } from 'react-router-dom';
+import { Navigate, useParams, useLocation } from 'react-router-dom';
 import { useChamaMembership } from '../../context/ChamaMembershipContext';
 import ChamaService from '../../services/chama/chama-services';
 import LoadingSpinner from '../LoadingSpinner';
@@ -20,7 +20,7 @@ interface ChamaValidation {
  * Ensures:
  * 1. User is authenticated
  * 2. User has approved chamas
- * 3. User has correct role for the route
+ * 3. User has correct system role for the route (OWNER/ADMIN for admin routes)
  * 4. The chama ID in the URL exists and is accessible
  */
 const DashboardGuard: React.FC<DashboardGuardProps> = ({
@@ -28,14 +28,29 @@ const DashboardGuard: React.FC<DashboardGuardProps> = ({
   requiredRole,
 }) => {
   const { chamaId } = useParams<{ chamaId: string }>();
-  const { isAuthenticated, chamas, activeChama, isLoading: membershipLoading } =
-    useChamaMembership();
+  const location = useLocation();
+  const {
+    isAuthenticated,
+    chamas,
+    activeChama,
+    isLoading: membershipLoading,
+    setDashboardContext,
+  } = useChamaMembership();
 
   const [chamaValidation, setChamaValidation] = useState<ChamaValidation>({
     isValid: false,
     isLoading: true,
     error: null,
   });
+
+  // Track dashboard context based on current route
+  useEffect(() => {
+    if (location.pathname.includes('/admin/')) {
+      setDashboardContext('admin');
+    } else if (location.pathname.includes('/member/')) {
+      setDashboardContext('member');
+    }
+  }, [location.pathname, setDashboardContext]);
 
   // Validate that the chama exists in the backend
   useEffect(() => {
@@ -83,7 +98,8 @@ const DashboardGuard: React.FC<DashboardGuardProps> = ({
         setChamaValidation({
           isValid: false,
           isLoading: false,
-          error: error instanceof Error ? error.message : 'Failed to validate chama',
+          error:
+            error instanceof Error ? error.message : 'Failed to validate chama',
         });
       }
     };
@@ -118,15 +134,20 @@ const DashboardGuard: React.FC<DashboardGuardProps> = ({
     return <Navigate to='/onboarding/chama-choice' replace />;
   }
 
-  // If role doesn't match, redirect to correct dashboard
-  if (activeChama.role !== requiredRole) {
-    if (activeChama.role === 'ADMIN') {
-      return <Navigate to={`/admin/chamas/${activeChama.chamaId}`} replace />;
+  // Check role access
+  // ADMIN routes: require OWNER or ADMIN system role
+  // MEMBER routes: everyone can access (everyone is a member first)
+  if (requiredRole === 'ADMIN') {
+    const hasAdminAccess =
+      activeChama.systemRole === 'OWNER' || activeChama.systemRole === 'ADMIN';
+
+    if (!hasAdminAccess) {
+      // User doesn't have admin access, redirect to member dashboard
+      return <Navigate to={`/member/chamas/${activeChama.chamaId}`} replace />;
     }
-    return <Navigate to={`/member/chamas/${activeChama.chamaId}`} replace />;
   }
 
-  // All checks passed - render children
+  // For MEMBER routes, or if ADMIN access is granted - render children
   return <>{children}</>;
 };
 
