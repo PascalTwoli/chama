@@ -61,7 +61,7 @@ export class TransactionService {
 
     // Create the transaction
     try {
-      const transaction = await this.prisma.$transaction(async (prisma) => {
+      const transaction = await this.prisma.$transaction(async prisma => {
         return await prisma.transaction.create({
           data: {
             type: createTransactionDto.type,
@@ -80,7 +80,7 @@ export class TransactionService {
         ...transaction,
         amount: Number(transaction.amount),
         description: transaction.description || undefined,
-        reference: transaction.reference || undefined
+        reference: transaction.reference || undefined,
       };
     } catch (error) {
       throw new BadRequestException(
@@ -151,7 +151,7 @@ export class TransactionService {
     }
 
     // Get transactions
-    const transactions = await this.prisma.$transaction(async (prisma) => {
+    const transactions = await this.prisma.$transaction(async prisma => {
       return await prisma.transaction.findMany({
         where,
         orderBy: {
@@ -159,13 +159,13 @@ export class TransactionService {
         },
       });
     });
-    
+
     // Convert Decimal amounts to numbers and null to undefined for response
     return transactions.map(transaction => ({
       ...transaction,
       amount: Number(transaction.amount),
       description: transaction.description || undefined,
-      reference: transaction.reference || undefined
+      reference: transaction.reference || undefined,
     }));
   }
 
@@ -175,7 +175,10 @@ export class TransactionService {
    * @param userId - ID of the user requesting the transaction
    * @returns Transaction details
    */
-  async getTransactionById(id: string, userId: string): Promise<TransactionResponse> {
+  async getTransactionById(
+    id: string,
+    userId: string,
+  ): Promise<TransactionResponse> {
     const transaction = await this.prisma.transaction.findUnique({
       where: { id },
       include: {
@@ -193,7 +196,7 @@ export class TransactionService {
 
     // Verify the user is a member of the chama or created the transaction
     const isMember = transaction.chama.memberships.some(
-      (membership) => membership.userId === userId,
+      membership => membership.userId === userId,
     );
     const isCreator = transaction.userId === userId;
 
@@ -209,7 +212,7 @@ export class TransactionService {
       ...transactionData,
       amount: Number(transactionData.amount),
       description: transactionData.description || undefined,
-      reference: transactionData.reference || undefined
+      reference: transactionData.reference || undefined,
     };
   }
 
@@ -227,10 +230,10 @@ export class TransactionService {
       },
     });
 
-    const chamaIds = memberships.map((membership) => membership.chamaId);
+    const chamaIds = memberships.map(membership => membership.chamaId);
 
     // Get all transactions for these chamas where the user is involved
-    const transactions = await this.prisma.$transaction(async (prisma) => {
+    const transactions = await this.prisma.$transaction(async prisma => {
       return await prisma.transaction.findMany({
         where: {
           chamaId: { in: chamaIds },
@@ -248,7 +251,7 @@ export class TransactionService {
     // Group by chama for chama-specific stats
     const chamaStatMap = new Map();
 
-    transactions.forEach((transaction) => {
+    transactions.forEach(transaction => {
       // Update overall totals
       if (transaction.type === TransactionType.CONTRIBUTION) {
         totalContributions += transaction.amount.toNumber();
@@ -263,7 +266,7 @@ export class TransactionService {
       // Update chama-specific stats
       if (!chamaStatMap.has(transaction.chamaId)) {
         const chama = memberships.find(
-          (m) => m.chamaId === transaction.chamaId,
+          m => m.chamaId === transaction.chamaId,
         )?.chama;
         chamaStatMap.set(transaction.chamaId, {
           chamaId: transaction.chamaId,

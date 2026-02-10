@@ -56,7 +56,7 @@ let UserController = class UserController {
                 const validUsers = localUsers.filter(user => user !== null);
                 return {
                     users: validUsers,
-                    pageToken: response.pageToken
+                    pageToken: response.pageToken,
                 };
             }
             catch (error) {
@@ -77,7 +77,7 @@ let UserController = class UserController {
                 const userResponse = yield this.userService.findOne(id);
                 // Transform to entity instance
                 return new user_entity_1.UserResponseEntity({
-                    localUser: userResponse.localUser
+                    localUser: userResponse.localUser,
                 });
             }
             catch (error) {
@@ -101,7 +101,7 @@ let UserController = class UserController {
                 id: currentUser === null || currentUser === void 0 ? void 0 : currentUser.id,
                 email: currentUser === null || currentUser === void 0 ? void 0 : currentUser.email,
                 firebaseUid: currentUser === null || currentUser === void 0 ? void 0 : currentUser.firebaseUid,
-                fullUser: currentUser
+                fullUser: currentUser,
             });
             try {
                 // Check if the user is updating their own profile or has admin privileges
@@ -186,7 +186,9 @@ __decorate([
         },
     }),
     (0, swagger_1.ApiUnauthorizedResponse)({ description: 'User not authenticated' }),
-    (0, swagger_1.ApiForbiddenResponse)({ description: 'User not authorized to view all users' }),
+    (0, swagger_1.ApiForbiddenResponse)({
+        description: 'User not authorized to view all users',
+    }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -204,7 +206,7 @@ __decorate([
     (0, swagger_1.ApiParam)({ name: 'id', description: 'User ID', type: 'string' }),
     (0, swagger_1.ApiOkResponse)({
         description: 'User details',
-        type: user_entity_1.UserResponseEntity
+        type: user_entity_1.UserResponseEntity,
     }),
     (0, swagger_1.ApiNotFoundResponse)({ description: 'User not found' }),
     (0, swagger_1.ApiUnauthorizedResponse)({ description: 'User not authenticated' }),
@@ -220,18 +222,20 @@ __decorate([
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, swagger_1.ApiOperation)({
         summary: 'Update a user',
-        description: 'Updates a user\'s information',
+        description: "Updates a user's information",
     }),
     (0, swagger_1.ApiParam)({ name: 'id', description: 'User ID', type: 'string' }),
     (0, swagger_1.ApiBody)({ type: update_user_dto_1.UpdateUserDto }),
     (0, swagger_1.ApiOkResponse)({
         description: 'User updated successfully',
-        type: user_entity_1.UserEntity
+        type: user_entity_1.UserEntity,
     }),
     (0, swagger_1.ApiNotFoundResponse)({ description: 'User not found' }),
     (0, swagger_1.ApiBadRequestResponse)({ description: 'Invalid update data' }),
     (0, swagger_1.ApiUnauthorizedResponse)({ description: 'User not authenticated' }),
-    (0, swagger_1.ApiForbiddenResponse)({ description: 'User not authorized to update this user' }),
+    (0, swagger_1.ApiForbiddenResponse)({
+        description: 'User not authorized to update this user',
+    }),
     (0, common_1.UsePipes)(new common_1.ValidationPipe({ transform: true, whitelist: true })),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
@@ -253,7 +257,9 @@ __decorate([
     (0, swagger_1.ApiOkResponse)({ description: 'User deleted successfully' }),
     (0, swagger_1.ApiNotFoundResponse)({ description: 'User not found' }),
     (0, swagger_1.ApiUnauthorizedResponse)({ description: 'User not authenticated' }),
-    (0, swagger_1.ApiForbiddenResponse)({ description: 'User not authorized to delete this user' }),
+    (0, swagger_1.ApiForbiddenResponse)({
+        description: 'User not authorized to delete this user',
+    }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),

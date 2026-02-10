@@ -1,5 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsBoolean, IsOptional, ValidateNested } from 'class-validator';
+import {
+  IsString,
+  IsBoolean,
+  IsOptional,
+  ValidateNested,
+} from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { UiSettings, Prisma } from '../models';
 
@@ -14,12 +19,12 @@ function JsonField(description?: string) {
       if (value === null || value === undefined) {
         return value;
       }
-      
+
       // If it's already an object, return as-is
       if (typeof value === 'object') {
         return value;
       }
-      
+
       // If it's a string, try to parse as JSON
       if (typeof value === 'string') {
         try {
@@ -29,10 +34,10 @@ function JsonField(description?: string) {
           return value;
         }
       }
-      
+
       return value;
     })(target, propertyKey);
-    
+
     // Apply ApiProperty decorator with dynamic description
     ApiProperty({
       description: description || `JSON field: ${propertyKey}`,
@@ -64,7 +69,7 @@ export interface WidgetSettings {
 
 /**
  * UiSettings entity demonstrating JSON field handling
- * 
+ *
  * Shows how to properly handle Prisma Json fields with custom decorators
  * and type-safe interfaces for structured JSON data.
  */
@@ -121,11 +126,14 @@ export class JsonFieldUtils {
   /**
    * Safely parse JSON string to object
    */
-  static safeJsonParse<T = any>(jsonString: string | null | undefined, defaultValue: T | null = null): T | null {
+  static safeJsonParse<T = any>(
+    jsonString: string | null | undefined,
+    defaultValue: T | null = null,
+  ): T | null {
     if (!jsonString || typeof jsonString !== 'string') {
       return defaultValue;
     }
-    
+
     try {
       return JSON.parse(jsonString) as T;
     } catch {
@@ -140,7 +148,7 @@ export class JsonFieldUtils {
     if (obj === null || obj === undefined) {
       return null;
     }
-    
+
     try {
       return JSON.stringify(obj);
     } catch {
@@ -151,7 +159,10 @@ export class JsonFieldUtils {
   /**
    * Merge widget settings with defaults
    */
-  static mergeWidgetSettings(current: WidgetSettings | null, updates: Partial<WidgetSettings>): WidgetSettings {
+  static mergeWidgetSettings(
+    current: WidgetSettings | null,
+    updates: Partial<WidgetSettings>,
+  ): WidgetSettings {
     const defaultSettings: WidgetSettings = {
       dashboard: {
         contributions: true,
@@ -173,10 +184,17 @@ export class JsonFieldUtils {
     }
 
     return {
-      dashboard: { ...defaultSettings.dashboard, ...current.dashboard, ...updates.dashboard },
-      profile: { ...defaultSettings.profile, ...current.profile, ...updates.profile },
+      dashboard: {
+        ...defaultSettings.dashboard,
+        ...current.dashboard,
+        ...updates.dashboard,
+      },
+      profile: {
+        ...defaultSettings.profile,
+        ...current.profile,
+        ...updates.profile,
+      },
       chama: { ...defaultSettings.chama, ...current.chama, ...updates.chama },
     };
   }
 }
-

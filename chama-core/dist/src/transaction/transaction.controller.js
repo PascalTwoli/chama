@@ -99,7 +99,7 @@ let TransactionController = class TransactionController {
                     reference: transaction.reference || undefined,
                     status: transaction.status,
                     createdAt: transaction.createdAt,
-                    updatedAt: transaction.updatedAt
+                    updatedAt: transaction.updatedAt,
                 };
                 return response;
             }
@@ -145,21 +145,38 @@ __decorate([
             type: 'object',
             properties: {
                 id: { type: 'string', description: 'Transaction ID' },
-                type: { type: 'string', enum: Object.values(client_1.TransactionType), description: 'Transaction type' },
+                type: {
+                    type: 'string',
+                    enum: Object.values(client_1.TransactionType),
+                    description: 'Transaction type',
+                },
                 amount: { type: 'number', description: 'Transaction amount' },
                 chamaId: { type: 'string', description: 'ID of the chama' },
-                userId: { type: 'string', description: 'ID of the user who created the transaction' },
+                userId: {
+                    type: 'string',
+                    description: 'ID of the user who created the transaction',
+                },
                 description: { type: 'string', description: 'Transaction description' },
                 reference: { type: 'string', description: 'External reference number' },
                 status: { type: 'string', description: 'Transaction status' },
-                createdAt: { type: 'string', format: 'date-time', description: 'Creation timestamp' },
-                updatedAt: { type: 'string', format: 'date-time', description: 'Last update timestamp' },
+                createdAt: {
+                    type: 'string',
+                    format: 'date-time',
+                    description: 'Creation timestamp',
+                },
+                updatedAt: {
+                    type: 'string',
+                    format: 'date-time',
+                    description: 'Last update timestamp',
+                },
             },
         },
     }),
     (0, swagger_1.ApiBadRequestResponse)({ description: 'Invalid transaction data' }),
     (0, swagger_1.ApiUnauthorizedResponse)({ description: 'User not authenticated' }),
-    (0, swagger_1.ApiForbiddenResponse)({ description: 'User not authorized to create transactions for this chama' }),
+    (0, swagger_1.ApiForbiddenResponse)({
+        description: 'User not authorized to create transactions for this chama',
+    }),
     (0, common_1.UsePipes)(new common_1.ValidationPipe({ transform: true, whitelist: true })),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, current_user_decorator_1.CurrentUser)()),
@@ -203,21 +220,44 @@ __decorate([
                 type: 'object',
                 properties: {
                     id: { type: 'string', description: 'Transaction ID' },
-                    type: { type: 'string', enum: Object.values(client_1.TransactionType), description: 'Transaction type' },
+                    type: {
+                        type: 'string',
+                        enum: Object.values(client_1.TransactionType),
+                        description: 'Transaction type',
+                    },
                     amount: { type: 'number', description: 'Transaction amount' },
                     chamaId: { type: 'string', description: 'ID of the chama' },
-                    userId: { type: 'string', description: 'ID of the user who created the transaction' },
-                    description: { type: 'string', description: 'Transaction description' },
-                    reference: { type: 'string', description: 'External reference number' },
+                    userId: {
+                        type: 'string',
+                        description: 'ID of the user who created the transaction',
+                    },
+                    description: {
+                        type: 'string',
+                        description: 'Transaction description',
+                    },
+                    reference: {
+                        type: 'string',
+                        description: 'External reference number',
+                    },
                     status: { type: 'string', description: 'Transaction status' },
-                    createdAt: { type: 'string', format: 'date-time', description: 'Creation timestamp' },
-                    updatedAt: { type: 'string', format: 'date-time', description: 'Last update timestamp' },
+                    createdAt: {
+                        type: 'string',
+                        format: 'date-time',
+                        description: 'Creation timestamp',
+                    },
+                    updatedAt: {
+                        type: 'string',
+                        format: 'date-time',
+                        description: 'Last update timestamp',
+                    },
                 },
             },
         },
     }),
     (0, swagger_1.ApiUnauthorizedResponse)({ description: 'User not authenticated' }),
-    (0, swagger_1.ApiForbiddenResponse)({ description: 'User not authorized to view transactions for this chama' }),
+    (0, swagger_1.ApiForbiddenResponse)({
+        description: 'User not authorized to view transactions for this chama',
+    }),
     (0, swagger_1.ApiNotFoundResponse)({ description: 'Chama not found' }),
     __param(0, (0, common_1.Param)('chamaId')),
     __param(1, (0, common_1.Query)('type')),
@@ -244,20 +284,37 @@ __decorate([
             type: 'object',
             properties: {
                 id: { type: 'string', description: 'Transaction ID' },
-                type: { type: 'string', enum: Object.values(client_1.TransactionType), description: 'Transaction type' },
+                type: {
+                    type: 'string',
+                    enum: Object.values(client_1.TransactionType),
+                    description: 'Transaction type',
+                },
                 amount: { type: 'number', description: 'Transaction amount' },
                 chamaId: { type: 'string', description: 'ID of the chama' },
-                userId: { type: 'string', description: 'ID of the user who created the transaction' },
+                userId: {
+                    type: 'string',
+                    description: 'ID of the user who created the transaction',
+                },
                 description: { type: 'string', description: 'Transaction description' },
                 reference: { type: 'string', description: 'External reference number' },
                 status: { type: 'string', description: 'Transaction status' },
-                createdAt: { type: 'string', format: 'date-time', description: 'Creation timestamp' },
-                updatedAt: { type: 'string', format: 'date-time', description: 'Last update timestamp' },
+                createdAt: {
+                    type: 'string',
+                    format: 'date-time',
+                    description: 'Creation timestamp',
+                },
+                updatedAt: {
+                    type: 'string',
+                    format: 'date-time',
+                    description: 'Last update timestamp',
+                },
             },
         },
     }),
     (0, swagger_1.ApiUnauthorizedResponse)({ description: 'User not authenticated' }),
-    (0, swagger_1.ApiForbiddenResponse)({ description: 'User not authorized to view this transaction' }),
+    (0, swagger_1.ApiForbiddenResponse)({
+        description: 'User not authorized to view this transaction',
+    }),
     (0, swagger_1.ApiNotFoundResponse)({ description: 'Transaction not found' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, current_user_decorator_1.CurrentUser)()),
@@ -279,10 +336,19 @@ __decorate([
         schema: {
             type: 'object',
             properties: {
-                totalContributions: { type: 'number', description: 'Total amount contributed' },
-                totalWithdrawals: { type: 'number', description: 'Total amount withdrawn' },
+                totalContributions: {
+                    type: 'number',
+                    description: 'Total amount contributed',
+                },
+                totalWithdrawals: {
+                    type: 'number',
+                    description: 'Total amount withdrawn',
+                },
                 totalLoans: { type: 'number', description: 'Total loans taken' },
-                totalRepayments: { type: 'number', description: 'Total loan repayments' },
+                totalRepayments: {
+                    type: 'number',
+                    description: 'Total loan repayments',
+                },
                 chamaStats: {
                     type: 'array',
                     description: 'Transaction statistics per chama',
@@ -291,10 +357,22 @@ __decorate([
                         properties: {
                             chamaId: { type: 'string', description: 'ID of the chama' },
                             chamaName: { type: 'string', description: 'Name of the chama' },
-                            contributions: { type: 'number', description: 'Total contributions to this chama' },
-                            withdrawals: { type: 'number', description: 'Total withdrawals from this chama' },
-                            loans: { type: 'number', description: 'Total loans from this chama' },
-                            repayments: { type: 'number', description: 'Total loan repayments to this chama' },
+                            contributions: {
+                                type: 'number',
+                                description: 'Total contributions to this chama',
+                            },
+                            withdrawals: {
+                                type: 'number',
+                                description: 'Total withdrawals from this chama',
+                            },
+                            loans: {
+                                type: 'number',
+                                description: 'Total loans from this chama',
+                            },
+                            repayments: {
+                                type: 'number',
+                                description: 'Total loan repayments to this chama',
+                            },
                         },
                     },
                 },

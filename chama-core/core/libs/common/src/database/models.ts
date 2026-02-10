@@ -1,6 +1,6 @@
 /**
  * Centralized exports for all Prisma models and types
- * 
+ *
  * This file provides a single entry point for importing Prisma-generated
  * types throughout the application, ensuring consistency and easier maintenance.
  */
@@ -78,6 +78,7 @@ export type TransactionWhereInput = _Prisma.TransactionWhereInput;
 // Order by types
 export type UserOrderByInput = _Prisma.UserOrderByWithRelationInput;
 export type ChamaOrderByInput = _Prisma.ChamaOrderByWithRelationInput;
-export type ContributionOrderByInput = _Prisma.ContributionOrderByWithRelationInput;
-export type TransactionOrderByInput = _Prisma.TransactionOrderByWithRelationInput;
-
+export type ContributionOrderByInput =
+  _Prisma.ContributionOrderByWithRelationInput;
+export type TransactionOrderByInput =
+  _Prisma.TransactionOrderByWithRelationInput;

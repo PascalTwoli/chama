@@ -55,7 +55,7 @@ export class MembershipEntity {
     example: '2025-06-01T14:57:46.109Z',
   })
   @IsDate()
-  @Transform(({ value }) => value instanceof Date ? value : new Date(value))
+  @Transform(({ value }) => (value instanceof Date ? value : new Date(value)))
   joinedAt!: Date;
 
   @ApiProperty({
@@ -63,7 +63,7 @@ export class MembershipEntity {
     example: '2025-06-01T14:57:46.109Z',
   })
   @IsDate()
-  @Transform(({ value }) => value instanceof Date ? value : new Date(value))
+  @Transform(({ value }) => (value instanceof Date ? value : new Date(value)))
   createdAt!: Date;
 
   @ApiProperty({
@@ -71,19 +71,18 @@ export class MembershipEntity {
     example: '2025-06-01T14:57:46.109Z',
   })
   @IsDate()
-  @Transform(({ value }) => value instanceof Date ? value : new Date(value))
+  @Transform(({ value }) => (value instanceof Date ? value : new Date(value)))
   updatedAt!: Date;
 
   constructor(partial: Partial<MembershipEntity>) {
     Object.assign(this, partial);
-    
+
     if (partial.user) {
       this.user = new UserEntity(partial.user);
     }
-    
+
     if (partial.chama) {
       this.chama = new ChamaEntity(partial.chama);
     }
   }
 }
-

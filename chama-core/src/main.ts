@@ -37,10 +37,12 @@ async function bootstrap() {
   // Enable CORS for frontend requests
   app.enableCors({
     origin: [
-      'http://localhost:3000', 
+      'http://localhost:3000',
+      'http://localhost:3001',
       'http://127.0.0.1:3000',
+      'http://127.0.0.1:3001',
       'http://localhost:5500',
-      'http://127.0.0.1:5500'
+      'http://127.0.0.1:5500',
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     credentials: true,
@@ -64,7 +66,7 @@ async function bootstrap() {
   const projectRoot = process.cwd(); // This will resolve to the project root directory
   const firebaseKeyFilePath = path.join(
     projectRoot,
-    'chama-b57f4-firebase-adminsdk-fbsvc-a743d47717.json'
+    'chama-b57f4-firebase-adminsdk-fbsvc-a743d47717.json',
   );
   console.log('Firebase key file path:', firebaseKeyFilePath);
 
@@ -73,12 +75,12 @@ async function bootstrap() {
     if (!fs.existsSync(firebaseKeyFilePath)) {
       throw new Error(
         `Firebase service account key file not found at: ${firebaseKeyFilePath}. ` +
-        `Please make sure the file exists or set the FIREBASE_KEY_PATH environment variable to a valid path.`
+          `Please make sure the file exists or set the FIREBASE_KEY_PATH environment variable to a valid path.`,
       );
     }
 
     const firebaseServiceAccount = JSON.parse(
-      fs.readFileSync(firebaseKeyFilePath).toString()
+      fs.readFileSync(firebaseKeyFilePath).toString(),
     );
 
     if (firebaseAdmin.apps.length === 0) {

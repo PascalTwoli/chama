@@ -94,7 +94,9 @@ export class ChamaService {
     } catch (error: unknown) {
       console.error('Error finding available chamas:', error);
       const message = error instanceof Error ? error.message : 'Unknown error';
-      throw new BadRequestException(`Failed to fetch available chamas: ${message}`);
+      throw new BadRequestException(
+        `Failed to fetch available chamas: ${message}`,
+      );
     }
   }
 

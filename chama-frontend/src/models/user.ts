@@ -12,14 +12,181 @@ export interface UserMetadata {
   [key: string]: unknown;
 }
 
-// Chama membership for a user
+// ==================== ROLE SYSTEM ====================
+
+/**
+ * System Roles - Control what someone can do in the system
+ * OWNER: Creator of the chama, immutable, full authority
+ * ADMIN: Appointed by owner, operational management
+ * MEMBER: Normal participant
+ */
+export type SystemRole = 'OWNER' | 'ADMIN' | 'MEMBER';
+
+/**
+ * Governance Roles - Reflect real-world leadership positions
+ * These are labels + scoped permissions, can change over time
+ */
+export type GovernanceRole =
+  | 'CHAIRPERSON'
+  | 'VICE_CHAIR'
+  | 'SECRETARY'
+  | 'TREASURER'
+  | 'WELFARE_OFFICER'
+  | null;
+
+/**
+ * Permission Flags - Scoped access control
+ * Permissions > Roles (what you can actually do)
+ */
+export interface PermissionFlags {
+  // Member management
+  manageMembers: boolean;
+  approveJoinRequests: boolean;
+  inviteMembers: boolean;
+
+  // Financial operations
+  manageFinance: boolean;
+  recordContributions: boolean;
+  approvePayouts: boolean;
+
+  // Reporting & records
+  viewReports: boolean;
+  editRecords: boolean;
+
+  // Chama configuration
+  editChamaSettings: boolean;
+  editChamaRules: boolean;
+
+  // Owner-only powers (immutable)
+  deleteChama: boolean;
+  transferOwnership: boolean;
+  assignAdmins: boolean;
+}
+
+/**
+ * Default permissions by system role
+ */
+export const DEFAULT_PERMISSIONS: Record<SystemRole, PermissionFlags> = {
+  OWNER: {
+    manageMembers: true,
+    approveJoinRequests: true,
+    inviteMembers: true,
+    manageFinance: true,
+    recordContributions: true,
+    approvePayouts: true,
+    viewReports: true,
+    editRecords: true,
+    editChamaSettings: true,
+    editChamaRules: true,
+    deleteChama: true,
+    transferOwnership: true,
+    assignAdmins: true,
+  },
+  ADMIN: {
+    manageMembers: true,
+    approveJoinRequests: true,
+    inviteMembers: true,
+    manageFinance: false,
+    recordContributions: true,
+    approvePayouts: false,
+    viewReports: true,
+    editRecords: true,
+    editChamaSettings: false,
+    editChamaRules: false,
+    deleteChama: false,
+    transferOwnership: false,
+    assignAdmins: false,
+  },
+  MEMBER: {
+    manageMembers: false,
+    approveJoinRequests: false,
+    inviteMembers: false,
+    manageFinance: false,
+    recordContributions: false,
+    approvePayouts: false,
+    viewReports: false,
+    editRecords: false,
+    editChamaSettings: false,
+    editChamaRules: false,
+    deleteChama: false,
+    transferOwnership: false,
+    assignAdmins: false,
+  },
+};
+
+/**
+ * Permission overrides by governance role
+ * These extend/modify the base system role permissions
+ */
+export const GOVERNANCE_PERMISSION_OVERRIDES: Record<
+  Exclude<GovernanceRole, null>,
+  Partial<PermissionFlags>
+> = {
+  CHAIRPERSON: {
+    manageMembers: true,
+    editChamaSettings: true,
+    editChamaRules: true,
+    approvePayouts: true,
+  },
+  VICE_CHAIR: {
+    manageMembers: true,
+    approveJoinRequests: true,
+  },
+  SECRETARY: {
+    editRecords: true,
+    viewReports: true,
+  },
+  TREASURER: {
+    manageFinance: true,
+    recordContributions: true,
+    approvePayouts: true,
+    viewReports: true,
+  },
+  WELFARE_OFFICER: {
+    viewReports: true,
+  },
+};
+
+/**
+ * Compute effective permissions for a user
+ */
+export function computePermissions(
+  systemRole: SystemRole,
+  governanceRole: GovernanceRole
+): PermissionFlags {
+  // Start with base permissions from system role
+  const basePermissions = { ...DEFAULT_PERMISSIONS[systemRole] };
+
+  // OWNER always gets everything - governance role doesn't limit them
+  if (systemRole === 'OWNER') {
+    return basePermissions;
+  }
+
+  // Apply governance role overrides if applicable
+  if (governanceRole && GOVERNANCE_PERMISSION_OVERRIDES[governanceRole]) {
+    const overrides = GOVERNANCE_PERMISSION_OVERRIDES[governanceRole];
+    return { ...basePermissions, ...overrides };
+  }
+
+  return basePermissions;
+}
+
+// ==================== CHAMA MEMBERSHIP ====================
+
+/**
+ * Chama membership for a user
+ * Updated to follow foundational role structure
+ */
 export interface ChamaMembership {
   chamaId: string;
   chamaName: string;
-  role: 'ADMIN' | 'MEMBER';
+  systemRole: SystemRole;
+  governanceRole: GovernanceRole;
+  permissions: PermissionFlags;
   isActive: boolean;
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
   joinedAt?: string;
+  isOwner?: boolean; // Convenience flag
 }
 
 export interface User {

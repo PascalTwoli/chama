@@ -37,7 +37,7 @@ __decorate([
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.Matches)(/^\+[1-9]\d{7,14}$/, {
-        message: 'Phone number must be in E.164 format (e.g., +254712345678). It must start with + followed by country code and number.'
+        message: 'Phone number must be in E.164 format (e.g., +254712345678). It must start with + followed by country code and number.',
     }),
     (0, swagger_1.ApiProperty)({ description: "The user's phone number" }),
     __metadata("design:type", String)

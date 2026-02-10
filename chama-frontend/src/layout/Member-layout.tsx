@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import Navbar from '../components/navbars/Navbar';
-import Sidebar from '../components/Sidebar';
+import MemberSidebar from '../components/MemberSidebar';
 
 const MemberLayout = () => {
   return (
@@ -14,7 +14,7 @@ const MemberLayout = () => {
       <div className='flex flex-1 overflow-hidden'>
         {/* Fixed Sidebar with internal scroll */}
         <aside className='flex-shrink-0 overflow-y-auto border-r border-border'>
-          <Sidebar />
+          <MemberSidebar />
         </aside>
 
         {/* Scrollable Main Content Area */}

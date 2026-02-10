@@ -128,7 +128,7 @@ const ChamaSettings: React.FC<ChamaSettingsProps> = () => {
 
   return (
     <>
-      <h1 className='font-bold text-lg mb-4'>
+      <h1 className='font-bold text-lg mb-4 text-foreground'>
         Twoli Contribution&apos;s Settings
       </h1>
       <div className='flex gap-3'>
@@ -137,10 +137,10 @@ const ChamaSettings: React.FC<ChamaSettingsProps> = () => {
             model={menuItems}
             className='w-full'
             pt={{
-              root: { className: 'bg-[#242E3B] border-none' },
-              menu: { className: 'text-white' },
+              root: { className: 'bg-card border border-border' },
+              menu: { className: 'text-foreground' },
               menuitem: {
-                className: 'hover:bg-gray-700 transition-colors duration-200',
+                className: 'hover:bg-muted transition-colors duration-200',
               },
             }}
           />
@@ -149,9 +149,9 @@ const ChamaSettings: React.FC<ChamaSettingsProps> = () => {
         <div className='flex-1 rounded-lg shadow-lg p-0'>
           {activeTab === 'Account' && (
             <div>
-              <div className='p-4 bg-[#242E3B] rounded-lg shadow-lg'>
+              <div className='p-4 bg-card border border-border rounded-lg shadow-lg'>
                 <div className='flex flex-row justify-between'>
-                  <h3 className='mt-0 text-gray-300'>Account</h3>
+                  <h3 className='mt-0 text-foreground'>Account</h3>
                   <Button
                     onClick={() => setIsEditing(true)}
                     className=' profile-edit-btn w-12 h-8 mt-0 justify-center text-gray-400 hover:border hover:border-gray-400 p-2 rounded-x-lg hover:bg-gray-700 transition-all p-button-info p-button-outlined'
@@ -159,7 +159,7 @@ const ChamaSettings: React.FC<ChamaSettingsProps> = () => {
                     <i className='pi pi-pencil text-xl' />
                   </Button>
                 </div>
-                <div className='flex gap-8  pl-4 text-gray-400'>
+                <div className='flex gap-8 pl-4 text-muted-foreground'>
                   <div className='flex flex-2 flex-col gap-4 flex-1'>
                     <div>
                       <label className='block mb-2 font-semibold'>Name</label>
@@ -235,8 +235,8 @@ const ChamaSettings: React.FC<ChamaSettingsProps> = () => {
           )}
 
           {activeTab === 'Leadership' && (
-            <div className=' leadership bg-[#242E3B] rounded-lg shadow-lg'>
-              <h3 className='mt-0 p-3 text-gray-200'>Leadership</h3>
+            <div className='leadership bg-card border border-border rounded-lg shadow-lg'>
+              <h3 className='mt-0 p-3 text-foreground'>Leadership</h3>
               <div className='text-center relative'>
                 <h4 className='text-lg font-semibold mb-0 mx-2 text-gray-200 pb-2'>
                   Twoli Contribution Leadership
@@ -276,11 +276,11 @@ const ChamaSettings: React.FC<ChamaSettingsProps> = () => {
 
           {activeTab === 'Danger Zone' && (
             <div className='rounded '>
-              <div className='text-center font-bold bg-[#242E3B] rounded-lg shadow-lg px-5 py-3'>
-                <h3 className='font-bold text-xl mb-4 pb-2 border-b border-gray-600 mt-0'>
+              <div className='text-center font-bold bg-card border border-border rounded-lg shadow-lg px-5 py-3'>
+                <h3 className='font-bold text-xl mb-4 pb-2 border-b border-border mt-0 text-foreground'>
                   Reset your chama/group
                 </h3>
-                <div className='text-left text-gray-400'>
+                <div className='text-left text-muted-foreground'>
                   <p>
                     {' '}
                     Initiate a fresh start with the removal of all the existing.
@@ -305,13 +305,13 @@ const ChamaSettings: React.FC<ChamaSettingsProps> = () => {
                 </div>
               </div>
 
-              <div className='font-bold bg-[#242E3B] rounded-lg shadow-lg mt-6 px-5 py-3'>
+              <div className='font-bold bg-card border border-border rounded-lg shadow-lg mt-6 px-5 py-3'>
                 <div className='text-center'>
-                  <h1 className='font-bold text-xl mb-4 pb-2 border-b border-gray-600 mt-0'>
+                  <h1 className='font-bold text-xl mb-4 pb-2 border-b border-border mt-0 text-foreground'>
                     Delete Chama/Group: Twoli contributions
                   </h1>
                 </div>
-                <div className='text-gray-400'>
+                <div className='text-muted-foreground'>
                   <p>
                     Note: All members will receive notice if this group is
                     deleted. Kindly take note of the following information:

@@ -76,7 +76,7 @@ export class InviteEntity {
     example: '2025-06-08T14:57:46.109Z',
   })
   @IsDate()
-  @Transform(({ value }) => value instanceof Date ? value : new Date(value))
+  @Transform(({ value }) => (value instanceof Date ? value : new Date(value)))
   expiresAt!: Date;
 
   @ApiProperty({
@@ -86,7 +86,9 @@ export class InviteEntity {
   })
   @IsDate()
   @IsOptional()
-  @Transform(({ value }) => value ? (value instanceof Date ? value : new Date(value)) : null)
+  @Transform(({ value }) =>
+    value ? (value instanceof Date ? value : new Date(value)) : null,
+  )
   usedAt?: Date | null;
 
   @ApiProperty({
@@ -94,15 +96,14 @@ export class InviteEntity {
     example: '2025-06-01T14:57:46.109Z',
   })
   @IsDate()
-  @Transform(({ value }) => value instanceof Date ? value : new Date(value))
+  @Transform(({ value }) => (value instanceof Date ? value : new Date(value)))
   createdAt!: Date;
 
   constructor(partial: Partial<InviteEntity>) {
     Object.assign(this, partial);
-    
+
     if (partial.chama) {
       this.chama = new ChamaEntity(partial.chama);
     }
   }
 }
-

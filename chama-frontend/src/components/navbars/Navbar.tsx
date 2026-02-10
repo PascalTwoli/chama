@@ -1,10 +1,20 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Bell, Moon, Sun, LogOut, User, ChevronDown } from 'lucide-react';
+import { useNavigate, useParams } from 'react-router-dom';
+import {
+  Bell,
+  Moon,
+  Sun,
+  LogOut,
+  User,
+  ChevronDown,
+  LayoutDashboard,
+  Users,
+} from 'lucide-react';
 import AuthService from '../../services/auth/signup-service';
 import LogoutModal from '../logoutModal';
 import Logo1 from '../../logos/logo1';
 import { useTheme } from '../../context/ThemeContext';
+import { useChamaMembership } from '../../context/ChamaMembershipContext';
 import { Button } from '../ui/button';
 
 const Navbar = () => {
@@ -14,6 +24,11 @@ const Navbar = () => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
+  const { chamaId } = useParams<{ chamaId: string }>();
+
+  // Get dashboard context and admin access from membership context
+  const { hasAdminAccess, dashboardContext, setDashboardContext, activeChama } =
+    useChamaMembership();
 
   useEffect(() => {
     AuthService.getCurrentUser()
@@ -37,6 +52,22 @@ const Navbar = () => {
     return `${user.firstName?.charAt(0) || ''}${user.lastName?.charAt(0) || ''}`.toUpperCase();
   };
 
+  // Handle dashboard switch
+  const handleDashboardSwitch = () => {
+    const targetChamaId = chamaId || activeChama?.chamaId;
+    if (!targetChamaId) return;
+
+    if (dashboardContext === 'admin') {
+      // Switch to member dashboard
+      setDashboardContext('member');
+      navigate(`/member/chamas/${targetChamaId}`);
+    } else {
+      // Switch to admin dashboard
+      setDashboardContext('admin');
+      navigate(`/admin/chamas/${targetChamaId}`);
+    }
+  };
+
   return (
     <header className='bg-card px-6 py-3'>
       <div className='flex justify-between items-center'>
@@ -45,8 +76,31 @@ const Navbar = () => {
           <Logo1 />
         </div>
 
-        {/* Right: Theme Toggle, Notifications, Profile */}
+        {/* Right: Dashboard Toggle, Theme Toggle, Notifications, Profile */}
         <div className='flex items-center gap-4'>
+          {/* Dashboard Toggle - Only show if user has admin access */}
+          {hasAdminAccess && (
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={handleDashboardSwitch}
+              className='flex items-center gap-2 text-sm font-medium'
+              title={`Switch to ${dashboardContext === 'admin' ? 'Member' : 'Admin'} Dashboard`}
+            >
+              {dashboardContext === 'admin' ? (
+                <>
+                  <Users className='w-4 h-4' />
+                  <span className='hidden sm:inline'>Member View</span>
+                </>
+              ) : (
+                <>
+                  <LayoutDashboard className='w-4 h-4' />
+                  <span className='hidden sm:inline'>Admin View</span>
+                </>
+              )}
+            </Button>
+          )}
+
           {/* Theme Toggle */}
           <Button
             variant='ghost'

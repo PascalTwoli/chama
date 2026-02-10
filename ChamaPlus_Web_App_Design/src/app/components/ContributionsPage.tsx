@@ -1,14 +1,20 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Input } from './ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { 
-  ArrowLeft, 
-  Download, 
-  Filter, 
-  Search, 
+import {
+  ArrowLeft,
+  Download,
+  Filter,
+  Search,
   Plus,
   CheckCircle2,
   Clock,
@@ -18,9 +24,9 @@ import {
   TrendingUp,
   User,
   Eye,
-  Phone
+  Phone,
 } from 'lucide-react';
-import { 
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -45,10 +51,16 @@ interface Contribution {
   month?: string;
 }
 
-export default function ContributionsPage({ onBack, role }: ContributionsPageProps) {
+export default function ContributionsPage({
+  onBack,
+  role,
+}: ContributionsPageProps) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedFilter, setSelectedFilter] = useState<'all' | 'completed' | 'pending' | 'late'>('all');
-  const [selectedContribution, setSelectedContribution] = useState<Contribution | null>(null);
+  const [selectedFilter, setSelectedFilter] = useState<
+    'all' | 'completed' | 'pending' | 'late'
+  >('all');
+  const [selectedContribution, setSelectedContribution] =
+    useState<Contribution | null>(null);
   const [showDetails, setShowDetails] = useState(false);
 
   // Mock data - in real app this would come from API
@@ -62,7 +74,7 @@ export default function ContributionsPage({ onBack, role }: ContributionsPagePro
       method: 'M-Pesa',
       mpesaCode: 'SAF5K2L3M4',
       phone: '0712345678',
-      month: 'January 2026'
+      month: 'January 2026',
     },
     {
       id: '2',
@@ -73,7 +85,7 @@ export default function ContributionsPage({ onBack, role }: ContributionsPagePro
       method: 'M-Pesa',
       mpesaCode: 'SAF6K3L4M5',
       phone: '0723456789',
-      month: 'January 2026'
+      month: 'January 2026',
     },
     {
       id: '3',
@@ -82,7 +94,7 @@ export default function ContributionsPage({ onBack, role }: ContributionsPagePro
       date: '2026-01-16',
       status: 'completed',
       method: 'Cash',
-      month: 'January 2026'
+      month: 'January 2026',
     },
     {
       id: '4',
@@ -91,7 +103,7 @@ export default function ContributionsPage({ onBack, role }: ContributionsPagePro
       date: '2026-01-10',
       status: 'completed',
       method: 'Bank Transfer',
-      month: 'January 2026'
+      month: 'January 2026',
     },
     {
       id: '5',
@@ -101,7 +113,7 @@ export default function ContributionsPage({ onBack, role }: ContributionsPagePro
       status: 'pending',
       method: 'M-Pesa',
       phone: '0745678901',
-      month: 'January 2026'
+      month: 'January 2026',
     },
     {
       id: '6',
@@ -111,7 +123,7 @@ export default function ContributionsPage({ onBack, role }: ContributionsPagePro
       status: 'late',
       method: 'M-Pesa',
       phone: '0756789012',
-      month: 'January 2026'
+      month: 'January 2026',
     },
     {
       id: '7',
@@ -122,7 +134,7 @@ export default function ContributionsPage({ onBack, role }: ContributionsPagePro
       method: 'M-Pesa',
       mpesaCode: 'SAF4K1L2M3',
       phone: '0712345678',
-      month: 'December 2025'
+      month: 'December 2025',
     },
     {
       id: '8',
@@ -133,15 +145,17 @@ export default function ContributionsPage({ onBack, role }: ContributionsPagePro
       method: 'M-Pesa',
       mpesaCode: 'SAF7K4L5M6',
       phone: '0723456789',
-      month: 'December 2025'
+      month: 'December 2025',
     },
   ];
 
   // Filter contributions
-  const filteredContributions = contributions.filter((contrib) => {
-    const matchesSearch = contrib.memberName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         contrib.mpesaCode?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = selectedFilter === 'all' || contrib.status === selectedFilter;
+  const filteredContributions = contributions.filter(contrib => {
+    const matchesSearch =
+      contrib.memberName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      contrib.mpesaCode?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter =
+      selectedFilter === 'all' || contrib.status === selectedFilter;
     return matchesSearch && matchesFilter;
   });
 
@@ -149,21 +163,23 @@ export default function ContributionsPage({ onBack, role }: ContributionsPagePro
   const totalAmount = contributions
     .filter(c => c.status === 'completed')
     .reduce((sum, c) => sum + c.amount, 0);
-  
-  const completedCount = contributions.filter(c => c.status === 'completed').length;
+
+  const completedCount = contributions.filter(
+    c => c.status === 'completed'
+  ).length;
   const pendingCount = contributions.filter(c => c.status === 'pending').length;
   const lateCount = contributions.filter(c => c.status === 'late').length;
 
   const statusColors = {
     completed: 'bg-secondary/10 text-secondary border-secondary/20',
     pending: 'bg-accent/10 text-accent border-accent/20',
-    late: 'bg-destructive/10 text-destructive border-destructive/20'
+    late: 'bg-destructive/10 text-destructive border-destructive/20',
   };
 
   const statusIcons = {
     completed: <CheckCircle2 className="w-4 h-4" />,
     pending: <Clock className="w-4 h-4" />,
-    late: <XCircle className="w-4 h-4" />
+    late: <XCircle className="w-4 h-4" />,
   };
 
   const handleViewDetails = (contribution: Contribution) => {
@@ -182,7 +198,9 @@ export default function ContributionsPage({ onBack, role }: ContributionsPagePro
           </Button>
           <div>
             <h1 className="text-2xl font-bold">Contributions</h1>
-            <p className="text-sm text-muted-foreground">Track all member contributions</p>
+            <p className="text-sm text-muted-foreground">
+              Track all member contributions
+            </p>
           </div>
         </div>
         <Button className="bg-primary hover:bg-primary/90">
@@ -198,7 +216,9 @@ export default function ContributionsPage({ onBack, role }: ContributionsPagePro
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Total Collected</p>
-                <p className="text-2xl font-bold text-secondary">KSh {totalAmount.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-secondary">
+                  KSh {totalAmount.toLocaleString()}
+                </p>
               </div>
               <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center">
                 <Wallet className="w-6 h-6 text-secondary" />
@@ -212,7 +232,9 @@ export default function ContributionsPage({ onBack, role }: ContributionsPagePro
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Completed</p>
-                <p className="text-2xl font-bold text-foreground">{completedCount}</p>
+                <p className="text-2xl font-bold text-foreground">
+                  {completedCount}
+                </p>
               </div>
               <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center">
                 <CheckCircle2 className="w-6 h-6 text-secondary" />
@@ -240,7 +262,9 @@ export default function ContributionsPage({ onBack, role }: ContributionsPagePro
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Late</p>
-                <p className="text-2xl font-bold text-destructive">{lateCount}</p>
+                <p className="text-2xl font-bold text-destructive">
+                  {lateCount}
+                </p>
               </div>
               <div className="w-12 h-12 rounded-lg bg-destructive/10 flex items-center justify-center">
                 <XCircle className="w-6 h-6 text-destructive" />
@@ -260,7 +284,7 @@ export default function ContributionsPage({ onBack, role }: ContributionsPagePro
               <Input
                 placeholder="Search by member name or M-Pesa code..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={e => setSearchTerm(e.target.value)}
                 className="pl-10"
               />
             </div>
@@ -278,7 +302,11 @@ export default function ContributionsPage({ onBack, role }: ContributionsPagePro
                 variant={selectedFilter === 'completed' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setSelectedFilter('completed')}
-                className={selectedFilter === 'completed' ? 'bg-secondary hover:bg-secondary/90' : ''}
+                className={
+                  selectedFilter === 'completed'
+                    ? 'bg-secondary hover:bg-secondary/90'
+                    : ''
+                }
               >
                 Completed
               </Button>
@@ -286,7 +314,11 @@ export default function ContributionsPage({ onBack, role }: ContributionsPagePro
                 variant={selectedFilter === 'pending' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setSelectedFilter('pending')}
-                className={selectedFilter === 'pending' ? 'bg-accent hover:bg-accent/90' : ''}
+                className={
+                  selectedFilter === 'pending'
+                    ? 'bg-accent hover:bg-accent/90'
+                    : ''
+                }
               >
                 Pending
               </Button>
@@ -294,7 +326,11 @@ export default function ContributionsPage({ onBack, role }: ContributionsPagePro
                 variant={selectedFilter === 'late' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setSelectedFilter('late')}
-                className={selectedFilter === 'late' ? 'bg-destructive hover:bg-destructive/90' : ''}
+                className={
+                  selectedFilter === 'late'
+                    ? 'bg-destructive hover:bg-destructive/90'
+                    : ''
+                }
               >
                 Late
               </Button>
@@ -315,31 +351,50 @@ export default function ContributionsPage({ onBack, role }: ContributionsPagePro
             <table className="w-full">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Member</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Amount</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Date</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Method</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Status</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Action</th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">
+                    Member
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">
+                    Amount
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">
+                    Date
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">
+                    Method
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">
+                    Status
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">
+                    Action
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                {filteredContributions.map((contribution) => (
-                  <tr key={contribution.id} className="border-b hover:bg-muted/50">
+                {filteredContributions.map(contribution => (
+                  <tr
+                    key={contribution.id}
+                    className="border-b hover:bg-muted/50"
+                  >
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
                           <User className="w-4 h-4 text-primary" />
                         </div>
-                        <span className="font-medium">{contribution.memberName}</span>
+                        <span className="font-medium">
+                          {contribution.memberName}
+                        </span>
                       </div>
                     </td>
-                    <td className="py-3 px-4 font-medium">KSh {contribution.amount.toLocaleString()}</td>
+                    <td className="py-3 px-4 font-medium">
+                      KSh {contribution.amount.toLocaleString()}
+                    </td>
                     <td className="py-3 px-4 text-muted-foreground">
                       {new Date(contribution.date).toLocaleDateString('en-KE', {
                         year: 'numeric',
                         month: 'short',
-                        day: 'numeric'
+                        day: 'numeric',
                       })}
                     </td>
                     <td className="py-3 px-4">
@@ -348,10 +403,14 @@ export default function ContributionsPage({ onBack, role }: ContributionsPagePro
                       </Badge>
                     </td>
                     <td className="py-3 px-4">
-                      <Badge variant="outline" className={`${statusColors[contribution.status]} font-normal`}>
+                      <Badge
+                        variant="outline"
+                        className={`${statusColors[contribution.status]} font-normal`}
+                      >
                         <span className="flex items-center gap-1">
                           {statusIcons[contribution.status]}
-                          {contribution.status.charAt(0).toUpperCase() + contribution.status.slice(1)}
+                          {contribution.status.charAt(0).toUpperCase() +
+                            contribution.status.slice(1)}
                         </span>
                       </Badge>
                     </td>
@@ -373,7 +432,7 @@ export default function ContributionsPage({ onBack, role }: ContributionsPagePro
 
           {/* Mobile Card View */}
           <div className="md:hidden space-y-4">
-            {filteredContributions.map((contribution) => (
+            {filteredContributions.map(contribution => (
               <Card key={contribution.id} className="border">
                 <CardContent className="pt-6">
                   <div className="space-y-3">
@@ -383,13 +442,20 @@ export default function ContributionsPage({ onBack, role }: ContributionsPagePro
                           <User className="w-5 h-5 text-primary" />
                         </div>
                         <div>
-                          <p className="font-medium">{contribution.memberName}</p>
+                          <p className="font-medium">
+                            {contribution.memberName}
+                          </p>
                           <p className="text-sm text-muted-foreground">
-                            {new Date(contribution.date).toLocaleDateString('en-KE')}
+                            {new Date(contribution.date).toLocaleDateString(
+                              'en-KE'
+                            )}
                           </p>
                         </div>
                       </div>
-                      <Badge variant="outline" className={`${statusColors[contribution.status]} font-normal`}>
+                      <Badge
+                        variant="outline"
+                        className={`${statusColors[contribution.status]} font-normal`}
+                      >
                         {statusIcons[contribution.status]}
                       </Badge>
                     </div>
@@ -397,7 +463,9 @@ export default function ContributionsPage({ onBack, role }: ContributionsPagePro
                     <div className="flex items-center justify-between pt-2 border-t">
                       <div>
                         <p className="text-sm text-muted-foreground">Amount</p>
-                        <p className="font-bold text-lg">KSh {contribution.amount.toLocaleString()}</p>
+                        <p className="font-bold text-lg">
+                          KSh {contribution.amount.toLocaleString()}
+                        </p>
                       </div>
                       <div className="text-right">
                         <p className="text-sm text-muted-foreground">Method</p>
@@ -436,7 +504,9 @@ export default function ContributionsPage({ onBack, role }: ContributionsPagePro
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Contribution Details</DialogTitle>
-            <DialogDescription>Complete information about this contribution</DialogDescription>
+            <DialogDescription>
+              Complete information about this contribution
+            </DialogDescription>
           </DialogHeader>
           {selectedContribution && (
             <div className="space-y-4">
@@ -445,22 +515,32 @@ export default function ContributionsPage({ onBack, role }: ContributionsPagePro
                   <User className="w-6 h-6 text-primary" />
                 </div>
                 <div>
-                  <p className="font-medium">{selectedContribution.memberName}</p>
-                  <p className="text-sm text-muted-foreground">{selectedContribution.month}</p>
+                  <p className="font-medium">
+                    {selectedContribution.memberName}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {selectedContribution.month}
+                  </p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">Amount</p>
-                  <p className="font-bold text-lg">KSh {selectedContribution.amount.toLocaleString()}</p>
+                  <p className="font-bold text-lg">
+                    KSh {selectedContribution.amount.toLocaleString()}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">Status</p>
-                  <Badge variant="outline" className={`${statusColors[selectedContribution.status]} font-normal`}>
+                  <Badge
+                    variant="outline"
+                    className={`${statusColors[selectedContribution.status]} font-normal`}
+                  >
                     <span className="flex items-center gap-1">
                       {statusIcons[selectedContribution.status]}
-                      {selectedContribution.status.charAt(0).toUpperCase() + selectedContribution.status.slice(1)}
+                      {selectedContribution.status.charAt(0).toUpperCase() +
+                        selectedContribution.status.slice(1)}
                     </span>
                   </Badge>
                 </div>
@@ -470,17 +550,22 @@ export default function ContributionsPage({ onBack, role }: ContributionsPagePro
                 <p className="text-sm text-muted-foreground mb-1">Date</p>
                 <p className="font-medium flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-muted-foreground" />
-                  {new Date(selectedContribution.date).toLocaleDateString('en-KE', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
+                  {new Date(selectedContribution.date).toLocaleDateString(
+                    'en-KE',
+                    {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    }
+                  )}
                 </p>
               </div>
 
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Payment Method</p>
+                <p className="text-sm text-muted-foreground mb-1">
+                  Payment Method
+                </p>
                 <Badge variant="outline" className="font-normal">
                   {selectedContribution.method}
                 </Badge>
@@ -488,7 +573,9 @@ export default function ContributionsPage({ onBack, role }: ContributionsPagePro
 
               {selectedContribution.mpesaCode && (
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">M-Pesa Code</p>
+                  <p className="text-sm text-muted-foreground mb-1">
+                    M-Pesa Code
+                  </p>
                   <p className="font-mono font-medium bg-muted px-3 py-2 rounded">
                     {selectedContribution.mpesaCode}
                   </p>
@@ -497,7 +584,9 @@ export default function ContributionsPage({ onBack, role }: ContributionsPagePro
 
               {selectedContribution.phone && (
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Phone Number</p>
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Phone Number
+                  </p>
                   <p className="font-medium flex items-center gap-2">
                     <Phone className="w-4 h-4 text-muted-foreground" />
                     {selectedContribution.phone}
@@ -506,14 +595,19 @@ export default function ContributionsPage({ onBack, role }: ContributionsPagePro
               )}
 
               <div className="pt-4 border-t flex gap-2">
-                <Button variant="outline" className="flex-1" onClick={() => setShowDetails(false)}>
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setShowDetails(false)}
+                >
                   Close
                 </Button>
-                {role === 'admin' && selectedContribution.status === 'pending' && (
-                  <Button className="flex-1 bg-secondary hover:bg-secondary/90">
-                    Mark as Paid
-                  </Button>
-                )}
+                {role === 'admin' &&
+                  selectedContribution.status === 'pending' && (
+                    <Button className="flex-1 bg-secondary hover:bg-secondary/90">
+                      Mark as Paid
+                    </Button>
+                  )}
               </div>
             </div>
           )}

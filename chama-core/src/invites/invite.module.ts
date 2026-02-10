@@ -13,4 +13,3 @@ import { ConfigModule } from '@nestjs/config';
   exports: [InviteService],
 })
 export class InviteModule {}
-

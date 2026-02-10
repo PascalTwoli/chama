@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Input } from './ui/input';
-import { 
-  ArrowLeft, 
+import {
+  ArrowLeft,
   Plus,
   Download,
   Filter,
@@ -16,7 +22,7 @@ import {
   Eye,
   Edit,
   Trash2,
-  DollarSign
+  DollarSign,
 } from 'lucide-react';
 import {
   Dialog,
@@ -44,7 +50,13 @@ interface Expense {
   id: string;
   description: string;
   amount: number;
-  category: 'reimbursement' | 'purchase' | 'investment' | 'administrative' | 'welfare' | 'other';
+  category:
+    | 'reimbursement'
+    | 'purchase'
+    | 'investment'
+    | 'administrative'
+    | 'welfare'
+    | 'other';
   date: string;
   approvedBy: string;
   paidTo: string;
@@ -63,7 +75,7 @@ export default function ExpensesPage({ onBack, role }: ExpensesPageProps) {
     amount: '',
     category: 'purchase' as Expense['category'],
     paidTo: '',
-    notes: ''
+    notes: '',
   });
 
   // Mock data
@@ -76,7 +88,7 @@ export default function ExpensesPage({ onBack, role }: ExpensesPageProps) {
       date: '2026-01-15',
       approvedBy: 'John Kamau',
       paidTo: 'Safari Park Hotel',
-      receipt: 'RCP-2026-001'
+      receipt: 'RCP-2026-001',
     },
     {
       id: '2',
@@ -86,7 +98,7 @@ export default function ExpensesPage({ onBack, role }: ExpensesPageProps) {
       date: '2026-01-12',
       approvedBy: 'Mary Wanjiku',
       paidTo: 'Grace Akinyi',
-      notes: 'Emergency medical support'
+      notes: 'Emergency medical support',
     },
     {
       id: '3',
@@ -95,7 +107,7 @@ export default function ExpensesPage({ onBack, role }: ExpensesPageProps) {
       category: 'investment',
       date: '2026-01-10',
       approvedBy: 'John Kamau',
-      paidTo: 'Central Bank of Kenya'
+      paidTo: 'Central Bank of Kenya',
     },
     {
       id: '4',
@@ -105,7 +117,7 @@ export default function ExpensesPage({ onBack, role }: ExpensesPageProps) {
       date: '2026-01-08',
       approvedBy: 'Mary Wanjiku',
       paidTo: 'City Stationers',
-      receipt: 'RCP-2026-002'
+      receipt: 'RCP-2026-002',
     },
     {
       id: '5',
@@ -115,8 +127,8 @@ export default function ExpensesPage({ onBack, role }: ExpensesPageProps) {
       date: '2026-01-05',
       approvedBy: 'John Kamau',
       paidTo: 'Peter Ochieng',
-      notes: 'Collection of member documents'
-    }
+      notes: 'Collection of member documents',
+    },
   ];
 
   const categoryColors: Record<string, string> = {
@@ -125,14 +137,16 @@ export default function ExpensesPage({ onBack, role }: ExpensesPageProps) {
     investment: 'bg-secondary/10 text-secondary border-secondary/20',
     administrative: 'bg-accent/10 text-accent border-accent/20',
     welfare: 'bg-pink-50 text-pink-700 border-pink-200',
-    other: 'bg-muted text-muted-foreground border-border'
+    other: 'bg-muted text-muted-foreground border-border',
   };
 
   // Filter expenses
-  const filteredExpenses = expenses.filter((expense) => {
-    const matchesSearch = expense.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         expense.paidTo.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || expense.category === selectedCategory;
+  const filteredExpenses = expenses.filter(expense => {
+    const matchesSearch =
+      expense.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      expense.paidTo.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      selectedCategory === 'all' || expense.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
@@ -141,11 +155,14 @@ export default function ExpensesPage({ onBack, role }: ExpensesPageProps) {
   const thisMonthExpenses = expenses
     .filter(e => new Date(e.date).getMonth() === new Date().getMonth())
     .reduce((sum, e) => sum + e.amount, 0);
-  
-  const expensesByCategory = expenses.reduce((acc, expense) => {
-    acc[expense.category] = (acc[expense.category] || 0) + expense.amount;
-    return acc;
-  }, {} as Record<string, number>);
+
+  const expensesByCategory = expenses.reduce(
+    (acc, expense) => {
+      acc[expense.category] = (acc[expense.category] || 0) + expense.amount;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
 
   const handleAddExpense = () => {
     if (!newExpense.description || !newExpense.amount || !newExpense.paidTo) {
@@ -159,7 +176,7 @@ export default function ExpensesPage({ onBack, role }: ExpensesPageProps) {
       amount: '',
       category: 'purchase',
       paidTo: '',
-      notes: ''
+      notes: '',
     });
   };
 
@@ -179,7 +196,9 @@ export default function ExpensesPage({ onBack, role }: ExpensesPageProps) {
           </Button>
           <div>
             <h1 className="text-2xl font-bold">Expense Tracking</h1>
-            <p className="text-sm text-muted-foreground">Track and manage Chama expenses</p>
+            <p className="text-sm text-muted-foreground">
+              Track and manage Chama expenses
+            </p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -187,7 +206,10 @@ export default function ExpensesPage({ onBack, role }: ExpensesPageProps) {
             <Download className="w-4 h-4 mr-2" />
             Export
           </Button>
-          <Button className="bg-primary hover:bg-primary/90" onClick={() => setShowAddExpense(true)}>
+          <Button
+            className="bg-primary hover:bg-primary/90"
+            onClick={() => setShowAddExpense(true)}
+          >
             <Plus className="w-4 h-4 mr-2" />
             Record Expense
           </Button>
@@ -201,7 +223,9 @@ export default function ExpensesPage({ onBack, role }: ExpensesPageProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Total Expenses</p>
-                <p className="text-2xl font-bold text-destructive">KSh {totalExpenses.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-destructive">
+                  KSh {totalExpenses.toLocaleString()}
+                </p>
               </div>
               <div className="w-12 h-12 rounded-lg bg-destructive/10 flex items-center justify-center">
                 <TrendingDown className="w-6 h-6 text-destructive" />
@@ -215,7 +239,9 @@ export default function ExpensesPage({ onBack, role }: ExpensesPageProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">This Month</p>
-                <p className="text-2xl font-bold">KSh {thisMonthExpenses.toLocaleString()}</p>
+                <p className="text-2xl font-bold">
+                  KSh {thisMonthExpenses.toLocaleString()}
+                </p>
               </div>
               <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center">
                 <Calendar className="w-6 h-6 text-accent" />
@@ -229,7 +255,9 @@ export default function ExpensesPage({ onBack, role }: ExpensesPageProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Investments</p>
-                <p className="text-2xl font-bold text-secondary">KSh {(expensesByCategory.investment || 0).toLocaleString()}</p>
+                <p className="text-2xl font-bold text-secondary">
+                  KSh {(expensesByCategory.investment || 0).toLocaleString()}
+                </p>
               </div>
               <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center">
                 <DollarSign className="w-6 h-6 text-secondary" />
@@ -263,13 +291,16 @@ export default function ExpensesPage({ onBack, role }: ExpensesPageProps) {
               <Input
                 placeholder="Search expenses..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={e => setSearchTerm(e.target.value)}
                 className="pl-10"
               />
             </div>
 
             {/* Category Filter */}
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <Select
+              value={selectedCategory}
+              onValueChange={setSelectedCategory}
+            >
               <SelectTrigger className="w-full sm:w-48">
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
@@ -299,29 +330,49 @@ export default function ExpensesPage({ onBack, role }: ExpensesPageProps) {
             <table className="w-full">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Description</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Amount</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Category</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Paid To</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Date</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Action</th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">
+                    Description
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">
+                    Amount
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">
+                    Category
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">
+                    Paid To
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">
+                    Date
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">
+                    Action
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                {filteredExpenses.map((expense) => (
+                {filteredExpenses.map(expense => (
                   <tr key={expense.id} className="border-b hover:bg-muted/50">
                     <td className="py-3 px-4">
                       <div>
                         <p className="font-medium">{expense.description}</p>
                         {expense.receipt && (
-                          <p className="text-xs text-muted-foreground">{expense.receipt}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {expense.receipt}
+                          </p>
                         )}
                       </div>
                     </td>
-                    <td className="py-3 px-4 font-bold text-destructive">-KSh {expense.amount.toLocaleString()}</td>
+                    <td className="py-3 px-4 font-bold text-destructive">
+                      -KSh {expense.amount.toLocaleString()}
+                    </td>
                     <td className="py-3 px-4">
-                      <Badge variant="outline" className={categoryColors[expense.category]}>
-                        {expense.category.charAt(0).toUpperCase() + expense.category.slice(1)}
+                      <Badge
+                        variant="outline"
+                        className={categoryColors[expense.category]}
+                      >
+                        {expense.category.charAt(0).toUpperCase() +
+                          expense.category.slice(1)}
                       </Badge>
                     </td>
                     <td className="py-3 px-4">{expense.paidTo}</td>
@@ -329,7 +380,7 @@ export default function ExpensesPage({ onBack, role }: ExpensesPageProps) {
                       {new Date(expense.date).toLocaleDateString('en-KE', {
                         year: 'numeric',
                         month: 'short',
-                        day: 'numeric'
+                        day: 'numeric',
                       })}
                     </td>
                     <td className="py-3 px-4">
@@ -350,7 +401,7 @@ export default function ExpensesPage({ onBack, role }: ExpensesPageProps) {
 
           {/* Mobile Card View */}
           <div className="md:hidden space-y-4">
-            {filteredExpenses.map((expense) => (
+            {filteredExpenses.map(expense => (
               <Card key={expense.id} className="border">
                 <CardContent className="pt-6">
                   <div className="space-y-3">
@@ -361,7 +412,10 @@ export default function ExpensesPage({ onBack, role }: ExpensesPageProps) {
                           {new Date(expense.date).toLocaleDateString('en-KE')}
                         </p>
                       </div>
-                      <Badge variant="outline" className={categoryColors[expense.category]}>
+                      <Badge
+                        variant="outline"
+                        className={categoryColors[expense.category]}
+                      >
                         {expense.category}
                       </Badge>
                     </div>
@@ -369,7 +423,9 @@ export default function ExpensesPage({ onBack, role }: ExpensesPageProps) {
                     <div className="flex items-center justify-between pt-2 border-t">
                       <div>
                         <p className="text-sm text-muted-foreground">Amount</p>
-                        <p className="font-bold text-lg text-destructive">-KSh {expense.amount.toLocaleString()}</p>
+                        <p className="font-bold text-lg text-destructive">
+                          -KSh {expense.amount.toLocaleString()}
+                        </p>
                       </div>
                       <div className="text-right">
                         <p className="text-sm text-muted-foreground">Paid To</p>
@@ -406,31 +462,48 @@ export default function ExpensesPage({ onBack, role }: ExpensesPageProps) {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Record New Expense</DialogTitle>
-            <DialogDescription>Add a new expense to the Chama records</DialogDescription>
+            <DialogDescription>
+              Add a new expense to the Chama records
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium mb-2 block">Description *</label>
+              <label className="text-sm font-medium mb-2 block">
+                Description *
+              </label>
               <Input
                 placeholder="e.g., Meeting venue rental"
                 value={newExpense.description}
-                onChange={(e) => setNewExpense({...newExpense, description: e.target.value})}
+                onChange={e =>
+                  setNewExpense({ ...newExpense, description: e.target.value })
+                }
               />
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Amount (KSh) *</label>
+              <label className="text-sm font-medium mb-2 block">
+                Amount (KSh) *
+              </label>
               <Input
                 type="number"
                 placeholder="0"
                 value={newExpense.amount}
-                onChange={(e) => setNewExpense({...newExpense, amount: e.target.value})}
+                onChange={e =>
+                  setNewExpense({ ...newExpense, amount: e.target.value })
+                }
               />
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Category *</label>
-              <Select value={newExpense.category} onValueChange={(value: any) => setNewExpense({...newExpense, category: value})}>
+              <label className="text-sm font-medium mb-2 block">
+                Category *
+              </label>
+              <Select
+                value={newExpense.category}
+                onValueChange={(value: any) =>
+                  setNewExpense({ ...newExpense, category: value })
+                }
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -446,22 +519,30 @@ export default function ExpensesPage({ onBack, role }: ExpensesPageProps) {
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Paid To *</label>
+              <label className="text-sm font-medium mb-2 block">
+                Paid To *
+              </label>
               <Input
                 placeholder="e.g., Safari Park Hotel"
                 value={newExpense.paidTo}
-                onChange={(e) => setNewExpense({...newExpense, paidTo: e.target.value})}
+                onChange={e =>
+                  setNewExpense({ ...newExpense, paidTo: e.target.value })
+                }
               />
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Notes (Optional)</label>
+              <label className="text-sm font-medium mb-2 block">
+                Notes (Optional)
+              </label>
               <textarea
                 className="w-full px-3 py-2 border rounded-lg bg-input-background focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                 rows={3}
                 placeholder="Additional details..."
                 value={newExpense.notes}
-                onChange={(e) => setNewExpense({...newExpense, notes: e.target.value})}
+                onChange={e =>
+                  setNewExpense({ ...newExpense, notes: e.target.value })
+                }
               />
             </div>
           </div>
@@ -469,7 +550,10 @@ export default function ExpensesPage({ onBack, role }: ExpensesPageProps) {
             <Button variant="outline" onClick={() => setShowAddExpense(false)}>
               Cancel
             </Button>
-            <Button className="bg-primary hover:bg-primary/90" onClick={handleAddExpense}>
+            <Button
+              className="bg-primary hover:bg-primary/90"
+              onClick={handleAddExpense}
+            >
               Record Expense
             </Button>
           </DialogFooter>
@@ -481,36 +565,49 @@ export default function ExpensesPage({ onBack, role }: ExpensesPageProps) {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Expense Details</DialogTitle>
-            <DialogDescription>Complete information about this expense</DialogDescription>
+            <DialogDescription>
+              Complete information about this expense
+            </DialogDescription>
           </DialogHeader>
           {selectedExpense && (
             <div className="space-y-4">
               <div className="p-4 bg-destructive/10 rounded-lg">
                 <p className="text-sm text-muted-foreground mb-1">Amount</p>
-                <p className="text-2xl font-bold text-destructive">-KSh {selectedExpense.amount.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-destructive">
+                  -KSh {selectedExpense.amount.toLocaleString()}
+                </p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">Category</p>
-                  <Badge variant="outline" className={categoryColors[selectedExpense.category]}>
-                    {selectedExpense.category.charAt(0).toUpperCase() + selectedExpense.category.slice(1)}
+                  <Badge
+                    variant="outline"
+                    className={categoryColors[selectedExpense.category]}
+                  >
+                    {selectedExpense.category.charAt(0).toUpperCase() +
+                      selectedExpense.category.slice(1)}
                   </Badge>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">Date</p>
                   <p className="font-medium">
-                    {new Date(selectedExpense.date).toLocaleDateString('en-KE', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric'
-                    })}
+                    {new Date(selectedExpense.date).toLocaleDateString(
+                      'en-KE',
+                      {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      }
+                    )}
                   </p>
                 </div>
               </div>
 
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Description</p>
+                <p className="text-sm text-muted-foreground mb-1">
+                  Description
+                </p>
                 <p className="font-medium">{selectedExpense.description}</p>
               </div>
 
@@ -520,13 +617,17 @@ export default function ExpensesPage({ onBack, role }: ExpensesPageProps) {
               </div>
 
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Approved By</p>
+                <p className="text-sm text-muted-foreground mb-1">
+                  Approved By
+                </p>
                 <p className="font-medium">{selectedExpense.approvedBy}</p>
               </div>
 
               {selectedExpense.receipt && (
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Receipt Number</p>
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Receipt Number
+                  </p>
                   <p className="font-mono font-medium bg-muted px-3 py-2 rounded">
                     {selectedExpense.receipt}
                   </p>
@@ -541,7 +642,11 @@ export default function ExpensesPage({ onBack, role }: ExpensesPageProps) {
               )}
 
               <div className="pt-4 border-t flex gap-2">
-                <Button variant="outline" className="flex-1" onClick={() => setShowDetails(false)}>
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setShowDetails(false)}
+                >
                   Close
                 </Button>
                 <Button variant="outline" className="flex-1">

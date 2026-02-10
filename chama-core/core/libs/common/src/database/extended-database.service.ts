@@ -1,10 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from './database.service';
-import { extendedPrisma, PaginationArgs, PaginatedResult } from './prisma-extensions';
+import {
+  extendedPrisma,
+  PaginationArgs,
+  PaginatedResult,
+} from './prisma-extensions';
 
 /**
  * Extended Database Service that adds pagination functionality
- * 
+ *
  * Extends the base DatabaseService with the paginate method from Prisma extensions,
  * providing a unified interface for both basic CRUD operations and advanced features.
  */
@@ -14,19 +18,19 @@ export class ExtendedDatabaseService extends DatabaseService {
 
   /**
    * Paginate results for any model
-   * 
+   *
    * @param modelName - Name of the Prisma model (e.g., 'user', 'chama')
    * @param args - Pagination arguments
    * @returns Promise containing paginated results
    */
   async paginate<T>(
     modelName: string,
-    args: PaginationArgs
+    args: PaginationArgs,
   ): Promise<PaginatedResult<T>> {
     try {
       // Get the model from the extended client
       const model = (this.extendedClient as any)[modelName];
-      
+
       if (!model) {
         throw new Error(`Model '${modelName}' not found`);
       }
@@ -44,7 +48,7 @@ export class ExtendedDatabaseService extends DatabaseService {
 
   /**
    * Paginate users with filtering and sorting
-   * 
+   *
    * @param args - Pagination arguments
    * @returns Promise containing paginated user results
    */
@@ -54,7 +58,7 @@ export class ExtendedDatabaseService extends DatabaseService {
 
   /**
    * Paginate chamas with filtering and sorting
-   * 
+   *
    * @param args - Pagination arguments
    * @returns Promise containing paginated chama results
    */
@@ -64,38 +68,42 @@ export class ExtendedDatabaseService extends DatabaseService {
 
   /**
    * Paginate contributions with filtering and sorting
-   * 
+   *
    * @param args - Pagination arguments
    * @returns Promise containing paginated contribution results
    */
-  async paginateContributions(args: PaginationArgs): Promise<PaginatedResult<any>> {
+  async paginateContributions(
+    args: PaginationArgs,
+  ): Promise<PaginatedResult<any>> {
     return this.paginate('contribution', args);
   }
 
   /**
    * Paginate transactions with filtering and sorting
-   * 
+   *
    * @param args - Pagination arguments
    * @returns Promise containing paginated transaction results
    */
-  async paginateTransactions(args: PaginationArgs): Promise<PaginatedResult<any>> {
+  async paginateTransactions(
+    args: PaginationArgs,
+  ): Promise<PaginatedResult<any>> {
     return this.paginate('transaction', args);
   }
 
   /**
    * Get paginated results with relationships included
-   * 
+   *
    * @param modelName - Name of the Prisma model
    * @param args - Pagination arguments with include options
    * @returns Promise containing paginated results with relationships
    */
   async paginateWithRelations<T>(
     modelName: string,
-    args: PaginationArgs & { include?: any }
+    args: PaginationArgs & { include?: any },
   ): Promise<PaginatedResult<T>> {
     try {
       const model = (this.extendedClient as any)[modelName];
-      
+
       if (!model) {
         throw new Error(`Model '${modelName}' not found`);
       }
@@ -140,7 +148,7 @@ export class ExtendedDatabaseService extends DatabaseService {
 
   /**
    * Search and paginate across multiple fields
-   * 
+   *
    * @param modelName - Name of the Prisma model
    * @param searchTerm - Search term to match against
    * @param searchFields - Array of field names to search in
@@ -151,7 +159,7 @@ export class ExtendedDatabaseService extends DatabaseService {
     modelName: string,
     searchTerm: string,
     searchFields: string[],
-    args: Omit<PaginationArgs, 'filters'>
+    args: Omit<PaginationArgs, 'filters'>,
   ): Promise<PaginatedResult<T>> {
     try {
       // Build search filters
@@ -179,7 +187,7 @@ export class ExtendedDatabaseService extends DatabaseService {
 
   /**
    * Validate pagination arguments
-   * 
+   *
    * @param args - Pagination arguments to validate
    */
   private validatePaginationArgs(args: PaginationArgs): void {
@@ -196,7 +204,7 @@ export class ExtendedDatabaseService extends DatabaseService {
 
   /**
    * Get pagination metadata without fetching data
-   * 
+   *
    * @param modelName - Name of the Prisma model
    * @param filters - Filters to apply
    * @param perPage - Items per page
@@ -205,7 +213,7 @@ export class ExtendedDatabaseService extends DatabaseService {
   async getPaginationMeta(
     modelName: string,
     filters: any = {},
-    perPage: number = 10
+    perPage: number = 10,
   ): Promise<{
     total: number;
     totalPages: number;
@@ -213,7 +221,7 @@ export class ExtendedDatabaseService extends DatabaseService {
   }> {
     try {
       const model = (this.extendedClient as any)[modelName];
-      
+
       if (!model) {
         throw new Error(`Model '${modelName}' not found`);
       }
@@ -232,4 +240,3 @@ export class ExtendedDatabaseService extends DatabaseService {
     }
   }
 }
-

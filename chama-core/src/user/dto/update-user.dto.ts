@@ -1,4 +1,10 @@
-import { IsEmail, IsEnum, IsOptional, IsString, MinLength } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsOptional,
+  IsString,
+  MinLength,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserType } from '@prisma/client';
 
@@ -13,7 +19,10 @@ export class UpdateUserDto {
   @IsOptional()
   lastName?: string;
 
-  @ApiProperty({ required: false, description: 'Display name (full name) of the user' })
+  @ApiProperty({
+    required: false,
+    description: 'Display name (full name) of the user',
+  })
   @IsString()
   @IsOptional()
   displayName?: string;
@@ -28,18 +37,29 @@ export class UpdateUserDto {
   @IsOptional()
   phone?: string;
 
-  @ApiProperty({ required: false, description: 'Phone number of the user (alternative field)' })
+  @ApiProperty({
+    required: false,
+    description: 'Phone number of the user (alternative field)',
+  })
   @IsString()
   @IsOptional()
   phoneNumber?: string;
 
-  @ApiProperty({ required: false, description: 'Password for the user account', minLength: 6 })
+  @ApiProperty({
+    required: false,
+    description: 'Password for the user account',
+    minLength: 6,
+  })
   @IsString()
   @MinLength(6)
   @IsOptional()
   password?: string;
 
-  @ApiProperty({ required: false, enum: UserType, description: 'User type (ADMIN or MEMBER)' })
+  @ApiProperty({
+    required: false,
+    enum: UserType,
+    description: 'User type (ADMIN or MEMBER)',
+  })
   @IsEnum(UserType)
   @IsOptional()
   activeUserType?: UserType;

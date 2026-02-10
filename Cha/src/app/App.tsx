@@ -1,15 +1,34 @@
 import React, { useState } from 'react';
 import { Button } from './components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './components/ui/card';
-import { Users, TrendingUp, Shield, Bell, FileText, UserPlus, ArrowRight, CheckCircle2 } from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from './components/ui/card';
+import {
+  Users,
+  TrendingUp,
+  Shield,
+  Bell,
+  FileText,
+  UserPlus,
+  ArrowRight,
+  CheckCircle2,
+} from 'lucide-react';
 import Dashboard from './components/Dashboard';
 
 export default function App() {
-  const [activeView, setActiveView] = useState<'landing' | 'login' | 'dashboard'>('landing');
+  const [activeView, setActiveView] = useState<
+    'landing' | 'login' | 'dashboard'
+  >('landing');
   const [userRole, setUserRole] = useState<'admin' | 'member'>('admin');
 
   if (activeView === 'dashboard') {
-    return <Dashboard role={userRole} onLogout={() => setActiveView('landing')} />;
+    return (
+      <Dashboard role={userRole} onLogout={() => setActiveView('landing')} />
+    );
   }
 
   return (
@@ -17,9 +36,9 @@ export default function App() {
       {activeView === 'landing' ? (
         <LandingPage onGetStarted={() => setActiveView('login')} />
       ) : (
-        <LoginPage 
+        <LoginPage
           onBack={() => setActiveView('landing')}
-          onLogin={(role) => {
+          onLogin={role => {
             setUserRole(role);
             setActiveView('dashboard');
           }}
@@ -60,11 +79,16 @@ function LandingPage({ onGetStarted }: { onGetStarted: () => void }) {
             <span className="text-primary">Confidence</span>
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground mb-8 leading-relaxed">
-            ChamaPlus makes it easy to track contributions, manage members, and grow your savings together. 
-            Built for Kenyan Chamas with M-Pesa integration and transparent reporting.
+            ChamaPlus makes it easy to track contributions, manage members, and
+            grow your savings together. Built for Kenyan Chamas with M-Pesa
+            integration and transparent reporting.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground" onClick={onGetStarted}>
+            <Button
+              size="lg"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground"
+              onClick={onGetStarted}
+            >
               Get Started Free
               <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
@@ -173,7 +197,11 @@ function LandingPage({ onGetStarted }: { onGetStarted: () => void }) {
               <BenefitItem text="Mobile-first design works on any phone" />
               <BenefitItem text="Secure, trustworthy, and transparent" />
             </div>
-            <Button size="lg" className="mt-8 bg-primary hover:bg-primary/90" onClick={onGetStarted}>
+            <Button
+              size="lg"
+              className="mt-8 bg-primary hover:bg-primary/90"
+              onClick={onGetStarted}
+            >
               Start Your Free Trial
             </Button>
           </div>
@@ -185,8 +213,9 @@ function LandingPage({ onGetStarted }: { onGetStarted: () => void }) {
               </CardHeader>
               <CardContent>
                 <p className="italic text-muted-foreground mb-4">
-                  "ChamaPlus has transformed how we manage our savings. No more Excel sheets or confusion. 
-                  Everything is clear and members trust the system completely."
+                  "ChamaPlus has transformed how we manage our savings. No more
+                  Excel sheets or confusion. Everything is clear and members
+                  trust the system completely."
                 </p>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
@@ -194,7 +223,9 @@ function LandingPage({ onGetStarted }: { onGetStarted: () => void }) {
                   </div>
                   <div>
                     <p className="font-medium">Mary Wanjiku</p>
-                    <p className="text-sm text-muted-foreground">Admin, Tumaini Chama</p>
+                    <p className="text-sm text-muted-foreground">
+                      Admin, Tumaini Chama
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -210,9 +241,15 @@ function LandingPage({ onGetStarted }: { onGetStarted: () => void }) {
             Ready to Transform Your Chama?
           </h2>
           <p className="text-lg mb-8 opacity-90">
-            Join hundreds of Kenyan Chamas already using ChamaPlus. Start your free trial today.
+            Join hundreds of Kenyan Chamas already using ChamaPlus. Start your
+            free trial today.
           </p>
-          <Button size="lg" variant="secondary" className="bg-white text-primary hover:bg-white/90" onClick={onGetStarted}>
+          <Button
+            size="lg"
+            variant="secondary"
+            className="bg-white text-primary hover:bg-white/90"
+            onClick={onGetStarted}
+          >
             Get Started - It's Free
             <ArrowRight className="ml-2 w-5 h-5" />
           </Button>
@@ -240,7 +277,13 @@ function LandingPage({ onGetStarted }: { onGetStarted: () => void }) {
   );
 }
 
-function LoginPage({ onBack, onLogin }: { onBack: () => void; onLogin: (role: 'admin' | 'member') => void }) {
+function LoginPage({
+  onBack,
+  onLogin,
+}: {
+  onBack: () => void;
+  onLogin: (role: 'admin' | 'member') => void;
+}) {
   const [role, setRole] = useState<'admin' | 'member' | null>(null);
 
   return (
@@ -251,7 +294,9 @@ function LoginPage({ onBack, onLogin }: { onBack: () => void; onLogin: (role: 'a
             <div className="w-12 h-12 rounded-lg bg-primary flex items-center justify-center">
               <Users className="w-7 h-7 text-primary-foreground" />
             </div>
-            <span className="text-2xl font-bold text-foreground">ChamaPlus</span>
+            <span className="text-2xl font-bold text-foreground">
+              ChamaPlus
+            </span>
           </div>
           <h2 className="text-2xl font-bold mb-2">Welcome Back</h2>
           <p className="text-muted-foreground">Sign in to manage your Chama</p>
@@ -275,7 +320,9 @@ function LoginPage({ onBack, onLogin }: { onBack: () => void; onLogin: (role: 'a
                   </div>
                   <div className="text-left">
                     <p className="font-medium">Admin</p>
-                    <p className="text-sm text-muted-foreground">Manage Chama & members</p>
+                    <p className="text-sm text-muted-foreground">
+                      Manage Chama & members
+                    </p>
                   </div>
                 </div>
               </Button>
@@ -290,7 +337,9 @@ function LoginPage({ onBack, onLogin }: { onBack: () => void; onLogin: (role: 'a
                   </div>
                   <div className="text-left">
                     <p className="font-medium">Member</p>
-                    <p className="text-sm text-muted-foreground">View contributions & reports</p>
+                    <p className="text-sm text-muted-foreground">
+                      View contributions & reports
+                    </p>
                   </div>
                 </div>
               </Button>
@@ -332,7 +381,10 @@ function LoginPage({ onBack, onLogin }: { onBack: () => void; onLogin: (role: 'a
                   className="w-full px-3 py-2 border rounded-lg bg-input-background focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
-              <Button className="w-full bg-primary hover:bg-primary/90" onClick={() => onLogin(role)}>
+              <Button
+                className="w-full bg-primary hover:bg-primary/90"
+                onClick={() => onLogin(role)}
+              >
                 Sign In
               </Button>
               <div className="text-center">
@@ -340,7 +392,11 @@ function LoginPage({ onBack, onLogin }: { onBack: () => void; onLogin: (role: 'a
                   Forgot password?
                 </button>
               </div>
-              <Button variant="ghost" className="w-full" onClick={() => setRole(null)}>
+              <Button
+                variant="ghost"
+                className="w-full"
+                onClick={() => setRole(null)}
+              >
                 Change Role
               </Button>
             </CardContent>
@@ -351,27 +407,29 @@ function LoginPage({ onBack, onLogin }: { onBack: () => void; onLogin: (role: 'a
   );
 }
 
-function FeatureCard({ 
-  icon, 
-  title, 
-  description, 
-  color 
-}: { 
-  icon: React.ReactNode; 
-  title: string; 
-  description: string; 
+function FeatureCard({
+  icon,
+  title,
+  description,
+  color,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
   color: 'primary' | 'secondary' | 'accent';
 }) {
   const bgColors = {
     primary: 'bg-primary/10',
     secondary: 'bg-secondary/10',
-    accent: 'bg-accent/10'
+    accent: 'bg-accent/10',
   };
 
   return (
     <Card className="border-border hover:shadow-lg transition-shadow">
       <CardHeader>
-        <div className={`w-14 h-14 rounded-lg ${bgColors[color]} flex items-center justify-center mb-3`}>
+        <div
+          className={`w-14 h-14 rounded-lg ${bgColors[color]} flex items-center justify-center mb-3`}
+        >
           {icon}
         </div>
         <CardTitle className="text-xl">{title}</CardTitle>
@@ -383,13 +441,13 @@ function FeatureCard({
   );
 }
 
-function StepCard({ 
-  number, 
-  title, 
-  description 
-}: { 
-  number: string; 
-  title: string; 
+function StepCard({
+  number,
+  title,
+  description,
+}: {
+  number: string;
+  title: string;
   description: string;
 }) {
   return (

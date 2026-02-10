@@ -6,10 +6,7 @@ module.exports = {
     sourceType: 'module',
   },
   plugins: ['@typescript-eslint/eslint-plugin'],
-  extends: [
-    '@typescript-eslint/recommended',
-    'prettier',
-  ],
+  extends: ['@typescript-eslint/recommended', 'prettier'],
   root: true,
   env: {
     node: true,
@@ -23,4 +20,3 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'warn',
   },
 };
-

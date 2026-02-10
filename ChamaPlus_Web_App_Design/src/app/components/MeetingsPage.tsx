@@ -1,11 +1,17 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Input } from './ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { 
-  ArrowLeft, 
+import {
+  ArrowLeft,
   Calendar,
   Clock,
   MapPin,
@@ -18,7 +24,7 @@ import {
   Eye,
   Video,
   User,
-  FileText
+  FileText,
 } from 'lucide-react';
 import {
   Dialog,
@@ -85,11 +91,11 @@ export default function MeetingsPage({ onBack, role }: MeetingsPageProps) {
         'Review January contributions',
         'Discuss investment opportunities',
         'Member welfare updates',
-        'Any other business'
+        'Any other business',
       ],
       attendees: 0,
       totalMembers: 10,
-      status: 'upcoming'
+      status: 'upcoming',
     },
     {
       id: '2',
@@ -98,13 +104,10 @@ export default function MeetingsPage({ onBack, role }: MeetingsPageProps) {
       time: '18:00',
       location: 'Zoom Meeting',
       type: 'virtual',
-      agenda: [
-        'Loan request review',
-        'Budget adjustments'
-      ],
+      agenda: ['Loan request review', 'Budget adjustments'],
       attendees: 0,
       totalMembers: 10,
-      status: 'upcoming'
+      status: 'upcoming',
     },
     {
       id: '3',
@@ -117,18 +120,19 @@ export default function MeetingsPage({ onBack, role }: MeetingsPageProps) {
         'Review December contributions',
         'Annual financial report',
         'Election of officials',
-        'New year targets'
+        'New year targets',
       ],
       attendees: 9,
       totalMembers: 10,
       status: 'completed',
-      minutes: 'Meeting started at 2:00 PM with 9 members present. Reviewed December contributions totaling KSh 50,000. Discussed investment options for accumulated savings. Elections held for secretary position.',
+      minutes:
+        'Meeting started at 2:00 PM with 9 members present. Reviewed December contributions totaling KSh 50,000. Discussed investment options for accumulated savings. Elections held for secretary position.',
       decisions: [
         'Approved investment of KSh 200,000 in treasury bonds',
         'Elected Mary Wanjiku as new secretary',
         'Set monthly target at KSh 5,000 per member',
-        'Scheduled next meeting for February 5th'
-      ]
+        'Scheduled next meeting for February 5th',
+      ],
     },
     {
       id: '4',
@@ -140,17 +144,18 @@ export default function MeetingsPage({ onBack, role }: MeetingsPageProps) {
       agenda: [
         'Year-end financial review',
         'Dividend distribution',
-        'Planning for 2026'
+        'Planning for 2026',
       ],
       attendees: 10,
       totalMembers: 10,
       status: 'completed',
-      minutes: 'Full attendance achieved. Reviewed entire year performance with total contributions of KSh 600,000. Distributed dividends based on individual contributions.',
+      minutes:
+        'Full attendance achieved. Reviewed entire year performance with total contributions of KSh 600,000. Distributed dividends based on individual contributions.',
       decisions: [
         'Distributed KSh 50,000 in dividends',
         'Approved 2026 budget and targets',
-        'Agreed to maintain current contribution model'
-      ]
+        'Agreed to maintain current contribution model',
+      ],
     },
     {
       id: '5',
@@ -159,14 +164,11 @@ export default function MeetingsPage({ onBack, role }: MeetingsPageProps) {
       time: '14:00',
       location: 'Community Hall, Nairobi',
       type: 'physical',
-      agenda: [
-        'H1 performance review',
-        'H2 targets setting'
-      ],
+      agenda: ['H1 performance review', 'H2 targets setting'],
       attendees: 8,
       totalMembers: 10,
-      status: 'completed'
-    }
+      status: 'completed',
+    },
   ];
 
   const attendees: Attendee[] = [
@@ -183,7 +185,9 @@ export default function MeetingsPage({ onBack, role }: MeetingsPageProps) {
   ];
 
   const upcomingMeetings = meetings.filter(m => m.status === 'upcoming');
-  const pastMeetings = meetings.filter(m => m.status === 'completed' || m.status === 'cancelled');
+  const pastMeetings = meetings.filter(
+    m => m.status === 'completed' || m.status === 'cancelled'
+  );
 
   const handleViewDetails = (meeting: Meeting) => {
     setSelectedMeeting(meeting);
@@ -209,13 +213,13 @@ export default function MeetingsPage({ onBack, role }: MeetingsPageProps) {
   const statusColors = {
     upcoming: 'bg-primary/10 text-primary border-primary/20',
     completed: 'bg-secondary/10 text-secondary border-secondary/20',
-    cancelled: 'bg-destructive/10 text-destructive border-destructive/20'
+    cancelled: 'bg-destructive/10 text-destructive border-destructive/20',
   };
 
   const attendanceColors = {
     present: 'bg-secondary/10 text-secondary border-secondary/20',
     absent: 'bg-destructive/10 text-destructive border-destructive/20',
-    apology: 'bg-accent/10 text-accent border-accent/20'
+    apology: 'bg-accent/10 text-accent border-accent/20',
   };
 
   const MeetingCard = ({ meeting }: { meeting: Meeting }) => (
@@ -232,7 +236,7 @@ export default function MeetingsPage({ onBack, role }: MeetingsPageProps) {
                     weekday: 'long',
                     year: 'numeric',
                     month: 'long',
-                    day: 'numeric'
+                    day: 'numeric',
                   })}
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -258,7 +262,8 @@ export default function MeetingsPage({ onBack, role }: MeetingsPageProps) {
             <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
               <Users className="w-4 h-4 text-muted-foreground" />
               <span className="text-sm">
-                <span className="font-medium">{meeting.attendees}</span> / {meeting.totalMembers} members attended
+                <span className="font-medium">{meeting.attendees}</span> /{' '}
+                {meeting.totalMembers} members attended
               </span>
             </div>
           )}
@@ -284,10 +289,7 @@ export default function MeetingsPage({ onBack, role }: MeetingsPageProps) {
             )}
             {role === 'admin' && meeting.status === 'upcoming' && (
               <>
-                <Button
-                  variant="outline"
-                  size="sm"
-                >
+                <Button variant="outline" size="sm">
                   <Edit className="w-4 h-4 mr-1" />
                   Edit
                 </Button>
@@ -319,7 +321,9 @@ export default function MeetingsPage({ onBack, role }: MeetingsPageProps) {
           </Button>
           <div>
             <h1 className="text-2xl font-bold">Meetings</h1>
-            <p className="text-sm text-muted-foreground">Schedule and track Chama meetings</p>
+            <p className="text-sm text-muted-foreground">
+              Schedule and track Chama meetings
+            </p>
           </div>
         </div>
         {role === 'admin' && (
@@ -351,7 +355,9 @@ export default function MeetingsPage({ onBack, role }: MeetingsPageProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Completed</p>
-                <p className="text-2xl font-bold">{pastMeetings.filter(m => m.status === 'completed').length}</p>
+                <p className="text-2xl font-bold">
+                  {pastMeetings.filter(m => m.status === 'completed').length}
+                </p>
               </div>
               <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center">
                 <CheckCircle2 className="w-6 h-6 text-secondary" />
@@ -376,26 +382,29 @@ export default function MeetingsPage({ onBack, role }: MeetingsPageProps) {
       </div>
 
       {/* Meetings Tabs */}
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'upcoming' | 'past')}>
+      <Tabs
+        value={activeTab}
+        onValueChange={v => setActiveTab(v as 'upcoming' | 'past')}
+      >
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="upcoming">
             Upcoming ({upcomingMeetings.length})
           </TabsTrigger>
-          <TabsTrigger value="past">
-            Past ({pastMeetings.length})
-          </TabsTrigger>
+          <TabsTrigger value="past">Past ({pastMeetings.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="upcoming" className="space-y-4 mt-6">
           {upcomingMeetings.length > 0 ? (
-            upcomingMeetings.map((meeting) => (
+            upcomingMeetings.map(meeting => (
               <MeetingCard key={meeting.id} meeting={meeting} />
             ))
           ) : (
             <Card>
               <CardContent className="py-12 text-center">
                 <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-50" />
-                <p className="text-muted-foreground">No upcoming meetings scheduled</p>
+                <p className="text-muted-foreground">
+                  No upcoming meetings scheduled
+                </p>
                 {role === 'admin' && (
                   <Button className="mt-4 bg-primary hover:bg-primary/90">
                     <Plus className="w-4 h-4 mr-2" />
@@ -408,7 +417,7 @@ export default function MeetingsPage({ onBack, role }: MeetingsPageProps) {
         </TabsContent>
 
         <TabsContent value="past" className="space-y-4 mt-6">
-          {pastMeetings.map((meeting) => (
+          {pastMeetings.map(meeting => (
             <MeetingCard key={meeting.id} meeting={meeting} />
           ))}
         </TabsContent>
@@ -420,12 +429,13 @@ export default function MeetingsPage({ onBack, role }: MeetingsPageProps) {
           <DialogHeader>
             <DialogTitle>{selectedMeeting?.title}</DialogTitle>
             <DialogDescription>
-              {selectedMeeting && new Date(selectedMeeting.date).toLocaleDateString('en-KE', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-              })}
+              {selectedMeeting &&
+                new Date(selectedMeeting.date).toLocaleDateString('en-KE', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
             </DialogDescription>
           </DialogHeader>
           {selectedMeeting && (
@@ -442,9 +452,13 @@ export default function MeetingsPage({ onBack, role }: MeetingsPageProps) {
                   <p className="text-sm text-muted-foreground mb-1">Type</p>
                   <Badge variant="outline">
                     {selectedMeeting.type === 'physical' ? (
-                      <><MapPin className="w-3 h-3 mr-1" /> Physical</>
+                      <>
+                        <MapPin className="w-3 h-3 mr-1" /> Physical
+                      </>
                     ) : (
-                      <><Video className="w-3 h-3 mr-1" /> Virtual</>
+                      <>
+                        <Video className="w-3 h-3 mr-1" /> Virtual
+                      </>
                     )}
                   </Badge>
                 </div>
@@ -457,14 +471,23 @@ export default function MeetingsPage({ onBack, role }: MeetingsPageProps) {
 
               {selectedMeeting.status === 'completed' && (
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Attendance</p>
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Attendance
+                  </p>
                   <div className="flex items-center gap-2">
                     <Users className="w-4 h-4 text-muted-foreground" />
                     <span className="font-medium">
-                      {selectedMeeting.attendees} / {selectedMeeting.totalMembers} members
+                      {selectedMeeting.attendees} /{' '}
+                      {selectedMeeting.totalMembers} members
                     </span>
                     <span className="text-muted-foreground">
-                      ({Math.round((selectedMeeting.attendees / selectedMeeting.totalMembers) * 100)}%)
+                      (
+                      {Math.round(
+                        (selectedMeeting.attendees /
+                          selectedMeeting.totalMembers) *
+                          100
+                      )}
+                      %)
                     </span>
                   </div>
                 </div>
@@ -475,7 +498,9 @@ export default function MeetingsPage({ onBack, role }: MeetingsPageProps) {
                 <ul className="space-y-2">
                   {selectedMeeting.agenda.map((item, index) => (
                     <li key={index} className="flex items-start gap-2">
-                      <span className="text-primary font-bold">{index + 1}.</span>
+                      <span className="text-primary font-bold">
+                        {index + 1}.
+                      </span>
                       <span>{item}</span>
                     </li>
                   ))}
@@ -484,7 +509,9 @@ export default function MeetingsPage({ onBack, role }: MeetingsPageProps) {
 
               {selectedMeeting.minutes && (
                 <div>
-                  <p className="text-sm text-muted-foreground mb-2">Meeting Minutes</p>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Meeting Minutes
+                  </p>
                   <div className="p-4 bg-muted rounded-lg">
                     <p className="text-sm">{selectedMeeting.minutes}</p>
                   </div>
@@ -493,10 +520,15 @@ export default function MeetingsPage({ onBack, role }: MeetingsPageProps) {
 
               {selectedMeeting.decisions && (
                 <div>
-                  <p className="text-sm text-muted-foreground mb-2">Key Decisions</p>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Key Decisions
+                  </p>
                   <div className="space-y-2">
                     {selectedMeeting.decisions.map((decision, index) => (
-                      <div key={index} className="flex items-start gap-2 p-3 bg-secondary/10 rounded-lg">
+                      <div
+                        key={index}
+                        className="flex items-start gap-2 p-3 bg-secondary/10 rounded-lg"
+                      >
                         <CheckCircle2 className="w-4 h-4 text-secondary mt-0.5" />
                         <span className="text-sm">{decision}</span>
                       </div>
@@ -525,24 +557,35 @@ export default function MeetingsPage({ onBack, role }: MeetingsPageProps) {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Meeting Attendance</DialogTitle>
-            <DialogDescription>
-              {selectedMeeting?.title}
-            </DialogDescription>
+            <DialogDescription>{selectedMeeting?.title}</DialogDescription>
           </DialogHeader>
           <div className="space-y-3 max-h-[60vh] overflow-y-auto">
             {attendees.map((attendee, index) => (
-              <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+              <div
+                key={index}
+                className="flex items-center justify-between p-3 border rounded-lg"
+              >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
                     <User className="w-5 h-5 text-primary" />
                   </div>
                   <span className="font-medium">{attendee.name}</span>
                 </div>
-                <Badge variant="outline" className={attendanceColors[attendee.status]}>
-                  {attendee.status === 'present' && <CheckCircle2 className="w-3 h-3 mr-1" />}
-                  {attendee.status === 'absent' && <XCircle className="w-3 h-3 mr-1" />}
-                  {attendee.status === 'apology' && <Clock className="w-3 h-3 mr-1" />}
-                  {attendee.status.charAt(0).toUpperCase() + attendee.status.slice(1)}
+                <Badge
+                  variant="outline"
+                  className={attendanceColors[attendee.status]}
+                >
+                  {attendee.status === 'present' && (
+                    <CheckCircle2 className="w-3 h-3 mr-1" />
+                  )}
+                  {attendee.status === 'absent' && (
+                    <XCircle className="w-3 h-3 mr-1" />
+                  )}
+                  {attendee.status === 'apology' && (
+                    <Clock className="w-3 h-3 mr-1" />
+                  )}
+                  {attendee.status.charAt(0).toUpperCase() +
+                    attendee.status.slice(1)}
                 </Badge>
               </div>
             ))}
@@ -561,7 +604,8 @@ export default function MeetingsPage({ onBack, role }: MeetingsPageProps) {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Meeting?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{selectedMeeting?.title}"? This action cannot be undone.
+              Are you sure you want to delete "{selectedMeeting?.title}"? This
+              action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

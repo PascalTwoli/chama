@@ -86,9 +86,7 @@ export class UserService {
       }
 
       const message = error instanceof Error ? error.message : 'Unknown error';
-      throw new BadRequestException(
-        `Failed to update user type: ${message}`,
-      );
+      throw new BadRequestException(`Failed to update user type: ${message}`);
     }
   }
 
@@ -151,10 +149,13 @@ export class UserService {
 
       // Type check for error with code property
       const errorWithCode = error as any;
-      
+
       // If Firebase user was created but local user creation failed,
       // attempt to delete the Firebase user to maintain consistency
-      if (errorWithCode.code !== 'auth/email-already-exists' && errorWithCode.firebaseUid) {
+      if (
+        errorWithCode.code !== 'auth/email-already-exists' &&
+        errorWithCode.firebaseUid
+      ) {
         try {
           await firebaseAdmin.auth().deleteUser(errorWithCode.firebaseUid);
           console.log(
@@ -174,14 +175,13 @@ export class UserService {
       } else if (errorWithCode.code === 'auth/invalid-phone-number') {
         throw new BadRequestException('The phone number is invalid');
       } else if (errorWithCode.code?.includes('prisma')) {
-        const message = error instanceof Error ? error.message : 'Database error';
+        const message =
+          error instanceof Error ? error.message : 'Database error';
         throw new BadRequestException(`Database error: ${message}`);
       }
 
       const message = error instanceof Error ? error.message : 'Unknown error';
-      throw new BadRequestException(
-        `User registration failed: ${message}`,
-      );
+      throw new BadRequestException(`User registration failed: ${message}`);
     }
   }
 
@@ -625,9 +625,7 @@ export class UserService {
       }
 
       const message = error instanceof Error ? error.message : 'Unknown error';
-      throw new BadRequestException(
-        `Failed to update local user: ${message}`,
-      );
+      throw new BadRequestException(`Failed to update local user: ${message}`);
     }
   }
 
@@ -691,7 +689,8 @@ export class UserService {
             `Error deleting local user with ID ${uid}:`,
             localError,
           );
-          const message = localError instanceof Error ? localError.message : 'Unknown error';
+          const message =
+            localError instanceof Error ? localError.message : 'Unknown error';
           throw new BadRequestException(
             `Failed to delete local user: ${message}`,
           );

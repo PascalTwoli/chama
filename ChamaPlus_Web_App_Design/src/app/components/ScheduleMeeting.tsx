@@ -1,8 +1,22 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { ArrowLeft, Calendar, Clock, MapPin, Users, Send, CheckCircle2 } from 'lucide-react';
+import {
+  ArrowLeft,
+  Calendar,
+  Clock,
+  MapPin,
+  Users,
+  Send,
+  CheckCircle2,
+} from 'lucide-react';
 import { toast } from 'sonner';
 
 interface ScheduleMeetingProps {
@@ -40,7 +54,7 @@ export default function ScheduleMeeting({ onBack }: ScheduleMeetingProps) {
       time: '6:00 PM',
       location: 'Community Hall, Kileleshwa',
       attendees: 22,
-      status: 'upcoming'
+      status: 'upcoming',
     },
     {
       id: 2,
@@ -49,7 +63,7 @@ export default function ScheduleMeeting({ onBack }: ScheduleMeetingProps) {
       time: '7:00 PM',
       location: 'Online (Zoom)',
       attendees: 18,
-      status: 'upcoming'
+      status: 'upcoming',
     },
   ];
 
@@ -61,7 +75,7 @@ export default function ScheduleMeeting({ onBack }: ScheduleMeetingProps) {
       time: '6:00 PM',
       location: 'Community Hall, Kileleshwa',
       attendees: 24,
-      status: 'completed'
+      status: 'completed',
     },
     {
       id: 4,
@@ -70,7 +84,7 @@ export default function ScheduleMeeting({ onBack }: ScheduleMeetingProps) {
       time: '5:00 PM',
       location: 'Online (Zoom)',
       attendees: 20,
-      status: 'completed'
+      status: 'completed',
     },
   ];
 
@@ -84,7 +98,9 @@ export default function ScheduleMeeting({ onBack }: ScheduleMeetingProps) {
         </Button>
         <div>
           <h1 className="text-2xl font-bold">Schedule Meeting</h1>
-          <p className="text-sm text-muted-foreground">Plan and notify members about upcoming meetings</p>
+          <p className="text-sm text-muted-foreground">
+            Plan and notify members about upcoming meetings
+          </p>
         </div>
       </div>
 
@@ -107,7 +123,7 @@ export default function ScheduleMeeting({ onBack }: ScheduleMeetingProps) {
                   placeholder="Monthly Meeting - January"
                   className="w-full px-4 py-2 border rounded-lg bg-input-background focus:outline-none focus:ring-2 focus:ring-primary"
                   value={title}
-                  onChange={(e) => setTitle(e.target.value)}
+                  onChange={e => setTitle(e.target.value)}
                   required
                 />
               </div>
@@ -124,7 +140,7 @@ export default function ScheduleMeeting({ onBack }: ScheduleMeetingProps) {
                       type="date"
                       className="w-full pl-10 pr-4 py-2 border rounded-lg bg-input-background focus:outline-none focus:ring-2 focus:ring-primary"
                       value={date}
-                      onChange={(e) => setDate(e.target.value)}
+                      onChange={e => setDate(e.target.value)}
                       required
                     />
                   </div>
@@ -141,7 +157,7 @@ export default function ScheduleMeeting({ onBack }: ScheduleMeetingProps) {
                       type="time"
                       className="w-full pl-10 pr-4 py-2 border rounded-lg bg-input-background focus:outline-none focus:ring-2 focus:ring-primary"
                       value={time}
-                      onChange={(e) => setTime(e.target.value)}
+                      onChange={e => setTime(e.target.value)}
                       required
                     />
                   </div>
@@ -160,7 +176,7 @@ export default function ScheduleMeeting({ onBack }: ScheduleMeetingProps) {
                     placeholder="Community Hall, Kileleshwa"
                     className="w-full pl-10 pr-4 py-2 border rounded-lg bg-input-background focus:outline-none focus:ring-2 focus:ring-primary"
                     value={location}
-                    onChange={(e) => setLocation(e.target.value)}
+                    onChange={e => setLocation(e.target.value)}
                     required
                   />
                 </div>
@@ -176,7 +192,7 @@ export default function ScheduleMeeting({ onBack }: ScheduleMeetingProps) {
                   className="w-full px-4 py-2 border rounded-lg bg-input-background focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                   rows={6}
                   value={agenda}
-                  onChange={(e) => setAgenda(e.target.value)}
+                  onChange={e => setAgenda(e.target.value)}
                 />
               </div>
 
@@ -185,7 +201,7 @@ export default function ScheduleMeeting({ onBack }: ScheduleMeetingProps) {
                   type="checkbox"
                   id="sendReminder"
                   checked={sendReminder}
-                  onChange={(e) => setSendReminder(e.target.checked)}
+                  onChange={e => setSendReminder(e.target.checked)}
                   className="w-4 h-4 text-primary"
                 />
                 <label htmlFor="sendReminder" className="text-sm">
@@ -193,7 +209,10 @@ export default function ScheduleMeeting({ onBack }: ScheduleMeetingProps) {
                 </label>
               </div>
 
-              <Button type="submit" className="w-full bg-primary hover:bg-primary/90">
+              <Button
+                type="submit"
+                className="w-full bg-primary hover:bg-primary/90"
+              >
                 <Send className="w-4 h-4 mr-2" />
                 Schedule Meeting
               </Button>
@@ -261,7 +280,9 @@ export default function ScheduleMeeting({ onBack }: ScheduleMeetingProps) {
                 <p className="text-lg font-bold">92%</p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Meetings This Year</p>
+                <p className="text-sm text-muted-foreground">
+                  Meetings This Year
+                </p>
                 <p className="text-lg font-bold">2</p>
               </div>
             </CardContent>
@@ -273,11 +294,13 @@ export default function ScheduleMeeting({ onBack }: ScheduleMeetingProps) {
       <Card>
         <CardHeader>
           <CardTitle>Upcoming Meetings</CardTitle>
-          <CardDescription>Scheduled meetings for the next 30 days</CardDescription>
+          <CardDescription>
+            Scheduled meetings for the next 30 days
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {upcomingMeetings.map((meeting) => (
+            {upcomingMeetings.map(meeting => (
               <div
                 key={meeting.id}
                 className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors gap-3"
@@ -323,11 +346,13 @@ export default function ScheduleMeeting({ onBack }: ScheduleMeetingProps) {
       <Card>
         <CardHeader>
           <CardTitle>Past Meetings</CardTitle>
-          <CardDescription>Meeting history and attendance records</CardDescription>
+          <CardDescription>
+            Meeting history and attendance records
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {pastMeetings.map((meeting) => (
+            {pastMeetings.map(meeting => (
               <div
                 key={meeting.id}
                 className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-lg border border-border gap-3 opacity-75"
@@ -351,10 +376,15 @@ export default function ScheduleMeeting({ onBack }: ScheduleMeetingProps) {
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                  <Badge
+                    variant="outline"
+                    className="bg-green-50 text-green-700 border-green-200"
+                  >
                     Completed
                   </Badge>
-                  <span className="text-sm text-muted-foreground">{meeting.attendees} attended</span>
+                  <span className="text-sm text-muted-foreground">
+                    {meeting.attendees} attended
+                  </span>
                 </div>
               </div>
             ))}

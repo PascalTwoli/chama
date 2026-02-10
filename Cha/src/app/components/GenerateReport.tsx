@@ -1,8 +1,23 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { ArrowLeft, FileText, Download, Calendar, Users, DollarSign, TrendingUp, CheckCircle2 } from 'lucide-react';
+import {
+  ArrowLeft,
+  FileText,
+  Download,
+  Calendar,
+  Users,
+  DollarSign,
+  TrendingUp,
+  CheckCircle2,
+} from 'lucide-react';
 import { toast } from 'sonner';
 
 interface GenerateReportProps {
@@ -30,28 +45,28 @@ export default function GenerateReport({ onBack }: GenerateReportProps) {
       title: 'Financial Summary',
       description: 'Total contributions, expenses, and current balance',
       icon: <DollarSign className="w-6 h-6" />,
-      color: 'primary'
+      color: 'primary',
     },
     {
       id: 'members',
       title: 'Member Activity',
       description: 'Individual member contributions and attendance',
       icon: <Users className="w-6 h-6" />,
-      color: 'secondary'
+      color: 'secondary',
     },
     {
       id: 'trends',
       title: 'Trends & Analytics',
       description: 'Growth patterns and performance metrics',
       icon: <TrendingUp className="w-6 h-6" />,
-      color: 'accent'
+      color: 'accent',
     },
     {
       id: 'compliance',
       title: 'Compliance Report',
       description: 'Payment status and rule adherence',
       icon: <CheckCircle2 className="w-6 h-6" />,
-      color: 'primary'
+      color: 'primary',
     },
   ];
 
@@ -61,21 +76,21 @@ export default function GenerateReport({ onBack }: GenerateReportProps) {
       title: 'Financial Summary - Q4 2025',
       type: 'Financial',
       date: 'Jan 5, 2026',
-      size: '2.4 MB'
+      size: '2.4 MB',
     },
     {
       id: 2,
       title: 'Member Activity - December 2025',
       type: 'Members',
       date: 'Jan 1, 2026',
-      size: '1.8 MB'
+      size: '1.8 MB',
     },
     {
       id: 3,
       title: 'Year End Report 2025',
       type: 'Financial',
       date: 'Dec 31, 2025',
-      size: '3.2 MB'
+      size: '3.2 MB',
     },
   ];
 
@@ -89,7 +104,9 @@ export default function GenerateReport({ onBack }: GenerateReportProps) {
         </Button>
         <div>
           <h1 className="text-2xl font-bold">Generate Report</h1>
-          <p className="text-sm text-muted-foreground">Create detailed reports for your Chama</p>
+          <p className="text-sm text-muted-foreground">
+            Create detailed reports for your Chama
+          </p>
         </div>
       </div>
 
@@ -100,11 +117,13 @@ export default function GenerateReport({ onBack }: GenerateReportProps) {
           <Card>
             <CardHeader>
               <CardTitle>Select Report Type</CardTitle>
-              <CardDescription>Choose the type of report you need</CardDescription>
+              <CardDescription>
+                Choose the type of report you need
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {reportTypes.map((type) => (
+                {reportTypes.map(type => (
                   <button
                     key={type.id}
                     onClick={() => setReportType(type.id)}
@@ -115,12 +134,16 @@ export default function GenerateReport({ onBack }: GenerateReportProps) {
                     }`}
                   >
                     <div className="flex items-start gap-3">
-                      <div className={`w-10 h-10 rounded-lg bg-${type.color}/10 flex items-center justify-center flex-shrink-0`}>
+                      <div
+                        className={`w-10 h-10 rounded-lg bg-${type.color}/10 flex items-center justify-center flex-shrink-0`}
+                      >
                         {type.icon}
                       </div>
                       <div>
                         <p className="font-medium">{type.title}</p>
-                        <p className="text-xs text-muted-foreground mt-1">{type.description}</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {type.description}
+                        </p>
                       </div>
                     </div>
                   </button>
@@ -149,7 +172,7 @@ export default function GenerateReport({ onBack }: GenerateReportProps) {
                         type="date"
                         className="w-full pl-10 pr-4 py-2 border rounded-lg bg-input-background focus:outline-none focus:ring-2 focus:ring-primary"
                         value={startDate}
-                        onChange={(e) => setStartDate(e.target.value)}
+                        onChange={e => setStartDate(e.target.value)}
                         required
                       />
                     </div>
@@ -166,7 +189,7 @@ export default function GenerateReport({ onBack }: GenerateReportProps) {
                         type="date"
                         className="w-full pl-10 pr-4 py-2 border rounded-lg bg-input-background focus:outline-none focus:ring-2 focus:ring-primary"
                         value={endDate}
-                        onChange={(e) => setEndDate(e.target.value)}
+                        onChange={e => setEndDate(e.target.value)}
                         required
                       />
                     </div>
@@ -229,7 +252,7 @@ export default function GenerateReport({ onBack }: GenerateReportProps) {
                       type="checkbox"
                       id="includeCharts"
                       checked={includeCharts}
-                      onChange={(e) => setIncludeCharts(e.target.checked)}
+                      onChange={e => setIncludeCharts(e.target.checked)}
                       className="w-4 h-4 text-primary"
                     />
                     <label htmlFor="includeCharts" className="text-sm">
@@ -261,11 +284,19 @@ export default function GenerateReport({ onBack }: GenerateReportProps) {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <Button type="submit" className="bg-primary hover:bg-primary/90" disabled={!reportType}>
+                  <Button
+                    type="submit"
+                    className="bg-primary hover:bg-primary/90"
+                    disabled={!reportType}
+                  >
                     <FileText className="w-4 h-4 mr-2" />
                     Generate Report
                   </Button>
-                  <Button type="button" variant="outline" disabled={!reportType}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={!reportType}
+                  >
                     <Download className="w-4 h-4 mr-2" />
                     Download as PDF
                   </Button>
@@ -327,7 +358,9 @@ export default function GenerateReport({ onBack }: GenerateReportProps) {
             </CardHeader>
             <CardContent className="space-y-3">
               <div>
-                <p className="text-sm text-muted-foreground">Reports Generated</p>
+                <p className="text-sm text-muted-foreground">
+                  Reports Generated
+                </p>
                 <p className="text-2xl font-bold">12</p>
               </div>
               <div>
@@ -352,7 +385,7 @@ export default function GenerateReport({ onBack }: GenerateReportProps) {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {recentReports.map((report) => (
+            {recentReports.map(report => (
               <div
                 key={report.id}
                 className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors"
