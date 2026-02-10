@@ -74,7 +74,9 @@ describe('AuthController', () => {
 
       const result = await controller.getCurrentUser(mockCurrentUser);
 
-      expect(userService.findOne).toHaveBeenCalledWith(mockCurrentUser.firebaseUid);
+      expect(userService.findOne).toHaveBeenCalledWith(
+        mockCurrentUser.firebaseUid,
+      );
       expect(result).toBeInstanceOf(UserResponseEntity);
       expect(result.localUser).toBeDefined();
       expect(result.localUser.id).toBe('user123');
@@ -129,4 +131,3 @@ describe('AuthController', () => {
     });
   });
 });
-

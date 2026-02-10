@@ -41,9 +41,9 @@ function updateUser(userId, updateData, token) {
             // Make the API request
             const response = yield axios_1.default.patch(`/user/${userId}`, updateData, {
                 headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
             });
             return response.data;
         }
@@ -94,7 +94,7 @@ function updateUserName() {
         try {
             const updatedUser = yield updateUser(userId, {
                 firstName: 'Jane',
-                lastName: 'Smith'
+                lastName: 'Smith',
             }, token);
             console.log('User updated successfully:', updatedUser);
         }
@@ -112,7 +112,7 @@ function updateUserContactInfo() {
         try {
             const updatedUser = yield updateUser(userId, {
                 email: 'jane.smith@example.com',
-                phoneNumber: '+1234567890'
+                phoneNumber: '+1234567890',
             }, token);
             console.log('User contact info updated successfully:', updatedUser);
         }
@@ -129,7 +129,7 @@ function updateUserPassword() {
         const token = 'your_firebase_id_token';
         try {
             const updatedUser = yield updateUser(userId, {
-                password: 'NewStrongP@ssw0rd!'
+                password: 'NewStrongP@ssw0rd!',
             }, token);
             console.log('User password updated successfully');
         }
@@ -146,7 +146,7 @@ function updateUserRole() {
         const token = 'your_firebase_id_token';
         try {
             const updatedUser = yield updateUser(userId, {
-                activeUserType: UserType.ADMIN
+                activeUserType: UserType.ADMIN,
             }, token);
             console.log('User role updated successfully:', updatedUser);
         }

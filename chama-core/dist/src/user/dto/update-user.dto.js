@@ -29,7 +29,10 @@ __decorate([
     __metadata("design:type", String)
 ], UpdateUserDto.prototype, "lastName", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ required: false, description: 'Display name (full name) of the user' }),
+    (0, swagger_1.ApiProperty)({
+        required: false,
+        description: 'Display name (full name) of the user',
+    }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
@@ -47,20 +50,31 @@ __decorate([
     __metadata("design:type", String)
 ], UpdateUserDto.prototype, "phone", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ required: false, description: 'Phone number of the user (alternative field)' }),
+    (0, swagger_1.ApiProperty)({
+        required: false,
+        description: 'Phone number of the user (alternative field)',
+    }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], UpdateUserDto.prototype, "phoneNumber", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ required: false, description: 'Password for the user account', minLength: 6 }),
+    (0, swagger_1.ApiProperty)({
+        required: false,
+        description: 'Password for the user account',
+        minLength: 6,
+    }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.MinLength)(6),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], UpdateUserDto.prototype, "password", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ required: false, enum: client_1.UserType, description: 'User type (ADMIN or MEMBER)' }),
+    (0, swagger_1.ApiProperty)({
+        required: false,
+        enum: client_1.UserType,
+        description: 'User type (ADMIN or MEMBER)',
+    }),
     (0, class_validator_1.IsEnum)(client_1.UserType),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)

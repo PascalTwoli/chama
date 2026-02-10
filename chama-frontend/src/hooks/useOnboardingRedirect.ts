@@ -1,6 +1,7 @@
 import { useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useChamaMembership } from '../context/ChamaMembershipContext';
+import { ChamaMembership } from '../models/user';
 
 interface OnboardingRedirectResult {
   isLoading: boolean;
@@ -31,13 +32,13 @@ const ONBOARDING_ROUTES = [
  * - If not authenticated: allow public routes only
  * - If authenticated && no chamas: redirect to /onboarding/chama-choice
  * - If authenticated && has chamas:
- *   - If ADMIN: redirect to /admin/dashboard
- *   - If MEMBER: redirect to /member/dashboard
+ *   - If OWNER/ADMIN: redirect to admin dashboard (or member based on lastContext)
+ *   - If MEMBER: redirect to member dashboard
  */
 export const useOnboardingRedirect = (): OnboardingRedirectResult => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated, chamas, activeChama, isLoading } =
+  const { isAuthenticated, chamas, activeChama, isLoading, hasAdminAccess } =
     useChamaMembership();
 
   const getRedirectPath = useCallback((): string | null => {
@@ -78,23 +79,38 @@ export const useOnboardingRedirect = (): OnboardingRedirectResult => {
         ONBOARDING_ROUTES.includes(currentPath) ||
         PUBLIC_ROUTES.includes(currentPath)
       ) {
-        if (activeChama.role === 'ADMIN') {
+        // Use hasAdminAccess to determine dashboard
+        if (hasAdminAccess) {
           return `/admin/chamas/${activeChama.chamaId}`;
         }
         return `/member/chamas/${activeChama.chamaId}`;
       }
 
       // Check if on correct dashboard for role
-      if (activeChama.role === 'ADMIN' && currentPath.startsWith('/member/')) {
-        return `/admin/chamas/${activeChama.chamaId}`;
+      // OWNER and ADMIN can access admin routes
+      const canAccessAdmin =
+        activeChama.systemRole === 'OWNER' ||
+        activeChama.systemRole === 'ADMIN';
+
+      if (canAccessAdmin && currentPath.startsWith('/member/')) {
+        // Admin on member route is fine - dashboard switching is allowed
+        return null;
       }
-      if (activeChama.role === 'MEMBER' && currentPath.startsWith('/admin/')) {
+      if (!canAccessAdmin && currentPath.startsWith('/admin/')) {
+        // Member trying to access admin route - redirect to member dashboard
         return `/member/chamas/${activeChama.chamaId}`;
       }
     }
 
     return null;
-  }, [isAuthenticated, chamas, activeChama, isLoading, location.pathname]);
+  }, [
+    isAuthenticated,
+    chamas,
+    activeChama,
+    isLoading,
+    hasAdminAccess,
+    location.pathname,
+  ]);
 
   const redirectPath = getRedirectPath();
   const shouldRedirect = redirectPath !== null;
@@ -116,13 +132,17 @@ export const useOnboardingRedirect = (): OnboardingRedirectResult => {
  * Get the appropriate dashboard path based on active chama role
  */
 export const getDashboardPath = (
-  activeChama: { chamaId: string; role: 'ADMIN' | 'MEMBER' } | null
+  activeChama: ChamaMembership | null
 ): string => {
   if (!activeChama) {
     return '/onboarding/chama-choice';
   }
 
-  if (activeChama.role === 'ADMIN') {
+  // OWNER and ADMIN go to admin dashboard
+  if (
+    activeChama.systemRole === 'OWNER' ||
+    activeChama.systemRole === 'ADMIN'
+  ) {
     return `/admin/chamas/${activeChama.chamaId}`;
   }
 

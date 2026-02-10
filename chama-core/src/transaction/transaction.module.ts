@@ -10,4 +10,3 @@ import { UserModule } from '../user/user.module';
   providers: [TransactionService],
 })
 export class TransactionModule {}
-

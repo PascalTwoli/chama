@@ -6,9 +6,36 @@ import React, {
   useCallback,
   ReactNode,
 } from 'react';
-import { ChamaMembership, User } from '../models/user';
+import {
+  ChamaMembership,
+  User,
+  SystemRole,
+  GovernanceRole,
+  computePermissions,
+} from '../models/user';
 import ChamaService from '../services/chama/chama-services';
 import AuthService from '../services/auth/signup-service';
+
+// ==================== DASHBOARD CONTEXT UTILITIES ====================
+
+/**
+ * Get the last dashboard context the user was in
+ */
+export const getLastDashboardContext = (): 'admin' | 'member' => {
+  return (
+    (localStorage.getItem('lastDashboardContext') as 'admin' | 'member') ||
+    'admin'
+  );
+};
+
+/**
+ * Set the last dashboard context
+ */
+export const setLastDashboardContext = (context: 'admin' | 'member'): void => {
+  localStorage.setItem('lastDashboardContext', context);
+};
+
+// ==================== CONTEXT TYPES ====================
 
 interface ChamaMembershipContextType {
   user: User | null;
@@ -19,6 +46,11 @@ interface ChamaMembershipContextType {
   setActiveChama: (chama: ChamaMembership) => void;
   refreshMemberships: () => Promise<void>;
   clearMemberships: () => void;
+  // New: Check if user has admin dashboard access
+  hasAdminAccess: boolean;
+  // New: Current dashboard context
+  dashboardContext: 'admin' | 'member';
+  setDashboardContext: (context: 'admin' | 'member') => void;
 }
 
 const ChamaMembershipContext = createContext<
@@ -29,6 +61,76 @@ interface ChamaMembershipProviderProps {
   children: ReactNode;
 }
 
+// ==================== ROLE DETECTION HELPERS ====================
+
+/**
+ * Determine system role from API response
+ */
+function determineSystemRole(
+  chama: {
+    role?: string;
+    organizationRole?: string;
+    userType?: string;
+    createdBy?: string;
+    isOwner?: boolean;
+  },
+  currentUserId: string | undefined,
+  hasCreatedChama: boolean,
+  activeChamaIdFromStorage: string | null,
+  chamaId: string
+): SystemRole {
+  const roleUpperCase = chama.role?.toUpperCase();
+  const userTypeUpperCase = chama.userType?.toUpperCase();
+
+  // Check if user is OWNER
+  const isOwner =
+    chama.isOwner === true ||
+    roleUpperCase === 'OWNER' ||
+    userTypeUpperCase === 'OWNER' ||
+    chama.createdBy === currentUserId ||
+    (hasCreatedChama && chamaId === activeChamaIdFromStorage);
+
+  if (isOwner) {
+    return 'OWNER';
+  }
+
+  // Check if user is ADMIN
+  const orgRoleUpperCase = chama.organizationRole?.toUpperCase();
+  const isAdmin =
+    roleUpperCase === 'ADMIN' ||
+    orgRoleUpperCase === 'CHAIRPERSON' ||
+    orgRoleUpperCase === 'SECRETARY' ||
+    orgRoleUpperCase === 'TREASURER' ||
+    orgRoleUpperCase === 'ADMIN' ||
+    userTypeUpperCase === 'ADMIN';
+
+  if (isAdmin) {
+    return 'ADMIN';
+  }
+
+  return 'MEMBER';
+}
+
+/**
+ * Determine governance role from API response
+ */
+function determineGovernanceRole(orgRole?: string): GovernanceRole {
+  if (!orgRole) return null;
+
+  const normalized = orgRole.toUpperCase();
+  const validRoles: GovernanceRole[] = [
+    'CHAIRPERSON',
+    'VICE_CHAIR',
+    'SECRETARY',
+    'TREASURER',
+    'WELFARE_OFFICER',
+  ];
+
+  return (validRoles.find(r => r === normalized) as GovernanceRole) || null;
+}
+
+// ==================== PROVIDER ====================
+
 export const ChamaMembershipProvider: React.FC<
   ChamaMembershipProviderProps
 > = ({ children }) => {
@@ -38,8 +140,20 @@ export const ChamaMembershipProvider: React.FC<
     null
   );
   const [isLoading, setIsLoading] = useState(true);
+  const [dashboardContext, setDashboardContextState] = useState<
+    'admin' | 'member'
+  >(getLastDashboardContext());
 
   const isAuthenticated = !!localStorage.getItem('authToken');
+
+  // Check if current user has admin access to active chama
+  const hasAdminAccess =
+    activeChama?.systemRole === 'OWNER' || activeChama?.systemRole === 'ADMIN';
+
+  const setDashboardContext = useCallback((context: 'admin' | 'member') => {
+    setDashboardContextState(context);
+    setLastDashboardContext(context);
+  }, []);
 
   const refreshMemberships = useCallback(async () => {
     const token = localStorage.getItem('authToken');
@@ -61,27 +175,56 @@ export const ChamaMembershipProvider: React.FC<
       // Get user's chamas
       const userChamas = await ChamaService.getUserChamas();
 
-      // Transform to ChamaMembership format
+      // Check if user just created a chama (localStorage flag)
+      const hasCreatedChama =
+        localStorage.getItem('hasCreatedChama') === 'true';
+      const activeChamaIdFromStorage = localStorage.getItem('activeChamaId');
+
+      // Transform to ChamaMembership format with new role system
       const memberships: ChamaMembership[] = userChamas.map(
         (chama: {
           id: string;
           name: string;
           role?: string;
+          organizationRole?: string;
+          userType?: string;
           status?: string;
           joinedAt?: string;
-        }) => ({
-          chamaId: chama.id,
-          chamaName: chama.name,
-          role: (chama.role?.toUpperCase() === 'ADMIN' ? 'ADMIN' : 'MEMBER') as
-            | 'ADMIN'
-            | 'MEMBER',
-          isActive: true,
-          status: (chama.status?.toUpperCase() || 'APPROVED') as
-            | 'PENDING'
-            | 'APPROVED'
-            | 'REJECTED',
-          joinedAt: chama.joinedAt,
-        })
+          createdBy?: string;
+          isOwner?: boolean;
+        }) => {
+          // Determine system role (OWNER / ADMIN / MEMBER)
+          const systemRole = determineSystemRole(
+            chama,
+            currentUser?.id,
+            hasCreatedChama,
+            activeChamaIdFromStorage,
+            chama.id
+          );
+
+          // Determine governance role (CHAIRPERSON, TREASURER, etc.)
+          const governanceRole = determineGovernanceRole(
+            chama.organizationRole
+          );
+
+          // Compute permissions based on roles
+          const permissions = computePermissions(systemRole, governanceRole);
+
+          return {
+            chamaId: chama.id,
+            chamaName: chama.name,
+            systemRole,
+            governanceRole,
+            permissions,
+            isActive: true,
+            status: (chama.status?.toUpperCase() || 'APPROVED') as
+              | 'PENDING'
+              | 'APPROVED'
+              | 'REJECTED',
+            joinedAt: chama.joinedAt,
+            isOwner: systemRole === 'OWNER',
+          };
+        }
       );
 
       setChamas(memberships);
@@ -125,6 +268,7 @@ export const ChamaMembershipProvider: React.FC<
     setChamas([]);
     setActiveChamaState(null);
     localStorage.removeItem('activeChamaId');
+    localStorage.removeItem('lastDashboardContext');
   }, []);
 
   // Initial load
@@ -141,6 +285,9 @@ export const ChamaMembershipProvider: React.FC<
     setActiveChama,
     refreshMemberships,
     clearMemberships,
+    hasAdminAccess,
+    dashboardContext,
+    setDashboardContext,
   };
 
   return (

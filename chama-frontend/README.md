@@ -16,10 +16,10 @@ A modern React-based web application for ChamaPlus - a savings group (Chama) man
 
 Before you begin, ensure you have the following:
 
-| Tool | Version | Installation |
-|------|---------|--------------|
-| **Node.js** | v18+ | [Download](https://nodejs.org/) |
-| **npm** | v9+ | Comes with Node.js |
+| Tool            | Version | Installation                                     |
+| --------------- | ------- | ------------------------------------------------ |
+| **Node.js**     | v18+    | [Download](https://nodejs.org/)                  |
+| **npm**         | v9+     | Comes with Node.js                               |
 | **Backend API** | Running | See [chama-core README](../chama-core/README.md) |
 
 ## Quick Start
@@ -113,28 +113,29 @@ chama-frontend/
 ## Key Features
 
 ### Authentication Flow
+
 - **Sign Up** → Creates account → Redirects to Chama Choice
 - **Sign In** → Authenticates → Redirects based on chama membership
 
 ### Route Structure
 
-| Route | Access | Description |
-|-------|--------|-------------|
-| `/` | Public | Landing page |
-| `/auth/signin` | Public | Sign in page |
-| `/auth/signup` | Public | Sign up page |
-| `/onboarding/chama-choice` | Auth | Choose/create/join chama |
-| `/onboarding/create-chama` | Auth | Create new chama |
-| `/admin/chamas/:id/*` | Admin | Admin dashboard routes |
-| `/member/chamas/:id/*` | Member | Member dashboard routes |
+| Route                      | Access | Description              |
+| -------------------------- | ------ | ------------------------ |
+| `/`                        | Public | Landing page             |
+| `/auth/signin`             | Public | Sign in page             |
+| `/auth/signup`             | Public | Sign up page             |
+| `/onboarding/chama-choice` | Auth   | Choose/create/join chama |
+| `/onboarding/create-chama` | Auth   | Create new chama         |
+| `/admin/chamas/:id/*`      | Admin  | Admin dashboard routes   |
+| `/member/chamas/:id/*`     | Member | Member dashboard routes  |
 
 ### Route Guards
 
-| Guard | Purpose |
-|-------|---------|
-| `AuthGuard` | Requires authentication |
+| Guard             | Purpose                                |
+| ----------------- | -------------------------------------- |
+| `AuthGuard`       | Requires authentication                |
 | `OnboardingGuard` | Requires auth + handles chama redirect |
-| `DashboardGuard` | Requires auth + chama + correct role |
+| `DashboardGuard`  | Requires auth + chama + correct role   |
 
 ## Connecting to Backend
 
@@ -157,38 +158,50 @@ The frontend expects the backend API at `http://localhost:5500/api/v1`
 ### Common Issues
 
 #### 1. API Connection Error
+
 ```
 Error: Network Error / CORS Error
 ```
+
 **Solutions:**
+
 - Ensure backend is running on port 5500
 - Check `REACT_APP_API_URL` in `.env`
 - Verify CORS is enabled on backend
 
 #### 2. Authentication Issues
+
 ```
 401 Unauthorized on API calls
 ```
+
 **Solutions:**
+
 - Clear localStorage: `localStorage.clear()`
 - Sign in again
 - Check if authToken is being saved correctly
 
 #### 3. Blank Page After Login
+
 ```
 User stuck on login page after successful login
 ```
+
 **Solution:** Clear localStorage and try again
+
 ```javascript
 // In browser console
-localStorage.clear()
+localStorage.clear();
 ```
 
 #### 4. Port Already in Use
+
 ```
 Error: Something is already running on port 3000
 ```
+
 **Solution:** Kill the process or use different port
+
 ```bash
 # Kill process on port 3000
 lsof -ti:3000 | xargs kill -9
@@ -198,10 +211,13 @@ PORT=3001 npm start
 ```
 
 #### 5. Module Not Found Errors
+
 ```
 Module not found: Can't resolve '...'
 ```
+
 **Solution:** Reinstall dependencies
+
 ```bash
 rm -rf node_modules package-lock.json
 npm install
@@ -209,11 +225,11 @@ npm install
 
 ## Scripts Reference
 
-| Script | Command | Description |
-|--------|---------|-------------|
-| `start` | `npm start` | Start dev server |
+| Script  | Command         | Description      |
+| ------- | --------------- | ---------------- |
+| `start` | `npm start`     | Start dev server |
 | `build` | `npm run build` | Production build |
-| `test` | `npm test` | Run tests |
+| `test`  | `npm test`      | Run tests        |
 | `eject` | `npm run eject` | Eject CRA config |
 
 ## Tech Stack

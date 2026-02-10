@@ -1,12 +1,12 @@
-import { 
-  Injectable, 
-  NotFoundException, 
-  BadRequestException, 
-  ConflictException, 
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  ConflictException,
   UnauthorizedException,
   Logger,
   InternalServerErrorException,
-  Optional
+  Optional,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
@@ -22,22 +22,25 @@ import { MembershipEntity } from './entities/membership.entity';
 export class InviteService {
   private readonly logger = new Logger(InviteService.name);
   private readonly baseUrl: string;
-  
+
   constructor(
     private readonly prisma: PrismaService,
     @Optional() private readonly emailService: EmailService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
   ) {
-    this.baseUrl = this.configService.get<string>('APP_BASE_URL', 'http://localhost:3000');
+    this.baseUrl = this.configService.get<string>(
+      'APP_BASE_URL',
+      'http://localhost:3000',
+    );
   }
 
   /**
    * Create a new invite for a user to join a chama
    */
   async createInvite(
-    createInviteDto: CreateInviteDto, 
-    requestUserId: string, 
-    sendEmail: boolean = false
+    createInviteDto: CreateInviteDto,
+    requestUserId: string,
+    sendEmail: boolean = false,
   ): Promise<{ invite: Invite; inviteLink: string }> {
     const { chamaId, email } = createInviteDto;
 
@@ -45,7 +48,7 @@ export class InviteService {
       // Get the requesting user
       const requestingUser = await this.prisma.user.findUnique({
         where: { id: requestUserId },
-        select: { id: true, name: true, email: true }
+        select: { id: true, name: true, email: true },
       });
 
       if (!requestingUser) {
@@ -71,11 +74,13 @@ export class InviteService {
       // Verify the requesting user is an admin of the chama
       // Note: memberships array is already filtered to only include the requesting user's memberships from the query above
       const isUserAdmin = chama.memberships.some(
-        (membership) => membership.role === UserRole.CHAIRPERSON
+        membership => membership.role === UserRole.CHAIRPERSON,
       );
-      
-      this.logger.debug(`Invite permission check for user ${requestUserId} in chama ${chamaId}: isAdmin=${isUserAdmin}`);
-      
+
+      this.logger.debug(
+        `Invite permission check for user ${requestUserId} in chama ${chamaId}: isAdmin=${isUserAdmin}`,
+      );
+
       if (!isUserAdmin) {
         throw new UnauthorizedException('Only chama admins can send invites');
       }
@@ -95,7 +100,9 @@ export class InviteService {
         });
 
         if (existingMembership) {
-          throw new ConflictException(`User with email ${email} is already a member of this chama`);
+          throw new ConflictException(
+            `User with email ${email} is already a member of this chama`,
+          );
         }
       }
 
@@ -113,13 +120,13 @@ export class InviteService {
 
       if (existingInvite) {
         throw new ConflictException(
-          `An active invite already exists for ${email} in this chama`
+          `An active invite already exists for ${email} in this chama`,
         );
       }
 
       // Generate a secure random token
       const token = randomBytes(32).toString('hex');
-      
+
       // Set expiration date (7 days from now)
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 7);
@@ -137,23 +144,28 @@ export class InviteService {
             select: {
               id: true,
               name: true,
-              description: true
-            }
+              description: true,
+            },
           },
         },
       });
 
       // Generate the invite link
       const inviteLink = `${this.baseUrl}/join-chama/${token}`;
-      
+
       // Send invite email if requested and email service is available
       if (sendEmail && this.emailService) {
-        await this.sendInviteEmail(email, invite.chama.name, token, requestingUser.name || 'A Chama Admin');
+        await this.sendInviteEmail(
+          email,
+          invite.chama.name,
+          token,
+          requestingUser.name || 'A Chama Admin',
+        );
       }
 
-      return { 
-        invite, 
-        inviteLink 
+      return {
+        invite,
+        inviteLink,
       };
     } catch (error) {
       // Pass through known error types
@@ -165,7 +177,7 @@ export class InviteService {
       ) {
         throw error;
       }
-      
+
       // Log and wrap unknown errors
       const message = error instanceof Error ? error.message : 'Unknown error';
       const stack = error instanceof Error ? error.stack : undefined;
@@ -177,19 +189,22 @@ export class InviteService {
   /**
    * Validate and accept an invite
    */
-  async validateAndAcceptInvite(token: string, userId: string): Promise<Membership> {
+  async validateAndAcceptInvite(
+    token: string,
+    userId: string,
+  ): Promise<Membership> {
     try {
       // Find the invite by token
       const invite = await this.prisma.invite.findUnique({
         where: { token },
-        include: { 
+        include: {
           chama: {
             select: {
               id: true,
               name: true,
-              description: true
-            }
-          } 
+              description: true,
+            },
+          },
         },
       });
 
@@ -210,7 +225,7 @@ export class InviteService {
       // Get user information
       const user = await this.prisma.user.findUnique({
         where: { id: userId },
-        select: { id: true, email: true }
+        select: { id: true, email: true },
       });
 
       if (!user) {
@@ -223,7 +238,9 @@ export class InviteService {
 
       // Check if the invite was sent to this user's email
       if (invite.sentToEmail.toLowerCase() !== user.email.toLowerCase()) {
-        throw new UnauthorizedException('This invite was not sent to your email address');
+        throw new UnauthorizedException(
+          'This invite was not sent to your email address',
+        );
       }
 
       // Check if user is already a member of the chama
@@ -239,7 +256,7 @@ export class InviteService {
       }
 
       // Create membership and mark invite as used in a transaction
-      const result = await this.prisma.$transaction(async (prisma) => {
+      const result = await this.prisma.$transaction(async prisma => {
         // Mark invite as used
         await prisma.invite.update({
           where: { id: invite.id },
@@ -258,8 +275,8 @@ export class InviteService {
               select: {
                 id: true,
                 name: true,
-                description: true
-              }
+                description: true,
+              },
             },
             user: {
               select: {
@@ -269,16 +286,18 @@ export class InviteService {
                 phone: true,
                 createdAt: true,
                 updatedAt: true,
-                activeUserType: true
-              }
-            }
+                activeUserType: true,
+              },
+            },
           },
         });
 
         return membership;
       });
 
-      this.logger.log(`User ${userId} successfully accepted invite to join chama ${invite.chamaId}`);
+      this.logger.log(
+        `User ${userId} successfully accepted invite to join chama ${invite.chamaId}`,
+      );
       return result;
     } catch (error) {
       // Pass through known error types
@@ -290,7 +309,7 @@ export class InviteService {
       ) {
         throw error;
       }
-      
+
       // Log and wrap unknown errors
       const message = error instanceof Error ? error.message : 'Unknown error';
       const stack = error instanceof Error ? error.stack : undefined;
@@ -303,8 +322,8 @@ export class InviteService {
    * List all pending invites for a chama
    */
   async listPendingInvites(
-    chamaId: string, 
-    requestUserId: string
+    chamaId: string,
+    requestUserId: string,
   ): Promise<Invite[]> {
     // Verify the chama exists
     const chama = await this.prisma.chama.findUnique({
@@ -324,11 +343,13 @@ export class InviteService {
 
     // Verify the requesting user is an admin of the chama
     const isChamaAdmin = chama.memberships.some(
-      (membership) => membership.role === UserRole.CHAIRPERSON
+      membership => membership.role === UserRole.CHAIRPERSON,
     );
 
     if (!isChamaAdmin && chama.userId !== requestUserId) {
-      throw new UnauthorizedException('Only chama admins can view pending invites');
+      throw new UnauthorizedException(
+        'Only chama admins can view pending invites',
+      );
     }
 
     // Get pending invites
@@ -345,9 +366,9 @@ export class InviteService {
           select: {
             id: true,
             name: true,
-            description: true
-          }
-        }
+            description: true,
+          },
+        },
       },
       orderBy: {
         createdAt: 'desc',
@@ -374,8 +395,8 @@ export class InviteService {
           select: {
             id: true,
             name: true,
-            description: true
-          }
+            description: true,
+          },
         },
       },
       orderBy: {
@@ -410,7 +431,7 @@ export class InviteService {
     email: string,
     chamaName: string,
     token: string,
-    inviterName: string
+    inviterName: string,
   ): Promise<boolean> {
     if (!this.emailService) {
       this.logger.warn('Email service not available - invite email not sent');
@@ -422,14 +443,16 @@ export class InviteService {
         email,
         chamaName,
         token,
-        inviterName
+        inviterName,
       );
-      
+
       if (emailSent) {
         this.logger.log(`Invite email sent to ${email} for chama ${chamaName}`);
         return true;
       } else {
-        this.logger.warn(`Failed to send invite email to ${email} for chama ${chamaName}`);
+        this.logger.warn(
+          `Failed to send invite email to ${email} for chama ${chamaName}`,
+        );
         return false;
       }
     } catch (error) {

@@ -23,11 +23,19 @@ export class EmailService {
     // Configure Brevo API client
     this.apiKey = this.configService.get<string>('BREVO_API_KEY');
     if (!this.apiKey) {
-      this.logger.warn('BREVO_API_KEY not set. Email sending will be disabled.');
+      this.logger.warn(
+        'BREVO_API_KEY not set. Email sending will be disabled.',
+      );
     }
-    
-    this.senderEmail = this.configService.get<string>('EMAIL_SENDER_ADDRESS', 'no-reply@chamapp.com');
-    this.senderName = this.configService.get<string>('EMAIL_SENDER_NAME', 'Chama App');
+
+    this.senderEmail = this.configService.get<string>(
+      'EMAIL_SENDER_ADDRESS',
+      'no-reply@chamapp.com',
+    );
+    this.senderName = this.configService.get<string>(
+      'EMAIL_SENDER_NAME',
+      'Chama App',
+    );
   }
 
   /**
@@ -41,20 +49,21 @@ export class EmailService {
         return false;
       }
 
-      const { to, subject, htmlContent, textContent, replyTo, tags, params } = options;
+      const { to, subject, htmlContent, textContent, replyTo, tags, params } =
+        options;
 
       // Create sender and email payload directly
       const emailData = {
-        sender: { 
-          email: this.senderEmail, 
-          name: this.senderName 
+        sender: {
+          email: this.senderEmail,
+          name: this.senderName,
         },
         to: to.map(email => ({ email })),
         subject,
         htmlContent,
         textContent,
         tags,
-        params
+        params,
       };
 
       if (replyTo) {
@@ -65,11 +74,11 @@ export class EmailService {
       const response = await fetch('https://api.brevo.com/v3/smtp/email', {
         method: 'POST',
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
-          'api-key': this.apiKey
+          'api-key': this.apiKey,
         },
-        body: JSON.stringify(emailData)
+        body: JSON.stringify(emailData),
       });
 
       if (!response.ok) {
@@ -78,7 +87,9 @@ export class EmailService {
       }
 
       const responseData = await response.json();
-      this.logger.log(`Email sent successfully: ${JSON.stringify(responseData)}`);
+      this.logger.log(
+        `Email sent successfully: ${JSON.stringify(responseData)}`,
+      );
       return true;
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Unknown error';
@@ -92,15 +103,15 @@ export class EmailService {
    * Send an invite email
    */
   async sendInviteEmail(
-    recipientEmail: string, 
-    chamaName: string, 
+    recipientEmail: string,
+    chamaName: string,
     inviteToken: string,
-    inviterName: string
+    inviterName: string,
   ): Promise<boolean> {
     const inviteUrl = `${this.configService.get<string>('FRONTEND_URL', 'http://localhost:3000')}/invite/accept?token=${inviteToken}`;
-    
+
     const subject = `You've been invited to join ${chamaName}`;
-    
+
     // HTML content with styling
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -149,9 +160,8 @@ If you did not expect this invitation, you can safely ignore this email.
       params: {
         chamaName,
         inviteToken,
-        inviterName
-      }
+        inviterName,
+      },
     });
   }
 }
-

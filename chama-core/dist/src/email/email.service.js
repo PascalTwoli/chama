@@ -50,14 +50,14 @@ let EmailService = EmailService_1 = class EmailService {
                 const emailData = {
                     sender: {
                         email: this.senderEmail,
-                        name: this.senderName
+                        name: this.senderName,
                     },
                     to: to.map(email => ({ email })),
                     subject,
                     htmlContent,
                     textContent,
                     tags,
-                    params
+                    params,
                 };
                 if (replyTo) {
                     emailData['replyTo'] = { email: replyTo };
@@ -66,11 +66,11 @@ let EmailService = EmailService_1 = class EmailService {
                 const response = yield fetch('https://api.brevo.com/v3/smtp/email', {
                     method: 'POST',
                     headers: {
-                        'Accept': 'application/json',
+                        Accept: 'application/json',
                         'Content-Type': 'application/json',
-                        'api-key': this.apiKey
+                        'api-key': this.apiKey,
                     },
-                    body: JSON.stringify(emailData)
+                    body: JSON.stringify(emailData),
                 });
                 if (!response.ok) {
                     const errorData = yield response.json();
@@ -141,8 +141,8 @@ If you did not expect this invitation, you can safely ignore this email.
                 params: {
                     chamaName,
                     inviteToken,
-                    inviterName
-                }
+                    inviterName,
+                },
             });
         });
     }

@@ -3,21 +3,16 @@ import { NavLink, useParams } from 'react-router-dom';
 import AuthService from '../services/auth/signup-service';
 import {
   LayoutDashboard,
+  CreditCard,
   Coins,
-  Users,
-  Receipt,
   HandCoins,
+  Users,
   FileBarChart,
   Calendar,
-  MessageSquare,
-  Shield,
-  Activity,
-  Settings,
-  LogOut,
-  Menu,
-  X,
+  Bell,
   Moon,
   Sun,
+  LogOut,
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
@@ -28,7 +23,7 @@ import { useChamaMembership } from '../context/ChamaMembershipContext';
 import { cn } from '../utils/cn';
 import { GovernanceRole } from '../models/user';
 
-function Sidebar() {
+function MemberSidebar() {
   const [isCollapsed, setIsCollapsed] = useState(() => {
     const savedState = localStorage.getItem('sidebarCollapsed');
     return savedState ? JSON.parse(savedState) : false;
@@ -44,7 +39,7 @@ function Sidebar() {
   // Get active chama role info from context
   const { activeChama } = useChamaMembership();
 
-  const baselink = `/admin/chamas/${chamaId}`;
+  const baselink = `/member/chamas/${chamaId}`;
 
   useEffect(() => {
     const fetchChamaData = async () => {
@@ -86,7 +81,6 @@ function Sidebar() {
       });
   }, []);
 
-  //if two names get initials from both names. eg if john doe, initials should be JD
   const getInitials = () => {
     if (!user) return '?';
     return `${user.firstName?.charAt(0) || ''}${user.lastName?.charAt(0) || ''}`.toUpperCase();
@@ -121,7 +115,7 @@ function Sidebar() {
     }
   };
 
-  // Navigation items matching the Figma design exactly
+  // Member-specific navigation items
   const navItems = [
     {
       icon: LayoutDashboard,
@@ -129,20 +123,21 @@ function Sidebar() {
       path: `${baselink}`,
       end: true,
     },
+    {
+      icon: CreditCard,
+      label: 'Make Payment',
+      path: `${baselink}/make-payment`,
+    },
     { icon: Coins, label: 'Contributions', path: `${baselink}/contributions` },
+    {
+      icon: HandCoins,
+      label: 'Request Loan',
+      path: `${baselink}/request-loan`,
+    },
     { icon: Users, label: 'Members', path: `${baselink}/members` },
-    { icon: Receipt, label: 'Expenses', path: `${baselink}/expenses` },
-    { icon: HandCoins, label: 'Loans', path: `${baselink}/loans` },
     { icon: FileBarChart, label: 'Reports', path: `${baselink}/reports` },
     { icon: Calendar, label: 'Meetings', path: `${baselink}/meetings` },
-    {
-      icon: MessageSquare,
-      label: 'Communication',
-      path: `${baselink}/communication`,
-    },
-    { icon: Shield, label: 'Roles & Permissions', path: `${baselink}/roles` },
-    { icon: Activity, label: 'Activity Log', path: `${baselink}/activity-log` },
-    { icon: Settings, label: 'Settings', path: `${baselink}/settings` },
+    { icon: Bell, label: 'Notifications', path: `${baselink}/notifications` },
   ];
 
   const toggleSidebar = () => {
@@ -184,7 +179,7 @@ function Sidebar() {
         {!isCollapsed && (
           <div className='min-w-0'>
             <p className='text-sm font-semibold text-foreground truncate my-0'>
-              Admin Dashboard
+              Member Dashboard
             </p>
             <p className='text-xs text-muted-foreground truncate my-0'>
               {isLoading ? 'Loading...' : chamaName}
@@ -197,7 +192,6 @@ function Sidebar() {
       <nav className='flex-1 overflow-y-auto py-4 px-3'>
         <div className='space-y-1'>
           {navItems.map(({ icon: Icon, label, path, end }) => (
-            // remove underline on side bar links
             <NavLink
               key={label}
               to={path}
@@ -260,17 +254,11 @@ function Sidebar() {
           </div>
           {!isCollapsed && (
             <div className='min-w-0'>
-              {/* remove vertical padding from the user name and role */}
               <p className='text-sm font-medium text-foreground truncate my-0'>
                 {userName}
               </p>
-              <p className='text-xs text-muted-foreground truncate my-0 flex items-center gap-1'>
-                <span>{getRoleDisplayText()}</span>
-                {activeChama?.isOwner && (
-                  <span className='inline-block px-1.5 py-0.5 bg-primary/10 text-primary text-[10px] rounded font-medium'>
-                    Owner
-                  </span>
-                )}
+              <p className='text-xs text-muted-foreground truncate my-0'>
+                {getRoleDisplayText()}
               </p>
             </div>
           )}
@@ -299,4 +287,4 @@ function Sidebar() {
   );
 }
 
-export default Sidebar;
+export default MemberSidebar;

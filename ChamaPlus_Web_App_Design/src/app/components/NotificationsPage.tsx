@@ -1,8 +1,25 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { ArrowLeft, Bell, Check, X, Clock, DollarSign, Calendar, UserPlus, AlertCircle, Banknote } from 'lucide-react';
+import {
+  ArrowLeft,
+  Bell,
+  Check,
+  X,
+  Clock,
+  DollarSign,
+  Calendar,
+  UserPlus,
+  AlertCircle,
+  Banknote,
+} from 'lucide-react';
 import { toast } from 'sonner';
 
 interface NotificationsPageProps {
@@ -21,95 +38,110 @@ interface Notification {
   loanRequestId?: number;
 }
 
-export default function NotificationsPage({ onBack, role }: NotificationsPageProps) {
+export default function NotificationsPage({
+  onBack,
+  role,
+}: NotificationsPageProps) {
   const [filter, setFilter] = useState<'all' | 'unread' | 'action'>('all');
   const [notifications, setNotifications] = useState<Notification[]>(
-    role === 'admin' ? [
-      {
-        id: 1,
-        type: 'loan_request',
-        title: 'Loan Request from Mary Wanjiku',
-        message: 'Mary Wanjiku has requested a loan of KSh 50,000 for 6 months at 5% interest',
-        time: '10 minutes ago',
-        read: false,
-        actionRequired: true,
-        loanRequestId: 1,
-      },
-      {
-        id: 2,
-        type: 'payment',
-        title: 'New Payment Received',
-        message: 'Peter Kamau paid KSh 5,000 via M-Pesa',
-        time: '2 hours ago',
-        read: false,
-      },
-      {
-        id: 3,
-        type: 'loan_request',
-        title: 'Loan Request from David Omondi',
-        message: 'David Omondi has requested a loan of KSh 30,000 for 3 months at 5% interest',
-        time: '5 hours ago',
-        read: false,
-        actionRequired: true,
-        loanRequestId: 2,
-      },
-      {
-        id: 4,
-        type: 'alert',
-        title: 'Payment Reminder Due',
-        message: '3 members have pending payments for this month',
-        time: '1 day ago',
-        read: true,
-      },
-      {
-        id: 5,
-        type: 'member',
-        title: 'New Member Joined',
-        message: 'Grace Njeri has joined the Chama via invite link',
-        time: '2 days ago',
-        read: true,
-      },
-    ] : [
-      {
-        id: 1,
-        type: 'meeting',
-        title: 'Upcoming Meeting Reminder',
-        message: 'Chama meeting scheduled for January 15, 2026 at 2:00 PM',
-        time: '1 hour ago',
-        read: false,
-      },
-      {
-        id: 2,
-        type: 'payment',
-        title: 'Payment Confirmed',
-        message: 'Your payment of KSh 5,000 has been confirmed and recorded',
-        time: '2 days ago',
-        read: false,
-      },
-      {
-        id: 3,
-        type: 'alert',
-        title: 'Contribution Reminder',
-        message: 'Your monthly contribution of KSh 5,000 is due on January 5',
-        time: '3 days ago',
-        read: true,
-      },
-      {
-        id: 4,
-        type: 'loan_request',
-        title: 'Loan Application Approved',
-        message: 'Your loan request of KSh 20,000 has been approved by the admin',
-        time: '5 days ago',
-        read: true,
-      },
-    ]
+    role === 'admin'
+      ? [
+          {
+            id: 1,
+            type: 'loan_request',
+            title: 'Loan Request from Mary Wanjiku',
+            message:
+              'Mary Wanjiku has requested a loan of KSh 50,000 for 6 months at 5% interest',
+            time: '10 minutes ago',
+            read: false,
+            actionRequired: true,
+            loanRequestId: 1,
+          },
+          {
+            id: 2,
+            type: 'payment',
+            title: 'New Payment Received',
+            message: 'Peter Kamau paid KSh 5,000 via M-Pesa',
+            time: '2 hours ago',
+            read: false,
+          },
+          {
+            id: 3,
+            type: 'loan_request',
+            title: 'Loan Request from David Omondi',
+            message:
+              'David Omondi has requested a loan of KSh 30,000 for 3 months at 5% interest',
+            time: '5 hours ago',
+            read: false,
+            actionRequired: true,
+            loanRequestId: 2,
+          },
+          {
+            id: 4,
+            type: 'alert',
+            title: 'Payment Reminder Due',
+            message: '3 members have pending payments for this month',
+            time: '1 day ago',
+            read: true,
+          },
+          {
+            id: 5,
+            type: 'member',
+            title: 'New Member Joined',
+            message: 'Grace Njeri has joined the Chama via invite link',
+            time: '2 days ago',
+            read: true,
+          },
+        ]
+      : [
+          {
+            id: 1,
+            type: 'meeting',
+            title: 'Upcoming Meeting Reminder',
+            message: 'Chama meeting scheduled for January 15, 2026 at 2:00 PM',
+            time: '1 hour ago',
+            read: false,
+          },
+          {
+            id: 2,
+            type: 'payment',
+            title: 'Payment Confirmed',
+            message:
+              'Your payment of KSh 5,000 has been confirmed and recorded',
+            time: '2 days ago',
+            read: false,
+          },
+          {
+            id: 3,
+            type: 'alert',
+            title: 'Contribution Reminder',
+            message:
+              'Your monthly contribution of KSh 5,000 is due on January 5',
+            time: '3 days ago',
+            read: true,
+          },
+          {
+            id: 4,
+            type: 'loan_request',
+            title: 'Loan Application Approved',
+            message:
+              'Your loan request of KSh 20,000 has been approved by the admin',
+            time: '5 days ago',
+            read: true,
+          },
+        ]
   );
 
-  const handleApproveLoan = (notificationId: number, loanRequestId?: number) => {
+  const handleApproveLoan = (
+    notificationId: number,
+    loanRequestId?: number
+  ) => {
     toast.success('Loan request approved successfully!');
     setNotifications(prev =>
       prev.map(notif =>
-        notif.id === notificationId ? { ...notif, read: true, actionRequired: false } : notif
+        notif.id === notificationId
+          ? { ...notif, read: true, actionRequired: false }
+          : notif
       )
     );
   };
@@ -118,7 +150,9 @@ export default function NotificationsPage({ onBack, role }: NotificationsPagePro
     toast.success('Loan request rejected');
     setNotifications(prev =>
       prev.map(notif =>
-        notif.id === notificationId ? { ...notif, read: true, actionRequired: false } : notif
+        notif.id === notificationId
+          ? { ...notif, read: true, actionRequired: false }
+          : notif
       )
     );
   };
@@ -172,7 +206,8 @@ export default function NotificationsPage({ onBack, role }: NotificationsPagePro
           <div>
             <h1 className="text-2xl font-bold">Notifications</h1>
             <p className="text-sm text-muted-foreground">
-              {unreadCount} unread {unreadCount === 1 ? 'notification' : 'notifications'}
+              {unreadCount} unread{' '}
+              {unreadCount === 1 ? 'notification' : 'notifications'}
             </p>
           </div>
         </div>
@@ -227,11 +262,13 @@ export default function NotificationsPage({ onBack, role }: NotificationsPagePro
               <Card>
                 <CardContent className="p-12 text-center">
                   <Bell className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">No notifications to display</p>
+                  <p className="text-muted-foreground">
+                    No notifications to display
+                  </p>
                 </CardContent>
               </Card>
             ) : (
-              filteredNotifications.map((notification) => (
+              filteredNotifications.map(notification => (
                 <Card
                   key={notification.id}
                   className={`transition-all hover:shadow-md ${
@@ -241,9 +278,11 @@ export default function NotificationsPage({ onBack, role }: NotificationsPagePro
                   <CardContent className="p-4">
                     <div className="flex gap-4">
                       {/* Icon */}
-                      <div className={`w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                        !notification.read ? 'bg-primary/10' : 'bg-muted'
-                      }`}>
+                      <div
+                        className={`w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                          !notification.read ? 'bg-primary/10' : 'bg-muted'
+                        }`}
+                      >
                         {getIcon(notification.type)}
                       </div>
 
@@ -269,7 +308,12 @@ export default function NotificationsPage({ onBack, role }: NotificationsPagePro
                                 size="sm"
                                 variant="outline"
                                 className="text-green-600 border-green-200 hover:bg-green-50"
-                                onClick={() => handleApproveLoan(notification.id, notification.loanRequestId)}
+                                onClick={() =>
+                                  handleApproveLoan(
+                                    notification.id,
+                                    notification.loanRequestId
+                                  )
+                                }
                               >
                                 <Check className="w-3 h-3 mr-1" />
                                 Approve
@@ -278,7 +322,12 @@ export default function NotificationsPage({ onBack, role }: NotificationsPagePro
                                 size="sm"
                                 variant="outline"
                                 className="text-red-600 border-red-200 hover:bg-red-50"
-                                onClick={() => handleRejectLoan(notification.id, notification.loanRequestId)}
+                                onClick={() =>
+                                  handleRejectLoan(
+                                    notification.id,
+                                    notification.loanRequestId
+                                  )
+                                }
                               >
                                 <X className="w-3 h-3 mr-1" />
                                 Reject
@@ -323,8 +372,12 @@ export default function NotificationsPage({ onBack, role }: NotificationsPagePro
               </div>
               {role === 'admin' && actionCount > 0 && (
                 <div>
-                  <p className="text-sm text-muted-foreground">Action Required</p>
-                  <p className="text-2xl font-bold text-accent">{actionCount}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Action Required
+                  </p>
+                  <p className="text-2xl font-bold text-accent">
+                    {actionCount}
+                  </p>
                 </div>
               )}
             </CardContent>

@@ -6,7 +6,7 @@ import { User, UserRole, UserType } from '../models';
 
 /**
  * User entity class with validation decorators
- * 
+ *
  * Implements the Prisma User model with class-validator decorators
  * for proper validation and transformation of user data.
  */
@@ -85,4 +85,3 @@ export class UserEntity extends Entity<UserEntity> implements User {
     super(partial);
   }
 }
-

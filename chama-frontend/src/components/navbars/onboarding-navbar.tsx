@@ -4,6 +4,8 @@ import NavbarLinks from './navbar-links';
 import ProfileTemplate from '../../utils/profile-template';
 import LogoutModal from '../logoutModal';
 import Logo1 from '../../logos/logo1';
+import { ThemeToggle } from '../ThemeToggle';
+import { Bell } from 'lucide-react';
 
 function OnBoardingNavbar() {
   const [userName, setUserName] = useState<string | null>(null);
@@ -25,21 +27,29 @@ function OnBoardingNavbar() {
   }, []);
 
   return (
-    <div className='navbar flex justify-between items-center text-white pl-7  pr-5'>
+    <div className='navbar flex justify-between items-center text-foreground bg-card border-b border-border pl-7 pr-5 h-16'>
       <div className='flex items-center gap-x-6'>
         <span>
           <Logo1 />
         </span>
       </div>
       <div className='flex gap-x-4 items-center'>
-        <i className='pi pi-bell' />
+        {/* Theme Toggle Button */}
+        <ThemeToggle />
+
+        {/* Notifications */}
+        <button className='p-2 hover:bg-muted rounded-lg transition-colors text-muted-foreground hover:text-foreground'>
+          <Bell className='w-5 h-5' />
+        </button>
+
+        {/* Profile Menu */}
         <div
-          className='profile-div flex items-center gap-x-2 relative cursor-pointer'
+          className='profile-div flex items-center gap-x-2 relative cursor-pointer hover:bg-muted px-3 py-2 rounded-lg transition-colors'
           onClick={() => setDisplayNavbarLinks(!displayNavbarLinks)}
         >
           {user && ProfileTemplate(user, 5, 5)}
-          <span>{userName}</span>
-          <i className='pi pi-chevron-down text-xs' />
+          <span className='text-sm font-medium'>{userName}</span>
+          <i className='pi pi-chevron-down text-xs text-muted-foreground' />
           {displayNavbarLinks && (
             <div className='fixed top-16 right-6 z-50'>
               <NavbarLinks
@@ -52,7 +62,7 @@ function OnBoardingNavbar() {
           )}
         </div>
       </div>
-      {/* Logout Modal - managed at navbar level to persist across component unmounts */}
+      {/* Logout Modal */}
       <LogoutModal
         visible={showLogoutModal}
         onHide={() => setShowLogoutModal(false)}

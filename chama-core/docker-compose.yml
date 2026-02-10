@@ -7,16 +7,16 @@ services:
     container_name: chama_postgres
     environment:
       POSTGRES_USER: felixtwoli
-      POSTGRES_PASSWORD: "Twoli8451#"
+      POSTGRES_PASSWORD: 'Twoli8451#'
       POSTGRES_DB: chama_db
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - chama-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U felixtwoli -d chama_db"]
+      test: ['CMD-SHELL', 'pg_isready -U felixtwoli -d chama_db']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -29,7 +29,7 @@ services:
       target: production
     container_name: chama_core_app
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://felixtwoli:Twoli8451%23@postgres:5432/chama_db
@@ -39,7 +39,7 @@ services:
     networks:
       - chama-network
     volumes:
-      - ./logs:/app/logs  # Mount logs directory if needed
+      - ./logs:/app/logs # Mount logs directory if needed
     restart: unless-stopped
 
 networks:
@@ -48,4 +48,3 @@ networks:
 
 volumes:
   postgres_data:
-
