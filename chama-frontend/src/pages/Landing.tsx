@@ -18,6 +18,8 @@ import {
   CardHeader,
   CardTitle,
 } from '../components/ui/card';
+import Logo1 from '../logos/logo1';
+// import Logo2 from '../logos/logo2.png';
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -33,17 +35,23 @@ export default function Landing() {
   return (
     <div className='min-h-screen bg-gradient-to-b from-secondary-light to-background'>
       {/* Header */}
-      <header className='border-b bg-card/80 backdrop-blur-sm sticky top-0 z-50'>
+      <header className='border-b border-border/40 bg-card/80 backdrop-blur-sm sticky top-0 z-50 shadow-sm'>
         <div className='container mx-auto px-4 py-4 flex items-center justify-between max-w-6xl'>
           <div className='flex items-center gap-2'>
-            <div className='w-8 h-8 rounded-lg bg-primary flex items-center justify-center'>
+            {/* <div className='w-8 h-8 rounded-lg bg-primary flex items-center justify-center'>
               <Users className='w-5 h-5 text-primary-foreground' />
-            </div>
-            <span className='font-bold text-lg'>ChamaPlus</span>
+            </div> */}
+            {/* <span className='font-bold text-lg'>ChamaPlus</span> */}
+            <Logo1 />
           </div>
-          <Button variant='outline' onClick={handleSignIn}>
-            Sign In
-          </Button>
+          <div className='flex items-center gap-2'>
+            <Button variant='outline' onClick={handleSignIn}>
+              Sign In
+            </Button>
+            <Button size='lg' onClick={handleGetStarted}>
+              Sign Up
+            </Button>
+          </div>
         </div>
       </header>
 

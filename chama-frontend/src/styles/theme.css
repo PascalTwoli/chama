@@ -35,6 +35,7 @@
 
   /* Borders & Inputs */
   --border: #e2e8f0;
+  --input: #cbd5e1;
   --input-background: #ffffff;
   --input-border: #cbd5e1;
   --ring: #2563eb;
@@ -89,6 +90,7 @@
 
   /* Borders & Inputs */
   --border: #475569;
+  --input: #475569;
   --input-background: #1e293b;
   --input-border: #475569;
   --ring: #3b82f6;
