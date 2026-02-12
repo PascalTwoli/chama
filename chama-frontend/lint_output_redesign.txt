@@ -1,0 +1,156 @@
+
+> chama-frontend@0.1.0 lint
+> eslint src --ext .js,.jsx,.ts,.tsx
+
+
+/Users/theboys/dev/chama/chama-frontend/src/components/JoinChama.tsx
+  85:6  warning  React Hook useEffect has a missing dependency: 'acceptInvite'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/theboys/dev/chama/chama-frontend/src/components/MemberSidebar.tsx
+  36:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  79:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/theboys/dev/chama/chama-frontend/src/components/Sidebar.tsx
+  17:3   warning  'Menu' is defined but never used          @typescript-eslint/no-unused-vars
+  18:3   warning  'X' is defined but never used             @typescript-eslint/no-unused-vars
+  42:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  85:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/theboys/dev/chama/chama-frontend/src/components/disbursement.timer.tsx
+  10:10  warning  'DisbursementTimer' is defined but never used                                                                         @typescript-eslint/no-unused-vars
+  13:10  warning  'timeLeft' is assigned a value but never used                                                                         @typescript-eslint/no-unused-vars
+  19:10  warning  'isExpired' is assigned a value but never used                                                                        @typescript-eslint/no-unused-vars
+  50:9   warning  'handleDateChange' is assigned a value but never used                                                                 @typescript-eslint/no-unused-vars
+  55:9   warning  'handleTimeChange' is assigned a value but never used                                                                 @typescript-eslint/no-unused-vars
+  61:11  warning  'timer' is assigned a value but never used                                                                            @typescript-eslint/no-unused-vars
+  64:6   warning  React Hook useEffect has a missing dependency: 'calculateTimeLeft'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/theboys/dev/chama/chama-frontend/src/components/disbursements.tsx
+  61:6  warning  React Hook useEffect has a missing dependency: 'calculateTimeLeft'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  65:6  warning  React Hook useEffect has a missing dependency: 'calculateTimeLeft'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/theboys/dev/chama/chama-frontend/src/components/membership.table.tsx
+   5:10  warning  'classNames' is defined but never used  @typescript-eslint/no-unused-vars
+  38:26  warning  'rowData' is defined but never used     @typescript-eslint/no-unused-vars
+  38:43  warning  'options' is defined but never used     @typescript-eslint/no-unused-vars
+  46:38  warning  'options' is defined but never used     @typescript-eslint/no-unused-vars
+
+/Users/theboys/dev/chama/chama-frontend/src/components/membership.tsx
+  12:10  warning  'chamaName' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  13:10  warning  'isLoading' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/theboys/dev/chama/chama-frontend/src/components/navbars/Navbar.tsx
+   7:3   warning  'LogOut' is defined but never used                          @typescript-eslint/no-unused-vars
+   8:11  warning  'UserIcon' is defined but never used                        @typescript-eslint/no-unused-vars
+   9:3   warning  'ChevronDown' is defined but never used                     @typescript-eslint/no-unused-vars
+  24:10  warning  'userName' is assigned a value but never used               @typescript-eslint/no-unused-vars
+  25:10  warning  'displayProfileMenu' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  25:30  warning  'setDisplayProfileMenu' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  52:9   warning  'getInitials' is assigned a value but never used            @typescript-eslint/no-unused-vars
+
+/Users/theboys/dev/chama/chama-frontend/src/components/navbars/onboarding-navbar.tsx
+  13:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  17:46  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/theboys/dev/chama/chama-frontend/src/components/settings/chama-settings.tsx
+  47:20  warning  Forbidden non-null assertion  @typescript-eslint/no-non-null-assertion
+
+/Users/theboys/dev/chama/chama-frontend/src/components/softloans.tsx
+  4:52  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  5:48  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  6:50  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/theboys/dev/chama/chama-frontend/src/config/axios-config.ts
+  42:71  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/theboys/dev/chama/chama-frontend/src/config/secure-axios-config.ts
+  71:40  warning  'refreshToken' is defined but never used  @typescript-eslint/no-unused-vars
+  71:71  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/theboys/dev/chama/chama-frontend/src/context/ChamaContext.tsx
+  6:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/theboys/dev/chama/chama-frontend/src/hooks/useChamaId.ts
+   7:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  14:46  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/theboys/dev/chama/chama-frontend/src/models/user.ts
+  8:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/theboys/dev/chama/chama-frontend/src/pages/ActivityLogPage.tsx
+    6:10  warning  'Badge' is defined but never used                                @typescript-eslint/no-unused-vars
+  216:22  error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+/Users/theboys/dev/chama/chama-frontend/src/pages/AdminDashboard.tsx
+  178:4  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/theboys/dev/chama/chama-frontend/src/pages/CommunicationPage.tsx
+  5:10  warning  'Badge' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/theboys/dev/chama/chama-frontend/src/pages/ContributionsPage.tsx
+  237:58  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/theboys/dev/chama/chama-frontend/src/pages/ExpensesPage.tsx
+  12:10  warning  'Badge' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/theboys/dev/chama/chama-frontend/src/pages/MemberDashboard.tsx
+    7:3   warning  'Clock' is defined but never used             @typescript-eslint/no-unused-vars
+  137:11  warning  'chamaId' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/theboys/dev/chama/chama-frontend/src/pages/MembersPage.tsx
+  7:10  warning  'Card' is defined but never used         @typescript-eslint/no-unused-vars
+  7:16  warning  'CardContent' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/theboys/dev/chama/chama-frontend/src/pages/ReportsPage.tsx
+  11:10  warning  'Badge' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/theboys/dev/chama/chama-frontend/src/pages/RolesAndPermissionsPage.tsx
+   3:10  warning  'Badge' is defined but never used        @typescript-eslint/no-unused-vars
+  20:3   warning  'AlertCircle' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/theboys/dev/chama/chama-frontend/src/pages/SettingsPage.tsx
+  14:3  warning  'HelpCircle' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/theboys/dev/chama/chama-frontend/src/pages/signin.tsx
+  33:9  warning  'selectedRole' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/theboys/dev/chama/chama-frontend/src/services/auth/logout.ts
+  1:8  warning  'apiClient' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/theboys/dev/chama/chama-frontend/src/services/auth/secure-auth-service.ts
+  256:53  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/theboys/dev/chama/chama-frontend/src/services/auth/signup-service.ts
+  114:37  warning  Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  154:28  warning  'forceCheck' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/theboys/dev/chama/chama-frontend/src/services/chama/chama-services.ts
+    5:3   warning  'ChamaResponse' is defined but never used             @typescript-eslint/no-unused-vars
+   11:11  warning  'UserChamasResponse' is defined but never used        @typescript-eslint/no-unused-vars
+   18:11  warning  'InviteValidationResponse' is defined but never used  @typescript-eslint/no-unused-vars
+   30:11  warning  'InviteAcceptanceResponse' is defined but never used  @typescript-eslint/no-unused-vars
+   37:11  warning  'InviteCreationResponse' is defined but never used    @typescript-eslint/no-unused-vars
+   52:69  warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
+   54:37  warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
+   76:55  warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
+   78:37  warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
+   96:41  warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
+   98:37  warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
+  113:42  warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
+  115:37  warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
+  143:37  warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
+  163:52  warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
+  165:37  warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
+  182:55  warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
+  184:37  warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
+  201:53  warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
+  203:37  warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
+  224:14  warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
+  226:37  warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
+
+/Users/theboys/dev/chama/chama-frontend/src/utils/profile-template.tsx
+  1:10  warning  'User' is defined but never used          @typescript-eslint/no-unused-vars
+  3:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 85 problems (1 error, 84 warnings)
+
