@@ -11,7 +11,7 @@ const AdminLayout = () => {
       {/* Body: Sidebar + Main Content */}
       <div className='flex flex-1 overflow-hidden'>
         {/* Sidebar with top padding for navbar */}
-        <aside className='flex-shrink-0 overflow-y-auto border-r border-border pt-16'>
+        <aside className='flex-shrink-0  border-r border-border pt-16 shadow-md'>
           <Sidebar />
         </aside>
 
