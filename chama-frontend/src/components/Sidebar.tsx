@@ -69,16 +69,26 @@ function Sidebar() {
     fetchChamaData();
   }, [chamaId]);
 
+  // get chama initials
+  const getChamaInitials = () => {
+    if (isLoading || !chamaName) return 'C+';
+    const words = chamaName.trim().split(/\s+/);
+    if (words.length === 1) {
+      return words[0].charAt(0).toUpperCase();
+    }
+    return (words[0].charAt(0) + words[1].charAt(0)).toUpperCase();
+  };
+
   useEffect(() => {
     AuthService.getCurrentUser()
       .then((userData: any) => {
         setUser(userData);
         setUserName(
           userData.firstName.charAt(0).toUpperCase() +
-            userData.firstName.slice(1) +
-            ' ' +
-            userData.lastName.charAt(0).toUpperCase() +
-            userData.lastName.slice(1)
+          userData.firstName.slice(1) +
+          ' ' +
+          userData.lastName.charAt(0).toUpperCase() +
+          userData.lastName.slice(1)
         );
       })
       .catch(() => {
@@ -86,10 +96,13 @@ function Sidebar() {
       });
   }, []);
 
-  //if two names get initials from both names. eg if john doe, initials should be JD
-  const getInitials = () => {
+  const getUserInitials = () => {
     if (!user) return '?';
-    return `${user.firstName?.charAt(0) || ''}${user.lastName?.charAt(0) || ''}`.toUpperCase();
+    const words = user.firstName.trim().split(/\s+/);
+    if (words.length === 1) {
+      return words[0].charAt(0).toUpperCase();
+    }
+    return (words[0].charAt(0) + words[1].charAt(0)).toUpperCase();
   };
 
   // Format governance role for display
@@ -179,7 +192,9 @@ function Sidebar() {
         )}
       >
         <div className='w-8 h-8 rounded-lg bg-primary flex items-center justify-center flex-shrink-0'>
-          <span className='text-primary-foreground font-bold text-sm'>C+</span>
+          <span className='text-primary-foreground font-bold text-sm'>
+            {getChamaInitials()}
+          </span>
         </div>
         {!isCollapsed && (
           <div className='min-w-0'>
@@ -221,7 +236,7 @@ function Sidebar() {
       </nav>
 
       {/* Bottom Section: Theme Toggle, User Profile, Logout */}
-      <div className='mt-auto border-t border-border'>
+      <div className='mt-auto border-t border-border px-4 py-3'>
         {/* Theme Toggle */}
         <button
           onClick={toggleTheme}
@@ -255,7 +270,7 @@ function Sidebar() {
         >
           <div className='w-8 h-8 rounded-full bg-success flex items-center justify-center flex-shrink-0'>
             <span className='text-success-foreground font-semibold text-xs'>
-              {getInitials()}
+              {getUserInitials()}
             </span>
           </div>
           {!isCollapsed && (
@@ -280,8 +295,8 @@ function Sidebar() {
         <button
           onClick={() => setShowLogoutModal(true)}
           className={cn(
-            'flex items-center gap-3 w-full px-4 py-3 text-sm font-medium transition-colors border-t border-border',
-            'text-destructive hover:bg-destructive/10',
+            'flex items-center gap-3 w-full px-4 py-3 text-sm font-medium transition-colors border-none bg-transparent border-r-6',
+            'text-destructive hover:bg-destructive hover:text-destructive-foreground',
             isCollapsed && 'justify-center px-2'
           )}
           title={isCollapsed ? 'Log Out' : undefined}

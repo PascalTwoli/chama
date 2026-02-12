@@ -64,6 +64,16 @@ function MemberSidebar() {
     fetchChamaData();
   }, [chamaId]);
 
+  // get chama initials
+  const getChamaInitials = () => {
+    if (isLoading || !chamaName) return 'C+';
+    const words = chamaName.trim().split(/\s+/);
+    if (words.length === 1) {
+      return words[0].charAt(0).toUpperCase();
+    }
+    return (words[0].charAt(0) + words[1].charAt(0)).toUpperCase();
+  };
+
   useEffect(() => {
     AuthService.getCurrentUser()
       .then((userData: any) => {
@@ -174,7 +184,9 @@ function MemberSidebar() {
         )}
       >
         <div className='w-8 h-8 rounded-lg bg-primary flex items-center justify-center flex-shrink-0'>
-          <span className='text-primary-foreground font-bold text-sm'>C+</span>
+          <span className='text-primary-foreground font-bold text-sm'>
+            {getChamaInitials()}
+          </span>
         </div>
         {!isCollapsed && (
           <div className='min-w-0'>
@@ -268,8 +280,8 @@ function MemberSidebar() {
         <button
           onClick={() => setShowLogoutModal(true)}
           className={cn(
-            'flex items-center gap-3 w-full px-4 py-3 text-sm font-medium transition-colors border-t border-border',
-            'text-destructive hover:bg-destructive/10',
+            'flex items-center gap-3 w-full px-4 py-3 text-sm font-medium transition-colors border-none bg-transparent',
+            'text-destructive hover:bg-destructive hover:text-destructive-foreground',
             isCollapsed && 'justify-center px-2'
           )}
           title={isCollapsed ? 'Log Out' : undefined}
