@@ -34,7 +34,7 @@
   --muted-foreground: #475569;
 
   /* Borders & Inputs */
-  --border: #e2e8f0;
+  --border: #cbd5e1;
   --input: #cbd5e1;
   --input-background: #ffffff;
   --input-border: #cbd5e1;
@@ -43,7 +43,7 @@
   /* Status colors with good contrast */
   --success: #16a34a;
   --success-foreground: #ffffff;
-  --destructive: #dc2626;
+  --destructive: #d32f2f;
   --destructive-foreground: #ffffff;
   --warning: #f59e0b;
   --warning-foreground: #1a1a1a;
@@ -98,7 +98,7 @@
   /* Status colors for dark mode */
   --success: #22c55e;
   --success-foreground: #ffffff;
-  --destructive: #ef4444;
+  --destructive: #d32f2f;
   --destructive-foreground: #ffffff;
   --warning: #fbbf24;
   --warning-foreground: #1a1a1a;
