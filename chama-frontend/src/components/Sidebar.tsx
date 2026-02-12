@@ -20,6 +20,7 @@ import {
   Sun,
   ChevronLeft,
   ChevronRight,
+  Bell,
 } from 'lucide-react';
 import ChamaService from '../services/chama/chama-services';
 import LogoutModal from './logoutModal';
@@ -148,6 +149,7 @@ function Sidebar() {
     { icon: HandCoins, label: 'Loans', path: `${baselink}/loans` },
     { icon: FileBarChart, label: 'Reports', path: `${baselink}/reports` },
     { icon: Calendar, label: 'Meetings', path: `${baselink}/meetings` },
+    { icon: Bell, label: 'Notifications', path: `${baselink}/notifications` },
     {
       icon: MessageSquare,
       label: 'Communication',
