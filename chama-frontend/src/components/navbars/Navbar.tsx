@@ -92,12 +92,14 @@ const Navbar = () => {
               {dashboardContext === 'admin' ? (
                 <>
                   <Users className='w-4 h-4' />
-                  <span className='hidden sm:inline'>Member View</span>
+                  <span className='hidden sm:inline'>
+                    Switch to Member View
+                  </span>
                 </>
               ) : (
                 <>
                   <LayoutDashboard className='w-4 h-4' />
-                  <span className='hidden sm:inline'>Admin View</span>
+                  <span className='hidden sm:inline'>Switch to Admin View</span>
                 </>
               )}
             </Button>
@@ -130,6 +132,7 @@ const Navbar = () => {
             </span>
           </Button>
 
+          {/* This should not be deleted for now, i'll delete it myself when i'm sure it's not needed */}
           {/* Profile */}
           {/* <div className='relative'>
             <button

@@ -85,10 +85,10 @@ function Sidebar() {
         setUser(userData);
         setUserName(
           userData.firstName.charAt(0).toUpperCase() +
-          userData.firstName.slice(1) +
-          ' ' +
-          userData.lastName.charAt(0).toUpperCase() +
-          userData.lastName.slice(1)
+            userData.firstName.slice(1) +
+            ' ' +
+            userData.lastName.charAt(0).toUpperCase() +
+            userData.lastName.slice(1)
         );
       })
       .catch(() => {
@@ -174,7 +174,7 @@ function Sidebar() {
       {/* Toggle Button - Small Round Button with Arrow */}
       <button
         onClick={toggleSidebar}
-        className='absolute -right-3 top-6 z-10 w-6 h-6 rounded-full bg-card border border-border shadow-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors'
+        className='absolute -right-3 top-6 z-10 w-6 h-6 rounded-full bg-card border border-border border-solid appearance-none shadow-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors '
         title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
         {isCollapsed ? (
@@ -187,11 +187,16 @@ function Sidebar() {
       {/* Header / Logo Area */}
       <div
         className={cn(
-          'flex items-center gap-3 px-4 py-5 border-b border-border',
+          'flex items-center gap-3 px-4 py-5 border-b border-border mt-5',
           isCollapsed && 'justify-center px-2'
         )}
       >
-        <div className='w-8 h-8 rounded-lg bg-primary flex items-center justify-center flex-shrink-0'>
+        <div
+          className={cn(
+            'w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0',
+            isCollapsed && 'h-10 w-10'
+          )}
+        >
           <span className='text-primary-foreground font-bold text-sm'>
             {getChamaInitials()}
           </span>
@@ -241,7 +246,7 @@ function Sidebar() {
         <button
           onClick={toggleTheme}
           className={cn(
-            'flex items-center gap-3 w-full px-4 py-3 text-sm font-medium transition-colors',
+            'flex items-center gap-3 w-full px-3 py-2 text-sm font-medium transition-colors border-none bg-transparent rounded-md',
             'text-muted-foreground hover:bg-muted hover:text-foreground',
             isCollapsed && 'justify-center px-2'
           )}
@@ -264,11 +269,11 @@ function Sidebar() {
         {/* User Profile */}
         <div
           className={cn(
-            'flex items-center gap-3 px-4 py-3 border-t border-border',
+            'flex items-center gap-2 px-2 py-2 border-t border-border',
             isCollapsed && 'justify-center px-2'
           )}
         >
-          <div className='w-8 h-8 rounded-full bg-success flex items-center justify-center flex-shrink-0'>
+          <div className='w-7 h-7 rounded-full bg-success flex items-center justify-center flex-shrink-0'>
             <span className='text-success-foreground font-semibold text-xs'>
               {getUserInitials()}
             </span>
@@ -295,7 +300,7 @@ function Sidebar() {
         <button
           onClick={() => setShowLogoutModal(true)}
           className={cn(
-            'flex items-center gap-3 w-full px-4 py-3 text-sm font-medium transition-colors border-none bg-transparent border-r-6',
+            'flex items-center gap-3 w-full px-3 py-2 text-sm font-medium transition-colors border-none bg-transparent rounded-md',
             'text-destructive hover:bg-destructive hover:text-destructive-foreground',
             isCollapsed && 'justify-center px-2'
           )}
