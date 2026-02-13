@@ -165,8 +165,8 @@ export default function LoansPage() {
 
       {/* Main Content */}
       <div className='bg-card rounded-lg border border-border shadow-sm'>
-        {/* Toolbar */}
-        <div className='p-4 border-b border-border flex flex-col sm:flex-row gap-4 justify-between items-center'>
+        {/* Toolbar & Header */}
+        <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center p-6 pb-4 border-b border-border gap-4'>
           <div className='relative w-full sm:w-96'>
             <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
             <Input
@@ -176,7 +176,7 @@ export default function LoansPage() {
               onChange={e => setSearchQuery(e.target.value)}
             />
           </div>
-          <div className='flex gap-2'>
+          <div className='flex gap-2 w-full sm:w-auto overflow-x-auto'>
             <Button variant='outline' size='sm'>
               All Loans
             </Button>

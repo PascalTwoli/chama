@@ -32,24 +32,27 @@ export default function SettingsPage() {
         <div className='flex-1 space-y-6'>
           {/* Basic Information */}
           <Card>
-            <CardContent className='p-6 space-y-4'>
-              <h3 className='font-semibold text-lg'>Basic Information</h3>
-              <p className='text-sm text-muted-foreground'>
-                General Chama details
-              </p>
-
-              <div className='space-y-2'>
-                <Label htmlFor='chamaName'>Chama Name *</Label>
-                <Input id='chamaName' defaultValue='Tumaini Chama' />
+            <CardContent className='p-0'>
+              <div className='p-6 pb-4 border-b border-border'>
+                <h3 className='font-semibold text-lg'>Basic Information</h3>
+                <p className='text-sm text-muted-foreground'>
+                  General Chama details
+                </p>
               </div>
+              <div className='p-6 space-y-4'>
+                <div className='space-y-2'>
+                  <Label htmlFor='chamaName'>Chama Name *</Label>
+                  <Input id='chamaName' defaultValue='Tumaini Chama' />
+                </div>
 
-              <div className='space-y-2'>
-                <Label htmlFor='description'>Description (Optional)</Label>
-                <textarea
-                  id='description'
-                  className='flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
-                  placeholder="Tell members about your Chama's purpose and goals..."
-                />
+                <div className='space-y-2'>
+                  <Label htmlFor='description'>Description (Optional)</Label>
+                  <textarea
+                    id='description'
+                    className='flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
+                    placeholder="Tell members about your Chama's purpose and goals..."
+                  />
+                </div>
               </div>
             </CardContent>
           </Card>

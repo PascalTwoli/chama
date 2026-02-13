@@ -19,6 +19,7 @@ import {
   DollarSign,
   FileText,
   Eye,
+  Search,
 } from 'lucide-react';
 import { cn } from '../utils/cn';
 
@@ -171,27 +172,28 @@ export default function ExpensesPage() {
 
       {/* Main Content */}
       <div className='bg-card rounded-lg border border-border shadow-sm'>
-        {/* Toolbar */}
-        <div className='p-4 border-b border-border flex flex-col sm:flex-row gap-4 justify-between items-center bg-card'>
-          <Input
-            placeholder='Search expenses...'
-            className='w-full sm:max-w-md'
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-          />
-          <Button
-            variant='outline'
-            className='w-full sm:w-auto text-muted-foreground'
-          >
-            All Categories
-          </Button>
-        </div>
-
-        <div className='p-6 pb-2'>
-          <h3 className='font-semibold text-lg'>Expense History</h3>
-          <p className='text-sm text-muted-foreground'>
-            All recorded Chama expenses
-          </p>
+        {/* Toolbar & Header */}
+        <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center p-6 pb-4 border-b border-border gap-4'>
+          <div>
+            <h3 className='font-semibold text-lg'>Expense History</h3>
+            <p className='text-sm text-muted-foreground'>
+              All recorded Chama expenses
+            </p>
+          </div>
+          <div className='flex flex-col sm:flex-row gap-4 w-full sm:w-auto items-center'>
+            <div className='relative w-full sm:w-64'>
+              <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
+              <Input
+                placeholder='Search expenses...'
+                className='pl-9'
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <Button variant='outline' className='w-full sm:w-auto'>
+              All Categories
+            </Button>
+          </div>
         </div>
 
         <Table>
