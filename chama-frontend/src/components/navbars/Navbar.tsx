@@ -5,7 +5,7 @@ import {
   Moon,
   Sun,
   LogOut,
-  User,
+  User as UserIcon,
   ChevronDown,
   LayoutDashboard,
   Users,
@@ -17,8 +17,10 @@ import { useTheme } from '../../context/ThemeContext';
 import { useChamaMembership } from '../../context/ChamaMembershipContext';
 import { Button } from '../ui/button';
 
+import { User } from '../../models/user';
+
 const Navbar = () => {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
   const [displayProfileMenu, setDisplayProfileMenu] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -32,7 +34,7 @@ const Navbar = () => {
 
   useEffect(() => {
     AuthService.getCurrentUser()
-      .then((userData: any) => {
+      .then((userData: User) => {
         setUser(userData);
         setUserName(
           userData.firstName.charAt(0).toUpperCase() +
@@ -69,7 +71,7 @@ const Navbar = () => {
   };
 
   return (
-    <header className='bg-card px-6 py-3'>
+    <header className='fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-white/30 dark:bg-black/30 backdrop-blur-md px-6 py-3 shadow-sm transition-all duration-300'>
       <div className='flex justify-between items-center'>
         {/* Left: Logo */}
         <div className='flex items-center'>
@@ -90,12 +92,14 @@ const Navbar = () => {
               {dashboardContext === 'admin' ? (
                 <>
                   <Users className='w-4 h-4' />
-                  <span className='hidden sm:inline'>Member View</span>
+                  <span className='hidden sm:inline'>
+                    Switch to Member View
+                  </span>
                 </>
               ) : (
                 <>
                   <LayoutDashboard className='w-4 h-4' />
-                  <span className='hidden sm:inline'>Admin View</span>
+                  <span className='hidden sm:inline'>Switch to Admin View</span>
                 </>
               )}
             </Button>
@@ -103,36 +107,37 @@ const Navbar = () => {
 
           {/* Theme Toggle */}
           <Button
-            variant='ghost'
-            size='icon'
+            variant='outline'
+            size='sm'
             onClick={toggleTheme}
             className='text-muted-foreground hover:text-foreground'
             title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
           >
             {theme === 'light' ? (
-              <Moon className='w-5 h-5' />
+              <Moon className='w-4 h-4' />
             ) : (
-              <Sun className='w-5 h-5' />
+              <Sun className='w-4 h-4' />
             )}
           </Button>
 
           {/* Notifications */}
           <Button
-            variant='ghost'
-            size='icon'
+            variant='outline'
+            size='sm'
             className='relative text-muted-foreground hover:text-foreground'
           >
-            <Bell className='w-5 h-5' />
+            <Bell className='w-4 h-4' />
             <span className='absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground rounded-full text-xs flex items-center justify-center'>
               3
             </span>
           </Button>
 
+          {/* This should not be deleted for now, i'll delete it myself when i'm sure it's not needed */}
           {/* Profile */}
-          <div className='relative'>
+          {/* <div className='relative'>
             <button
               onClick={() => setDisplayProfileMenu(!displayProfileMenu)}
-              className='flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-muted transition-colors'
+              className='flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-muted transition-colors border-none hover:border hover:border-input'
             >
               <div className='w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center'>
                 <span className='text-sm font-bold text-primary'>
@@ -155,7 +160,7 @@ const Navbar = () => {
                     }}
                     className='w-full flex items-center gap-2 px-3 py-2 text-sm text-foreground rounded-lg hover:bg-muted transition-colors'
                   >
-                    <User className='w-4 h-4' />
+                    <UserIcon className='w-4 h-4' />
                     Profile
                   </button>
                   <button
@@ -171,7 +176,7 @@ const Navbar = () => {
                 </div>
               </div>
             )}
-          </div>
+          </div> */}
         </div>
       </div>
 

@@ -6,19 +6,17 @@ const AdminLayout = () => {
   return (
     <div className='bg-background text-foreground h-screen flex flex-col overflow-hidden'>
       {/* Fixed Header */}
-      <header className='flex-shrink-0 border-b border-border'>
-        <Navbar />
-      </header>
+      <Navbar />
 
-      {/* Body: Fixed Sidebar + Scrollable Main Content */}
+      {/* Body: Sidebar + Main Content */}
       <div className='flex flex-1 overflow-hidden'>
-        {/* Fixed Sidebar with internal scroll */}
-        <aside className='flex-shrink-0 overflow-y-auto border-r border-border'>
+        {/* Sidebar with top padding for navbar */}
+        <aside className='flex-shrink-0  border-r border-border pt-16 shadow-md'>
           <Sidebar />
         </aside>
 
-        {/* Scrollable Main Content Area */}
-        <main className='flex-1 overflow-y-auto bg-background'>
+        {/* Main Content with top padding for navbar */}
+        <main className='flex-1 overflow-y-auto bg-background pt-16'>
           <Outlet />
         </main>
       </div>

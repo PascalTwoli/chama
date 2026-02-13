@@ -64,6 +64,16 @@ function MemberSidebar() {
     fetchChamaData();
   }, [chamaId]);
 
+  // get chama initials
+  const getChamaInitials = () => {
+    if (isLoading || !chamaName) return 'C+';
+    const words = chamaName.trim().split(/\s+/);
+    if (words.length === 1) {
+      return words[0].charAt(0).toUpperCase();
+    }
+    return (words[0].charAt(0) + words[1].charAt(0)).toUpperCase();
+  };
+
   useEffect(() => {
     AuthService.getCurrentUser()
       .then((userData: any) => {
@@ -81,9 +91,13 @@ function MemberSidebar() {
       });
   }, []);
 
-  const getInitials = () => {
+  const getUserInitials = () => {
     if (!user) return '?';
-    return `${user.firstName?.charAt(0) || ''}${user.lastName?.charAt(0) || ''}`.toUpperCase();
+    const words = user.firstName.trim().split(/\s+/);
+    if (words.length === 1) {
+      return words[0].charAt(0).toUpperCase();
+    }
+    return (words[0].charAt(0) + words[1].charAt(0)).toUpperCase();
   };
 
   // Format governance role for display
@@ -156,7 +170,7 @@ function MemberSidebar() {
       {/* Toggle Button - Small Round Button with Arrow */}
       <button
         onClick={toggleSidebar}
-        className='absolute -right-3 top-6 z-10 w-6 h-6 rounded-full bg-card border border-border shadow-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors'
+        className='absolute -right-3 top-6 z-10 w-6 h-6 rounded-full bg-card border border-border border-solid appearance-none shadow-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors'
         title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
         {isCollapsed ? (
@@ -169,12 +183,19 @@ function MemberSidebar() {
       {/* Header / Logo Area */}
       <div
         className={cn(
-          'flex items-center gap-3 px-4 py-5 border-b border-border',
+          'flex items-center gap-3 px-4 py-5 border-b border-border mt-5',
           isCollapsed && 'justify-center px-2'
         )}
       >
-        <div className='w-8 h-8 rounded-lg bg-primary flex items-center justify-center flex-shrink-0'>
-          <span className='text-primary-foreground font-bold text-sm'>C+</span>
+        <div
+          className={cn(
+            'w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0',
+            isCollapsed && 'h-10 w-10'
+          )}
+        >
+          <span className='text-primary-foreground font-bold text-sm'>
+            {getChamaInitials()}
+          </span>
         </div>
         {!isCollapsed && (
           <div className='min-w-0'>
@@ -215,12 +236,12 @@ function MemberSidebar() {
       </nav>
 
       {/* Bottom Section: Theme Toggle, User Profile, Logout */}
-      <div className='mt-auto border-t border-border'>
+      <div className='mt-auto border-t border-border px-4 py-3'>
         {/* Theme Toggle */}
         <button
           onClick={toggleTheme}
           className={cn(
-            'flex items-center gap-3 w-full px-4 py-3 text-sm font-medium transition-colors',
+            'flex items-center gap-3 w-full px-3 py-2 text-sm font-medium transition-colors border-none bg-transparent rounded-md',
             'text-muted-foreground hover:bg-muted hover:text-foreground',
             isCollapsed && 'justify-center px-2'
           )}
@@ -243,13 +264,13 @@ function MemberSidebar() {
         {/* User Profile */}
         <div
           className={cn(
-            'flex items-center gap-3 px-4 py-3 border-t border-border',
+            'flex items-center gap-2 px-2 py-2 border-t border-border',
             isCollapsed && 'justify-center px-2'
           )}
         >
-          <div className='w-8 h-8 rounded-full bg-success flex items-center justify-center flex-shrink-0'>
+          <div className='w-7 h-7 rounded-full bg-success flex items-center justify-center flex-shrink-0'>
             <span className='text-success-foreground font-semibold text-xs'>
-              {getInitials()}
+              {getUserInitials()}
             </span>
           </div>
           {!isCollapsed && (
@@ -268,8 +289,8 @@ function MemberSidebar() {
         <button
           onClick={() => setShowLogoutModal(true)}
           className={cn(
-            'flex items-center gap-3 w-full px-4 py-3 text-sm font-medium transition-colors border-t border-border',
-            'text-destructive hover:bg-destructive/10',
+            'flex items-center gap-3 w-full px-3 py-2 text-sm font-medium transition-colors border-none bg-transparent rounded-md',
+            'text-destructive hover:bg-destructive hover:text-destructive-foreground',
             isCollapsed && 'justify-center px-2'
           )}
           title={isCollapsed ? 'Log Out' : undefined}

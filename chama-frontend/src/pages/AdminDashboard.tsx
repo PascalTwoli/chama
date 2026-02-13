@@ -223,8 +223,10 @@ export default function AdminDashboard() {
     <div className='p-6 space-y-6 bg-background min-h-full'>
       {/* Header */}
       <div>
-        <h1 className='text-2xl font-bold text-foreground'>Dashboard</h1>
-        <p className='text-muted-foreground'>
+        <h1 className='text-2xl font-bold text-foreground m-0 mt-3'>
+          Dashboard
+        </h1>
+        <p className='text-muted-foreground text-sm m-0'>
           Welcome back! Here&apos;s what&apos;s happening
         </p>
       </div>
