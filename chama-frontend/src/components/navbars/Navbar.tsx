@@ -18,6 +18,7 @@ import { useChamaMembership } from '../../context/ChamaMembershipContext';
 import { Button } from '../ui/button';
 
 import { User } from '../../models/user';
+import Logo3 from '../../logos/Logo3';
 
 const Navbar = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -75,7 +76,7 @@ const Navbar = () => {
       <div className='flex justify-between items-center'>
         {/* Left: Logo */}
         <div className='flex items-center'>
-          <Logo1 />
+          <Logo3 />
         </div>
 
         {/* Right: Dashboard Toggle, Theme Toggle, Notifications, Profile */}

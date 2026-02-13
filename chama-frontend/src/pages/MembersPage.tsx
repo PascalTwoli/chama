@@ -174,8 +174,8 @@ export default function MembersPage() {
       {/* Main Split Layout */}
       <div className='flex gap-6 flex-1 min-h-0 pt-4'>
         {/* List Section */}
-        <div className='w-full lg:w-3/5 flex flex-col gap-4 bg-card rounded-lg border border-border p-4 shadow-sm'>
-          <div className='flex flex-col gap-2'>
+        <div className='w-full lg:w-3/5 flex flex-col gap-2 bg-card rounded-lg border border-border p-4 shadow-sm'>
+          <div className='flex flex-col gap-1 mb-2'>
             <h3 className='font-semibold'>All Members</h3>
             <p className='text-sm text-muted-foreground'>
               Manage and view member details

@@ -239,9 +239,9 @@ export default function ActivityLogPage() {
 
       {/* Log Table Section */}
       <div className='space-y-4'>
-        {/* Toolbar */}
-        <div className='flex flex-col sm:flex-row gap-4'>
-          <div className='relative flex-1'>
+        {/* Toolbar & Header */}
+        <div className='bg-card rounded-t-lg border-x border-t border-border shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center p-6 pb-4 border-b gap-4'>
+          <div className='relative w-full sm:w-96'>
             <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
             <Input
               placeholder='Search activities...'
@@ -250,7 +250,7 @@ export default function ActivityLogPage() {
               onChange={e => setSearchQuery(e.target.value)}
             />
           </div>
-          <div className='flex gap-2'>
+          <div className='flex gap-2 w-full sm:w-auto'>
             <Button variant='outline' className='w-full sm:w-auto'>
               All Types
             </Button>

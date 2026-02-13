@@ -32,6 +32,7 @@ import {
 } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
+import { cn } from '../utils/cn';
 
 // Monthly contribution data matching Figma
 const monthlyData = [
@@ -142,9 +143,9 @@ function StatCard({ title, value, change, trend, icon }: StatCardProps) {
       <CardContent className='p-5'>
         <div className='flex items-start justify-between'>
           <div>
-            <p className='text-sm text-muted-foreground mb-1'>{title}</p>
-            <p className='text-2xl font-bold text-foreground'>{value}</p>
-            <div className='flex items-center gap-1 mt-1'>
+            <p className='text-sm text-muted-foreground m-0'>{title}</p>
+            <p className='text-2xl font-bold text-foreground m-0'>{value}</p>
+            <div className='flex items-center gap-1 mt-0'>
               {trend === 'up' ? (
                 <ArrowUpRight className='w-4 h-4 text-green-600' />
               ) : (
@@ -187,7 +188,14 @@ const renderCustomLabel = ({
       y={y}
       textAnchor={x > cx ? 'start' : 'end'}
       dominantBaseline='central'
-      className='text-xs fill-foreground'
+      fill={
+        name === 'Paid on Time'
+          ? '#22c55e'
+          : name === 'Pending'
+            ? '#f59e0b'
+            : '#dc2626'
+      }
+      className='text-xs font-medium'
     >
       {`${name}: ${(percent * 100).toFixed(0)}%`}
     </text>
@@ -267,8 +275,8 @@ export default function AdminDashboard() {
       <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
         {/* Monthly Contributions Bar Chart */}
         <Card className='border border-border'>
-          <CardHeader className='pb-2'>
-            <CardTitle className='text-base font-semibold'>
+          <CardHeader className='py-4'>
+            <CardTitle className='text-base font-semibold m-0'>
               Monthly Contributions
             </CardTitle>
             <p className='text-sm text-muted-foreground'>
@@ -320,8 +328,8 @@ export default function AdminDashboard() {
 
         {/* Contribution Distribution Pie Chart */}
         <Card className='border border-border'>
-          <CardHeader className='pb-2'>
-            <CardTitle className='text-base font-semibold'>
+          <CardHeader className='py-4 '>
+            <CardTitle className='text-base font-semibold m-0'>
               Contribution Distribution
             </CardTitle>
             <p className='text-sm text-muted-foreground'>By member status</p>
@@ -365,16 +373,16 @@ export default function AdminDashboard() {
       <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
         {/* Recent Contributions */}
         <Card className='lg:col-span-2 border border-border'>
-          <CardHeader className='flex flex-row items-center justify-between pb-2'>
+          <CardHeader className='flex flex-row items-center justify-between py-4'>
             <div>
-              <CardTitle className='text-base font-semibold'>
+              <CardTitle className='text-base font-semibold m-0'>
                 Recent Contributions
               </CardTitle>
-              <p className='text-sm text-muted-foreground'>
+              <p className='text-sm text-muted-foreground m-0'>
                 Latest M-Pesa payments received
               </p>
             </div>
-            <Button variant='ghost' size='sm' className='text-primary'>
+            <Button variant='outline' size='sm' className=''>
               View All
             </Button>
           </CardHeader>
@@ -383,7 +391,7 @@ export default function AdminDashboard() {
               {recentContributions.map(contribution => (
                 <div
                   key={contribution.id}
-                  className='flex items-center justify-between py-2 border-b border-border last:border-0'
+                  className='flex items-center justify-between p-3 border border-border rounded-lg bg-card hover:bg-muted/50 transition-colors'
                 >
                   <div className='flex items-center gap-3'>
                     <div
@@ -394,10 +402,10 @@ export default function AdminDashboard() {
                       </span>
                     </div>
                     <div>
-                      <p className='text-sm font-medium text-foreground'>
+                      <p className='text-sm font-medium text-foreground m-0 font-bold'>
                         {contribution.name}
                       </p>
-                      <p className='text-xs text-muted-foreground'>
+                      <p className='text-xs text-muted-foreground m-0 font-semibold'>
                         {contribution.date}
                       </p>
                     </div>
@@ -418,15 +426,15 @@ export default function AdminDashboard() {
 
         {/* Quick Actions */}
         <Card className='border border-border'>
-          <CardHeader className='pb-2'>
-            <CardTitle className='text-base font-semibold'>
+          <CardHeader className='py-4'>
+            <CardTitle className='text-base font-semibold m-0'>
               Quick Actions
             </CardTitle>
-            <p className='text-sm text-muted-foreground'>Common tasks</p>
+            <p className='text-sm text-muted-foreground m-0'>Common tasks</p>
           </CardHeader>
           <CardContent className='space-y-2'>
             <Button
-              className='w-full justify-start gap-3'
+              className='w-full justify-start gap-3 h-8'
               onClick={() =>
                 navigate(`/admin/chamas/${chamaId}/record-contribution`)
               }
@@ -436,7 +444,7 @@ export default function AdminDashboard() {
             </Button>
             <Button
               variant='outline'
-              className='w-full justify-start gap-3'
+              className='w-full justify-start gap-3 h-8'
               onClick={() => navigate(`/admin/chamas/${chamaId}/invite-member`)}
             >
               <UserPlus className='w-4 h-4' />
@@ -444,7 +452,7 @@ export default function AdminDashboard() {
             </Button>
             <Button
               variant='outline'
-              className='w-full justify-start gap-3'
+              className='w-full justify-start gap-3 h-8'
               onClick={() => navigate(`/admin/chamas/${chamaId}/meetings`)}
             >
               <Calendar className='w-4 h-4' />
@@ -452,7 +460,7 @@ export default function AdminDashboard() {
             </Button>
             <Button
               variant='outline'
-              className='w-full justify-start gap-3'
+              className='w-full justify-start gap-3 h-8'
               onClick={() => navigate(`/admin/chamas/${chamaId}/reports`)}
             >
               <FileText className='w-4 h-4' />
@@ -464,14 +472,21 @@ export default function AdminDashboard() {
 
       {/* Members Overview Table */}
       <Card className='border border-border'>
-        <CardHeader className='flex flex-row items-center justify-between pb-2'>
+        <CardHeader className='flex flex-row items-center justify-between py-4'>
           <div>
-            <CardTitle className='text-base font-semibold'>
+            <CardTitle className='text-base font-semibold m-0'>
               Members Overview
             </CardTitle>
-            <p className='text-sm text-muted-foreground'>24 active members</p>
+            <p className='text-sm text-muted-foreground m-0'>
+              24 active members
+            </p>
           </div>
-          <Button size='sm' className='gap-2'>
+          {/* Onclick redirect to members page */}
+          <Button
+            size='sm'
+            className='gap-2'
+            onClick={() => navigate(`/admin/chamas/${chamaId}/members`)}
+          >
             <Plus className='w-4 h-4' />
             Add Member
           </Button>
@@ -501,7 +516,7 @@ export default function AdminDashboard() {
                     key={member.id}
                     className='border-b border-border last:border-0'
                   >
-                    <td className='py-3 px-2'>
+                    <td className='py-3 px-2 border-t border-border'>
                       <div className='flex items-center gap-3'>
                         <div
                           className={`w-8 h-8 rounded-full ${getAvatarColor(member.name)} flex items-center justify-center`}
@@ -515,13 +530,13 @@ export default function AdminDashboard() {
                         </span>
                       </div>
                     </td>
-                    <td className='py-3 px-2 text-sm text-muted-foreground'>
+                    <td className='py-3 px-2 text-sm text-muted-foreground border-t border-border'>
                       {member.phone}
                     </td>
-                    <td className='py-3 px-2 text-sm font-medium text-foreground'>
+                    <td className='py-3 px-2 text-sm font-medium text-foreground border-t border-border'>
                       KSh {member.savings.toLocaleString()}
                     </td>
-                    <td className='py-3 px-2'>
+                    <td className='py-3 px-2 border-t border-border'>
                       <Badge
                         variant={
                           member.status === 'Paid' ? 'success' : 'warning'

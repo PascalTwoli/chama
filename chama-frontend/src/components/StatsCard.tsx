@@ -32,15 +32,17 @@ export function StatsCard({
   return (
     <Card className={cn('overflow-hidden', className)}>
       <CardContent className='p-6 flex items-center justify-between'>
-        <div className='space-y-1'>
-          <p className='text-sm font-medium text-muted-foreground'>{title}</p>
+        <div>
+          <p className='text-sm font-medium text-muted-foreground m-0'>
+            {title}
+          </p>
           <div className='flex items-baseline gap-2'>
-            <h2 className='text-2xl font-bold tracking-tight'>{value}</h2>
+            <h2 className='text-2xl font-bold tracking-tight m-0'>{value}</h2>
           </div>
           {subtext && (
             <p
               className={cn(
-                'text-xs font-medium',
+                'text-xs font-medium m-0 mt-1',
                 status === 'success' && 'text-success',
                 status === 'warning' && 'text-warning',
                 status === 'destructive' && 'text-destructive',

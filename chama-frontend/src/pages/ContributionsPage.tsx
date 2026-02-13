@@ -217,42 +217,40 @@ export default function ContributionsPage() {
 
       {/* Main Content Card */}
       <div className='bg-card rounded-lg border border-border shadow-sm'>
-        {/* Toolbar */}
-        <div className='p-4 border-b border-border flex flex-col sm:flex-row gap-4 justify-between items-center'>
-          <div className='relative w-full sm:w-96'>
-            <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
-            <Input
-              placeholder='Search by member name or M-Pesa code...'
-              className='pl-9'
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-            />
-          </div>
-          <div className='flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0'>
-            {['All', 'Completed', 'Pending', 'Late'].map(status => (
-              <Button
-                key={status}
-                variant={filterStatus === status ? 'default' : 'outline'}
-                size='sm'
-                onClick={() => setFilterStatus(status as any)}
-                className={cn(
-                  filterStatus === status
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground'
-                )}
-              >
-                {status}
-              </Button>
-            ))}
-          </div>
-        </div>
-
         {/* Table Header Section */}
-        <div className='p-6 pb-2'>
-          <h3 className='font-semibold text-lg'>Contribution History</h3>
-          <p className='text-sm text-muted-foreground'>
-            All contributions from all members
-          </p>
+        <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center p-6 pb-4 border-b border-border gap-4'>
+          <div>
+            <h3 className='font-semibold text-lg m-0'>Contribution History</h3>
+            <p className='text-sm text-muted-foreground m-0'>All contributions from all members</p>
+          </div>
+          <div className='flex flex-col sm:flex-row gap-4 w-full sm:w-auto items-center'>
+            <div className='relative w-full sm:w-64'>
+              <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
+              <Input
+                placeholder='Search members...'
+                className='pl-9'
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <div className='flex items-center gap-2 w-full sm:w-auto overflow-x-auto'>
+              {['All', 'Completed', 'Pending', 'Late'].map(status => (
+                <Button
+                  key={status}
+                  variant={filterStatus === status ? 'default' : 'outline'}
+                  size='sm'
+                  onClick={() => setFilterStatus(status as any)}
+                  className={cn(
+                    filterStatus === status
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-muted-foreground'
+                  )}
+                >
+                  {status}
+                </Button>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Table */}
