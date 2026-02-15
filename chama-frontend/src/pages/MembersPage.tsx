@@ -16,6 +16,7 @@ import {
   Wallet,
 } from 'lucide-react';
 import { cn } from '../utils/cn';
+import { useNavigate, useParams } from 'react-router-dom';
 
 interface Member {
   id: string;
@@ -125,6 +126,8 @@ export default function MembersPage() {
   });
 
   const selectedMember = mockMembers.find(m => m.id === selectedMemberId);
+  const { chamaId } = useParams<{ chamaId: string }>();
+  const navigate = useNavigate();
 
   return (
     <div className='p-6 space-y-6 h-[calc(100vh-64px)] overflow-hidden flex flex-col'>
@@ -132,7 +135,10 @@ export default function MembersPage() {
         title='Members'
         subtitle={`${mockMembers.length} total members`}
         action={
-          <Button className='gap-2 bg-blue-600 hover:bg-blue-700 text-white'>
+          <Button 
+            className='gap-2 bg-blue-600 hover:bg-blue-700 text-white'
+            onClick={() => navigate(`/admin/chamas/${chamaId}/invite-member`)}
+          >
             <UserPlus className='w-4 h-4' />
             Add Member
           </Button>
