@@ -485,7 +485,7 @@ export default function AdminDashboard() {
           <Button
             size='sm'
             className='gap-2'
-            onClick={() => navigate(`/admin/chamas/${chamaId}/members`)}
+            onClick={() => navigate(`/admin/chamas/${chamaId}/invite-member`)}
           >
             <Plus className='w-4 h-4' />
             Add Member
