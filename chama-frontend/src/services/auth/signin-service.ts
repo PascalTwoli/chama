@@ -6,6 +6,10 @@ import {
   SignInResponse,
 } from '../../models/user';
 
+import SecureTokenStorage, {
+  TokenType,
+} from '../../utils/secure-token-storage';
+
 export class AuthService {
   static async signIn(credentials: SignInCredentials): Promise<SignInResponse> {
     try {
@@ -25,11 +29,17 @@ export class AuthService {
       localStorage.removeItem('hasJoinedChama');
       localStorage.removeItem('userRole');
 
-      // Save tokens to local storage
+      // Save tokens to SecureTokenStorage (cookies)
       if (authToken) {
-        localStorage.setItem('authToken', authToken);
+        SecureTokenStorage.setAuthToken(authToken);
       }
-      localStorage.setItem('refreshToken', refreshToken);
+      if (refreshToken) {
+        SecureTokenStorage.setToken(
+          'refresh_token' as TokenType,
+          refreshToken,
+          { maxAge: 7 * 24 * 60 * 60 } // 7 days
+        );
+      }
 
       // Check if user has a role already
       const existingRole = localStorage.getItem('userRole');

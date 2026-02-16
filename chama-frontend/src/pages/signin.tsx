@@ -4,6 +4,7 @@ import { Users, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { FormErrors, SignInCredentials } from '../models/user';
 import { AuthService as SigninService } from '../services/auth/signin-service';
+import GoogleAuthService from '../services/auth/google-auth-service';
 import ChamaService from '../services/chama/chama-services';
 import { useChamaMembership } from '../context/ChamaMembershipContext';
 import { Button } from '../components/ui/button';
@@ -74,81 +75,7 @@ const SignIn = () => {
     try {
       // Sign in the user
       await SigninService.signIn(formData as SignInCredentials);
-      setIsCheckingUserType(true);
-
-      try {
-        // Check if user has any chamas
-        const userChamas = await ChamaService.getUserChamas();
-
-        if (userChamas && userChamas.length > 0) {
-          // User has chamas - find the most recent or active one
-          const activeChamaId = localStorage.getItem('activeChamaId');
-          const lastDashboardContext =
-            localStorage.getItem('lastDashboardContext') || 'admin';
-          let targetChama = userChamas[0];
-
-          if (activeChamaId) {
-            const savedChama = userChamas.find(
-              (chama: { id: string }) => chama.id === activeChamaId
-            );
-            if (savedChama) {
-              targetChama = savedChama;
-            }
-          }
-
-          // Store active chama
-          localStorage.setItem('activeChamaId', targetChama.id);
-
-          // Determine system role based on chama ownership or membership
-          const roleUpperCase = targetChama.role?.toUpperCase() || '';
-          const orgRoleUpperCase =
-            targetChama.organizationRole?.toUpperCase() || '';
-
-          // User has admin access if they're OWNER, ADMIN, or have governance roles
-          const hasAdminAccess =
-            roleUpperCase === 'OWNER' ||
-            roleUpperCase === 'ADMIN' ||
-            orgRoleUpperCase === 'CHAIRPERSON' ||
-            orgRoleUpperCase === 'SECRETARY' ||
-            orgRoleUpperCase === 'TREASURER';
-
-          // Determine redirect path based on last context and admin access
-          let redirectPath: string;
-          if (hasAdminAccess && lastDashboardContext === 'admin') {
-            // User has admin access and was last in admin view
-            redirectPath = `/admin/chamas/${targetChama.id}`;
-          } else if (hasAdminAccess && lastDashboardContext === 'member') {
-            // User has admin access but was last in member view
-            redirectPath = `/member/chamas/${targetChama.id}`;
-          } else if (hasAdminAccess) {
-            // User has admin access, default to admin dashboard for new sessions
-            redirectPath = `/admin/chamas/${targetChama.id}`;
-          } else {
-            // Regular member - always go to member dashboard
-            redirectPath = `/member/chamas/${targetChama.id}`;
-          }
-
-          toast.success(`Welcome back! Redirecting to ${targetChama.name}...`);
-
-          // Refresh context BEFORE navigating to prevent race condition
-          // This ensures guards see updated state when new route mounts
-          await refreshMemberships();
-          navigate(redirectPath);
-        } else {
-          // User has no chamas - redirect to chama choice
-          toast.success('Login successful! Please create or join a chama.');
-          await refreshMemberships();
-          navigate('/onboarding/chama-choice');
-        }
-      } catch (chamaError) {
-        console.error('Error fetching user chamas:', chamaError);
-        // If we can't fetch chamas, redirect to chama choice
-        toast.success('Login successful! Redirecting...');
-        await refreshMemberships();
-        navigate('/onboarding/chama-choice');
-      } finally {
-        setIsCheckingUserType(false);
-      }
+      await handlePostLogin();
     } catch (error) {
       console.error('Login error:', error);
 
@@ -177,6 +104,108 @@ const SignIn = () => {
       }
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true);
+    try {
+      const result = await GoogleAuthService.signInWithGoogle();
+      if (result) {
+        if (result.isNewUser) {
+          toast.success('Welcome! Please complete your profile.');
+          // Redirect to onboarding/profile setup
+          // You might want to create a specific route for this, e.g. /onboarding/profile
+          // For now, sending to chama choice which triggers checks
+          navigate('/onboarding/chama-choice');
+        } else {
+          toast.success('Google sign-in successful!');
+          await handlePostLogin();
+        }
+      }
+    } catch (error) {
+      console.error('Google sign-in error:', error);
+      // Error is already toasted in the service
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handlePostLogin = async () => {
+    setIsCheckingUserType(true);
+
+    try {
+      // Check if user has any chamas
+      const userChamas = await ChamaService.getUserChamas();
+
+      if (userChamas && userChamas.length > 0) {
+        // User has chamas - find the most recent or active one
+        const activeChamaId = localStorage.getItem('activeChamaId');
+        const lastDashboardContext =
+          localStorage.getItem('lastDashboardContext') || 'admin';
+        let targetChama = userChamas[0];
+
+        if (activeChamaId) {
+          const savedChama = userChamas.find(
+            (chama: { id: string }) => chama.id === activeChamaId
+          );
+          if (savedChama) {
+            targetChama = savedChama;
+          }
+        }
+
+        // Store active chama
+        localStorage.setItem('activeChamaId', targetChama.id);
+
+        // Determine system role based on chama ownership or membership
+        const roleUpperCase = targetChama.role?.toUpperCase() || '';
+        const orgRoleUpperCase =
+          targetChama.organizationRole?.toUpperCase() || '';
+
+        // User has admin access if they're OWNER, ADMIN, or have governance roles
+        const hasAdminAccess =
+          roleUpperCase === 'OWNER' ||
+          roleUpperCase === 'ADMIN' ||
+          orgRoleUpperCase === 'CHAIRPERSON' ||
+          orgRoleUpperCase === 'SECRETARY' ||
+          orgRoleUpperCase === 'TREASURER';
+
+        // Determine redirect path based on last context and admin access
+        let redirectPath: string;
+        if (hasAdminAccess && lastDashboardContext === 'admin') {
+          // User has admin access and was last in admin view
+          redirectPath = `/admin/chamas/${targetChama.id}`;
+        } else if (hasAdminAccess && lastDashboardContext === 'member') {
+          // User has admin access but was last in member view
+          redirectPath = `/member/chamas/${targetChama.id}`;
+        } else if (hasAdminAccess) {
+          // User has admin access, default to admin dashboard for new sessions
+          redirectPath = `/admin/chamas/${targetChama.id}`;
+        } else {
+          // Regular member - always go to member dashboard
+          redirectPath = `/member/chamas/${targetChama.id}`;
+        }
+
+        toast.success(`Welcome back! Redirecting to ${targetChama.name}...`);
+
+        // Refresh context BEFORE navigating to prevent race condition
+        // This ensures guards see updated state when new route mounts
+        await refreshMemberships();
+        navigate(redirectPath);
+      } else {
+        // User has no chamas - redirect to chama choice
+        toast.success('Login successful! Please create or join a chama.');
+        await refreshMemberships();
+        navigate('/onboarding/chama-choice');
+      }
+    } catch (chamaError) {
+      console.error('Error fetching user chamas:', chamaError);
+      // If we can't fetch chamas, redirect to chama choice
+      toast.success('Login successful! Redirecting...');
+      await refreshMemberships();
+      navigate('/onboarding/chama-choice');
+    } finally {
+      setIsCheckingUserType(false);
     }
   };
 
@@ -291,7 +320,13 @@ const SignIn = () => {
               </div>
 
               {/* Google Sign In */}
-              <Button variant='outline' className='w-full' type='button'>
+              <Button
+                variant='outline'
+                className='w-full'
+                type='button'
+                onClick={handleGoogleSignIn}
+                disabled={isLoading || isCheckingUserType}
+              >
                 <img
                   src='/assets/Google__G__logo.svg.webp'
                   alt='Google'

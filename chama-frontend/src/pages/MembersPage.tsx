@@ -135,7 +135,7 @@ export default function MembersPage() {
         title='Members'
         subtitle={`${mockMembers.length} total members`}
         action={
-          <Button 
+          <Button
             className='gap-2 bg-blue-600 hover:bg-blue-700 text-white'
             onClick={() => navigate(`/admin/chamas/${chamaId}/invite-member`)}
           >

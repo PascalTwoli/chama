@@ -4,19 +4,23 @@ import axios, {
   AxiosRequestConfig,
   AxiosResponse,
 } from 'axios';
+import SecureTokenStorage, {
+  TokenType,
+} from '../utils/secure-token-storage';
+
 // Backend API base URL
 export const API_BASE =
   process.env.REACT_APP_API_URL || 'http://localhost:5500/api/v1';
 // Flag to prevent multiple refresh attempts
 let isRefreshing = false;
 let refreshSubscribers: ((token: string) => void)[] = [];
-// Get current authentication token from localStorage
+// Get current authentication token from SecureTokenStorage
 export const getAuthToken = (): string | null => {
-  return localStorage.getItem('authToken');
+  return SecureTokenStorage.getAuthToken();
 };
-// Get refresh token from localStorage
+// Get refresh token from SecureTokenStorage
 export const getRefreshToken = (): string | null => {
-  return localStorage.getItem('refreshToken');
+  return SecureTokenStorage.getToken('refresh_token' as TokenType);
 };
 // Set auth token in request headers
 export const setAuthHeader = (
@@ -45,9 +49,14 @@ export const refreshAuthToken = async (refreshToken: string): Promise<any> => {
     const response = await axios.post(
       `${API_BASE}/auth/refresh-token?refreshToken=${refreshToken}`
     );
-    // Update tokens in localStorage
-    localStorage.setItem('authToken', response.data.idToken);
-    localStorage.setItem('refreshToken', response.data.refreshToken);
+    // Update tokens in SecureTokenStorage
+    SecureTokenStorage.setAuthToken(response.data.idToken);
+    if (response.data.refreshToken) {
+      SecureTokenStorage.setToken(
+        'refresh_token' as TokenType,
+        response.data.refreshToken
+      );
+    }
     return response.data;
   } catch (error) {
     console.error('Token refresh error:', error);
@@ -56,14 +65,19 @@ export const refreshAuthToken = async (refreshToken: string): Promise<any> => {
 };
 // Logout function to clear tokens
 export const logout = (apiClient: AxiosInstance): void => {
-  // Remove tokens from localStorage
-  localStorage.removeItem('authToken');
-  localStorage.removeItem('refreshToken');
+  // Clear all tokens from SecureTokenStorage
+  SecureTokenStorage.clearAllTokens();
+  SecureTokenStorage.removeToken('refresh_token' as TokenType);
+  
   // Clear auth header
   setAuthHeader(apiClient, null);
   // Clear subscribers
   refreshSubscribers = [];
   isRefreshing = false;
+  
+  // Clear legacy localStorage if present
+  localStorage.removeItem('authToken');
+  localStorage.removeItem('refreshToken');
 };
 // Setup request interceptor to add auth token
 const setupRequestInterceptor = (instance: AxiosInstance): void => {

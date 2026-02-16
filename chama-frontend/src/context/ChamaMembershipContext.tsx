@@ -15,6 +15,7 @@ import {
 } from '../models/user';
 import ChamaService from '../services/chama/chama-services';
 import AuthService from '../services/auth/signup-service';
+import SecureTokenStorage from '../utils/secure-token-storage';
 
 // ==================== DASHBOARD CONTEXT UTILITIES ====================
 
@@ -131,6 +132,10 @@ function determineGovernanceRole(orgRole?: string): GovernanceRole {
 
 // ==================== PROVIDER ====================
 
+// ==================== PROVIDER ====================
+
+// ... imports ...
+
 export const ChamaMembershipProvider: React.FC<
   ChamaMembershipProviderProps
 > = ({ children }) => {
@@ -144,7 +149,8 @@ export const ChamaMembershipProvider: React.FC<
     'admin' | 'member'
   >(getLastDashboardContext());
 
-  const isAuthenticated = !!localStorage.getItem('authToken');
+  // Check authentication status using SecureTokenStorage
+  const isAuthenticated = SecureTokenStorage.isAuthenticated();
 
   // Check if current user has admin access to active chama
   const hasAdminAccess =
@@ -156,7 +162,8 @@ export const ChamaMembershipProvider: React.FC<
   }, []);
 
   const refreshMemberships = useCallback(async () => {
-    const token = localStorage.getItem('authToken');
+    // Get token from SecureTokenStorage
+    const token = SecureTokenStorage.getAuthToken();
     if (!token) {
       setUser(null);
       setChamas([]);
