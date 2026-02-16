@@ -71,6 +71,14 @@ const Navbar = () => {
     }
   };
 
+  const handleNotificationClick = () => {
+    if (dashboardContext === 'admin') {
+      navigate(`/admin/chamas/${chamaId}/notifications`);
+    } else {
+      navigate(`/member/chamas/${chamaId}/notifications`);
+    }
+  };
+
   return (
     <header className='fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-white/30 dark:bg-black/30 backdrop-blur-md px-6 py-3 shadow-sm transition-all duration-300'>
       <div className='flex justify-between items-center'>
@@ -126,6 +134,7 @@ const Navbar = () => {
             variant='outline'
             size='sm'
             className='relative text-muted-foreground hover:text-foreground'
+            onClick={handleNotificationClick}
           >
             <Bell className='w-4 h-4' />
             <span className='absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground rounded-full text-xs flex items-center justify-center'>

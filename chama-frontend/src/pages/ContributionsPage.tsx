@@ -221,7 +221,6 @@ export default function ContributionsPage() {
         <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center p-6 pb-4 border-b border-border gap-4'>
           <div>
             <h3 className='font-semibold text-lg m-0'>Contribution History</h3>
-            <p className='text-sm text-muted-foreground m-0'>All contributions from all members</p>
           </div>
           <div className='flex flex-col sm:flex-row gap-4 w-full sm:w-auto items-center'>
             <div className='relative w-full sm:w-64'>

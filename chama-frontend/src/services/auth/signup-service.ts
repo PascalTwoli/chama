@@ -8,6 +8,7 @@ import {
   OnboardingStatus,
 } from '../../models/user';
 import { UserType } from '../../data/user-type';
+import SecureTokenStorage from '../../utils/secure-token-storage';
 
 export class AuthService {
   static normalizeUserType(
@@ -28,11 +29,7 @@ export class AuthService {
         '/auth/signup',
         userData
       );
-      // localStorage.setItem("authToken", response.data.token ?? "");
-      // localStorage.setItem(
-      // 	"userId",
-      // 	response.data.id || response.data.userId
-      // );
+      // SecureTokenStorage handled by caller or manual login flow usually
       console.log('Sign-up successful:', response.data);
       return response.data;
     } catch (error) {
@@ -71,7 +68,7 @@ export class AuthService {
     console.log('user data:', user);
 
     // Check if we have auth token
-    const token = localStorage.getItem('authToken');
+    const token = SecureTokenStorage.getAuthToken();
     console.log('Auth token exists:', !!token);
     console.log(
       'Auth token (first 50 chars):',
@@ -80,6 +77,7 @@ export class AuthService {
 
     try {
       console.log('Making PATCH request to:', `/user/${userId}`);
+      // Token is automatically added by axios interceptor
       const response: AxiosResponse<User> = await apiClient.patch(
         `/user/${userId}`,
         user
@@ -100,22 +98,19 @@ export class AuthService {
 
   static async getCurrentUser(): Promise<User> {
     console.log('=== getCurrentUser called ===');
-    const token = localStorage.getItem('authToken');
+    const token = SecureTokenStorage.getAuthToken();
     console.log('Auth token exists:', !!token);
 
     if (!token) {
-      console.error('No authentication token found in localStorage');
+      console.error('No authentication token found in SecureTokenStorage');
       throw new Error('No authentication token found');
     }
 
     try {
       console.log('Making GET request to /auth/me');
       // Backend returns UserResponseEntity, not User directly
-      const response: AxiosResponse<any> = await apiClient.get('/auth/me', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      // Headers handled by interceptor, but explicit header doesn't hurt if we have token
+      const response: AxiosResponse<any> = await apiClient.get('/auth/me');
       console.log('getCurrentUser raw response:', response.data);
 
       // Extract user data from the backend response structure
@@ -188,7 +183,7 @@ export class AuthService {
   }
 
   static getRedirectPath(): string {
-    const authToken = localStorage.getItem('authToken');
+    const authToken = SecureTokenStorage.getAuthToken();
     if (!authToken) {
       return '/signin';
     }

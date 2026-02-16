@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Users, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'react-toastify';
 import AuthService from '../services/auth/signup-service';
+import GoogleAuthService from '../services/auth/google-auth-service';
 import { SignupRequest, FormErrors } from '../models/user';
 import { Button } from '../components/ui/button';
 import {
@@ -297,7 +298,30 @@ const SignUp = () => {
               </div>
 
               {/* Google Sign Up */}
-              <Button variant='outline' className='w-full' type='button'>
+              <Button
+                variant='outline'
+                className='w-full'
+                type='button'
+                onClick={async () => {
+                  setIsLoading(true);
+                  try {
+                    const result = await GoogleAuthService.signInWithGoogle();
+                    if (result) {
+                      toast.success(
+                        'Google sign-up successful! Please create or join a chama to get started.'
+                      );
+                      setTimeout(() => {
+                        navigate('/onboarding/chama-choice');
+                      }, 1500);
+                    }
+                  } catch (error) {
+                    // Error handled in service
+                  } finally {
+                    setIsLoading(false);
+                  }
+                }}
+                disabled={isLoading}
+              >
                 <img
                   src='/assets/Google__G__logo.svg.webp'
                   alt='Google'
