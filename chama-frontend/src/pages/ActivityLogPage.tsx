@@ -260,60 +260,69 @@ export default function ActivityLogPage() {
           </div>
         </div>
 
-        <Card className='border border-border shadow-sm overflow-hidden'>
-          <div className='p-6 border-b border-border'>
-            <h3 className='font-semibold text-lg'>Activity Timeline</h3>
-            <p className='text-sm text-muted-foreground'>
+        <Card className='border border-border shadow-sm overflow-hidden pb-4'>
+          <div className='p-6'>
+            <h3 className='font-semibold text-lg m-0'>Activity Timeline</h3>
+            <p className='text-sm text-muted-foreground m-0'>
               You haven&apos;t performed any activities yet.
             </p>
           </div>
-          <Table>
-            <TableHeader>
-              <TableRow className='bg-muted/30 hover:bg-muted/30'>
-                <TableHead className='w-[180px]'>Type</TableHead>
-                <TableHead>User</TableHead>
-                <TableHead>Action</TableHead>
-                <TableHead>Details</TableHead>
-                <TableHead>Timestamp</TableHead>
-                <TableHead>IP Address</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {mockLogs.map(log => (
-                <TableRow key={log.id}>
-                  <TableCell>{getBadge(log.type)}</TableCell>
-                  <TableCell>
-                    <div className='flex items-center gap-2'>
-                      <div className='w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs'>
-                        <Users className='w-3 h-3' />
-                      </div>
-                      <div className='flex flex-col'>
-                        <span className='font-medium text-sm'>
-                          {log.user.name}
-                        </span>
-                        <span className='text-[10px] text-muted-foreground'>
-                          ({log.user.role})
-                        </span>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className='font-medium'>{log.action}</TableCell>
-                  <TableCell
-                    className='text-muted-foreground text-sm max-w-xs truncate'
-                    title={log.details}
-                  >
-                    {log.details}
-                  </TableCell>
-                  <TableCell className='text-muted-foreground text-xs whitespace-nowrap'>
-                    {log.timestamp}
-                  </TableCell>
-                  <TableCell className='text-muted-foreground text-xs font-mono'>
-                    {log.ipAddress}
-                  </TableCell>
+          <div className='px-6'>
+            <Table className='border-collapse'>
+              <TableHeader className='bg-muted/50'>
+                <TableRow className='hover:bg-transparent border-b border-border'>
+                  <TableHead className='w-[180px]'>Type</TableHead>
+                  <TableHead>User</TableHead>
+                  <TableHead>Action</TableHead>
+                  <TableHead>Details</TableHead>
+                  <TableHead>Timestamp</TableHead>
+                  <TableHead>IP Address</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {mockLogs.map(log => (
+                  <TableRow
+                    key={log.id}
+                    className='hover:bg-muted/50 transition-colors border-0'
+                  >
+                    <TableCell className='border-b border-border py-3'>
+                      {getBadge(log.type)}
+                    </TableCell>
+                    <TableCell className='border-b border-border py-3'>
+                      <div className='flex items-center gap-2'>
+                        <div className='w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs'>
+                          <Users className='w-3 h-3' />
+                        </div>
+                        <div className='flex flex-col'>
+                          <span className='font-medium text-sm'>
+                            {log.user.name}
+                          </span>
+                          <span className='text-[10px] text-muted-foreground'>
+                            ({log.user.role})
+                          </span>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className='font-medium border-b border-border py-3'>
+                      {log.action}
+                    </TableCell>
+                    <TableCell
+                      className='text-muted-foreground text-sm max-w-xs truncate border-b border-border py-3'
+                      title={log.details}
+                    >
+                      {log.details}
+                    </TableCell>
+                    <TableCell className='text-muted-foreground text-xs whitespace-nowrap border-b border-border py-3'>
+                      {log.timestamp}
+                    </TableCell>
+                    <TableCell className='text-muted-foreground text-xs font-mono border-b border-border py-3'>
+                      {log.ipAddress}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </Card>
       </div>
     </div>

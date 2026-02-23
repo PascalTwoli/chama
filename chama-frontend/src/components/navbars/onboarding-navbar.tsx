@@ -5,13 +5,16 @@ import ProfileTemplate from '../../utils/profile-template';
 import LogoutModal from '../logoutModal';
 import Logo1 from '../../logos/logo1';
 import { ThemeToggle } from '../ThemeToggle';
-import { Bell } from 'lucide-react';
+import { Bell, Moon, Sun } from 'lucide-react';
+import { Button } from '../ui';
+import { useTheme } from '../../context/ThemeContext';
 
 function OnBoardingNavbar() {
   const [userName, setUserName] = useState<string | null>(null);
   const [displayNavbarLinks, setDisplayNavbarLinks] = useState<boolean>(false);
   const [user, setUser] = useState<any>(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     AuthService.getCurrentUser().then((user: any) => {
@@ -27,7 +30,7 @@ function OnBoardingNavbar() {
   }, []);
 
   return (
-    <div className='navbar flex justify-between items-center text-foreground bg-card border-b border-border pl-7 pr-5 h-16'>
+    <div className='fixed top-0 left-0 right-0 z-50 border-b border-border/40 bg-white/30 dark:bg-black/30 backdrop-blur-md px-6 py-1 shadow-sm transition-all duration-300 flex justify-between items-center'>
       <div className='flex items-center gap-x-6'>
         <span>
           <Logo1 />
@@ -35,12 +38,31 @@ function OnBoardingNavbar() {
       </div>
       <div className='flex gap-x-4 items-center'>
         {/* Theme Toggle Button */}
-        <ThemeToggle />
+        <Button
+          variant='outline'
+          size='sm'
+          onClick={toggleTheme}
+          className='text-muted-foreground hover:text-foreground'
+          title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+        >
+          {theme === 'light' ? (
+            <Moon className='w-4 h-4' />
+          ) : (
+            <Sun className='w-4 h-4' />
+          )}
+        </Button>
 
         {/* Notifications */}
-        <button className='p-2 hover:bg-muted rounded-lg transition-colors text-muted-foreground hover:text-foreground'>
-          <Bell className='w-5 h-5' />
-        </button>
+        <Button
+          variant='outline'
+          size='sm'
+          className='relative text-muted-foreground hover:text-foreground'
+        >
+          <Bell className='w-4 h-4' />
+          <span className='absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground rounded-full text-xs flex items-center justify-center'>
+            3
+          </span>
+        </Button>
 
         {/* Profile Menu */}
         <div

@@ -114,13 +114,13 @@ export default function ReportsPage() {
         <Card>
           <CardContent className='p-6 space-y-2'>
             <div className='flex justify-between items-start'>
-              <p className='text-sm text-muted-foreground font-medium'>
+              <p className='text-sm text-muted-foreground font-medium m-0'>
                 Total Collected
               </p>
               <Wallet className='w-4 h-4 text-green-600' />
             </div>
             <div>
-              <h3 className='text-2xl font-bold'>KSh 283,500</h3>
+              <h3 className='text-2xl font-bold m-0'>KSh 283,500</h3>
               <p className='text-xs text-destructive flex items-center mt-1'>
                 <TrendingUp className='w-3 h-3 mr-1 rotate-180' />{' '}
                 {/* Rotate mostly for visual differnece or just arrow down */}
@@ -132,15 +132,15 @@ export default function ReportsPage() {
 
         {/* Collection Rate */}
         <Card>
-          <CardContent className='p-6 space-y-4'>
+          <CardContent className='p-6 space-y-2'>
             <div className='flex justify-between items-start'>
-              <p className='text-sm text-muted-foreground font-medium'>
+              <p className='text-sm text-muted-foreground font-medium m-0'>
                 Collection Rate
               </p>
               <TrendingUp className='w-4 h-4 text-blue-600' />
             </div>
             <div>
-              <h3 className='text-2xl font-bold'>94.5%</h3>
+              <h3 className='text-2xl font-bold m-0'>94.5%</h3>
               <div className='h-2 w-full bg-muted/50 rounded-full mt-2 overflow-hidden'>
                 <div
                   className='h-full bg-green-600 rounded-full'
@@ -155,13 +155,13 @@ export default function ReportsPage() {
         <Card>
           <CardContent className='p-6 space-y-2'>
             <div className='flex justify-between items-start'>
-              <p className='text-sm text-muted-foreground font-medium'>
+              <p className='text-sm text-muted-foreground font-medium m-0'>
                 Active Members
               </p>
               <Users className='w-4 h-4 text-orange-600' />
             </div>
             <div>
-              <h3 className='text-2xl font-bold'>10/10</h3>
+              <h3 className='text-2xl font-bold m-0'>10/10</h3>
               <p className='text-xs text-muted-foreground mt-1'>
                 All members active
               </p>
@@ -173,13 +173,13 @@ export default function ReportsPage() {
         <Card>
           <CardContent className='p-6 space-y-2'>
             <div className='flex justify-between items-start'>
-              <p className='text-sm text-muted-foreground font-medium'>
+              <p className='text-sm text-muted-foreground font-medium m-0'>
                 Avg Contribution
               </p>
               <BarChart3 className='w-4 h-4 text-blue-600' />
             </div>
             <div>
-              <h3 className='text-2xl font-bold'>KSh 28,350</h3>
+              <h3 className='text-2xl font-bold m-0'>KSh 28,350</h3>
               <p className='text-xs text-muted-foreground mt-1'>
                 Per member this period
               </p>
@@ -318,10 +318,10 @@ export default function ReportsPage() {
       {/* Recent Transactions List */}
       <Card className='shadow-sm'>
         <CardHeader>
-          <CardTitle className='text-base font-semibold'>
+          <CardTitle className='text-base font-semibold m-0'>
             Recent Transactions
           </CardTitle>
-          <p className='text-sm text-muted-foreground'>
+          <p className='text-sm text-muted-foreground m-0'>
             Latest financial activities
           </p>
         </CardHeader>
@@ -337,15 +337,15 @@ export default function ReportsPage() {
                     <TrendingUp className='w-5 h-5' />
                   </div>
                   <div>
-                    <p className='font-medium text-sm'>{tx.type}</p>
-                    <p className='text-xs text-muted-foreground'>{tx.user}</p>
+                    <p className='font-medium text-sm m-0'>{tx.type}</p>
+                    <p className='text-xs text-muted-foreground m-0'>{tx.user}</p>
                   </div>
                 </div>
                 <div className='text-right'>
-                  <p className='font-bold text-sm text-green-600'>
+                  <p className='font-bold text-sm text-green-600 m-0'>
                     +KSh {tx.amount.toLocaleString()}
                   </p>
-                  <p className='text-xs text-muted-foreground'>{tx.date}</p>
+                  <p className='text-xs text-muted-foreground m-0'>{tx.date}</p>
                 </div>
               </div>
             ))}

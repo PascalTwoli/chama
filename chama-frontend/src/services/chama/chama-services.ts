@@ -244,6 +244,25 @@ export class ChamaService {
       throw new Error(errorData?.message || 'Failed to create invite.');
     }
   }
+
+  static async listPendingInvites(chamaId: string): Promise<any[]> {
+    try {
+      const response: AxiosResponse<any[]> = await apiClient.get(
+        `/api/invites/chama/${chamaId}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error listing pending invites:', error);
+      const axiosError = error as AxiosError;
+      if (!axiosError.response) {
+        throw new Error(
+          'Could not connect to the server. Please check your internet connection and try again.'
+        );
+      }
+      const errorData = axiosError.response.data as { message?: string };
+      throw new Error(errorData?.message || 'Failed to list pending invites.');
+    }
+  }
 }
 
 export default ChamaService;

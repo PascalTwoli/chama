@@ -436,7 +436,9 @@ export default function AdminDashboard() {
             <Button
               className='w-full justify-start gap-3 h-8'
               onClick={() =>
-                navigate(`/admin/chamas/${chamaId}/record-contribution`)
+                navigate(
+                  `/admin/chamas/${chamaId}/contributions/record-contribution`
+                )
               }
             >
               <Plus className='w-4 h-4' />
@@ -445,7 +447,9 @@ export default function AdminDashboard() {
             <Button
               variant='outline'
               className='w-full justify-start gap-3 h-8'
-              onClick={() => navigate(`/admin/chamas/${chamaId}/invite-member`)}
+              onClick={() =>
+                navigate(`/admin/chamas/${chamaId}/members/invite-member`)
+              }
             >
               <UserPlus className='w-4 h-4' />
               Invite Member
@@ -453,7 +457,9 @@ export default function AdminDashboard() {
             <Button
               variant='outline'
               className='w-full justify-start gap-3 h-8'
-              onClick={() => navigate(`/admin/chamas/${chamaId}/meetings`)}
+              onClick={() =>
+                navigate(`/admin/chamas/${chamaId}/meetings/schedule`)
+              }
             >
               <Calendar className='w-4 h-4' />
               Schedule Meeting
@@ -485,7 +491,9 @@ export default function AdminDashboard() {
           <Button
             size='sm'
             className='gap-2'
-            onClick={() => navigate(`/admin/chamas/${chamaId}/invite-member`)}
+            onClick={() =>
+              navigate(`/admin/chamas/${chamaId}/members/invite-member`)
+            }
           >
             <Plus className='w-4 h-4' />
             Add Member

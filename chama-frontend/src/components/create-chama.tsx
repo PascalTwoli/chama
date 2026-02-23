@@ -116,14 +116,14 @@ const CreateChama: React.FC = () => {
   const handleCancel = () => navigate('/onboarding/chama-choice');
 
   return (
-    <div className='min-h-screen bg-background py-8 px-4'>
+    <div className='min-h-screen bg-background py-8 px-4 mt-12'>
       <div className='max-w-[600px] mx-auto'>
         {/* Header */}
         <div className='flex items-center gap-3 mb-6'>
           <button
             type='button'
             onClick={handleCancel}
-            className='flex items-center gap-2 px-3 py-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors text-sm font-medium'
+            className='flex items-center gap-2 px-3 py-2 bg-transparent border border-border text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors text-sm font-medium'
           >
             <ArrowLeft className='w-4 h-4' />
             <span>Back</span>

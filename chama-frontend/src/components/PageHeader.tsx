@@ -8,6 +8,7 @@ interface PageHeaderProps {
   subtitle?: string;
   action?: React.ReactNode;
   className?: string;
+  showBackButton?: boolean;
 }
 
 export function PageHeader({
@@ -15,6 +16,7 @@ export function PageHeader({
   subtitle,
   action,
   className,
+  showBackButton,
 }: PageHeaderProps) {
   const navigate = useNavigate();
 
@@ -26,15 +28,17 @@ export function PageHeader({
       )}
     >
       <div className='flex items-start gap-4'>
-        {/* <Button
-          variant='outline'
-          size='sm' // size-sm was invalid? I think user removed it. Just checking button.tsx. It has sizes. I'll rely on default or h-9.
-          className='w-9 h-9 p-0 rounded-full flex items-center justify-center shrink-0 border-border bg-background'
-          onClick={() => navigate(-1)}
-          title='Go back'
-        >
-          <ArrowLeft className='w-4 h-4' />
-        </Button> */}
+        {showBackButton && (
+          <Button
+            variant='outline'
+            size='sm'
+            className='w-9 h-9 p-0 rounded-full flex items-center justify-center shrink-0 border-border bg-background mt-1'
+            onClick={() => navigate(-1)}
+            title='Go back'
+          >
+            <ArrowLeft className='w-4 h-4' />
+          </Button>
+        )}
         <div className='space-y-1'>
           <h1 className='text-2xl font-bold tracking-tight text-foreground m-0'>
             {title}

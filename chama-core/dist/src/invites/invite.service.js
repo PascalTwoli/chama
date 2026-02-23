@@ -154,6 +154,38 @@ let InviteService = InviteService_1 = class InviteService {
         });
     }
     /**
+     * Validate an invite token and return invite details
+     */
+    validateInvite(token) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Find the invite by token
+            const invite = yield this.prisma.invite.findUnique({
+                where: { token },
+                include: {
+                    chama: {
+                        select: {
+                            id: true,
+                            name: true,
+                            description: true,
+                        },
+                    },
+                },
+            });
+            if (!invite) {
+                throw new common_1.NotFoundException('Invite not found');
+            }
+            // Check if invite is expired
+            if (invite.expiresAt < new Date()) {
+                throw new common_1.BadRequestException('Invite has expired');
+            }
+            // Check if invite is already used
+            if (invite.usedAt) {
+                throw new common_1.BadRequestException('Invite has already been used');
+            }
+            return invite;
+        });
+    }
+    /**
      * Validate and accept an invite
      */
     validateAndAcceptInvite(token, userId) {

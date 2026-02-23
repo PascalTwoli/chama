@@ -21,6 +21,7 @@ import { Input } from '../../components/ui/input';
 import { useChamaMembership } from '../../context/ChamaMembershipContext';
 import ChamaService from '../../services/chama/chama-services';
 import { toast } from 'react-toastify';
+import OnBoardingNavbar from '../../components/navbars/onboarding-navbar';
 
 interface AvailableChama {
   id: string;
@@ -101,33 +102,17 @@ const ChamaChoice: React.FC = () => {
   return (
     <div className='min-h-screen bg-background'>
       {/* Header */}
-      <header className='border-b bg-card sticky top-0 z-50'>
-        <div className='container mx-auto px-4 py-4 flex items-center justify-between max-w-6xl'>
-          <div className='flex items-center gap-2'>
-            <div className='w-10 h-10 rounded-lg bg-primary flex items-center justify-center'>
-              <Users className='w-6 h-6 text-primary-foreground' />
-            </div>
-            <span className='text-xl font-bold'>ChamaPlus</span>
-          </div>
-          <Button
-            variant='ghost'
-            onClick={() => {
-              localStorage.removeItem('authToken');
-              navigate('/');
-            }}
-          >
-            Logout
-          </Button>
-        </div>
+      <header className='sticky top-0 z-50'>
+        <OnBoardingNavbar />
       </header>
 
-      <main className='container mx-auto px-4 py-8 max-w-6xl'>
+      <main className='container mx-auto px-4 py-8 mt-14 max-w-6xl'>
         {/* Welcome Section */}
         <div className='mb-8'>
-          <h1 className='text-3xl font-bold mb-2'>
+          <h1 className='text-3xl font-bold m-0'>
             Welcome to ChamaPlus, {user?.firstName || 'User'}! 👋
           </h1>
-          <p className='text-muted-foreground'>
+          <p className='text-muted-foreground m-0'>
             Create your own Chama or join an existing one to start managing
             group savings
           </p>

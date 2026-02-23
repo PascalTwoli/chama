@@ -104,6 +104,33 @@ export class InviteController {
   }
 
   /**
+   * Validates an invite token
+   */
+  @Get('validate/:token')
+  @ApiOperation({ summary: 'Validate an invite token' })
+  @ApiResponse({
+    status: 200,
+    description: 'Invite details',
+    type: InviteEntity,
+  })
+  @ApiResponse({ status: 404, description: 'Invite not found' })
+  @ApiResponse({ status: 400, description: 'Invite expired or already used' })
+  async validateInvite(@Param('token') token: string): Promise<InviteEntity> {
+    try {
+      const invite = await this.inviteService.validateInvite(token);
+      return new InviteEntity({
+        ...invite,
+        chama: {
+          ...invite.chama,
+          description: invite.chama.description || undefined,
+        },
+      });
+    } catch (error) {
+      this.handleError(error, 'Failed to validate invite');
+    }
+  }
+
+  /**
    * Accepts an invitation to join a chama
    */
   @Post('accept')

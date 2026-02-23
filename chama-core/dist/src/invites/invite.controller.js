@@ -63,6 +63,20 @@ let InviteController = class InviteController {
         });
     }
     /**
+     * Validates an invite token
+     */
+    validateInvite(token) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const invite = yield this.inviteService.validateInvite(token);
+                return new invite_entity_1.InviteEntity(Object.assign(Object.assign({}, invite), { chama: Object.assign(Object.assign({}, invite.chama), { description: invite.chama.description || undefined }) }));
+            }
+            catch (error) {
+                this.handleError(error, 'Failed to validate invite');
+            }
+        });
+    }
+    /**
      * Accepts an invitation to join a chama
      */
     acceptInvite(acceptInviteDto, currentUser) {
@@ -146,6 +160,21 @@ __decorate([
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], InviteController.prototype, "listPendingInvites", null);
+__decorate([
+    (0, common_1.Get)('validate/:token'),
+    (0, swagger_1.ApiOperation)({ summary: 'Validate an invite token' }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Invite details',
+        type: invite_entity_1.InviteEntity,
+    }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'Invite not found' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Invite expired or already used' }),
+    __param(0, (0, common_1.Param)('token')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], InviteController.prototype, "validateInvite", null);
 __decorate([
     (0, common_1.Post)('accept'),
     (0, common_1.UseGuards)(auth_guard_1.AuthGuard),

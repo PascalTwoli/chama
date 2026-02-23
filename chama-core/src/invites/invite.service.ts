@@ -187,6 +187,41 @@ export class InviteService {
   }
 
   /**
+   * Validate an invite token and return invite details
+   */
+  async validateInvite(token: string): Promise<Invite & { chama: { name: string; id: string; description: string | null } }> {
+    // Find the invite by token
+    const invite = await this.prisma.invite.findUnique({
+      where: { token },
+      include: {
+        chama: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+          },
+        },
+      },
+    });
+
+    if (!invite) {
+      throw new NotFoundException('Invite not found');
+    }
+
+    // Check if invite is expired
+    if (invite.expiresAt < new Date()) {
+      throw new BadRequestException('Invite has expired');
+    }
+
+    // Check if invite is already used
+    if (invite.usedAt) {
+      throw new BadRequestException('Invite has already been used');
+    }
+
+    return invite;
+  }
+
+  /**
    * Validate and accept an invite
    */
   async validateAndAcceptInvite(

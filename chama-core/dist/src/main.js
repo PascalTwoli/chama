@@ -90,6 +90,7 @@ function bootstrap() {
             exposedHeaders: ['Authorization'],
             maxAge: 86400, // 24 hours in seconds
         });
+        // Setup Swagger before Firebase initialization
         const config = new swagger_1.DocumentBuilder()
             .setTitle('Chama Api')
             .setDescription('The API details for the chama management system backend')
@@ -98,7 +99,13 @@ function bootstrap() {
             .addBearerAuth()
             .build();
         const document = swagger_1.SwaggerModule.createDocument(app, config);
-        swagger_1.SwaggerModule.setup('docs', app, document);
+        // Setup Swagger at /api/docs
+        swagger_1.SwaggerModule.setup('api/docs', app, document, {
+            swaggerOptions: {
+                persistAuthorization: true,
+            },
+            customSiteTitle: 'ChamaPlus API',
+        });
         // Firebase initialization
         // Use absolute path based on project root directory
         const projectRoot = process.cwd(); // This will resolve to the project root directory
