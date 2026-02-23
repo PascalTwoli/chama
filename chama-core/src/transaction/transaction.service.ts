@@ -6,18 +6,19 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { TransactionType, TransactionStatus } from '@prisma/client';
+import { transaction_type, transaction_status } from '@prisma/client';
+import * as crypto from 'crypto';
 
 // Define interface for transaction response that matches the controller's expected format
 export interface TransactionResponse {
   id: string;
-  type: TransactionType;
+  type: transaction_type;
   amount: number;
   chamaId: string;
   userId: string;
   description?: string;
   reference?: string;
-  status: TransactionStatus;
+  status: transaction_status;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -39,8 +40,8 @@ export class TransactionService {
     // First, verify the user is a member of the chama
     const membership = await this.prisma.membership.findFirst({
       where: {
-        chamaId: createTransactionDto.chamaId,
-        userId: userId,
+        chama_id: createTransactionDto.chamaId,
+        user_id: userId,
       },
     });
 
@@ -64,23 +65,32 @@ export class TransactionService {
       const transaction = await this.prisma.$transaction(async prisma => {
         return await prisma.transaction.create({
           data: {
+            id: crypto.randomUUID(),
             type: createTransactionDto.type,
             amount: createTransactionDto.amount,
-            chamaId: createTransactionDto.chamaId,
-            userId: userId,
+            chama_id: createTransactionDto.chamaId,
+            user_id: userId,
             description: createTransactionDto.description,
             reference: createTransactionDto.reference,
-            status: 'COMPLETED', // Default status
+            status: transaction_status.COMPLETED,
+            updatedAt: new Date(),
           },
         });
       });
 
       // Convert Decimal amount to number and null to undefined for response
+      // Map snake_case database fields to camelCase for API response
       return {
-        ...transaction,
+        id: transaction.id,
+        type: transaction.type,
         amount: Number(transaction.amount),
+        chamaId: transaction.chama_id,
+        userId: transaction.user_id,
         description: transaction.description || undefined,
         reference: transaction.reference || undefined,
+        status: transaction.status,
+        createdAt: transaction.createdAt,
+        updatedAt: transaction.updatedAt,
       };
     } catch (error) {
       throw new BadRequestException(
@@ -101,15 +111,15 @@ export class TransactionService {
   async getTransactionsByChama(
     chamaId: string,
     userId: string,
-    type?: TransactionType,
+    type?: transaction_type,
     startDate?: string,
     endDate?: string,
   ): Promise<TransactionResponse[]> {
     // Verify the user is a member of the chama
     const membership = await this.prisma.membership.findFirst({
       where: {
-        chamaId: chamaId,
-        userId: userId,
+        chama_id: chamaId,
+        user_id: userId,
       },
     });
 
@@ -128,7 +138,7 @@ export class TransactionService {
 
     // Build the where clause based on filters
     const where: any = {
-      chamaId: chamaId,
+      chama_id: chamaId,
     };
 
     if (type) {
@@ -161,11 +171,18 @@ export class TransactionService {
     });
 
     // Convert Decimal amounts to numbers and null to undefined for response
+    // Map snake_case database fields to camelCase for API response
     return transactions.map(transaction => ({
-      ...transaction,
+      id: transaction.id,
+      type: transaction.type,
       amount: Number(transaction.amount),
+      chamaId: transaction.chama_id,
+      userId: transaction.user_id,
       description: transaction.description || undefined,
       reference: transaction.reference || undefined,
+      status: transaction.status,
+      createdAt: transaction.createdAt,
+      updatedAt: transaction.updatedAt,
     }));
   }
 
@@ -184,7 +201,7 @@ export class TransactionService {
       include: {
         chama: {
           include: {
-            memberships: true,
+            membership: true,
           },
         },
       },
@@ -195,10 +212,10 @@ export class TransactionService {
     }
 
     // Verify the user is a member of the chama or created the transaction
-    const isMember = transaction.chama.memberships.some(
-      membership => membership.userId === userId,
+    const isMember = transaction.chama.membership.some(
+      membership => membership.user_id === userId,
     );
-    const isCreator = transaction.userId === userId;
+    const isCreator = transaction.user_id === userId;
 
     if (!isMember && !isCreator) {
       throw new ForbiddenException(
@@ -207,12 +224,19 @@ export class TransactionService {
     }
 
     // Exclude nested data before returning and convert Decimal to number
+    // Map snake_case database fields to camelCase for API response
     const { chama, ...transactionData } = transaction;
     return {
-      ...transactionData,
+      id: transactionData.id,
+      type: transactionData.type,
       amount: Number(transactionData.amount),
+      chamaId: transactionData.chama_id,
+      userId: transactionData.user_id,
       description: transactionData.description || undefined,
       reference: transactionData.reference || undefined,
+      status: transactionData.status,
+      createdAt: transactionData.createdAt,
+      updatedAt: transactionData.updatedAt,
     };
   }
 
@@ -224,20 +248,20 @@ export class TransactionService {
   async getUserTransactionSummary(userId: string) {
     // Get all chamas the user is a member of
     const memberships = await this.prisma.membership.findMany({
-      where: { userId },
+      where: { user_id: userId },
       include: {
         chama: true,
       },
     });
 
-    const chamaIds = memberships.map(membership => membership.chamaId);
+    const chamaIds = memberships.map(membership => membership.chama_id);
 
     // Get all transactions for these chamas where the user is involved
     const transactions = await this.prisma.$transaction(async prisma => {
       return await prisma.transaction.findMany({
         where: {
-          chamaId: { in: chamaIds },
-          userId,
+          chama_id: { in: chamaIds },
+          user_id: userId,
         },
       });
     });
@@ -253,23 +277,23 @@ export class TransactionService {
 
     transactions.forEach(transaction => {
       // Update overall totals
-      if (transaction.type === TransactionType.CONTRIBUTION) {
+      if (transaction.type === transaction_type.CONTRIBUTION) {
         totalContributions += transaction.amount.toNumber();
-      } else if (transaction.type === TransactionType.WITHDRAWAL) {
+      } else if (transaction.type === transaction_type.WITHDRAWAL) {
         totalWithdrawals += transaction.amount.toNumber();
-      } else if (transaction.type === TransactionType.LOAN) {
+      } else if (transaction.type === transaction_type.LOAN) {
         totalLoans += transaction.amount.toNumber();
-      } else if (transaction.type === TransactionType.LOAN_REPAYMENT) {
+      } else if (transaction.type === transaction_type.LOAN_REPAYMENT) {
         totalRepayments += transaction.amount.toNumber();
       }
 
       // Update chama-specific stats
-      if (!chamaStatMap.has(transaction.chamaId)) {
+      if (!chamaStatMap.has(transaction.chama_id)) {
         const chama = memberships.find(
-          m => m.chamaId === transaction.chamaId,
+          m => m.chama_id === transaction.chama_id,
         )?.chama;
-        chamaStatMap.set(transaction.chamaId, {
-          chamaId: transaction.chamaId,
+        chamaStatMap.set(transaction.chama_id, {
+          chamaId: transaction.chama_id,
           chamaName: chama?.name || 'Unknown Chama',
           contributions: 0,
           withdrawals: 0,
@@ -278,14 +302,14 @@ export class TransactionService {
         });
       }
 
-      const chamaStat = chamaStatMap.get(transaction.chamaId);
-      if (transaction.type === TransactionType.CONTRIBUTION) {
+      const chamaStat = chamaStatMap.get(transaction.chama_id);
+      if (transaction.type === transaction_type.CONTRIBUTION) {
         chamaStat.contributions += transaction.amount.toNumber();
-      } else if (transaction.type === TransactionType.WITHDRAWAL) {
+      } else if (transaction.type === transaction_type.WITHDRAWAL) {
         chamaStat.withdrawals += transaction.amount.toNumber();
-      } else if (transaction.type === TransactionType.LOAN) {
+      } else if (transaction.type === transaction_type.LOAN) {
         chamaStat.loans += transaction.amount.toNumber();
-      } else if (transaction.type === TransactionType.LOAN_REPAYMENT) {
+      } else if (transaction.type === transaction_type.LOAN_REPAYMENT) {
         chamaStat.repayments += transaction.amount.toNumber();
       }
     });

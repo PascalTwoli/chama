@@ -70,7 +70,7 @@ export class UserService {
       // Update the user's activeUserType
       const updatedUser = await this.databaseService.user.update({
         where: { id: uid },
-        data: { activeUserType: userType },
+        data: { active_user_type: userType },
       });
 
       return {
@@ -112,6 +112,7 @@ export class UserService {
               email: registerUser.email,
               name: `${registerUser.firstName} ${registerUser.lastName}`,
               phone: registerUser.phoneNumber || '',
+              updatedAt: new Date(),
               // activeUserType: registerUser.activeUserType ?? UserType.MEMBER,
             },
           });
@@ -390,11 +391,11 @@ export class UserService {
           name: true,
           email: true,
           phone: true,
-          passwordHash: true,
+          password_hash: true,
           role: true,
           createdAt: true,
           updatedAt: true,
-          activeUserType: true,
+          active_user_type: true,
         },
       });
 
@@ -407,18 +408,19 @@ export class UserService {
             email: firebaseUser.email || '',
             name: firebaseUser.displayName || '',
             phone: firebaseUser.phoneNumber || '',
-            activeUserType: 'MEMBER', // Default to MEMBER user type
+            active_user_type: UserType.MEMBER,
+            updatedAt: new Date(),
           },
           select: {
             id: true,
             name: true,
             email: true,
             phone: true,
-            passwordHash: true,
+            password_hash: true,
             role: true,
             createdAt: true,
             updatedAt: true,
-            activeUserType: true,
+            active_user_type: true,
           },
         });
 
@@ -441,11 +443,11 @@ export class UserService {
             name: true,
             email: true,
             phone: true,
-            passwordHash: true,
+            password_hash: true,
             role: true,
             createdAt: true,
             updatedAt: true,
-            activeUserType: true,
+            active_user_type: true,
           },
         });
 
@@ -547,11 +549,11 @@ export class UserService {
           name: true,
           email: true,
           phone: true,
-          passwordHash: true,
+          password_hash: true,
           role: true,
           createdAt: true,
           updatedAt: true,
-          activeUserType: true,
+          active_user_type: true,
         },
       });
 
@@ -590,7 +592,7 @@ export class UserService {
 
       // Add activeUserType if provided
       if (updateData.activeUserType) {
-        updateFields.activeUserType = updateData.activeUserType;
+        updateFields.active_user_type = updateData.activeUserType;
       }
 
       // Add any other fields that should be updatable
@@ -606,11 +608,11 @@ export class UserService {
               name: true,
               email: true,
               phone: true,
-              passwordHash: true,
+              password_hash: true,
               role: true,
               createdAt: true,
               updatedAt: true,
-              activeUserType: true,
+              active_user_type: true,
             },
           });
         },
