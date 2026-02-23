@@ -87,23 +87,25 @@ export class GoogleAuthService {
                   userCredential.user,
                   pendingCredential
                 );
-                
+
                 // Success! Return the linked result
-                 const idToken = await linkResult.user.getIdToken();
-                 SecureTokenStorage.setAuthToken(idToken);
-                 
-                 return {
-                   userCredential: linkResult,
-                   isNewUser: false // It's an existing user being linked
-                 };
+                const idToken = await linkResult.user.getIdToken();
+                SecureTokenStorage.setAuthToken(idToken);
+
+                return {
+                  userCredential: linkResult,
+                  isNewUser: false, // It's an existing user being linked
+                };
               }
             }
           } catch (linkError) {
-             console.error("Account linking failed:", linkError);
-             errorMessage = "Failed to link accounts. Please try logging in with email/password first.";
+            console.error('Account linking failed:', linkError);
+            errorMessage =
+              'Failed to link accounts. Please try logging in with email/password first.';
           }
         } else {
-             errorMessage = 'An account already exists with the same email address but different sign-in credentials. Sign in using a provider associated with this email address.';
+          errorMessage =
+            'An account already exists with the same email address but different sign-in credentials. Sign in using a provider associated with this email address.';
         }
       } else if (error.code === 'auth/popup-closed-by-user') {
         errorMessage = 'Sign-in cancelled by user.';
@@ -136,4 +138,3 @@ export class GoogleAuthService {
 }
 
 export default GoogleAuthService;
-

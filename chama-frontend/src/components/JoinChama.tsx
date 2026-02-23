@@ -25,8 +25,11 @@ interface ApiError {
 
 interface InviteDetails {
   chamaId: string;
-  chamaName: string;
-  invitedEmail: string;
+  chama: {
+    name: string;
+    description?: string;
+  };
+  sentToEmail: string;
 }
 
 interface ChamaResponse {
@@ -75,7 +78,7 @@ function JoinChama() {
         console.error('Error validating invite:', error);
         setError(
           (error as ApiError).response?.data?.message ||
-            'This invitation link is invalid or has expired.'
+          'This invitation link is invalid or has expired.'
         );
         setLoading(false);
       }
@@ -88,7 +91,8 @@ function JoinChama() {
     try {
       setLoading(true);
       const response = await axios.post<ChamaResponse>(
-        `/api/invites/accept/${token}`
+        '/api/invites/accept',
+        { token }
       );
 
       setSuccess(true);
@@ -103,7 +107,7 @@ function JoinChama() {
       console.error('Error accepting invite:', error);
       setError(
         (error as ApiError).response?.data?.message ||
-          'Failed to join chama. Please try again later.'
+        'Failed to join chama. Please try again later.'
       );
     } finally {
       setLoading(false);
@@ -190,12 +194,12 @@ function JoinChama() {
               You&apos;ve been invited to join:
             </p>
             <h3 className='text-foreground text-lg font-bold mb-4'>
-              {inviteDetails.chamaName}
+              {inviteDetails.chama.name}
             </h3>
             <p className='text-muted-foreground mb-4'>
               This invitation was sent to:{' '}
               <span className='text-foreground font-semibold'>
-                {inviteDetails.invitedEmail}
+                {inviteDetails.sentToEmail}
               </span>
             </p>
             <div className='bg-muted p-3 rounded-lg mb-4 flex items-start gap-2'>

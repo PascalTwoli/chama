@@ -18,6 +18,7 @@ import MemberDashboard from '../pages/MemberDashboard';
 import Membership from '../components/membership';
 import InviteLink from '../components/InviteLink';
 import InviteMembers from '../components/member-invitation';
+import JoinChama from '../components/JoinChama';
 import ChamaChoice from '../pages/onboarding/ChamaChoice';
 import { ChamaMembershipProvider } from '../context/ChamaMembershipContext';
 import AuthGuard from '../components/guards/AuthGuard';
@@ -34,6 +35,8 @@ import CommunicationPage from '../pages/CommunicationPage';
 import MeetingsPage from '../pages/MeetingsPage';
 import SettingsPage from '../pages/SettingsPage';
 import NotificationsPage from '../pages/NotificationsPage';
+import RecordContribution from '../pages/RecordContributionPage';
+import ScheduleMeetingPage from '../pages/ScheduleMeetingPage';
 
 /**
  * AppRoutes - Main routing component for ChamaPlus
@@ -95,6 +98,9 @@ const AppRoutes = () => {
             }
           />
 
+          {/* Join Chama via Invite Link - Public/Hybrid */}
+          <Route path='/join-chama/:token' element={<JoinChama />} />
+
           {/* Legacy create chama route */}
           <Route
             path='/create-chama'
@@ -117,6 +123,7 @@ const AppRoutes = () => {
             <Route path='softloans' element={<Softloans />} />
 
             <Route path='meetings' element={<MeetingsPage />} />
+            <Route path='meetings/schedule' element={<ScheduleMeetingPage />} />
             <Route path='shares' element={<Shares />} />
             <Route path='communication' element={<CommunicationPage />} />
 
@@ -128,8 +135,12 @@ const AppRoutes = () => {
               path='invite-link'
               element={<InviteLink chamaId='' chamaName='' />}
             />
-            <Route path='invite-member' element={<InviteMembers />} />
+            <Route path='members/invite-member' element={<InviteMembers />} />
             <Route path='contributions' element={<ContributionsPage />} />
+            <Route
+              path='contributions/record-contribution'
+              element={<RecordContribution />}
+            />
             <Route path='expenses' element={<ExpensesPage />} />
             <Route path='loans' element={<LoansPage />} />
             <Route path='members' element={<MembersPage />} />

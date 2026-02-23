@@ -51,6 +51,7 @@ async function bootstrap() {
     maxAge: 86400, // 24 hours in seconds
   });
 
+  // Setup Swagger before Firebase initialization
   const config = new DocumentBuilder()
     .setTitle('Chama Api')
     .setDescription('The API details for the chama management system backend')
@@ -59,7 +60,14 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document);
+  
+  // Setup Swagger at /api/docs
+  SwaggerModule.setup('api/docs', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
+    customSiteTitle: 'ChamaPlus API',
+  });
 
   // Firebase initialization
   // Use absolute path based on project root directory

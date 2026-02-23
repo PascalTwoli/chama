@@ -164,7 +164,7 @@ export default function LoansPage() {
       </div>
 
       {/* Main Content */}
-      <div className='bg-card rounded-lg border border-border shadow-sm'>
+      <div className='bg-card rounded-lg border border-border shadow-sm pb-4'>
         {/* Toolbar & Header */}
         <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center p-6 pb-4 border-b border-border gap-4'>
           <div className='relative w-full sm:w-96'>
@@ -189,55 +189,64 @@ export default function LoansPage() {
           </div>
         </div>
 
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Member</TableHead>
-              <TableHead>Principal</TableHead>
-              <TableHead>Interest</TableHead>
-              <TableHead>Balance</TableHead>
-              <TableHead>Due Date</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className='text-right'>Action</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredLoans.map(loan => (
-              <TableRow key={loan.id}>
-                <TableCell>
-                  <div className='flex items-center gap-3'>
-                    <div
-                      className={cn(
-                        'w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium',
-                        loan.member.color
-                      )}
-                    >
-                      {loan.member.initials}
-                    </div>
-                    <span className='font-medium'>{loan.member.name}</span>
-                  </div>
-                </TableCell>
-                <TableCell>KSh {loan.principal.toLocaleString()}</TableCell>
-                <TableCell className='text-green-600'>
-                  + KSh {loan.interest.toLocaleString()}
-                </TableCell>
-                <TableCell className='font-bold'>
-                  KSh {loan.balance.toLocaleString()}
-                </TableCell>
-                <TableCell className='text-muted-foreground'>
-                  {loan.dueDate}
-                </TableCell>
-                <TableCell>{getStatusBadge(loan.status)}</TableCell>
-                <TableCell className='text-right'>
-                  <Button variant='ghost' size='sm' className='gap-2 h-8'>
-                    <Eye className='w-4 h-4' />
-                    View
-                  </Button>
-                </TableCell>
+        <div className='px-6'>
+          <Table className='border-collapse'>
+            <TableHeader className='bg-muted/50'>
+              <TableRow className='hover:bg-transparent border-b border-border'>
+                <TableHead>Member</TableHead>
+                <TableHead>Principal</TableHead>
+                <TableHead>Interest</TableHead>
+                <TableHead>Balance</TableHead>
+                <TableHead>Due Date</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className='text-right'>Action</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {filteredLoans.map(loan => (
+                <TableRow
+                  key={loan.id}
+                  className='hover:bg-muted/50 transition-colors border-0'
+                >
+                  <TableCell className='border-b border-border py-3'>
+                    <div className='flex items-center gap-3'>
+                      <div
+                        className={cn(
+                          'w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium',
+                          loan.member.color
+                        )}
+                      >
+                        {loan.member.initials}
+                      </div>
+                      <span className='font-medium'>{loan.member.name}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className='border-b border-border py-3'>
+                    KSh {loan.principal.toLocaleString()}
+                  </TableCell>
+                  <TableCell className='text-green-600 border-b border-border py-3'>
+                    + KSh {loan.interest.toLocaleString()}
+                  </TableCell>
+                  <TableCell className='font-bold border-b border-border py-3'>
+                    KSh {loan.balance.toLocaleString()}
+                  </TableCell>
+                  <TableCell className='text-muted-foreground border-b border-border py-3'>
+                    {loan.dueDate}
+                  </TableCell>
+                  <TableCell className='border-b border-border py-3'>
+                    {getStatusBadge(loan.status)}
+                  </TableCell>
+                  <TableCell className='text-right border-b border-border py-3'>
+                    <Button variant='ghost' size='sm' className='gap-2 h-8'>
+                      <Eye className='w-4 h-4' />
+                      View
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
     </div>
   );

@@ -1,189 +1,297 @@
-import { useState } from 'react';
-import { Copy, UserPlus, Mail, Link as LinkIcon, X } from 'lucide-react';
+/* eslint-disable prettier/prettier */
+import React, { useState } from 'react';
+import { Copy, QrCode, Send, Mail, CheckCircle2 } from 'lucide-react';
 import { Button } from './ui/button';
-import ProfileTemplate from '../utils/profile-template';
+import { Input } from './ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { PageHeader } from './PageHeader';
+import { Badge } from './ui/badge';
+import { useParams } from 'react-router-dom';
+import ChamaService from '../services/chama/chama-services';
+import { toast } from 'react-toastify';
+import { useEffect } from 'react';
 
 const InviteMembers = () => {
-  const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');
-  const [pendingInvites, setPendingInvites] = useState([
-    {
-      type: 'email',
-      contact: 'felixer.twoli254@gmail.com',
-      time: '2 days ago',
-      avatar: '/assets/avatar1.png',
-    },
-    {
-      type: 'whatsapp',
-      contact: '+254759981287',
-      time: 'days ago',
-      avatar: '/assets/avatar2.png',
-    },
-  ]);
+  const { chamaId } = useParams<{ chamaId: string }>();
+  const [inviteLink, setInviteLink] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [invitesLoading, setInvitesLoading] = useState(true);
 
-  const handleRemoveInvite = (index: number) => {
-    setPendingInvites(prev => prev.filter((_, i) => i !== index));
+  // Form State
+  const [email, setEmail] = useState('');
+
+  // Pending Invites Data
+  const [pendingInvites, setPendingInvites] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (chamaId) {
+      fetchPendingInvites();
+    }
+  }, [chamaId]);
+
+  const fetchPendingInvites = async () => {
+    try {
+      if (!chamaId) return;
+      setInvitesLoading(true);
+      const invites = await ChamaService.listPendingInvites(chamaId);
+      setPendingInvites(invites);
+    } catch (error) {
+      console.error('Failed to fetch invites', error);
+      toast.error('Failed to load pending invites');
+    } finally {
+      setInvitesLoading(false);
+    }
+  };
+
+  const handleCreateInvite = async () => {
+    if (!email || !chamaId) {
+      toast.error('Please enter a valid email');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await ChamaService.createInvite(chamaId, email, true);
+      toast.success(`Invitation sent to ${email}`);
+      setInviteLink(response.inviteLink);
+      setEmail('');
+      fetchPendingInvites();
+    } catch (error) {
+      console.error('Failed to create invite', error);
+      toast.error('Failed to send invitation');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCopyLink = () => {
+    if (!inviteLink) {
+      toast.info('Generate a link first');
+      return;
+    }
+    navigator.clipboard.writeText(inviteLink);
+    toast.success('Link copied to clipboard');
   };
 
   return (
-    <div className='p-6 text-foreground min-h-screen bg-background'>
-      {/* Header */}
-      <div className='flex justify-between items-center mb-6'>
-        <div>
-          <h2 className='text-base font-bold m-0 text-foreground'>
-            Invite Members
-          </h2>
-          <p className='text-sm text-muted-foreground m-0'>
-            Grow your chama by inviting new members
-          </p>
-        </div>
-        <Button className='gap-2'>
-          <UserPlus className='w-4 h-4' />
-          Add member Directly
-        </Button>
-      </div>
+    <div className='p-6 space-y-6 max-w-[1600px] mx-auto'>
+      <PageHeader
+        title='Invite Member'
+        subtitle='Add new members to Tumaini Chama'
+        showBackButton
+      />
 
-      {/* Select Chama */}
-      <div className='bg-card border border-border rounded-xl mb-6'>
-        <div className='border-b border-border'>
-          <h3 className='text-sm p-4 m-0 text-foreground font-semibold'>
-            Select chama
-          </h3>
-        </div>
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-4 p-4'>
-          <div className='flex flex-row items-start justify-between border border-border p-4 rounded-lg bg-muted/50'>
-            <div>
-              <p className='font-semibold m-0 text-base text-foreground'>
-                Family Saving Chama
-              </p>
+      <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
+        {/* Left Column - Main Forms */}
+        <div className='lg:col-span-2 space-y-6'>
+          {/* Share Invite Link */}
+          <Card className='border border-border shadow-sm'>
+            <CardHeader className='pb-3'>
+              <CardTitle className='text-base font-semibold m-0'>
+                Share Invite Link
+              </CardTitle>
               <p className='text-sm text-muted-foreground m-0'>
-                8 Members. Ksh 35,000 total
+                Anyone with this link can join your Chama
               </p>
-              <p className='text-success text-sm m-0 mt-2'>Admin access</p>
-            </div>
-            <span className='bg-success/20 border-none rounded-full text-success font-normal px-3 py-1 text-sm'>
-              Active
-            </span>
-          </div>
+            </CardHeader>
+            <CardContent className='space-y-4'>
+              <div className='flex items-center gap-2'>
+                <div className='relative flex-1'>
+                  <Input
+                    readOnly
+                    value={inviteLink}
+                    className='bg-muted/50 pr-20'
+                  />
+                </div>
+                <Button
+                  variant='outline'
+                  onClick={handleCopyLink}
+                  className='gap-2'
+                >
+                  <Copy className='w-4 h-4' />
+                  Copy
+                </Button>
+              </div>
 
-          <div className='flex flex-row items-start justify-between border border-border p-4 rounded-lg bg-muted/50'>
-            <div>
-              <p className='font-semibold m-0 text-base text-foreground'>
-                Business Investment Club
-              </p>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                <Button variant='outline' className='justify-start gap-2 h-10'>
+                  <i className='bi bi-whatsapp text-green-600 text-lg'></i>
+                  Share via WhatsApp
+                </Button>
+                <Button variant='outline' className='justify-start gap-2 h-10'>
+                  <QrCode className='w-4 h-4 text-blue-600' />
+                  Generate QR Code
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Send Personal Invite */}
+          <Card className='border border-border shadow-sm'>
+            <CardHeader className='pb-3'>
+              <CardTitle className='text-base font-semibold m-0'>
+                Send Personal Invite
+              </CardTitle>
               <p className='text-sm text-muted-foreground m-0'>
-                12 Members. Ksh 102,300 total
+                Invite a specific person via Email
               </p>
-              <p className='text-success text-sm m-0 mt-2'>Admin access</p>
-            </div>
-            <span className='bg-success/20 border-none rounded-full text-success font-normal px-3 py-1 text-sm'>
-              Active
-            </span>
-          </div>
-        </div>
-      </div>
+            </CardHeader>
+            <CardContent className='space-y-4'>
+              <div className='space-y-2'>
+                <label className='text-sm font-medium'>
+                  Email Address
+                </label>
+                <Input
+                  type='email'
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder='jane@example.com'
+                />
+              </div>
 
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-6'>
-        {/* Email Invitation */}
-        <div className='bg-card border border-border rounded-xl'>
-          <h3 className='flex items-center border-b border-border gap-2 m-0 p-4 font-semibold text-sm text-foreground'>
-            <Mail className='text-primary w-4 h-4' />
-            E-mail invitation
-          </h3>
-          <div className='p-4'>
-            <input
-              type='email'
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder='Enter email address'
-              className='w-full p-3 mb-3 rounded-lg bg-muted border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors'
-            />
-            <textarea
-              rows={3}
-              value={message}
-              onChange={e => setMessage(e.target.value)}
-              placeholder='Add a personal message to your invitation'
-              className='w-full p-3 mb-3 rounded-lg bg-muted border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors resize-none'
-            ></textarea>
-            <Button className='w-full'>Send Email Invitation</Button>
-          </div>
+              <div className='pt-2'>
+                <Button
+                  disabled={loading}
+                  onClick={handleCreateInvite}
+                  className='bg-blue-600 hover:bg-blue-700 text-white gap-2 w-full md:w-auto'
+                >
+                  {loading ? <span className="animate-spin">⌛</span> : <Mail className='w-4 h-4' />}
+                  Send Email Invite
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Pending Invitations */}
+          <Card className='border border-border shadow-sm'>
+            <CardHeader className='pb-3'>
+              <CardTitle className='text-base font-semibold m-0'>
+                Pending Invitations
+              </CardTitle>
+              <p className='text-sm text-muted-foreground m-0'>
+                Track sent invites and their status
+              </p>
+            </CardHeader>
+            <CardContent>
+              {invitesLoading ? (
+                <div className="text-center py-4 text-muted-foreground">Loading...</div>
+              ) : pendingInvites.length === 0 ? (
+                <div className="text-center py-4 text-muted-foreground">No pending invites</div>
+              ) : (
+                <div className='space-y-3'>
+                  {pendingInvites.map(invite => (
+                    <div
+                      key={invite.id}
+                      className='flex items-center justify-between p-3 border border-border rounded-lg bg-card'
+                    >
+                      <div className='flex items-center gap-3'>
+                        <div className='w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center font-semibold text-sm text-gray-600uppercase'>
+                          {invite.sentToEmail.substring(0, 2).toUpperCase()}
+                        </div>
+                        <div>
+                          <p className='font-semibold text-sm m-0'>
+                            {invite.sentToEmail}
+                          </p>
+                          <p className='text-xs text-muted-foreground m-0'>
+                            Invited on {new Date(invite.createdAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                      <div className='text-right'>
+                        <Badge
+                          variant='secondary'
+                          className='mb-1 font-normal text-[10px] px-2'
+                        >
+                          Pending
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Invitation Link */}
-        <div className='bg-card border border-border p-4 rounded-xl'>
-          <h3 className='flex items-center gap-2 m-0 mb-4 font-semibold text-sm text-foreground'>
-            <LinkIcon className='text-primary w-4 h-4' />
-            Invitation link
-          </h3>
-          <div className='flex items-center rounded-lg mb-3 border border-border overflow-hidden'>
-            <input
-              type='text'
-              readOnly
-              value='https://chamaplus.com/invite/family-saving/chama'
-              className='bg-muted w-full border-none focus:outline-none p-3 text-foreground'
-            />
-            <button className='px-3 py-3 bg-muted hover:bg-primary/10 transition-colors border-l border-border'>
-              <Copy className='w-4 h-4 text-muted-foreground' />
-            </button>
-          </div>
-          <div className='flex gap-2'>
-            <button className='flex gap-2 items-center bg-success hover:bg-success/90 text-success-foreground px-3 py-2 rounded-lg transition-colors'>
-              <i className='bi bi-whatsapp'></i>
-              WhatsApp
-            </button>
-            <button className='flex gap-2 items-center bg-primary hover:bg-primary/90 text-primary-foreground px-3 py-2 rounded-lg transition-colors'>
-              <i className='bi bi-telegram'></i>
-              Telegram
-            </button>
-            <button className='flex gap-2 items-center bg-muted hover:bg-muted/80 text-foreground px-3 py-2 rounded-lg transition-colors border border-border'>
-              <i className='bi bi-twitter-x'></i>
-              Twitter
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Pending Invitations */}
-      <div className='bg-card border border-border rounded-xl'>
-        <h3 className='font-semibold p-4 border-b border-border text-sm text-foreground m-0'>
-          Pending Invitations
-        </h3>
-        <div className='p-4 space-y-3'>
-          {pendingInvites.map((invite, index) => (
-            <div
-              key={index}
-              className='flex justify-between items-center p-3 border border-border rounded-lg bg-muted/50'
-            >
-              <div className='flex items-center gap-3'>
-                {invite.type === 'email' ? (
-                  <div className='w-10 h-10 rounded-full flex items-center justify-center font-bold text-primary-foreground bg-primary'>
-                    {invite.contact.charAt(0).toUpperCase()}
-                  </div>
-                ) : (
-                  ProfileTemplate(invite, 10, 10)
-                )}
+        {/* Right Column - Stats & Tips */}
+        <div className='lg:col-span-1 space-y-6'>
+          {/* Invitation Tips */}
+          <Card className='border border-border shadow-sm'>
+            <CardHeader className='pb-3'>
+              <CardTitle className='text-base font-semibold m-0'>
+                Invitation Tips
+              </CardTitle>
+            </CardHeader>
+            <CardContent className='space-y-4'>
+              <div className='flex gap-3'>
+                <CheckCircle2 className='w-5 h-5 text-blue-500 shrink-0' />
                 <div>
-                  <p className='font-semibold text-sm m-0 text-foreground'>
-                    {invite.contact}
-                  </p>
+                  <p className='text-sm font-semibold m-0'>Verify Members</p>
                   <p className='text-xs text-muted-foreground m-0'>
-                    Sent {invite.time} via {invite.type}
+                    Ensure you know the person before inviting
                   </p>
                 </div>
               </div>
-              <div className='flex items-center gap-2'>
-                <span className='bg-accent/20 text-accent text-xs px-3 py-2 rounded-full'>
-                  Pending
-                </span>
-                <button
-                  className='p-1 hover:bg-destructive/10 rounded-full transition-colors'
-                  onClick={() => handleRemoveInvite(index)}
-                >
-                  <X className='w-5 h-5 text-muted-foreground hover:text-destructive' />
-                </button>
+              <div className='flex gap-3'>
+                <CheckCircle2 className='w-5 h-5 text-blue-500 shrink-0' />
+                <div>
+                  <p className='text-sm font-semibold m-0'>
+                    WhatsApp Works Best
+                  </p>
+                  <p className='text-xs text-muted-foreground m-0'>
+                    Most members respond quickly via WhatsApp
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
+              <div className='flex gap-3'>
+                <CheckCircle2 className='w-5 h-5 text-blue-500 shrink-0' />
+                <div>
+                  <p className='text-sm font-semibold m-0'>Link Expires</p>
+                  <p className='text-xs text-muted-foreground m-0'>
+                    Invitation links are valid for 7 days
+                  </p>
+                </div>
+              </div>
+              <div className='flex gap-3'>
+                <CheckCircle2 className='w-5 h-5 text-blue-500 shrink-0' />
+                <div>
+                  <p className='text-sm font-semibold m-0'>Follow Up</p>
+                  <p className='text-xs text-muted-foreground m-0'>
+                    Remind members to accept invites
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Current Stats */}
+          <Card className='border border-border shadow-sm'>
+            <CardHeader className='pb-3'>
+              <CardTitle className='text-base font-semibold m-0'>
+                Current Stats
+              </CardTitle>
+            </CardHeader>
+            <CardContent className='space-y-4'>
+              <div>
+                <p className='text-sm text-muted-foreground m-0'>
+                  Total Members
+                </p>
+                <p className='text-2xl font-bold m-0'>24</p>
+              </div>
+              <div>
+                <p className='text-sm text-muted-foreground m-0'>
+                  Pending Invites
+                </p>
+                <p className='text-2xl font-bold m-0'>3</p>
+              </div>
+              <div>
+                <p className='text-sm text-muted-foreground m-0'>
+                  Joined This Month
+                </p>
+                <p className='text-2xl font-bold m-0'>2</p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

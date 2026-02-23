@@ -14,6 +14,10 @@ import {
   Phone,
   Calendar,
   Wallet,
+  Mail,
+  Eye,
+  Edit,
+  Trash2,
 } from 'lucide-react';
 import { cn } from '../utils/cn';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -137,7 +141,9 @@ export default function MembersPage() {
         action={
           <Button
             className='gap-2 bg-blue-600 hover:bg-blue-700 text-white'
-            onClick={() => navigate(`/admin/chamas/${chamaId}/invite-member`)}
+            onClick={() =>
+              navigate(`/admin/chamas/${chamaId}/members/invite-member`)
+            }
           >
             <UserPlus className='w-4 h-4' />
             Add Member
@@ -182,8 +188,8 @@ export default function MembersPage() {
         {/* List Section */}
         <div className='w-full lg:w-3/5 flex flex-col gap-2 bg-card rounded-lg border border-border p-4 shadow-sm'>
           <div className='flex flex-col gap-1 mb-2'>
-            <h3 className='font-semibold'>All Members</h3>
-            <p className='text-sm text-muted-foreground'>
+            <h3 className='font-semibold m-0'>All Members</h3>
+            <p className='text-sm text-muted-foreground m-0'>
               Manage and view member details
             </p>
           </div>
@@ -199,20 +205,21 @@ export default function MembersPage() {
                 onChange={e => setSearchQuery(e.target.value)}
               />
             </div>
-            <div className='flex gap-1 border rounded-lg p-1 bg-muted/20'>
+            <div className='flex gap-1 rounded-lg p-1 bg-muted/20'>
               {(['All', 'Paid', 'Pending'] as const).map(status => (
-                <button
+                <Button
                   key={status}
+                  variant={statusFilter === status ? 'default' : 'outline'}
                   onClick={() => setStatusFilter(status)}
                   className={cn(
-                    'px-3 py-1.5 text-xs font-medium rounded-md transition-colors',
+                    'px-4 h-9 text-xs font-medium rounded-md transition-colors ',
                     statusFilter === status
                       ? 'bg-primary text-primary-foreground shadow-sm'
                       : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                   )}
                 >
                   {status}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -269,65 +276,134 @@ export default function MembersPage() {
         </div>
 
         {/* Details Section */}
-        <div className='hidden lg:flex w-2/5 flex-col bg-card rounded-lg border border-border p-6 shadow-sm'>
+        <div className='hidden lg:flex w-2/5 flex-col bg-card rounded-lg border border-border p-6 shadow-sm overflow-y-auto'>
           <div className='mb-6'>
-            <h3 className='font-semibold'>Member Details</h3>
-            <p className='text-sm text-muted-foreground'>
-              Select a member to view details
+            <h3 className='font-semibold m-0'>Member Details</h3>
+            <p className='text-sm text-muted-foreground m-0'>
+              View and manage member
             </p>
           </div>
 
           {selectedMember ? (
-            <div className='flex flex-col items-center flex-1 space-y-6 animate-in fade-in duration-300'>
-              <div
-                className={cn(
-                  'w-24 h-24 rounded-full flex items-center justify-center text-2xl font-bold',
-                  selectedMember.color
-                )}
-              >
-                {selectedMember.initials}
-              </div>
-              <div className='text-center space-y-1'>
-                <h2 className='text-xl font-bold'>{selectedMember.name}</h2>
-                <Badge variant='outline'>{selectedMember.role}</Badge>
-              </div>
-
-              <div className='w-full grid grid-cols-2 gap-4'>
-                <div className='p-4 rounded-lg bg-muted/30 border space-y-1 text-center'>
-                  <p className='text-xs text-muted-foreground'>Total Savings</p>
-                  <p className='text-lg font-bold'>
-                    KSh {selectedMember.savings.toLocaleString()}
-                  </p>
+            <div className='flex flex-col flex-1 animate-in fade-in duration-300'>
+              {/* Identity */}
+              <div className='flex flex-col items-center text-center space-y-3 border-b border-border pb-4'>
+                <div
+                  className={cn(
+                    'w-24 h-24 rounded-full flex items-center justify-center text-3xl font-bold',
+                    selectedMember.color
+                  )}
+                >
+                  {selectedMember.initials}
                 </div>
-                <div className='p-4 rounded-lg bg-muted/30 border space-y-1 text-center'>
-                  <p className='text-xs text-muted-foreground'>Status</p>
-                  <Badge
-                    variant={
-                      selectedMember.status === 'Paid' ? 'success' : 'warning'
-                    }
-                  >
-                    {selectedMember.status}
-                  </Badge>
+                <div className='space-y-1'>
+                  <h2 className='text-xl font-bold m-0'>
+                    {selectedMember.name}
+                  </h2>
+                  <div className='flex items-center gap-2'>
+                    <Badge variant='outline'>{selectedMember.role}</Badge>
+                    <Badge
+                      variant={
+                        selectedMember.status === 'Paid' ? 'success' : 'warning'
+                      }
+                      className='px-3 py-0.5 text-xs font-medium'
+                    >
+                      {selectedMember.status === 'Paid'
+                        ? 'Payment Complete'
+                        : 'Payment Pending'}
+                    </Badge>
+                  </div>
                 </div>
               </div>
 
-              <div className='w-full space-y-4'>
-                <h4 className='font-medium text-sm border-b pb-2'>
-                  Contact Information
+              {/* Contact Information */}
+              <div className='m-0'>
+                <h4 className='font-semibold text-sm'>Contact Information</h4>
+                <div className='space-y-1 text-sm'>
+                  <div className='flex items-center gap-3 text-muted-foreground'>
+                    <Phone className='w-4 h-4' />
+                    <span className='text-foreground'>
+                      {selectedMember.phone}
+                    </span>
+                  </div>
+                  <div className='flex items-center gap-3 text-muted-foreground'>
+                    <Mail className='w-4 h-4' />
+                    <span className='text-foreground'>
+                      {selectedMember.name.toLowerCase().replace(' ', '.')}
+                      @email.com
+                    </span>
+                  </div>
+                  <div className='flex items-center gap-3 text-muted-foreground'>
+                    <Calendar className='w-4 h-4' />
+                    <span className='text-foreground'>
+                      Joined {selectedMember.joinedDate}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Financial Summary */}
+              <div className='border-b border-border pb-3'>
+                <h4 className='font-semibold text-sm mb-1'>
+                  Financial Summary
                 </h4>
-                <div className='flex items-center gap-3 text-sm'>
-                  <Phone className='w-4 h-4 text-muted-foreground' />
-                  {selectedMember.phone}
-                </div>
-                <div className='flex items-center gap-3 text-sm'>
-                  <Calendar className='w-4 h-4 text-muted-foreground' />
-                  Joined {selectedMember.joinedDate}
+                <div className='bg-muted/30 rounded-lg py-1 space-y-3'>
+                  <div className='flex justify-between items-center p-2 text-sm bg-background'>
+                    <span className='text-muted-foreground'>
+                      Total Contributions
+                    </span>
+                    <span className='font-bold'>
+                      KSh {selectedMember.savings.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className='flex justify-between items-center p-2 text-sm bg-background'>
+                    <span className='text-muted-foreground'>
+                      Monthly Amount
+                    </span>
+                    <span className='font-bold'>KSh 5,000</span>
+                  </div>
+                  <div className='flex justify-between items-center p-2 text-sm bg-background'>
+                    <span className='text-muted-foreground'>Last Payment</span>
+                    <span className='font-bold'>Dec 5, 2025</span>
+                  </div>
+                  <div className='flex justify-between items-center p-2 text-sm bg-background'>
+                    <span className='text-muted-foreground'>
+                      Attendance Rate
+                    </span>
+                    <span className='font-bold'>75%</span>
+                  </div>
                 </div>
               </div>
 
-              <div className='mt-auto w-full pt-4 border-t'>
-                <Button variant='outline' className='w-full'>
-                  View Full Profile
+              {/* Actions */}
+              <div className='space-y-3 pt-2'>
+                <Button
+                  variant='outline'
+                  className='w-full justify-start h-10 gap-2 font-medium bg-transparent'
+                >
+                  <Eye className='w-4 h-4 text-muted-foreground' />
+                  View Full History
+                </Button>
+                <Button
+                  variant='outline'
+                  className='w-full justify-start h-10 gap-2 font-medium bg-transparent'
+                >
+                  <Edit className='w-4 h-4 text-muted-foreground' />
+                  Edit Details
+                </Button>
+                <Button
+                  variant='outline'
+                  className='w-full justify-start h-10 gap-2 font-medium bg-transparent'
+                >
+                  <Mail className='w-4 h-4 text-muted-foreground' />
+                  Send Message
+                </Button>
+                <Button
+                  variant='outline'
+                  className='w-full justify-start h-10 gap-2 font-medium text-destructive hover:text-destructive hover:bg-destructive/10 border-border bg-transparent'
+                >
+                  <Trash2 className='w-4 h-4' />
+                  Remove Member
                 </Button>
               </div>
             </div>

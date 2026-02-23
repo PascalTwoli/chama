@@ -218,9 +218,10 @@ export default function ContributionsPage() {
       {/* Main Content Card */}
       <div className='bg-card rounded-lg border border-border shadow-sm'>
         {/* Table Header Section */}
-        <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center p-6 pb-4 border-b border-border gap-4'>
+        <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center p-5 pb-3 gap-4'>
           <div>
             <h3 className='font-semibold text-lg m-0'>Contribution History</h3>
+            <span className='text-sm'>All contributions from all members</span>
           </div>
           <div className='flex flex-col sm:flex-row gap-4 w-full sm:w-auto items-center'>
             <div className='relative w-full sm:w-64'>
@@ -253,22 +254,26 @@ export default function ContributionsPage() {
         </div>
 
         {/* Table */}
-        <div className='p-0'>
-          <Table>
-            <TableHeader>
-              <TableRow className='hover:bg-transparent'>
-                <TableHead>Member</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Method</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className='text-right'>Action</TableHead>
+        <div className='px-6'>
+          <Table className='border-collapse'>
+            <TableHeader className='bg-muted/50'>
+              <TableRow className='hover:bg-transparent border-b border-border'>
+                <TableHead className='h-12'>Member</TableHead>
+                <TableHead className='h-12'>Amount</TableHead>
+                <TableHead className='h-12'>Date</TableHead>
+                <TableHead className='h-12'>Method</TableHead>
+                <TableHead className='h-12'>Status</TableHead>
+                <TableHead className='h-12 text-right'>Action</TableHead>
               </TableRow>
             </TableHeader>
+            {/* reduce the height of the table rows */}
             <TableBody>
               {filteredContributions.map(contribution => (
-                <TableRow key={contribution.id}>
-                  <TableCell>
+                <TableRow
+                  key={contribution.id}
+                  className='hover:bg-muted/50 transition-colors border-0'
+                >
+                  <TableCell className='border-b border-border py-3'>
                     <div className='flex items-center gap-3'>
                       <div
                         className={cn(
@@ -283,20 +288,26 @@ export default function ContributionsPage() {
                       </span>
                     </div>
                   </TableCell>
-                  <TableCell className='font-semibold'>
+                  <TableCell className='font-semibold border-b border-border py-3'>
                     KSh {contribution.amount.toLocaleString()}
                   </TableCell>
-                  <TableCell className='text-muted-foreground'>
+                  <TableCell className='text-muted-foreground border-b border-border py-3'>
                     {contribution.date}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className='border-b border-border py-3'>
                     <div className='inline-flex items-center px-2 py-1 rounded border border-border bg-muted/50 text-xs font-medium'>
                       {contribution.method}
                     </div>
                   </TableCell>
-                  <TableCell>{getStatusBadge(contribution.status)}</TableCell>
-                  <TableCell className='text-right'>
-                    <Button variant='ghost' size='sm' className='gap-2 h-8'>
+                  <TableCell className='border-b border-border py-3'>
+                    {getStatusBadge(contribution.status)}
+                  </TableCell>
+                  <TableCell className='text-right border-b border-border py-3'>
+                    <Button
+                      variant='outline'
+                      size='sm'
+                      className='border-0 gap-2 h-8'
+                    >
                       <Eye className='w-4 h-4' />
                       View
                     </Button>

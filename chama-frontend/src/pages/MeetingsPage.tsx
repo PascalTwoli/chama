@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { PageHeader } from '../components/PageHeader';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
@@ -50,6 +51,8 @@ const mockMeetings: Meeting[] = [
 
 export default function MeetingsPage() {
   const [activeTab, setActiveTab] = useState<'Upcoming' | 'Past'>('Upcoming');
+  const navigate = useNavigate();
+  const { chamaId } = useParams<{ chamaId: string }>();
 
   return (
     <div className='p-6 space-y-6'>
@@ -57,7 +60,12 @@ export default function MeetingsPage() {
         title='Meetings'
         subtitle='Schedule and track Chama meetings'
         action={
-          <Button className='gap-2 bg-blue-600 hover:bg-blue-700 text-white'>
+          <Button
+            className='gap-2 bg-blue-600 hover:bg-blue-700 text-white'
+            onClick={() =>
+              navigate(`/admin/chamas/${chamaId}/meetings/schedule`)
+            }
+          >
             <Plus className='w-4 h-4' />
             Schedule Meeting
           </Button>

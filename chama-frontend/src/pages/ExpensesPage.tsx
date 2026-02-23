@@ -175,8 +175,8 @@ export default function ExpensesPage() {
         {/* Toolbar & Header */}
         <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center p-6 pb-4 border-b border-border gap-4'>
           <div>
-            <h3 className='font-semibold text-lg'>Expense History</h3>
-            <p className='text-sm text-muted-foreground'>
+            <h3 className='font-semibold text-lg m-0'>Expense History</h3>
+            <p className='text-sm text-muted-foreground m-0'>
               All recorded Chama expenses
             </p>
           </div>
@@ -196,48 +196,57 @@ export default function ExpensesPage() {
           </div>
         </div>
 
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Description</TableHead>
-              <TableHead>Amount</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Paid To</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead className='text-right'>Action</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredExpenses.map(expense => (
-              <TableRow key={expense.id}>
-                <TableCell>
-                  <div className='flex flex-col'>
-                    <span className='font-medium'>{expense.description}</span>
-                    {expense.receiptId && (
-                      <span className='text-xs text-muted-foreground'>
-                        {expense.receiptId}
-                      </span>
-                    )}
-                  </div>
-                </TableCell>
-                <TableCell className='font-bold text-destructive'>
-                  -KSh {expense.amount.toLocaleString()}
-                </TableCell>
-                <TableCell>{getCategoryBadge(expense.categoryType)}</TableCell>
-                <TableCell>{expense.payee}</TableCell>
-                <TableCell className='text-muted-foreground'>
-                  {expense.date}
-                </TableCell>
-                <TableCell className='text-right'>
-                  <Button variant='ghost' size='sm' className='gap-2 h-8'>
-                    <Eye className='w-4 h-4' />
-                    View
-                  </Button>
-                </TableCell>
+        <div className='px-6'>
+          <Table className='border-collapse'>
+            <TableHeader className='bg-muted/50'>
+              <TableRow className='hover:bg-transparent border-b border-border'>
+                <TableHead>Description</TableHead>
+                <TableHead>Amount</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead>Paid To</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead className='text-right'>Action</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {filteredExpenses.map(expense => (
+                <TableRow
+                  key={expense.id}
+                  className='hover:bg-muted/50 transition-colors border-0'
+                >
+                  <TableCell className='border-b border-border py-3'>
+                    <div className='flex flex-col'>
+                      <span className='font-medium'>{expense.description}</span>
+                      {expense.receiptId && (
+                        <span className='text-xs text-muted-foreground'>
+                          {expense.receiptId}
+                        </span>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell className='font-bold text-destructive border-b border-border py-3'>
+                    -KSh {expense.amount.toLocaleString()}
+                  </TableCell>
+                  <TableCell className='border-b border-border py-3'>
+                    {getCategoryBadge(expense.categoryType)}
+                  </TableCell>
+                  <TableCell className='border-b border-border py-3'>
+                    {expense.payee}
+                  </TableCell>
+                  <TableCell className='text-muted-foreground border-b border-border py-3'>
+                    {expense.date}
+                  </TableCell>
+                  <TableCell className='text-right border-b border-border py-3'>
+                    <Button variant='ghost' size='sm' className='gap-2 h-8'>
+                      <Eye className='w-4 h-4' />
+                      View
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
     </div>
   );

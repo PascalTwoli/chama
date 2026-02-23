@@ -4,9 +4,7 @@ import axios, {
   AxiosRequestConfig,
   AxiosResponse,
 } from 'axios';
-import SecureTokenStorage, {
-  TokenType,
-} from '../utils/secure-token-storage';
+import SecureTokenStorage, { TokenType } from '../utils/secure-token-storage';
 
 // Backend API base URL
 export const API_BASE =
@@ -68,13 +66,13 @@ export const logout = (apiClient: AxiosInstance): void => {
   // Clear all tokens from SecureTokenStorage
   SecureTokenStorage.clearAllTokens();
   SecureTokenStorage.removeToken('refresh_token' as TokenType);
-  
+
   // Clear auth header
   setAuthHeader(apiClient, null);
   // Clear subscribers
   refreshSubscribers = [];
   isRefreshing = false;
-  
+
   // Clear legacy localStorage if present
   localStorage.removeItem('authToken');
   localStorage.removeItem('refreshToken');

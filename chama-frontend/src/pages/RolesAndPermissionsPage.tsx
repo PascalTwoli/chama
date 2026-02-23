@@ -1,6 +1,6 @@
+/* eslint-disable prettier/prettier */
 import { useState } from 'react';
 import { PageHeader } from '../components/PageHeader';
-import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import {
@@ -11,14 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from '../components/ui/table';
-import {
-  Shield,
-  Search,
-  Edit2,
-  CheckCircle2,
-  XCircle,
-  AlertCircle,
-} from 'lucide-react';
+import { Shield, Search, Edit2, CheckCircle2, XCircle } from 'lucide-react';
 import { cn } from '../utils/cn';
 import { Card, CardContent } from '../components/ui/card';
 
@@ -176,8 +169,8 @@ export default function RolesAndPermissionsPage() {
               <div className='w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mb-1'>
                 <Shield className='w-5 h-5' />
               </div>
-              <h3 className='text-2xl font-bold'>{rc.count}</h3>
-              <p className='text-xs text-muted-foreground font-medium uppercase tracking-wider'>
+              <h3 className='text-2xl font-bold m-0'>{rc.count}</h3>
+              <p className='text-xs text-muted-foreground font-medium uppercase tracking-wider m-0'>
                 {rc.role}
               </p>
             </CardContent>
@@ -186,16 +179,16 @@ export default function RolesAndPermissionsPage() {
       </div>
 
       {/* Member Roles Section */}
-      <div className='bg-card rounded-lg border border-border shadow-sm'>
-        <div className='p-6 border-b border-border space-y-4'>
+      <div className='bg-card rounded-lg border border-border shadow-sm pb-4'>
+        <div className='p-6 space-y-4'>
           <div>
-            <h3 className='font-semibold text-lg'>Member Roles</h3>
-            <p className='text-sm text-muted-foreground'>
+            <h3 className='font-semibold text-lg m-0'>Member Roles</h3>
+            <p className='text-sm text-muted-foreground m-0'>
               Assign and manage member permissions
             </p>
           </div>
 
-          <div className='relative max-w-md'>
+          <div className='relative max-w-full'>
             <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
             <Input
               placeholder='Search members...'
@@ -206,64 +199,74 @@ export default function RolesAndPermissionsPage() {
           </div>
         </div>
 
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Member</TableHead>
-              <TableHead>Contact</TableHead>
-              <TableHead>Role</TableHead>
-              <TableHead>Joined</TableHead>
-              <TableHead className='text-right'>Action</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {mockMemberRoles.map(member => (
-              <TableRow key={member.id}>
-                <TableCell>
-                  <div className='flex items-center gap-3'>
-                    <div className='w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-medium'>
-                      {member.name
-                        .split(' ')
-                        .map(n => n[0])
-                        .join('')}
-                    </div>
-                    <div>
-                      <p className='font-medium text-sm'>{member.name}</p>
-                      <p className='text-xs text-muted-foreground'>
-                        {member.email}
-                      </p>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell>{member.contact}</TableCell>
-                <TableCell>{getRoleBadge(member.roleType)}</TableCell>
-                <TableCell className='text-muted-foreground'>
-                  {member.joined}
-                </TableCell>
-                <TableCell className='text-right'>
-                  <Button variant='ghost' size='sm' className='gap-2 h-8'>
-                    <Edit2 className='w-3 h-3' />
-                    Edit Role
-                  </Button>
-                </TableCell>
+        <div className='px-6'>
+          <Table className='border-collapse'>
+            <TableHeader className='bg-muted/50'>
+              <TableRow className='hover:bg-transparent border-b border-border'>
+                <TableHead>Member</TableHead>
+                <TableHead>Contact</TableHead>
+                <TableHead>Role</TableHead>
+                <TableHead>Joined</TableHead>
+                <TableHead className='text-right'>Action</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {mockMemberRoles.map(member => (
+                <TableRow
+                  key={member.id}
+                  className='hover:bg-muted/50 transition-colors border-0'
+                >
+                  <TableCell className='border-b border-border py-3'>
+                    <div className='flex items-center gap-3'>
+                      <div className='w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-medium'>
+                        {member.name
+                          .split(' ')
+                          .map(n => n[0])
+                          .join('')}
+                      </div>
+                      <div>
+                        <p className='font-medium text-sm m-0'>{member.name}</p>
+                        <p className='text-xs text-muted-foreground m-0'>
+                          {member.email}
+                        </p>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className='border-b border-border py-3'>
+                    {member.contact}
+                  </TableCell>
+                  <TableCell className='border-b border-border py-3'>
+                    {getRoleBadge(member.roleType)}
+                  </TableCell>
+                  {/* eslint-disable-next-line prettier/prettier */}
+                  <TableCell className='text-muted-foreground border-b border-border py-3'>
+                    {member.joined}
+                  </TableCell>
+                  <TableCell className='text-right border-b border-border py-3'>
+                    <Button variant='ghost' size='sm' className='gap-2 h-8'>
+                      <Edit2 className='w-3 h-3' />
+                      Edit Role
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
 
       {/* Permissions Matrix Section */}
-      <div className='bg-card rounded-lg border border-border shadow-sm'>
-        <div className='p-6 border-b border-border'>
-          <h3 className='font-semibold text-lg'>Permissions Matrix</h3>
-          <p className='text-sm text-muted-foreground'>
+      <div className='bg-card rounded-lg border border-border shadow-sm pb-4'>
+        <div className='p-6'>
+          <h3 className='font-semibold text-lg m-0'>Permissions Matrix</h3>
+          <p className='text-sm text-muted-foreground m-0'>
             Overview of permissions by role
           </p>
         </div>
-        <div className='overflow-x-auto'>
-          <Table>
-            <TableHeader>
-              <TableRow>
+        <div className='overflow-x-auto px-6'>
+          <Table className='border-collapse'>
+            <TableHeader className='bg-muted/50'>
+              <TableRow className='hover:bg-transparent border-b border-border'>
                 <TableHead className='w-[300px]'>Permission</TableHead>
                 {roles.map(role => (
                   <TableHead key={role} className='text-center min-w-[100px]'>
@@ -274,12 +277,20 @@ export default function RolesAndPermissionsPage() {
             </TableHeader>
             <TableBody>
               {permissions.map(perm => (
-                <TableRow key={perm}>
-                  <TableCell className='font-medium text-sm'>{perm}</TableCell>
+                <TableRow
+                  key={perm}
+                  className='hover:bg-muted/50 transition-colors border-0'
+                >
+                  <TableCell className='font-medium text-sm border-b border-border py-3'>
+                    {perm}
+                  </TableCell>
                   {roles.map(role => {
                     const hasPerm = permissionsMap[role]?.includes(perm);
                     return (
-                      <TableCell key={role} className='text-center'>
+                      <TableCell
+                        key={role}
+                        className='text-center border-b border-border py-3'
+                      >
                         {hasPerm ? (
                           <div className='flex justify-center'>
                             <CheckCircle2 className='w-5 h-5 text-green-500' />
