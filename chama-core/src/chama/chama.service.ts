@@ -5,7 +5,8 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateChamaDto } from './dto/create-chama.dto';
-import { UserRole, Countries } from '@prisma/client';
+import { user_role, country } from '@prisma/client';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class ChamaService {
@@ -24,22 +25,18 @@ export class ChamaService {
       // Create the chama
       const chama = await this.prisma.chama.create({
         data: {
+          id: crypto.randomUUID(),
           name: createChamaDto.name,
           description: createChamaDto.description,
           rules: createChamaDto.rules,
-          userId: user.id,
-          country: createChamaDto.country || Countries.KENYA, // Use provided country or default to KENYA
-          membersCount: createChamaDto.membersCount || 1, // Use provided count or default to 1
-          organizationRole: createChamaDto.organizationRole,
-          memberships: {
-            create: {
-              userId: user.id,
-              role: UserRole.CHAIRPERSON, // Creator is chairperson
-            },
-          },
+          created_by: user.id,
+          country: createChamaDto.country || country.KENYA,
+          members_count: createChamaDto.membersCount || 1,
+          organization_role: createChamaDto.organizationRole,
+          updatedAt: new Date(),
         },
         include: {
-          memberships: true,
+          membership: true,
         },
       });
 
@@ -59,12 +56,12 @@ export class ChamaService {
     try {
       const chamas = await this.prisma.chama.findMany({
         where: {
-          memberships: {
-            some: { userId },
+          membership: {
+            some: { user_id: userId },
           },
         },
         include: {
-          memberships: true,
+          membership: true,
         },
       });
       return chamas;
@@ -81,13 +78,13 @@ export class ChamaService {
       const chamas = await this.prisma.chama.findMany({
         where: {
           NOT: {
-            memberships: {
-              some: { userId },
+            membership: {
+              some: { user_id: userId },
             },
           },
         },
         include: {
-          memberships: true,
+          membership: true,
         },
       });
       return chamas;
@@ -105,12 +102,12 @@ export class ChamaService {
       const chama = await this.prisma.chama.findFirst({
         where: {
           id,
-          memberships: {
-            some: { userId },
+          membership: {
+            some: { user_id: userId },
           },
         },
         include: {
-          memberships: true,
+          membership: true,
         },
       });
       if (!chama) {

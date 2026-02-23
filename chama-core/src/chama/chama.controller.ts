@@ -30,27 +30,28 @@ import { type CurrentUser as CurrentUserType } from '../decorators/current-user.
 import { AuthGuard } from '../guards/auth.guard';
 import { ChamaService } from './chama.service';
 import { CreateChamaDto } from './dto/create-chama.dto';
-import { UserRole, Countries } from '@prisma/client';
+import { user_role, country } from '@prisma/client';
 
 /**
  * Interface for Chama response with membership details
+ * Matches Prisma's snake_case field names
  */
 interface ChamaResponse {
   id: string;
   name: string;
   description: string | null;
   rules: string | null;
-  userId: string;
+  created_by: string;
   createdAt: Date;
   updatedAt: Date;
-  country: Countries;
-  membersCount: number;
-  organizationRole: UserRole | null;
-  memberships: Array<{
+  country: country;
+  members_count: number;
+  organization_role: user_role | null;
+  membership: Array<{
     id: string;
-    chamaId: string;
-    userId: string;
-    role: UserRole;
+    chama_id: string;
+    user_id: string;
+    role: user_role;
     joinedAt: Date;
     createdAt: Date;
     updatedAt: Date;

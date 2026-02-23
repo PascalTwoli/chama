@@ -13,7 +13,13 @@ import { PrismaService } from '../prisma/prisma.service';
 import { EmailService } from '../email/email.service';
 import { CreateInviteDto } from './dto/create-invite.dto';
 import { randomBytes } from 'crypto';
-import { Invite, Membership, UserRole, User } from '@prisma/client';
+import * as crypto from 'crypto';
+import {
+  invite as PrismaInvite,
+  membership as PrismaMembership,
+  user_role,
+  user as PrismaUser,
+} from '@prisma/client';
 import * as firebaseAdmin from 'firebase-admin';
 import { InviteEntity } from './entities/invite.entity';
 import { MembershipEntity } from './entities/membership.entity';
@@ -41,7 +47,7 @@ export class InviteService {
     createInviteDto: CreateInviteDto,
     requestUserId: string,
     sendEmail: boolean = false,
-  ): Promise<{ invite: Invite; inviteLink: string }> {
+  ): Promise<{ invite: PrismaInvite; inviteLink: string }> {
     const { chamaId, email } = createInviteDto;
 
     try {
@@ -59,9 +65,9 @@ export class InviteService {
       const chama = await this.prisma.chama.findUnique({
         where: { id: chamaId },
         include: {
-          memberships: {
+          membership: {
             where: {
-              userId: requestUserId,
+              user_id: requestUserId,
             },
           },
         },
@@ -72,9 +78,9 @@ export class InviteService {
       }
 
       // Verify the requesting user is an admin of the chama
-      // Note: memberships array is already filtered to only include the requesting user's memberships from the query above
-      const isUserAdmin = chama.memberships.some(
-        membership => membership.role === UserRole.CHAIRPERSON,
+      // Note: membership array is already filtered to only include the requesting user's memberships from the query above
+      const isUserAdmin = chama.membership.some(
+        membership => membership.role === user_role.CHAIRPERSON,
       );
 
       this.logger.debug(
@@ -94,8 +100,8 @@ export class InviteService {
       if (targetUser) {
         const existingMembership = await this.prisma.membership.findFirst({
           where: {
-            chamaId,
-            userId: targetUser.id,
+            chama_id: chamaId,
+            user_id: targetUser.id,
           },
         });
 
@@ -109,10 +115,10 @@ export class InviteService {
       // Check if an unused invite already exists for this email and chama
       const existingInvite = await this.prisma.invite.findFirst({
         where: {
-          chamaId,
-          sentToEmail: email,
-          usedAt: null,
-          expiresAt: {
+          chama_id: chamaId,
+          sent_to_email: email,
+          used_at: null,
+          expires_at: {
             gt: new Date(),
           },
         },
@@ -134,10 +140,11 @@ export class InviteService {
       // Create the invite
       const invite = await this.prisma.invite.create({
         data: {
-          chamaId,
+          id: crypto.randomUUID(),
+          chama_id: chamaId,
           token,
-          sentToEmail: email,
-          expiresAt,
+          sent_to_email: email,
+          expires_at: expiresAt,
         },
         include: {
           chama: {
@@ -227,7 +234,7 @@ export class InviteService {
   async validateAndAcceptInvite(
     token: string,
     userId: string,
-  ): Promise<Membership> {
+  ): Promise<PrismaMembership> {
     try {
       // Find the invite by token
       const invite = await this.prisma.invite.findUnique({
@@ -248,12 +255,12 @@ export class InviteService {
       }
 
       // Check if invite is expired
-      if (invite.expiresAt < new Date()) {
+      if (invite.expires_at < new Date()) {
         throw new BadRequestException('Invite has expired');
       }
 
       // Check if invite is already used
-      if (invite.usedAt) {
+      if (invite.used_at) {
         throw new BadRequestException('Invite has already been used');
       }
 
@@ -272,7 +279,7 @@ export class InviteService {
       }
 
       // Check if the invite was sent to this user's email
-      if (invite.sentToEmail.toLowerCase() !== user.email.toLowerCase()) {
+      if (invite.sent_to_email.toLowerCase() !== user.email.toLowerCase()) {
         throw new UnauthorizedException(
           'This invite was not sent to your email address',
         );
@@ -281,8 +288,8 @@ export class InviteService {
       // Check if user is already a member of the chama
       const existingMembership = await this.prisma.membership.findFirst({
         where: {
-          chamaId: invite.chamaId,
-          userId,
+          chama_id: invite.chama_id,
+          user_id: userId,
         },
       });
 
@@ -295,15 +302,17 @@ export class InviteService {
         // Mark invite as used
         await prisma.invite.update({
           where: { id: invite.id },
-          data: { usedAt: new Date() },
+          data: { used_at: new Date() },
         });
 
         // Create membership
         const membership = await prisma.membership.create({
           data: {
-            userId,
-            chamaId: invite.chamaId,
-            role: UserRole.MEMBER,
+            id: crypto.randomUUID(),
+            user_id: userId,
+            chama_id: invite.chama_id,
+            role: user_role.MEMBER,
+            updatedAt: new Date(),
           },
           include: {
             chama: {
@@ -321,7 +330,7 @@ export class InviteService {
                 phone: true,
                 createdAt: true,
                 updatedAt: true,
-                activeUserType: true,
+                active_user_type: true,
               },
             },
           },
@@ -331,7 +340,7 @@ export class InviteService {
       });
 
       this.logger.log(
-        `User ${userId} successfully accepted invite to join chama ${invite.chamaId}`,
+        `User ${userId} successfully accepted invite to join chama ${invite.chama_id}`,
       );
       return result;
     } catch (error) {
@@ -359,14 +368,14 @@ export class InviteService {
   async listPendingInvites(
     chamaId: string,
     requestUserId: string,
-  ): Promise<Invite[]> {
+  ): Promise<PrismaInvite[]> {
     // Verify the chama exists
     const chama = await this.prisma.chama.findUnique({
       where: { id: chamaId },
       include: {
-        memberships: {
+        membership: {
           where: {
-            userId: requestUserId,
+            user_id: requestUserId,
           },
         },
       },
@@ -377,11 +386,11 @@ export class InviteService {
     }
 
     // Verify the requesting user is an admin of the chama
-    const isChamaAdmin = chama.memberships.some(
-      membership => membership.role === UserRole.CHAIRPERSON,
+    const isChamaAdmin = chama.membership.some(
+      membership => membership.role === user_role.CHAIRPERSON,
     );
 
-    if (!isChamaAdmin && chama.userId !== requestUserId) {
+    if (!isChamaAdmin && chama.created_by !== requestUserId) {
       throw new UnauthorizedException(
         'Only chama admins can view pending invites',
       );
@@ -390,9 +399,9 @@ export class InviteService {
     // Get pending invites
     const pendingInvites = await this.prisma.invite.findMany({
       where: {
-        chamaId,
-        usedAt: null,
-        expiresAt: {
+        chama_id: chamaId,
+        used_at: null,
+        expires_at: {
           gt: new Date(),
         },
       },
@@ -416,12 +425,12 @@ export class InviteService {
   /**
    * Get chamas where a user has been invited but not yet joined
    */
-  async getPendingInvitesForUser(email: string): Promise<Invite[]> {
+  async getPendingInvitesForUser(email: string): Promise<PrismaInvite[]> {
     const pendingInvites = await this.prisma.invite.findMany({
       where: {
-        sentToEmail: email,
-        usedAt: null,
-        expiresAt: {
+        sent_to_email: email,
+        used_at: null,
+        expires_at: {
           gt: new Date(),
         },
       },
@@ -448,10 +457,10 @@ export class InviteService {
   async checkExistingInvite(chamaId: string, email: string): Promise<boolean> {
     const existingInvite = await this.prisma.invite.findFirst({
       where: {
-        chamaId,
-        sentToEmail: email,
-        usedAt: null,
-        expiresAt: {
+        chama_id: chamaId,
+        sent_to_email: email,
+        used_at: null,
+        expires_at: {
           gt: new Date(),
         },
       },
