@@ -33,7 +33,7 @@ import { CurrentUser } from '../decorators/current-user.decorator';
 import { type CurrentUser as CurrentUserType } from '../decorators/current-user.decorator';
 import { AuthGuard } from '../guards/auth.guard';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { TransactionType } from '@prisma/client';
+import { transaction_type } from '@prisma/client';
 import { TransactionService } from './transaction.service';
 
 /**
@@ -41,7 +41,7 @@ import { TransactionService } from './transaction.service';
  */
 interface TransactionResponse {
   id: string;
-  type: TransactionType; // Using Prisma's TransactionType
+  type: transaction_type; // Using Prisma's transaction_type
   amount: number;
   chamaId: string;
   userId: string;
@@ -77,7 +77,7 @@ export class TransactionController {
         id: { type: 'string', description: 'Transaction ID' },
         type: {
           type: 'string',
-          enum: Object.values(TransactionType),
+          enum: Object.values(transaction_type),
           description: 'Transaction type',
         },
         amount: { type: 'number', description: 'Transaction amount' },
@@ -153,7 +153,7 @@ export class TransactionController {
   @ApiQuery({
     name: 'type',
     required: false,
-    enum: TransactionType,
+    enum: transaction_type,
     description: 'Filter transactions by type',
   })
   @ApiQuery({
@@ -178,7 +178,7 @@ export class TransactionController {
           id: { type: 'string', description: 'Transaction ID' },
           type: {
             type: 'string',
-            enum: Object.values(TransactionType),
+            enum: Object.values(transaction_type),
             description: 'Transaction type',
           },
           amount: { type: 'number', description: 'Transaction amount' },
@@ -217,7 +217,7 @@ export class TransactionController {
   @ApiNotFoundResponse({ description: 'Chama not found' })
   async getTransactionsByChama(
     @Param('chamaId') chamaId: string,
-    @Query('type') type?: TransactionType,
+    @Query('type') type?: transaction_type,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
     @CurrentUser() currentUser?: CurrentUserType,
@@ -267,7 +267,7 @@ export class TransactionController {
         id: { type: 'string', description: 'Transaction ID' },
         type: {
           type: 'string',
-          enum: Object.values(TransactionType),
+          enum: Object.values(transaction_type),
           description: 'Transaction type',
         },
         amount: { type: 'number', description: 'Transaction amount' },
