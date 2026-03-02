@@ -7,214 +7,180 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id             String         @id @default(uuid())
-  name           String?
-  email          String?        @unique
-  phone          String?        @unique
-  passwordHash   String?        @map("password_hash")
-  role           UserRole       @default(MEMBER)
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-  activeUserType UserType?      @map("active_user_type")
-  Chama          Chama[]
-  contributions  Contribution[]
-  memberships    Membership[]
-  notifications  Notification[]
-  transactions   Transaction[]
-  uiSettings     UiSettings?
-
-  @@map("user")
+model chama {
+  id                String         @id
+  name              String
+  description       String?
+  rules             String?
+  created_by        String
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime
+  country           country
+  members_count     Int
+  organization_role user_role?
+  user              user           @relation(fields: [created_by], references: [id])
+  contribution      contribution[]
+  invite            invite[]
+  join_request      join_request[]
+  membership        membership[]
+  transaction       transaction[]
 }
 
-model Chama {
-  id               String         @id @default(uuid())
-  name             String
-  description      String?
-  rules            String?
-  userId           String         @map("created_by")
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
-  country          Countries      @map("country")
-  membersCount     Int            @map("members_count")
-  organizationRole UserRole?      @map("organization_role")
-  createdBy        User           @relation(fields: [userId], references: [id])
-  contributions    Contribution[]
-  invites          Invite[]
-  memberships      Membership[]
-  transactions     Transaction[]
-
-  @@map("chama")
-}
-
-model Membership {
-  id        String   @id @default(uuid())
-  userId    String   @map("user_id")
-  chamaId   String   @map("chama_id")
-  role      UserRole @default(MEMBER)
-  joinedAt  DateTime @default(now())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  chama     Chama    @relation(fields: [chamaId], references: [id])
-  user      User     @relation(fields: [userId], references: [id])
-
-  @@map("membership")
-}
-
-model Invite {
-  id          String    @id @default(uuid())
-  chamaId     String    @map("chama_id")
-  token       String    @unique
-  sentToEmail String    @map("sent_to_email")
-  expiresAt   DateTime  @map("expires_at")
-  usedAt      DateTime? @map("used_at")
-  createdAt   DateTime  @default(now())
-  chama       Chama     @relation(fields: [chamaId], references: [id])
-
-  @@map("invite")
-}
-
-model Contribution {
-  id        String             @id @default(uuid())
-  chamaId   String             @map("chama_id")
-  userId    String             @map("user_id")
+model contribution {
+  id        String             @id
+  chama_id  String
+  user_id   String
   amount    Decimal            @db.Decimal(10, 2)
   currency  String
   status    ContributionStatus @default(PENDING)
   date      DateTime           @default(now())
   createdAt DateTime           @default(now())
-  updatedAt DateTime           @updatedAt
-  chama     Chama              @relation(fields: [chamaId], references: [id])
-  user      User               @relation(fields: [userId], references: [id])
-  payments  Payment[]
-
-  @@map("contribution")
+  updatedAt DateTime
+  chama     chama              @relation(fields: [chama_id], references: [id])
+  user      user               @relation(fields: [user_id], references: [id])
+  payment   payment[]
 }
 
-model Payment {
-  id             String        @id @default(uuid())
-  contributionId String        @map("contribution_id")
-  method         PaymentMethod @default(MPESA)
-  externalRef    String?       @map("external_ref")
-  status         PaymentStatus @default(PENDING)
-  processedAt    DateTime?     @map("processed_at")
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  contribution   Contribution  @relation(fields: [contributionId], references: [id])
-
-  @@map("payment")
+model invite {
+  id            String    @id
+  chama_id      String
+  token         String    @unique
+  sent_to_email String
+  expires_at    DateTime
+  used_at       DateTime?
+  createdAt     DateTime  @default(now())
+  chama         chama     @relation(fields: [chama_id], references: [id])
 }
 
-model NotificationType {
-  id              Int            @id @default(autoincrement())
-  name            String         @unique
-  description     String?
-  defaultDelivery DeliveryMethod @map("default_delivery")
-  notifications   Notification[]
+model join_request {
+  id                                  String              @id
+  chama_id                            String
+  user_id                             String
+  status                              join_request_status @default(PENDING)
+  message                             String?
+  createdAt                           DateTime            @default(now())
+  updatedAt                           DateTime
+  reviewed_by                         String?
+  reviewed_at                         DateTime?
+  chama                               chama               @relation(fields: [chama_id], references: [id], onDelete: Cascade)
+  user_join_request_reviewed_byTouser user?               @relation("join_request_reviewed_byTouser", fields: [reviewed_by], references: [id])
+  user_join_request_user_idTouser     user                @relation("join_request_user_idTouser", fields: [user_id], references: [id], onDelete: Cascade)
 
-  @@map("notification_type")
+  @@unique([chama_id, user_id])
+  @@index([chama_id, status])
+  @@index([user_id, status])
 }
 
-model Notification {
-  id        String           @id @default(uuid())
-  userId    String           @map("user_id")
-  typeId    Int              @map("type_id")
-  title     String
-  body      String
-  readAt    DateTime?        @map("read_at")
-  sentAt    DateTime?        @map("sent_at")
-  createdAt DateTime         @default(now())
-  type      NotificationType @relation(fields: [typeId], references: [id])
-  user      User             @relation(fields: [userId], references: [id])
-
-  @@map("notification")
+model membership {
+  id        String    @id
+  user_id   String
+  chama_id  String
+  role      user_role @default(MEMBER)
+  joinedAt  DateTime  @default(now())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime
+  chama     chama     @relation(fields: [chama_id], references: [id])
+  user      user      @relation(fields: [user_id], references: [id])
 }
 
-model UiSettings {
-  userId          String  @id @map("user_id")
-  showTutorial    Boolean @default(true) @map("show_tutorial")
-  theme           String? @default("default")
-  lastSeenWidgets Json?   @map("last_seen_widgets")
-  user            User    @relation(fields: [userId], references: [id])
-
-  @@map("ui_settings")
+model notification {
+  id                String            @id
+  user_id           String
+  type_id           Int
+  title             String
+  body              String
+  read_at           DateTime?
+  sent_at           DateTime?
+  createdAt         DateTime          @default(now())
+  notification_type notification_type @relation(fields: [type_id], references: [id])
+  user              user              @relation(fields: [user_id], references: [id])
 }
 
-model Transaction {
-  id          String            @id @default(uuid())
-  type        TransactionType
-  amount      Decimal           @db.Decimal(10, 2)
-  chamaId     String            @map("chama_id")
-  userId      String            @map("user_id")
+model notification_type {
+  id               Int            @id @default(autoincrement())
+  name             String         @unique
+  description      String?
+  default_delivery DeliveryMethod
+  notification     notification[]
+}
+
+model payment {
+  id              String        @id
+  contribution_id String
+  method          PaymentMethod @default(MPESA)
+  external_ref    String?
+  status          PaymentStatus @default(PENDING)
+  processed_at    DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime
+  contribution    contribution  @relation(fields: [contribution_id], references: [id])
+}
+
+model transaction {
+  id          String             @id
+  type        transaction_type
+  amount      Decimal            @db.Decimal(10, 2)
+  chama_id    String
+  user_id     String
   description String?
   reference   String?
-  status      TransactionStatus @default(COMPLETED)
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-  chama       Chama             @relation(fields: [chamaId], references: [id])
-  user        User              @relation(fields: [userId], references: [id])
-
-  @@map("transaction")
+  status      transaction_status @default(COMPLETED)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime
+  chama       chama              @relation(fields: [chama_id], references: [id])
+  user        user               @relation(fields: [user_id], references: [id])
 }
 
-/// Roles that users can have within the system or within a Chama
-enum UserRole {
-  CHAIRPERSON
-  MEMBER
-  TREASURER
-  SECRETARY
-
-  @@map("user_role")
+model ui_settings {
+  user_id           String  @id
+  show_tutorial     Boolean @default(true)
+  theme             String? @default("default")
+  last_seen_widgets Json?
+  user              user    @relation(fields: [user_id], references: [id])
 }
 
-/// Status of a contribution before/after processing
+model user {
+  id                                          String         @id
+  name                                        String?
+  email                                       String?        @unique
+  phone                                       String?        @unique
+  password_hash                               String?
+  role                                        user_role      @default(MEMBER)
+  createdAt                                   DateTime       @default(now())
+  updatedAt                                   DateTime
+  active_user_type                            UserType?
+  chama                                       chama[]
+  contribution                                contribution[]
+  join_request_join_request_reviewed_byTouser join_request[] @relation("join_request_reviewed_byTouser")
+  join_request_join_request_user_idTouser     join_request[] @relation("join_request_user_idTouser")
+  membership                                  membership[]
+  notification                                notification[]
+  transaction                                 transaction[]
+  ui_settings                                 ui_settings?
+}
+
 enum ContributionStatus {
   PENDING
   COMPLETED
   FAILED
 }
 
-/// Supported payment methods (expand as needed)
-enum PaymentMethod {
-  MPESA
-  BANK_TRANSFER
-  CASH
-}
-
-/// Status of an individual payment record
-enum PaymentStatus {
-  PENDING
-  SUCCESS
-  FAILED
-}
-
-/// Delivery channels for notifications (in-app, email, SMS)
 enum DeliveryMethod {
   IN_APP
   EMAIL
   SMS
 }
 
-/// Transaction types for financial operations
-enum TransactionType {
-  CONTRIBUTION
-  WITHDRAWAL
-  LOAN
-  LOAN_REPAYMENT
-  INVESTMENT
-  RETURN
-  EXPENSE
-
-  @@map("transaction_type")
+enum PaymentMethod {
+  MPESA
+  BANK_TRANSFER
+  CASH
 }
 
-/// Status of a transaction
-enum TransactionStatus {
+enum PaymentStatus {
   PENDING
-  COMPLETED
+  SUCCESS
   FAILED
-
-  @@map("transaction_status")
 }
 
 enum UserType {
@@ -222,7 +188,7 @@ enum UserType {
   MEMBER
 }
 
-enum Countries {
+enum country {
   AFGHANISTAN
   ALBANIA
   ALGERIA
@@ -418,6 +384,33 @@ enum Countries {
   YEMEN
   ZAMBIA
   ZIMBABWE
+}
 
-  @@map("country")
+enum join_request_status {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum transaction_status {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum transaction_type {
+  CONTRIBUTION
+  WITHDRAWAL
+  LOAN
+  LOAN_REPAYMENT
+  INVESTMENT
+  RETURN
+  EXPENSE
+}
+
+enum user_role {
+  CHAIRPERSON
+  MEMBER
+  TREASURER
+  SECRETARY
 }

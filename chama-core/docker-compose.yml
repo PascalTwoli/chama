@@ -1,18 +1,16 @@
-version: '3.8'
-
 services:
   # PostgreSQL Database
   postgres:
-    image: postgres:latest
-    container_name: chama_postgres
+    image: postgres:16-alpine
+    container_name: chama_postgres_v2
     environment:
       POSTGRES_USER: felixtwoli
       POSTGRES_PASSWORD: 'Twoli8451#'
       POSTGRES_DB: chama_db
     ports:
-      - '5432:5432'
+      - '5433:5432'
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - chama_postgres_data_v2:/var/lib/postgresql/data
     networks:
       - chama-network
     healthcheck:
@@ -47,4 +45,4 @@ networks:
     driver: bridge
 
 volumes:
-  postgres_data:
+  chama_postgres_data_v2:

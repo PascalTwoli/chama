@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsString, IsUUID, IsDate } from 'class-validator';
 import { Expose, Transform, Type } from 'class-transformer';
-import { UserRole } from '@prisma/client';
+import { user_role } from '@prisma/client';
 import { UserEntity } from '../../user/entities/user.entity';
 import { ChamaEntity } from './invite.entity';
 
@@ -44,11 +44,11 @@ export class MembershipEntity {
 
   @ApiProperty({
     description: 'The role of the user in the chama',
-    enum: UserRole,
-    example: UserRole.MEMBER,
+    enum: user_role,
+    example: user_role.MEMBER,
   })
-  @IsEnum(UserRole)
-  role!: UserRole;
+  @IsEnum(user_role)
+  role!: user_role;
 
   @ApiProperty({
     description: 'The date when the user joined the chama',
