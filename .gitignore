@@ -95,6 +95,7 @@ jest_cache/
 
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
+.kiro/
 
 # yarn v2
 .yarn/cache

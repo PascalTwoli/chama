@@ -8,6 +8,7 @@ import { AuthGuard } from './guards/auth.guard';
 import { PrismaModule } from './prisma/prisma.module';
 import { ChamaModule } from './chama/chama.module';
 import { InviteModule } from './invites/invite.module';
+import { JoinRequestModule } from './join-requests/join-request.module';
 import { TransactionModule } from './transaction/transaction.module';
 
 @Module({
@@ -18,6 +19,7 @@ import { TransactionModule } from './transaction/transaction.module';
     AuthModule,
     ChamaModule,
     InviteModule,
+    JoinRequestModule,
     TransactionModule,
   ],
   controllers: [AppController],

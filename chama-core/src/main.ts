@@ -74,7 +74,7 @@ async function bootstrap() {
   const projectRoot = process.cwd(); // This will resolve to the project root directory
   const firebaseKeyFilePath = path.join(
     projectRoot,
-    'chama-b57f4-firebase-adminsdk-fbsvc-a743d47717.json',
+    'chama-b57f4-firebase-adminsdk-fbsvc-3567c2240a.json',
   );
   console.log('Firebase key file path:', firebaseKeyFilePath);
 

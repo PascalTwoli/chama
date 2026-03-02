@@ -8,21 +8,21 @@ import {
   IsUUID,
   Min,
 } from 'class-validator';
-import { TransactionType } from '@prisma/client';
+import { transaction_type } from '@prisma/client';
 
 /**
- * Using TransactionType from Prisma for consistency
+ * Using transaction_type from Prisma for consistency
  */
 
 export class CreateTransactionDto {
   @ApiProperty({
     description: 'The type of transaction',
-    enum: TransactionType,
-    example: TransactionType.CONTRIBUTION,
+    enum: transaction_type,
+    example: transaction_type.CONTRIBUTION,
   })
   @IsNotEmpty({ message: 'Transaction type is required' })
-  @IsEnum(TransactionType, { message: 'Invalid transaction type' })
-  type!: TransactionType;
+  @IsEnum(transaction_type, { message: 'Invalid transaction type' })
+  type!: transaction_type;
 
   @ApiProperty({
     description: 'The amount for the transaction',

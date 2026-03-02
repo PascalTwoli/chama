@@ -5,6 +5,8 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { UserType } from '@prisma/client';
+import * as crypto from 'crypto';
 
 export interface CurrentUser {
   id: string; // Database user ID
@@ -37,9 +39,11 @@ export const CurrentUser = createParamDecorator(
     if (!user && decodedToken.email) {
       user = await prisma.user.create({
         data: {
+          id: crypto.randomUUID(),
           email: decodedToken.email,
           name: decodedToken.name || decodedToken.email.split('@')[0],
-          activeUserType: 'MEMBER',
+          active_user_type: UserType.MEMBER,
+          updatedAt: new Date(),
         },
       });
     }
