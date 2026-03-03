@@ -5,14 +5,7 @@ import { Card, CardContent } from '../components/ui/card';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Badge } from '../components/ui/badge';
-import {
-  Save,
-  CheckCircle2,
-  Info,
-  FileText,
-  Copy,
-  HelpCircle,
-} from 'lucide-react';
+import { Save, CheckCircle2, Info, FileText, Copy } from 'lucide-react';
 import { cn } from '../utils/cn';
 
 export default function SettingsPage() {

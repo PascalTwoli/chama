@@ -72,7 +72,7 @@ export class SecureAuthService {
 
       const axiosError = error as AxiosError<ApiErrorResponse>;
       const statusCode = axiosError.response?.status;
-      const errorResponse = axiosError.response?.data;
+      const errorResponse = axiosError.response?.data ?? null;
 
       // Extract and format error message
       const errorMessageRaw = this.extractErrorMessage(errorResponse);
@@ -253,7 +253,13 @@ export class SecureAuthService {
   /**
    * Extract error message from API response
    */
-  private static extractErrorMessage(errorResponse: any): string {
+  private static extractErrorMessage(
+    errorResponse: {
+      message?: string | string[];
+      errors?: { message?: string }[];
+      error?: string;
+    } | null
+  ): string {
     if (errorResponse && Array.isArray(errorResponse.message)) {
       return errorResponse.message[0] || '';
     } else if (

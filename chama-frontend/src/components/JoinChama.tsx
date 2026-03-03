@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Loader2,
@@ -52,6 +52,32 @@ function JoinChama() {
     null
   );
 
+  const acceptInvite = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await axios.post<ChamaResponse>('/api/invites/accept', {
+        token,
+      });
+
+      setSuccess(true);
+      toast.success(
+        `You have successfully joined ${response.data.chama.name}!`
+      );
+
+      setTimeout(() => {
+        navigate(`/chama/${response.data.chamaId}`);
+      }, 3000);
+    } catch (error: unknown) {
+      console.error('Error accepting invite:', error);
+      setError(
+        (error as ApiError).response?.data?.message ||
+          'Failed to join chama. Please try again later.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [token, navigate]);
+
   useEffect(() => {
     if (!token) {
       setError('Invalid invitation link');
@@ -78,41 +104,14 @@ function JoinChama() {
         console.error('Error validating invite:', error);
         setError(
           (error as ApiError).response?.data?.message ||
-          'This invitation link is invalid or has expired.'
+            'This invitation link is invalid or has expired.'
         );
         setLoading(false);
       }
     };
 
     validateInvite();
-  }, [token, isAuthenticated, user]);
-
-  const acceptInvite = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.post<ChamaResponse>(
-        '/api/invites/accept',
-        { token }
-      );
-
-      setSuccess(true);
-      toast.success(
-        `You have successfully joined ${response.data.chama.name}!`
-      );
-
-      setTimeout(() => {
-        navigate(`/chama/${response.data.chamaId}`);
-      }, 3000);
-    } catch (error: unknown) {
-      console.error('Error accepting invite:', error);
-      setError(
-        (error as ApiError).response?.data?.message ||
-        'Failed to join chama. Please try again later.'
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [token, isAuthenticated, user, acceptInvite]);
 
   const handleLoginRedirect = () => {
     if (token) {

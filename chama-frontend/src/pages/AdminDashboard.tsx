@@ -32,7 +32,6 @@ import {
 } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
-import { cn } from '../utils/cn';
 
 // Monthly contribution data matching Figma
 const monthlyData = [
@@ -167,16 +166,26 @@ function StatCard({ title, value, change, trend, icon }: StatCardProps) {
   );
 }
 
+interface CustomLabelProps {
+  cx?: number;
+  cy?: number;
+  midAngle?: number;
+  innerRadius?: number;
+  outerRadius?: number;
+  percent?: number;
+  name?: string;
+}
+
 // Custom label for pie chart
 const renderCustomLabel = ({
-  cx,
-  cy,
-  midAngle,
-  innerRadius,
-  outerRadius,
-  percent,
-  name,
-}: any) => {
+  cx = 0,
+  cy = 0,
+  midAngle = 0,
+  innerRadius = 0,
+  outerRadius = 0,
+  percent = 0,
+  name = '',
+}: CustomLabelProps) => {
   const RADIAN = Math.PI / 180;
   const radius = innerRadius + (outerRadius - innerRadius) * 1.4;
   const x = cx + radius * Math.cos(-midAngle * RADIAN);

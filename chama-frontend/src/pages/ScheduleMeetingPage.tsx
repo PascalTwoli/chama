@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   Calendar,
   Clock,
   MapPin,
   CheckCircle2,
-  AlertCircle,
   Plus,
   Users,
 } from 'lucide-react';
@@ -61,8 +59,6 @@ const pastMeetings = [
 ];
 
 export default function ScheduleMeetingPage() {
-  const navigate = useNavigate();
-
   // Form State
   const [title, setTitle] = useState('Monthly Meeting - January');
   const [date, setDate] = useState('');

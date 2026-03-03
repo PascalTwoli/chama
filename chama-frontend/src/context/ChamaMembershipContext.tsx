@@ -72,7 +72,7 @@ function determineSystemRole(
     role?: string;
     organizationRole?: string;
     userType?: string;
-    createdBy?: string;
+    createdBy?: string | { id?: string };
     isOwner?: boolean;
   },
   currentUserId: string | undefined,
@@ -83,12 +83,16 @@ function determineSystemRole(
   const roleUpperCase = chama.role?.toUpperCase();
   const userTypeUpperCase = chama.userType?.toUpperCase();
 
+  // Get createdBy ID (handle both string and User object)
+  const createdById =
+    typeof chama.createdBy === 'string' ? chama.createdBy : chama.createdBy?.id;
+
   // Check if user is OWNER
   const isOwner =
     chama.isOwner === true ||
     roleUpperCase === 'OWNER' ||
     userTypeUpperCase === 'OWNER' ||
-    chama.createdBy === currentUserId ||
+    createdById === currentUserId ||
     (hasCreatedChama && chamaId === activeChamaIdFromStorage);
 
   if (isOwner) {
@@ -188,51 +192,37 @@ export const ChamaMembershipProvider: React.FC<
       const activeChamaIdFromStorage = localStorage.getItem('activeChamaId');
 
       // Transform to ChamaMembership format with new role system
-      const memberships: ChamaMembership[] = userChamas.map(
-        (chama: {
-          id: string;
-          name: string;
-          role?: string;
-          organizationRole?: string;
-          userType?: string;
-          status?: string;
-          joinedAt?: string;
-          createdBy?: string;
-          isOwner?: boolean;
-        }) => {
-          // Determine system role (OWNER / ADMIN / MEMBER)
-          const systemRole = determineSystemRole(
-            chama,
-            currentUser?.id,
-            hasCreatedChama,
-            activeChamaIdFromStorage,
-            chama.id
-          );
+      const memberships: ChamaMembership[] = userChamas.map(chama => {
+        // Determine system role (OWNER / ADMIN / MEMBER)
+        const systemRole = determineSystemRole(
+          chama,
+          currentUser?.id,
+          hasCreatedChama,
+          activeChamaIdFromStorage,
+          chama.id
+        );
 
-          // Determine governance role (CHAIRPERSON, TREASURER, etc.)
-          const governanceRole = determineGovernanceRole(
-            chama.organizationRole
-          );
+        // Determine governance role (CHAIRPERSON, TREASURER, etc.)
+        const governanceRole = determineGovernanceRole(chama.organizationRole);
 
-          // Compute permissions based on roles
-          const permissions = computePermissions(systemRole, governanceRole);
+        // Compute permissions based on roles
+        const permissions = computePermissions(systemRole, governanceRole);
 
-          return {
-            chamaId: chama.id,
-            chamaName: chama.name,
-            systemRole,
-            governanceRole,
-            permissions,
-            isActive: true,
-            status: (chama.status?.toUpperCase() || 'APPROVED') as
-              | 'PENDING'
-              | 'APPROVED'
-              | 'REJECTED',
-            joinedAt: chama.joinedAt,
-            isOwner: systemRole === 'OWNER',
-          };
-        }
-      );
+        return {
+          chamaId: chama.id,
+          chamaName: chama.name,
+          systemRole,
+          governanceRole,
+          permissions,
+          isActive: true,
+          status: (chama.status?.toUpperCase() || 'APPROVED') as
+            | 'PENDING'
+            | 'APPROVED'
+            | 'REJECTED',
+          joinedAt: chama.joinedAt,
+          isOwner: systemRole === 'OWNER',
+        };
+      });
 
       setChamas(memberships);
 

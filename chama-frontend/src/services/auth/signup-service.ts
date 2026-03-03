@@ -110,7 +110,23 @@ export class AuthService {
       console.log('Making GET request to /auth/me');
       // Backend returns UserResponseEntity, not User directly
       // Headers handled by interceptor, but explicit header doesn't hurt if we have token
-      const response: AxiosResponse<any> = await apiClient.get('/auth/me');
+      const response: AxiosResponse<{
+        firebaseUser?: {
+          uid?: string;
+          email?: string;
+          phoneNumber?: string;
+          emailVerified?: boolean;
+        };
+        localUser?: {
+          id?: string;
+          name?: string;
+          email?: string;
+          phone?: string;
+          activeUserType?: string;
+          createdAt?: string;
+          updatedAt?: string;
+        };
+      }> = await apiClient.get('/auth/me');
       console.log('getCurrentUser raw response:', response.data);
 
       // Extract user data from the backend response structure
@@ -126,7 +142,8 @@ export class AuthService {
         lastName: localUser?.name?.split(' ').slice(1).join(' ') || '',
         email: firebaseUser?.email || localUser?.email || '',
         phoneNumber: firebaseUser?.phoneNumber || localUser?.phone || '',
-        activeUserType: localUser?.activeUserType,
+        activeUserType:
+          (localUser?.activeUserType as UserType) || UserType.MEMBER,
         createdAt: localUser?.createdAt,
         updatedAt: localUser?.updatedAt,
         isEmailVerified: firebaseUser?.emailVerified || false,
@@ -146,7 +163,7 @@ export class AuthService {
     }
   }
 
-  static async getUserType(forceCheck = false): Promise<UserType | null> {
+  static async getUserType(_forceCheck = false): Promise<UserType | null> {
     try {
       const user = await this.getCurrentUser();
       return this.normalizeUserType(user.activeUserType);

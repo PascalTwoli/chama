@@ -1,6 +1,10 @@
-import { User } from '../models/user';
+interface ProfileUser {
+  profilepic?: string;
+  firstName?: string;
+  lastName?: string;
+}
 
-const ProfileTemplate = (user: any, h: number, w: number) => {
+const ProfileTemplate = (user: ProfileUser, h: number, w: number) => {
   // Fix image path - assuming public/images directory exists
   const imagePath =
     user.profilepic && user.profilepic.startsWith('http')

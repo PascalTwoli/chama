@@ -8,7 +8,6 @@ import {
   CardHeader,
   CardTitle,
 } from '../components/ui/card';
-import { Badge } from '../components/ui/badge';
 import {
   BarChart,
   Bar,
@@ -338,7 +337,9 @@ export default function ReportsPage() {
                   </div>
                   <div>
                     <p className='font-medium text-sm m-0'>{tx.type}</p>
-                    <p className='text-xs text-muted-foreground m-0'>{tx.user}</p>
+                    <p className='text-xs text-muted-foreground m-0'>
+                      {tx.user}
+                    </p>
                   </div>
                 </div>
                 <div className='text-right'>

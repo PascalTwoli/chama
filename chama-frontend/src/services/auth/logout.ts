@@ -1,4 +1,3 @@
-import apiClient from '../../config/axios-config';
 import SecureAuthService from './secure-auth-service';
 
 /**

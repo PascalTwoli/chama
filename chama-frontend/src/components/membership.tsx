@@ -9,8 +9,8 @@ function Membership() {
   const { chamaId } = useParams<{ chamaId: string }>();
   const [selectedRole, setSelectedRole] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
-  const [chamaName, setChamaName] = useState<string>('Loading...');
-  const [isLoading, setIsLoading] = useState(true);
+  const [, setChamaName] = useState<string>('Loading...');
+  const [, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchChamaData = async () => {

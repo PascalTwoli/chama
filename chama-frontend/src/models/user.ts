@@ -5,7 +5,7 @@ export interface UserAppMetadata {
   // Add properties as needed, for example:
   permissions?: string[];
   provider?: string;
-  [key: string]: any; // Allow additional properties
+  [key: string]: unknown; // Allow additional properties
 }
 
 export interface UserMetadata {

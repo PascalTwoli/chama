@@ -41,7 +41,9 @@ const onTokenRefreshed = (newToken: string) => {
   refreshSubscribers = [];
 };
 // Refresh authentication token
-export const refreshAuthToken = async (refreshToken: string): Promise<any> => {
+export const refreshAuthToken = async (
+  refreshToken: string
+): Promise<{ idToken: string; refreshToken?: string }> => {
   try {
     // Use a fresh axios instance for token refresh to avoid interceptor loops
     const response = await axios.post(

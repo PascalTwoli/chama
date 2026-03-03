@@ -4,7 +4,6 @@ import NavbarLinks from './navbar-links';
 import ProfileTemplate from '../../utils/profile-template';
 import LogoutModal from '../logoutModal';
 import Logo1 from '../../logos/logo1';
-import { ThemeToggle } from '../ThemeToggle';
 import { Bell, Moon, Sun } from 'lucide-react';
 import { Button } from '../ui';
 import { useTheme } from '../../context/ThemeContext';
@@ -12,20 +11,23 @@ import { useTheme } from '../../context/ThemeContext';
 function OnBoardingNavbar() {
   const [userName, setUserName] = useState<string | null>(null);
   const [displayNavbarLinks, setDisplayNavbarLinks] = useState<boolean>(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<{
+    firstName: string;
+    lastName: string;
+  } | null>(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
-    AuthService.getCurrentUser().then((user: any) => {
+    AuthService.getCurrentUser().then(userData => {
       setUserName(
-        user.firstName.charAt(0).toUpperCase() +
-          user.firstName.slice(1) +
+        userData.firstName.charAt(0).toUpperCase() +
+          userData.firstName.slice(1) +
           ' ' +
-          user.lastName.charAt(0).toUpperCase() +
-          user.lastName.slice(1)
+          userData.lastName.charAt(0).toUpperCase() +
+          userData.lastName.slice(1)
       );
-      setUser(user);
+      setUser(userData);
     });
   }, []);
 
