@@ -234,21 +234,23 @@ export default function ContributionsPage() {
               />
             </div>
             <div className='flex items-center gap-2 w-full sm:w-auto overflow-x-auto'>
-              {['All', 'Completed', 'Pending', 'Late'].map(status => (
-                <Button
-                  key={status}
-                  variant={filterStatus === status ? 'default' : 'outline'}
-                  size='sm'
-                  onClick={() => setFilterStatus(status as any)}
-                  className={cn(
-                    filterStatus === status
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-muted-foreground'
-                  )}
-                >
-                  {status}
-                </Button>
-              ))}
+              {(['All', 'Completed', 'Pending', 'Late'] as const).map(
+                status => (
+                  <Button
+                    key={status}
+                    variant={filterStatus === status ? 'default' : 'outline'}
+                    size='sm'
+                    onClick={() => setFilterStatus(status)}
+                    className={cn(
+                      filterStatus === status
+                        ? 'bg-primary text-primary-foreground'
+                        : 'text-muted-foreground'
+                    )}
+                  >
+                    {status}
+                  </Button>
+                )
+              )}
             </div>
           </div>
         </div>

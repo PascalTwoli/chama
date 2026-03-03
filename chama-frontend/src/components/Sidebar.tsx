@@ -14,8 +14,6 @@ import {
   Activity,
   Settings,
   LogOut,
-  Menu,
-  X,
   Moon,
   Sun,
   ChevronLeft,
@@ -39,7 +37,10 @@ function Sidebar() {
   const [isLoading, setIsLoading] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState<boolean>(false);
   const { theme, toggleTheme } = useTheme();
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<{
+    firstName: string;
+    lastName: string;
+  } | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
 
   // Get active chama role info from context
@@ -82,7 +83,7 @@ function Sidebar() {
 
   useEffect(() => {
     AuthService.getCurrentUser()
-      .then((userData: any) => {
+      .then(userData => {
         setUser(userData);
         setUserName(
           userData.firstName.charAt(0).toUpperCase() +

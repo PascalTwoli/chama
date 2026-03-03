@@ -2,7 +2,6 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { useEffect, useState } from 'react';
 import { ColumnBodyOptions } from 'primereact/column';
-import { classNames } from 'primereact/utils';
 
 // Define interface for member type
 interface Member {
@@ -35,7 +34,7 @@ interface Member {
 //   );
 // };
 
-const actionsTemplate = (rowData: Member, options: ColumnBodyOptions) => (
+const actionsTemplate = (_rowData: Member, _options: ColumnBodyOptions) => (
   <div className='flex gap-2 '>
     <button className='text-secondary bg-transparent font-bold cursor-pointer border-none hover:text-secondary1 px-2 py-1 transition-colors'>
       View
@@ -43,7 +42,7 @@ const actionsTemplate = (rowData: Member, options: ColumnBodyOptions) => (
   </div>
 );
 
-const statusTemp = (rowData: Member, options: ColumnBodyOptions) => (
+const statusTemp = (rowData: Member, _options: ColumnBodyOptions) => (
   <span
     className={`px-3 py-2 rounded-full text-xs font-semibold ${
       rowData.status === 'Active'

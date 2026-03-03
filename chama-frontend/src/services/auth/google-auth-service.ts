@@ -3,7 +3,6 @@ import {
   UserCredential,
   fetchSignInMethodsForEmail,
   linkWithCredential,
-  EmailAuthProvider,
   GoogleAuthProvider,
   signInWithEmailAndPassword,
 } from 'firebase/auth';
@@ -45,7 +44,9 @@ export class GoogleAuthService {
 
         // Determine if this is a new user
         // Firebase detection of new users via additionalUserInfo
-        const isNewUser = (result as any)._tokenResponse?.isNewUser || false;
+        const isNewUser =
+          (result as unknown as { _tokenResponse?: { isNewUser?: boolean } })
+            ._tokenResponse?.isNewUser || false;
 
         return {
           userCredential: result,
@@ -53,17 +54,26 @@ export class GoogleAuthService {
         };
       }
       return null;
-    } catch (error: any) {
-      console.error('Google Sign-In Error:', error);
+    } catch (error) {
+      const firebaseError = error as {
+        code?: string;
+        customData?: { email?: string };
+        message?: string;
+      };
+      console.error('Google Sign-In Error:', firebaseError);
 
       let errorMessage = 'Failed to sign in with Google.';
 
       // Handle Account Linking (Credential already in use)
-      if (error.code === 'auth/account-exists-with-different-credential') {
+      if (
+        firebaseError.code === 'auth/account-exists-with-different-credential'
+      ) {
         // The email of the user's account used.
-        const email = error.customData.email;
+        const email = firebaseError.customData?.email;
         // The pending Google credential.
-        const pendingCredential = GoogleAuthProvider.credentialFromError(error);
+        const pendingCredential = GoogleAuthProvider.credentialFromError(
+          error as Parameters<typeof GoogleAuthProvider.credentialFromError>[0]
+        );
 
         if (auth && email && pendingCredential) {
           try {
@@ -107,14 +117,15 @@ export class GoogleAuthService {
           errorMessage =
             'An account already exists with the same email address but different sign-in credentials. Sign in using a provider associated with this email address.';
         }
-      } else if (error.code === 'auth/popup-closed-by-user') {
+      } else if (firebaseError.code === 'auth/popup-closed-by-user') {
         errorMessage = 'Sign-in cancelled by user.';
-      } else if (error.code === 'auth/popup-blocked') {
+      } else if (firebaseError.code === 'auth/popup-blocked') {
         errorMessage = 'Sign-in popup was blocked by the browser.';
-      } else if (error.code === 'auth/network-request-failed') {
+      } else if (firebaseError.code === 'auth/network-request-failed') {
         errorMessage = 'Network error. Please checks your connection.';
       } else if (
-        error.code === 'auth/api-key-not-valid.-please-pass-a-valid-api-key.'
+        firebaseError.code ===
+        'auth/api-key-not-valid.-please-pass-a-valid-api-key.'
       ) {
         errorMessage = 'Invalid API Configuration.';
       }

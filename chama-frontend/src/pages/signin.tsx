@@ -31,7 +31,6 @@ const SignIn = () => {
   const [isCheckingUserType, setIsCheckingUserType] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState(false);
   // No longer using role selection - user goes directly to login form
-  const selectedRole = 'member'; // Default role, actual role determined after login
 
   const handleChange = (e: FormEvent<HTMLInputElement>) => {
     const { name, value } = e.currentTarget;

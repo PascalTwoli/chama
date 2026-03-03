@@ -1,18 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import {
-  Bell,
-  Moon,
-  Sun,
-  LogOut,
-  User as UserIcon,
-  ChevronDown,
-  LayoutDashboard,
-  Users,
-} from 'lucide-react';
+import { Bell, Moon, Sun, LayoutDashboard, Users } from 'lucide-react';
 import AuthService from '../../services/auth/signup-service';
 import LogoutModal from '../logoutModal';
-import Logo1 from '../../logos/logo1';
 import { useTheme } from '../../context/ThemeContext';
 import { useChamaMembership } from '../../context/ChamaMembershipContext';
 import { Button } from '../ui/button';
@@ -22,8 +12,8 @@ import Logo3 from '../../logos/Logo3';
 
 const Navbar = () => {
   const [user, setUser] = useState<User | null>(null);
-  const [userName, setUserName] = useState<string | null>(null);
-  const [displayProfileMenu, setDisplayProfileMenu] = useState(false);
+  const [, setUserName] = useState<string | null>(null);
+  const [, setDisplayProfileMenu] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
@@ -49,11 +39,6 @@ const Navbar = () => {
         // User not logged in - this is fine
       });
   }, []);
-
-  const getInitials = () => {
-    if (!user) return '?';
-    return `${user.firstName?.charAt(0) || ''}${user.lastName?.charAt(0) || ''}`.toUpperCase();
-  };
 
   // Handle dashboard switch
   const handleDashboardSwitch = () => {

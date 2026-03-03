@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import React, { useState } from 'react';
-import { Copy, QrCode, Send, Mail, CheckCircle2 } from 'lucide-react';
+import { Copy, QrCode, Mail, CheckCircle2 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
@@ -9,7 +9,15 @@ import { Badge } from './ui/badge';
 import { useParams } from 'react-router-dom';
 import ChamaService from '../services/chama/chama-services';
 import { toast } from 'react-toastify';
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
+
+interface PendingInvite {
+  id: string;
+  email: string;
+  sentToEmail?: string;
+  status: string;
+  createdAt: string;
+}
 
 const InviteMembers = () => {
   const { chamaId } = useParams<{ chamaId: string }>();
@@ -21,15 +29,9 @@ const InviteMembers = () => {
   const [email, setEmail] = useState('');
 
   // Pending Invites Data
-  const [pendingInvites, setPendingInvites] = useState<any[]>([]);
+  const [pendingInvites, setPendingInvites] = useState<PendingInvite[]>([]);
 
-  useEffect(() => {
-    if (chamaId) {
-      fetchPendingInvites();
-    }
-  }, [chamaId]);
-
-  const fetchPendingInvites = async () => {
+  const fetchPendingInvites = useCallback(async () => {
     try {
       if (!chamaId) return;
       setInvitesLoading(true);
@@ -41,7 +43,13 @@ const InviteMembers = () => {
     } finally {
       setInvitesLoading(false);
     }
-  };
+  }, [chamaId]);
+
+  useEffect(() => {
+    if (chamaId) {
+      fetchPendingInvites();
+    }
+  }, [chamaId, fetchPendingInvites]);
 
   const handleCreateInvite = async () => {
     if (!email || !chamaId) {
@@ -138,9 +146,7 @@ const InviteMembers = () => {
             </CardHeader>
             <CardContent className='space-y-4'>
               <div className='space-y-2'>
-                <label className='text-sm font-medium'>
-                  Email Address
-                </label>
+                <label className='text-sm font-medium'>Email Address</label>
                 <Input
                   type='email'
                   value={email}
@@ -155,7 +161,11 @@ const InviteMembers = () => {
                   onClick={handleCreateInvite}
                   className='bg-blue-600 hover:bg-blue-700 text-white gap-2 w-full md:w-auto'
                 >
-                  {loading ? <span className="animate-spin">⌛</span> : <Mail className='w-4 h-4' />}
+                  {loading ? (
+                    <span className='animate-spin'>⌛</span>
+                  ) : (
+                    <Mail className='w-4 h-4' />
+                  )}
                   Send Email Invite
                 </Button>
               </div>
@@ -174,9 +184,13 @@ const InviteMembers = () => {
             </CardHeader>
             <CardContent>
               {invitesLoading ? (
-                <div className="text-center py-4 text-muted-foreground">Loading...</div>
+                <div className='text-center py-4 text-muted-foreground'>
+                  Loading...
+                </div>
               ) : pendingInvites.length === 0 ? (
-                <div className="text-center py-4 text-muted-foreground">No pending invites</div>
+                <div className='text-center py-4 text-muted-foreground'>
+                  No pending invites
+                </div>
               ) : (
                 <div className='space-y-3'>
                   {pendingInvites.map(invite => (
@@ -186,14 +200,17 @@ const InviteMembers = () => {
                     >
                       <div className='flex items-center gap-3'>
                         <div className='w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center font-semibold text-sm text-gray-600uppercase'>
-                          {invite.sentToEmail.substring(0, 2).toUpperCase()}
+                          {(invite.sentToEmail || invite.email)
+                            .substring(0, 2)
+                            .toUpperCase()}
                         </div>
                         <div>
                           <p className='font-semibold text-sm m-0'>
-                            {invite.sentToEmail}
+                            {invite.sentToEmail || invite.email}
                           </p>
                           <p className='text-xs text-muted-foreground m-0'>
-                            Invited on {new Date(invite.createdAt).toLocaleDateString()}
+                            Invited on{' '}
+                            {new Date(invite.createdAt).toLocaleDateString()}
                           </p>
                         </div>
                       </div>

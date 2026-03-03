@@ -19,15 +19,22 @@ export interface Chama {
   rules: string;
   userId: string;
   description?: string;
-  organizationRole?: UserRole;
+  organizationRole?: UserRole | string;
+  role?: string; // User's role in this chama (OWNER, ADMIN, MEMBER)
   country: Countries;
   image?: File | null; // or string if you store the URL
   members: User[];
   imageUrl: string;
   membersCount: number;
+  memberCount?: number; // Alias for membersCount
+  totalSavings?: number;
+  location?: string;
+  status?: string;
+  joinedAt?: string;
+  isOwner?: boolean;
   createdAt: string;
   updatedAt: string;
-  createdBy: User;
+  createdBy: User | string;
 }
 
 export interface ChamaResponse {

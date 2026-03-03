@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 interface TimeLeft {
   days: number;
@@ -18,7 +18,7 @@ function Disbursements() {
   });
   const [isExpired, setIsExpired] = useState(false);
 
-  const calculateTimeLeft = (): TimeLeft => {
+  const calculateTimeLeft = useCallback((): TimeLeft => {
     if (!disbursementDate) {
       return { days: 0, hours: 0, minutes: 0, seconds: 0 };
     }
@@ -43,7 +43,7 @@ function Disbursements() {
     const seconds = Math.floor((difference % (1000 * 60)) / 1000);
 
     return { days, hours, minutes, seconds };
-  };
+  }, [disbursementDate, disbursementTime]);
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setDisbursementDate(e.target.value);
@@ -58,11 +58,11 @@ function Disbursements() {
       setTimeLeft(calculateTimeLeft());
     }, 1000);
     return () => clearInterval(timer);
-  }, [disbursementDate, disbursementTime]);
+  }, [calculateTimeLeft]);
 
   useEffect(() => {
     setTimeLeft(calculateTimeLeft());
-  }, [disbursementDate, disbursementTime]);
+  }, [calculateTimeLeft]);
 
   const formatDisbursementDate = (): string => {
     if (!disbursementDate || !disbursementTime) {

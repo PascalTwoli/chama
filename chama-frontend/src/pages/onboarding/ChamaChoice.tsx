@@ -54,7 +54,16 @@ const ChamaChoice: React.FC = () => {
       try {
         setIsLoading(true);
         const chamasData = await ChamaService.fetchAllChamas();
-        setAvailableChamas(chamasData);
+        // Map to AvailableChama format
+        const mapped: AvailableChama[] = chamasData.map(c => ({
+          id: c.id,
+          name: c.name,
+          description: c.description,
+          memberCount: c.memberCount ?? c.membersCount ?? 0,
+          totalSavings: c.totalSavings ?? 0,
+          location: c.location,
+        }));
+        setAvailableChamas(mapped);
       } catch (error) {
         console.error('Error loading chamas:', error);
         toast.error('Failed to load available chamas');

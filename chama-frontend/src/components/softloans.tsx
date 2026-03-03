@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 
 function Softloans() {
-  const [resourceType, setResourceType] = useState<any>('Posts');
-  const [testButton, setTestButton] = useState<any>('Button1');
-  const [windowWidth, setWindowWidth] = useState<any>(window.innerWidth);
+  const [resourceType, setResourceType] = useState<string>('Posts');
+  const [testButton, setTestButton] = useState<string>('Button1');
+  const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
 
   const handleResize = () => {
     setWindowWidth(window.innerWidth);

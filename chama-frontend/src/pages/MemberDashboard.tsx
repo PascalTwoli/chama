@@ -1,13 +1,6 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import {
-  Wallet,
-  Calendar,
-  TrendingUp,
-  Clock,
-  ArrowUpRight,
-  Plus,
-} from 'lucide-react';
+import { Wallet, Calendar, TrendingUp, ArrowUpRight, Plus } from 'lucide-react';
 import {
   LineChart,
   Line,
@@ -134,7 +127,7 @@ function MemberStatCard({
 }
 
 export default function MemberDashboard() {
-  const { chamaId } = useParams<{ chamaId: string }>();
+  useParams<{ chamaId: string }>();
 
   return (
     <div className='p-6 space-y-6 bg-background min-h-full'>
