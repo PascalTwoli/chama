@@ -60,7 +60,7 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  
+
   // Setup Swagger at /api/docs
   SwaggerModule.setup('api/docs', app, document, {
     swaggerOptions: {
@@ -70,12 +70,16 @@ async function bootstrap() {
   });
 
   // Firebase initialization
-  // Use absolute path based on project root directory
-  const projectRoot = process.cwd(); // This will resolve to the project root directory
-  const firebaseKeyFilePath = path.join(
-    projectRoot,
-    'chama-b57f4-firebase-adminsdk-fbsvc-3567c2240a.json',
-  );
+  // Use FIREBASE_KEY_PATH env var or fallback to default filename
+  const projectRoot = process.cwd();
+  const firebaseKeyFilePath = process.env.FIREBASE_KEY_PATH
+    ? path.isAbsolute(process.env.FIREBASE_KEY_PATH)
+      ? process.env.FIREBASE_KEY_PATH
+      : path.join(projectRoot, process.env.FIREBASE_KEY_PATH)
+    : path.join(
+        projectRoot,
+        'chama-b57f4-firebase-adminsdk-fbsvc-a743d47717.json',
+      );
   console.log('Firebase key file path:', firebaseKeyFilePath);
 
   try {
