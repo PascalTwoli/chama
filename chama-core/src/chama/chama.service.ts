@@ -22,10 +22,16 @@ export class ChamaService {
         throw new NotFoundException(`User with ID ${userId} not found`);
       }
 
-      // Create the chama
+      const chamaId = crypto.randomUUID();
+
+      // Create the chama with the creator as a member
+      // Per foundational_role_structure.md:
+      // - Creator is always OWNER (determined by created_by field)
+      // - We also add them to membership with CHAIRPERSON role by default
+      //   (they can change this later, but they get OWNER system access regardless)
       const chama = await this.prisma.chama.create({
         data: {
-          id: crypto.randomUUID(),
+          id: chamaId,
           name: createChamaDto.name,
           description: createChamaDto.description,
           rules: createChamaDto.rules,
@@ -34,6 +40,15 @@ export class ChamaService {
           members_count: createChamaDto.membersCount || 1,
           organization_role: createChamaDto.organizationRole,
           updatedAt: new Date(),
+          // Create membership for the creator
+          membership: {
+            create: {
+              id: crypto.randomUUID(),
+              user_id: user.id,
+              role: createChamaDto.organizationRole || user_role.CHAIRPERSON,
+              updatedAt: new Date(),
+            },
+          },
         },
         include: {
           membership: true,
@@ -61,10 +76,59 @@ export class ChamaService {
           },
         },
         include: {
-          membership: true,
+          membership: {
+            where: { user_id: userId },
+          },
+          user: true, // Include the creator info
         },
       });
-      return chamas;
+
+      // Governance roles that grant ADMIN system access (per foundational_role_structure.md)
+      const governanceAdminRoles = [
+        'CHAIRPERSON',
+        'TREASURER',
+        'SECRETARY',
+        'VICE_CHAIR',
+      ];
+
+      // Transform the response following the role structure guidelines:
+      // - System Roles: OWNER, ADMIN, MEMBER (determines dashboard access)
+      // - Governance Roles: CHAIRPERSON, TREASURER, SECRETARY, etc. (organizational titles)
+      return chamas.map(chama => {
+        const userMembership = chama.membership[0]; // The user's membership
+        const isOwner = chama.created_by === userId;
+
+        // Get governance role from membership (this is the organizational title)
+        const governanceRole = userMembership?.role?.toUpperCase() || null;
+
+        // Determine system role:
+        // 1. Creator is always OWNER
+        // 2. Governance roles (CHAIRPERSON, TREASURER, SECRETARY) grant ADMIN access
+        // 3. Everyone else is MEMBER
+        let systemRole: string;
+        if (isOwner) {
+          systemRole = 'OWNER';
+        } else if (
+          governanceRole &&
+          governanceAdminRoles.includes(governanceRole)
+        ) {
+          systemRole = 'ADMIN';
+        } else {
+          systemRole = 'MEMBER';
+        }
+
+        return {
+          ...chama,
+          // System role (OWNER/ADMIN/MEMBER) - determines admin dashboard access
+          role: systemRole,
+          // Governance/organizational role (CHAIRPERSON, TREASURER, etc.) - the title
+          organizationRole: governanceRole !== 'MEMBER' ? governanceRole : null,
+          isOwner: isOwner,
+          joinedAt: userMembership?.joinedAt || chama.createdAt,
+          createdBy: chama.created_by,
+          membersCount: chama.members_count,
+        };
+      });
     } catch (error: unknown) {
       console.error('Error finding chamas:', error);
       const message = error instanceof Error ? error.message : 'Unknown error';
