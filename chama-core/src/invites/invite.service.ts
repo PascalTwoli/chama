@@ -196,7 +196,13 @@ export class InviteService {
   /**
    * Validate an invite token and return invite details
    */
-  async validateInvite(token: string): Promise<Invite & { chama: { name: string; id: string; description: string | null } }> {
+  async validateInvite(
+    token: string,
+  ): Promise<
+    PrismaInvite & {
+      chama: { name: string; id: string; description: string | null };
+    }
+  > {
     // Find the invite by token
     const invite = await this.prisma.invite.findUnique({
       where: { token },
@@ -216,12 +222,12 @@ export class InviteService {
     }
 
     // Check if invite is expired
-    if (invite.expiresAt < new Date()) {
+    if (invite.expires_at < new Date()) {
       throw new BadRequestException('Invite has expired');
     }
 
     // Check if invite is already used
-    if (invite.usedAt) {
+    if (invite.used_at) {
       throw new BadRequestException('Invite has already been used');
     }
 
