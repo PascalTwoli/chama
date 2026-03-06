@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Loader2,
@@ -11,17 +11,11 @@ import {
   Info,
 } from 'lucide-react';
 import { toast } from 'react-toastify';
-import axios from 'axios';
+import { ChamaService } from '../services/chama/chama-services';
 import { useAuth } from '../context/AuthContext';
+import { useChamaMembership } from '../context/ChamaMembershipContext';
+import SecureTokenStorage from '../utils/secure-token-storage';
 import { Button } from './ui/button';
-
-interface ApiError {
-  response?: {
-    data?: {
-      message?: string;
-    };
-  };
-}
 
 interface InviteDetails {
   chamaId: string;
@@ -32,18 +26,12 @@ interface InviteDetails {
   sentToEmail: string;
 }
 
-interface ChamaResponse {
-  chamaId: string;
-  chama: {
-    name: string;
-  };
-}
-
 function JoinChama() {
   const params = useParams<{ token?: string }>();
   const token = params.token || '';
   const navigate = useNavigate();
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, isLoading: authLoading, refreshAuth } = useAuth();
+  const { refreshMemberships } = useChamaMembership();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -52,78 +40,146 @@ function JoinChama() {
     null
   );
 
-  const acceptInvite = useCallback(async () => {
-    try {
-      setLoading(true);
-      const response = await axios.post<ChamaResponse>('/api/invites/accept', {
-        token,
-      });
+  // Use refs to track across renders and prevent double execution
+  const isProcessingRef = useRef(false);
+  const hasAcceptedRef = useRef(false);
 
-      setSuccess(true);
-      toast.success(
-        `You have successfully joined ${response.data.chama.name}!`
-      );
-
-      setTimeout(() => {
-        navigate(`/chama/${response.data.chamaId}`);
-      }, 3000);
-    } catch (error: unknown) {
-      console.error('Error accepting invite:', error);
-      setError(
-        (error as ApiError).response?.data?.message ||
-          'Failed to join chama. Please try again later.'
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, [token, navigate]);
+  // Check if user has auth token directly (handles race condition with React state)
+  const hasAuthToken = SecureTokenStorage.isAuthenticated();
 
   useEffect(() => {
+    // If no token, show error immediately
     if (!token) {
       setError('Invalid invitation link');
       setLoading(false);
       return;
     }
 
-    const validateInvite = async () => {
-      try {
-        const response = await axios.get<InviteDetails>(
-          `/api/invites/validate/${token}`
-        );
-        setInviteDetails(response.data);
+    // Wait for auth to finish loading
+    if (authLoading) {
+      return;
+    }
 
-        if (isAuthenticated && user) {
-          acceptInvite();
-        } else {
-          if (token) {
-            sessionStorage.setItem('pendingInviteToken', token);
-          }
+    // Check if user is authenticated using direct token check
+    const isUserAuthenticated = isAuthenticated || hasAuthToken;
+
+    // If user has token but context not updated, refresh auth
+    if (hasAuthToken && !isAuthenticated) {
+      refreshAuth();
+      return;
+    }
+
+    // Prevent double execution
+    if (isProcessingRef.current) {
+      return;
+    }
+
+    const processInvite = async () => {
+      isProcessingRef.current = true;
+
+      try {
+        // Step 1: Validate the invite
+        setLoading(true);
+        const validationResponse = await ChamaService.validateInvite(token);
+
+        const details: InviteDetails = {
+          chamaId: validationResponse.chamaId,
+          chama: {
+            name: validationResponse.chama.name,
+            description: validationResponse.chama.description,
+          },
+          sentToEmail: validationResponse.sentToEmail || '',
+        };
+        setInviteDetails(details);
+
+        // Step 2: If not authenticated, show login options
+        if (!isUserAuthenticated) {
+          sessionStorage.setItem('pendingInviteToken', token);
           setLoading(false);
+          isProcessingRef.current = false;
+          return;
         }
-      } catch (error: unknown) {
-        console.error('Error validating invite:', error);
+
+        // Step 3: If authenticated and not already accepted, accept the invite
+        if (hasAcceptedRef.current) {
+          return;
+        }
+        hasAcceptedRef.current = true;
+
+        try {
+          const acceptResponse = await ChamaService.acceptInvite(token);
+
+          // Clear the pending invite token
+          sessionStorage.removeItem('pendingInviteToken');
+
+          setSuccess(true);
+          toast.success('You have successfully joined the chama!');
+
+          // Refresh memberships
+          await refreshMemberships();
+
+          // Redirect to the chama dashboard
+          setTimeout(() => {
+            navigate(`/member/chamas/${acceptResponse.chamaId}`, {
+              replace: true,
+            });
+          }, 2000);
+        } catch (acceptError: unknown) {
+          const errorMessage =
+            acceptError instanceof Error
+              ? acceptError.message
+              : 'Failed to join chama.';
+
+          // If already a member, just redirect
+          if (
+            errorMessage.toLowerCase().includes('already been used') ||
+            errorMessage.toLowerCase().includes('already a member')
+          ) {
+            sessionStorage.removeItem('pendingInviteToken');
+            toast.info('You are already a member of this chama!');
+            await refreshMemberships();
+            navigate(`/member/chamas/${details.chamaId}`, { replace: true });
+            return;
+          }
+
+          setError(errorMessage);
+          hasAcceptedRef.current = false; // Allow retry
+        }
+      } catch (validationError: unknown) {
+        console.error('Error validating invite:', validationError);
         setError(
-          (error as ApiError).response?.data?.message ||
-            'This invitation link is invalid or has expired.'
+          validationError instanceof Error
+            ? validationError.message
+            : 'This invitation link is invalid or has expired.'
         );
+        isProcessingRef.current = false;
+      } finally {
         setLoading(false);
       }
     };
 
-    validateInvite();
-  }, [token, isAuthenticated, user, acceptInvite]);
+    processInvite();
+  }, [
+    token,
+    isAuthenticated,
+    authLoading,
+    hasAuthToken,
+    refreshAuth,
+    refreshMemberships,
+    navigate,
+  ]);
 
   const handleLoginRedirect = () => {
     if (token) {
       sessionStorage.setItem('pendingInviteToken', token);
-      navigate('/signin', { state: { returnUrl: `/join-chama/${token}` } });
+      navigate('/auth/signin', { state: { returnUrl: `/join-chama/${token}` } });
     }
   };
 
   const handleSignupRedirect = () => {
     if (token) {
       sessionStorage.setItem('pendingInviteToken', token);
-      navigate('/signup', { state: { returnUrl: `/join-chama/${token}` } });
+      navigate('/auth/signup', { state: { returnUrl: `/join-chama/${token}` } });
     }
   };
 
@@ -169,7 +225,11 @@ function JoinChama() {
           </p>
           <Button
             variant='success'
-            onClick={() => navigate(`/chama/${inviteDetails?.chamaId}`)}
+            onClick={() =>
+              navigate(`/member/chamas/${inviteDetails?.chamaId}`, {
+                replace: true,
+              })
+            }
             className='gap-2'
           >
             <ArrowRight className='w-4 h-4' />
@@ -195,19 +255,33 @@ function JoinChama() {
             <h3 className='text-foreground text-lg font-bold mb-4'>
               {inviteDetails.chama.name}
             </h3>
-            <p className='text-muted-foreground mb-4'>
-              This invitation was sent to:{' '}
-              <span className='text-foreground font-semibold'>
-                {inviteDetails.sentToEmail}
-              </span>
-            </p>
-            <div className='bg-muted p-3 rounded-lg mb-4 flex items-start gap-2'>
-              <Info className='w-5 h-5 text-primary flex-shrink-0 mt-0.5' />
-              <p className='text-muted-foreground text-sm'>
-                You need to be logged in with the same email to accept this
-                invitation.
-              </p>
-            </div>
+            {inviteDetails.sentToEmail &&
+              !inviteDetails.sentToEmail.includes('@placeholder.link') && (
+                <>
+                  <p className='text-muted-foreground mb-4'>
+                    This invitation was sent to:{' '}
+                    <span className='text-foreground font-semibold'>
+                      {inviteDetails.sentToEmail}
+                    </span>
+                  </p>
+                  <div className='bg-muted p-3 rounded-lg mb-4 flex items-start gap-2'>
+                    <Info className='w-5 h-5 text-primary flex-shrink-0 mt-0.5' />
+                    <p className='text-muted-foreground text-sm'>
+                      You need to be logged in with the same email to accept
+                      this invitation.
+                    </p>
+                  </div>
+                </>
+              )}
+            {(!inviteDetails.sentToEmail ||
+              inviteDetails.sentToEmail.includes('@placeholder.link')) && (
+              <div className='bg-muted p-3 rounded-lg mb-4 flex items-start gap-2'>
+                <Info className='w-5 h-5 text-primary flex-shrink-0 mt-0.5' />
+                <p className='text-muted-foreground text-sm'>
+                  Sign in or create an account to join this chama.
+                </p>
+              </div>
+            )}
           </div>
         )}
 

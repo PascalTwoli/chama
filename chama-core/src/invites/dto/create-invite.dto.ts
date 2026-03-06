@@ -1,5 +1,13 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Expose, Type } from 'class-transformer';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
+import { InviteEntity } from '../entities/invite.entity';
 
 export class CreateInviteDto {
   @ApiProperty({
@@ -10,13 +18,36 @@ export class CreateInviteDto {
   @IsUUID()
   chamaId!: string;
 
-  @ApiProperty({
-    description: 'The email address of the user to invite',
+  @ApiPropertyOptional({
+    description:
+      'The email address of the user to invite (optional for shareable links)',
     example: 'user@example.com',
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsEmail()
-  email!: string;
+  email?: string;
+}
+
+@Expose()
+export class CreateInviteResponseDto {
+  @ApiProperty({
+    description: 'The created invite',
+    type: InviteEntity,
+  })
+  @Expose()
+  @Type(() => InviteEntity)
+  invite!: InviteEntity;
+
+  @ApiProperty({
+    description: 'The shareable invite link',
+    example: 'http://localhost:3000/join-chama/abc123...',
+  })
+  @Expose()
+  inviteLink!: string;
+
+  constructor(partial: Partial<CreateInviteResponseDto>) {
+    Object.assign(this, partial);
+  }
 }
 
 export class AcceptInviteDto {

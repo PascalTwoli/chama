@@ -5,6 +5,8 @@ import { toast } from 'react-toastify';
 import AuthService from '../services/auth/signup-service';
 import GoogleAuthService from '../services/auth/google-auth-service';
 import { SignupRequest, FormErrors } from '../models/user';
+import { useAuth } from '../context/AuthContext';
+import { useChamaMembership } from '../context/ChamaMembershipContext';
 import { Button } from '../components/ui/button';
 import {
   Card,
@@ -18,6 +20,8 @@ import { Label } from '../components/ui/label';
 
 const SignUp = () => {
   const navigate = useNavigate();
+  const { refreshAuth } = useAuth();
+  const { refreshMemberships } = useChamaMembership();
   const [formData, setFormData] = useState<SignupRequest>({
     firstName: '',
     lastName: '',
@@ -87,12 +91,23 @@ const SignUp = () => {
 
     try {
       await AuthService.signup(formData as SignupRequest);
-      toast.success(
-        'Registration successful! Please create or join a chama to get started.'
-      );
-      setTimeout(() => {
-        navigate('/onboarding/chama-choice');
-      }, 1500);
+
+      // Refresh auth context so isAuthenticated is true
+      await refreshAuth();
+      await refreshMemberships();
+
+      // Check for pending invite token first
+      const pendingInviteToken = sessionStorage.getItem('pendingInviteToken');
+      if (pendingInviteToken) {
+        // Don't remove the token - JoinChama will handle it after accepting
+        toast.success('Registration successful! Completing your invitation...');
+        navigate(`/join-chama/${pendingInviteToken}`, { replace: true });
+      } else {
+        toast.success(
+          'Registration successful! Please create or join a chama to get started.'
+        );
+        navigate('/onboarding/chama-choice', { replace: true });
+      }
     } catch (error) {
       console.error('Registration error:', error);
 
@@ -307,12 +322,27 @@ const SignUp = () => {
                   try {
                     const result = await GoogleAuthService.signInWithGoogle();
                     if (result) {
-                      toast.success(
-                        'Google sign-up successful! Please create or join a chama to get started.'
-                      );
-                      setTimeout(() => {
-                        navigate('/onboarding/chama-choice');
-                      }, 1500);
+                      // Refresh auth context first
+                      await refreshAuth();
+                      await refreshMemberships();
+
+                      // Check for pending invite token first
+                      const pendingInviteToken =
+                        sessionStorage.getItem('pendingInviteToken');
+                      if (pendingInviteToken) {
+                        // Don't remove token - JoinChama handles it
+                        toast.success(
+                          'Google sign-up successful! Completing your invitation...'
+                        );
+                        navigate(`/join-chama/${pendingInviteToken}`, {
+                          replace: true,
+                        });
+                      } else {
+                        toast.success(
+                          'Google sign-up successful! Please create or join a chama to get started.'
+                        );
+                        navigate('/onboarding/chama-choice', { replace: true });
+                      }
                     }
                   } catch (error) {
                     // Error handled in service

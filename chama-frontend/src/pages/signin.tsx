@@ -7,6 +7,7 @@ import { AuthService as SigninService } from '../services/auth/signin-service';
 import GoogleAuthService from '../services/auth/google-auth-service';
 import ChamaService from '../services/chama/chama-services';
 import { useChamaMembership } from '../context/ChamaMembershipContext';
+import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/button';
 import {
   Card,
@@ -21,6 +22,7 @@ import { Label } from '../components/ui/label';
 const SignIn = () => {
   const navigate = useNavigate();
   const { refreshMemberships } = useChamaMembership();
+  const { refreshAuth } = useAuth();
 
   const [formData, setFormData] = useState<SignInCredentials>({
     email: '',
@@ -111,12 +113,22 @@ const SignIn = () => {
     try {
       const result = await GoogleAuthService.signInWithGoogle();
       if (result) {
+        // Refresh auth context first
+        await refreshAuth();
+
         if (result.isNewUser) {
-          toast.success('Welcome! Please complete your profile.');
-          // Redirect to onboarding/profile setup
-          // You might want to create a specific route for this, e.g. /onboarding/profile
-          // For now, sending to chama choice which triggers checks
-          navigate('/onboarding/chama-choice');
+          // Check for pending invite token first
+          const pendingInviteToken =
+            sessionStorage.getItem('pendingInviteToken');
+          if (pendingInviteToken) {
+            // Don't remove token - JoinChama handles it
+            toast.success('Welcome! Completing your invitation...');
+            await refreshMemberships();
+            navigate(`/join-chama/${pendingInviteToken}`, { replace: true });
+          } else {
+            toast.success('Welcome! Please complete your profile.');
+            navigate('/onboarding/chama-choice', { replace: true });
+          }
         } else {
           toast.success('Google sign-in successful!');
           await handlePostLogin();
@@ -129,11 +141,23 @@ const SignIn = () => {
       setIsLoading(false);
     }
   };
-
   const handlePostLogin = async () => {
     setIsCheckingUserType(true);
 
     try {
+      // Refresh auth context so isAuthenticated is true
+      await refreshAuth();
+
+      // Check for pending invite token first
+      const pendingInviteToken = sessionStorage.getItem('pendingInviteToken');
+      if (pendingInviteToken) {
+        // Don't remove the token yet - JoinChama will handle it after accepting
+        toast.success('Login successful! Completing your invitation...');
+        await refreshMemberships();
+        navigate(`/join-chama/${pendingInviteToken}`, { replace: true });
+        return;
+      }
+
       // Check if user has any chamas
       const userChamas = await ChamaService.getUserChamas();
 
