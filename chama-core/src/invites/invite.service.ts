@@ -42,6 +42,8 @@ export class InviteService {
 
   /**
    * Create a new invite for a user to join a chama
+   * If email is provided, the invite is tied to that email
+   * If email is not provided, a generic shareable link is created
    */
   async createInvite(
     createInviteDto: CreateInviteDto,
@@ -77,73 +79,77 @@ export class InviteService {
         throw new NotFoundException(`Chama with ID ${chamaId} not found`);
       }
 
-      // Verify the requesting user is an admin of the chama
-      // Note: membership array is already filtered to only include the requesting user's memberships from the query above
+      // Verify the requesting user is an admin of the chama (CHAIRPERSON role or chama creator)
       const isUserAdmin = chama.membership.some(
         membership => membership.role === user_role.CHAIRPERSON,
       );
+      const isOwner = chama.created_by === requestUserId;
 
       this.logger.debug(
-        `Invite permission check for user ${requestUserId} in chama ${chamaId}: isAdmin=${isUserAdmin}`,
+        `Invite permission check for user ${requestUserId} in chama ${chamaId}: isAdmin=${isUserAdmin}, isOwner=${isOwner}`,
       );
 
-      if (!isUserAdmin) {
+      if (!isUserAdmin && !isOwner) {
         throw new UnauthorizedException('Only chama admins can send invites');
       }
 
-      // Check if user with the email already exists
-      let targetUser = await this.prisma.user.findUnique({
-        where: { email },
-      });
+      // If email is provided, do additional checks
+      if (email) {
+        // Check if user with the email already exists
+        const targetUser = await this.prisma.user.findUnique({
+          where: { email },
+        });
 
-      // Check if the user is already a member of the chama
-      if (targetUser) {
-        const existingMembership = await this.prisma.membership.findFirst({
+        // Check if the user is already a member of the chama
+        if (targetUser) {
+          const existingMembership = await this.prisma.membership.findFirst({
+            where: {
+              chama_id: chamaId,
+              user_id: targetUser.id,
+            },
+          });
+
+          if (existingMembership) {
+            throw new ConflictException(
+              `User with email ${email} is already a member of this chama`,
+            );
+          }
+        }
+
+        // Check if an unused invite already exists for this email and chama
+        const existingInvite = await this.prisma.invite.findFirst({
           where: {
             chama_id: chamaId,
-            user_id: targetUser.id,
+            sent_to_email: email,
+            used_at: null,
+            expires_at: {
+              gt: new Date(),
+            },
           },
         });
 
-        if (existingMembership) {
+        if (existingInvite) {
           throw new ConflictException(
-            `User with email ${email} is already a member of this chama`,
+            `An active invite already exists for ${email} in this chama`,
           );
         }
-      }
-
-      // Check if an unused invite already exists for this email and chama
-      const existingInvite = await this.prisma.invite.findFirst({
-        where: {
-          chama_id: chamaId,
-          sent_to_email: email,
-          used_at: null,
-          expires_at: {
-            gt: new Date(),
-          },
-        },
-      });
-
-      if (existingInvite) {
-        throw new ConflictException(
-          `An active invite already exists for ${email} in this chama`,
-        );
       }
 
       // Generate a secure random token
       const token = randomBytes(32).toString('hex');
 
-      // Set expiration date (7 days from now)
+      // Set expiration date (7 days for email invites, 30 days for shareable links)
       const expiresAt = new Date();
-      expiresAt.setDate(expiresAt.getDate() + 7);
+      expiresAt.setDate(expiresAt.getDate() + (email ? 7 : 30));
 
       // Create the invite
+      // For shareable links (no email), use a placeholder value
       const invite = await this.prisma.invite.create({
         data: {
           id: crypto.randomUUID(),
           chama_id: chamaId,
           token,
-          sent_to_email: email,
+          sent_to_email: email || `shareable-${chamaId}@placeholder.link`,
           expires_at: expiresAt,
         },
         include: {
@@ -161,7 +167,7 @@ export class InviteService {
       const inviteLink = `${this.baseUrl}/join-chama/${token}`;
 
       // Send invite email if requested and email service is available
-      if (sendEmail && this.emailService) {
+      if (sendEmail && email && this.emailService) {
         await this.sendInviteEmail(
           email,
           invite.chama.name,
@@ -196,9 +202,7 @@ export class InviteService {
   /**
    * Validate an invite token and return invite details
    */
-  async validateInvite(
-    token: string,
-  ): Promise<
+  async validateInvite(token: string): Promise<
     PrismaInvite & {
       chama: { name: string; id: string; description: string | null };
     }
@@ -285,7 +289,13 @@ export class InviteService {
       }
 
       // Check if the invite was sent to this user's email
-      if (invite.sent_to_email.toLowerCase() !== user.email.toLowerCase()) {
+      // Skip this check for shareable links (placeholder emails)
+      const isShareableLink =
+        invite.sent_to_email.includes('@placeholder.link');
+      if (
+        !isShareableLink &&
+        invite.sent_to_email.toLowerCase() !== user.email.toLowerCase()
+      ) {
         throw new UnauthorizedException(
           'This invite was not sent to your email address',
         );

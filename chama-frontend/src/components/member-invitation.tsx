@@ -13,11 +13,17 @@ import { useEffect, useCallback } from 'react';
 
 interface PendingInvite {
   id: string;
-  email: string;
+  email?: string;
   sentToEmail?: string;
+  sent_to_email?: string; // Backend returns snake_case
   status: string;
   createdAt: string;
 }
+
+// Helper to get email from invite (handles both snake_case and camelCase)
+const getInviteEmail = (invite: PendingInvite): string => {
+  return invite.sentToEmail || invite.sent_to_email || invite.email || '';
+};
 
 const InviteMembers = () => {
   const { chamaId } = useParams<{ chamaId: string }>();
@@ -51,6 +57,52 @@ const InviteMembers = () => {
     }
   }, [chamaId, fetchPendingInvites]);
 
+  const handleGenerateLink = async () => {
+    if (!chamaId) {
+      toast.error('Chama ID is missing');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      console.log('Generating link for chamaId:', chamaId);
+      const response = await ChamaService.generateShareableLink(chamaId);
+      console.log('Response from generateShareableLink:', response);
+      const link = response.inviteLink;
+      console.log('Invite link:', link);
+      if (link) {
+        setInviteLink(link);
+        // Copy to clipboard immediately
+        await navigator.clipboard.writeText(link);
+        toast.success('Link generated and copied to clipboard!');
+      } else {
+        toast.error('No invite link returned from server');
+      }
+    } catch (error) {
+      console.error('Failed to generate link', error);
+      toast.error('Failed to generate invite link');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCopyLink = async () => {
+    if (!chamaId) {
+      toast.error('Chama ID is missing');
+      return;
+    }
+
+    // If link already exists, just copy it
+    if (inviteLink) {
+      navigator.clipboard.writeText(inviteLink);
+      toast.success('Link copied to clipboard!');
+      return;
+    }
+
+    // Otherwise, generate and copy
+    await handleGenerateLink();
+  };
+
   const handleCreateInvite = async () => {
     if (!email || !chamaId) {
       toast.error('Please enter a valid email');
@@ -59,7 +111,7 @@ const InviteMembers = () => {
 
     try {
       setLoading(true);
-      const response = await ChamaService.createInvite(chamaId, email, true);
+      const response = await ChamaService.createInvite(chamaId, email);
       toast.success(`Invitation sent to ${email}`);
       setInviteLink(response.inviteLink);
       setEmail('');
@@ -70,15 +122,6 @@ const InviteMembers = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleCopyLink = () => {
-    if (!inviteLink) {
-      toast.info('Generate a link first');
-      return;
-    }
-    navigator.clipboard.writeText(inviteLink);
-    toast.success('Link copied to clipboard');
   };
 
   return (
@@ -108,16 +151,21 @@ const InviteMembers = () => {
                   <Input
                     readOnly
                     value={inviteLink}
-                    className='bg-muted/50 pr-20'
+                    placeholder='Click "Copy Link" to generate and copy'
+                    className='pr-20'
                   />
                 </div>
                 <Button
-                  variant='outline'
                   onClick={handleCopyLink}
-                  className='gap-2'
+                  disabled={loading}
+                  className='gap-2 bg-blue-600 hover:bg-blue-700 text-white'
                 >
-                  <Copy className='w-4 h-4' />
-                  Copy
+                  {loading ? (
+                    <span className='animate-spin'>⌛</span>
+                  ) : (
+                    <Copy className='w-4 h-4' />
+                  )}
+                  Copy Link
                 </Button>
               </div>
 
@@ -193,37 +241,40 @@ const InviteMembers = () => {
                 </div>
               ) : (
                 <div className='space-y-3'>
-                  {pendingInvites.map(invite => (
-                    <div
-                      key={invite.id}
-                      className='flex items-center justify-between p-3 border border-border rounded-lg bg-card'
-                    >
-                      <div className='flex items-center gap-3'>
-                        <div className='w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center font-semibold text-sm text-gray-600uppercase'>
-                          {(invite.sentToEmail || invite.email)
-                            .substring(0, 2)
-                            .toUpperCase()}
+                  {pendingInvites.map(invite => {
+                    const emailDisplay = getInviteEmail(invite);
+                    return (
+                      <div
+                        key={invite.id}
+                        className='flex items-center justify-between p-3 border border-border rounded-lg bg-card'
+                      >
+                        <div className='flex items-center gap-3'>
+                          <div className='w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center font-semibold text-sm text-gray-600uppercase'>
+                            {(emailDisplay || '??')
+                              .substring(0, 2)
+                              .toUpperCase()}
+                          </div>
+                          <div>
+                            <p className='font-semibold text-sm m-0'>
+                              {emailDisplay || 'Unknown'}
+                            </p>
+                            <p className='text-xs text-muted-foreground m-0'>
+                              Invited on{' '}
+                              {new Date(invite.createdAt).toLocaleDateString()}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className='font-semibold text-sm m-0'>
-                            {invite.sentToEmail || invite.email}
-                          </p>
-                          <p className='text-xs text-muted-foreground m-0'>
-                            Invited on{' '}
-                            {new Date(invite.createdAt).toLocaleDateString()}
-                          </p>
+                        <div className='text-right'>
+                          <Badge
+                            variant='secondary'
+                            className='mb-1 font-normal text-[10px] px-2'
+                          >
+                            Pending
+                          </Badge>
                         </div>
                       </div>
-                      <div className='text-right'>
-                        <Badge
-                          variant='secondary'
-                          className='mb-1 font-normal text-[10px] px-2'
-                        >
-                          Pending
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </CardContent>

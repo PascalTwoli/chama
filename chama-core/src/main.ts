@@ -108,6 +108,15 @@ async function bootstrap() {
     process.exit(1); // Exit the application on Firebase initialization error
   }
 
-  await app.listen(process.env.PORT || 5500);
+  const port = process.env.PORT || 5500;
+  await app.listen(port);
+
+  // Log server info with clickable links
+  console.log('\n========================================');
+  console.log('🚀 ChamaPlus Backend Server Started');
+  console.log('========================================');
+  console.log(`📡 API:     http://localhost:${port}/api/v1`);
+  console.log(`📚 Swagger: http://localhost:${port}/api/docs`);
+  console.log('========================================\n');
 }
 bootstrap();

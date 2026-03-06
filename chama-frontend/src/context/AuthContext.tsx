@@ -1,4 +1,13 @@
-import { createContext, useContext, ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  ReactNode,
+  useState,
+  useEffect,
+  useCallback,
+} from 'react';
+import SecureTokenStorage from '../utils/secure-token-storage';
+import AuthService from '../services/auth/signup-service';
 
 interface User {
   id: string;
@@ -9,8 +18,10 @@ interface User {
 interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
+  isLoading: boolean;
   login: (credentials: { email: string; password: string }) => Promise<void>;
   logout: () => void;
+  refreshAuth: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -28,16 +39,61 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  // Implementation details would go here in a real app
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const refreshAuth = useCallback(async () => {
+    const hasToken = SecureTokenStorage.isAuthenticated();
+    setIsAuthenticated(hasToken);
+
+    if (hasToken) {
+      try {
+        const currentUser = await AuthService.getCurrentUser();
+        setUser({
+          id: currentUser.id || '',
+          email: currentUser.email || '',
+          name:
+            `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim() ||
+            currentUser.email ||
+            '',
+        });
+      } catch (error) {
+        console.error('Failed to get current user:', error);
+        setUser(null);
+      }
+    } else {
+      setUser(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    const initAuth = async () => {
+      setIsLoading(true);
+      await refreshAuth();
+      setIsLoading(false);
+    };
+    initAuth();
+  }, [refreshAuth]);
+
+  const login = async () => {
+    // Login is handled by AuthService, just refresh the state
+    await refreshAuth();
+  };
+
+  const logout = () => {
+    SecureTokenStorage.clearAllTokens();
+    setIsAuthenticated(false);
+    setUser(null);
+  };
+
   const value: AuthContextType = {
-    isAuthenticated: false,
-    user: null,
-    login: async () => {
-      // TODO: Implement login logic
-    },
-    logout: () => {
-      // TODO: Implement logout logic
-    },
+    isAuthenticated,
+    user,
+    isLoading,
+    login,
+    logout,
+    refreshAuth,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

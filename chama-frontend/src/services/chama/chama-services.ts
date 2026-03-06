@@ -133,7 +133,7 @@ export class ChamaService {
   static async joinChama(chamaId: string): Promise<JoinChamaResponse> {
     try {
       const response: AxiosResponse<JoinChamaResponse> = await apiClient.post(
-        `/api/chamas/${chamaId}/join`
+        `/chamas/${chamaId}/join`
       );
       return response.data;
     } catch (error) {
@@ -149,14 +149,15 @@ export class ChamaService {
     }
   }
 
-  static async validateInvite(
-    token: string
-  ): Promise<{ valid: boolean; chama?: { id: string; name: string } }> {
+  static async validateInvite(token: string): Promise<{
+    id: string;
+    chamaId: string;
+    chama: { id: string; name: string; description?: string };
+    sentToEmail: string;
+    expiresAt: string;
+  }> {
     try {
-      const response: AxiosResponse<{
-        valid: boolean;
-        chama?: { id: string; name: string };
-      }> = await apiClient.get(`/api/invites/validate/${token}`);
+      const response = await apiClient.get(`/invites/validate/${token}`);
       return response.data;
     } catch (error) {
       console.error('Error validating invite:', error);
@@ -171,12 +172,16 @@ export class ChamaService {
     }
   }
 
-  static async acceptInvite(
-    token: string
-  ): Promise<{ success: boolean; chamaId?: string }> {
+  static async acceptInvite(token: string): Promise<{
+    id: string;
+    userId: string;
+    chamaId: string;
+    role: string;
+    joinedAt: string;
+    chama?: { id: string; name: string };
+  }> {
     try {
-      const response: AxiosResponse<{ success: boolean; chamaId?: string }> =
-        await apiClient.post(`/api/invites/accept/${token}`);
+      const response = await apiClient.post('/invites/accept', { token });
       return response.data;
     } catch (error) {
       console.error('Error accepting invite:', error);
@@ -191,19 +196,47 @@ export class ChamaService {
     }
   }
 
-  static async createInvite(
-    chamaId: string,
-    email: string,
-    sendEmail = false
+  /**
+   * Generate a shareable invite link for a chama (no specific email)
+   */
+  static async generateShareableLink(
+    chamaId: string
   ): Promise<{ inviteLink: string; inviteToken?: string }> {
     try {
       const response: AxiosResponse<{
         inviteLink: string;
         inviteToken?: string;
-      }> = await apiClient.post('/api/invites/create', {
+      }> = await apiClient.post('/invites', {
+        chamaId,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error generating shareable link:', error);
+      const axiosError = error as AxiosError;
+      if (!axiosError.response) {
+        throw new Error(
+          'Could not connect to the server. Please check your internet connection and try again.'
+        );
+      }
+      const errorData = axiosError.response.data as ApiErrorData;
+      throw new Error(errorData?.message || 'Failed to generate invite link.');
+    }
+  }
+
+  /**
+   * Create an invite for a specific email address
+   */
+  static async createInvite(
+    chamaId: string,
+    email: string
+  ): Promise<{ inviteLink: string; inviteToken?: string }> {
+    try {
+      const response: AxiosResponse<{
+        inviteLink: string;
+        inviteToken?: string;
+      }> = await apiClient.post('/invites', {
         chamaId,
         email,
-        sendEmail,
       });
       return response.data;
     } catch (error) {
@@ -227,7 +260,7 @@ export class ChamaService {
     try {
       const response: AxiosResponse<
         { id: string; email: string; status: string; createdAt: string }[]
-      > = await apiClient.get(`/api/invites/chama/${chamaId}`);
+      > = await apiClient.get(`/invites/chama/${chamaId}`);
       return response.data;
     } catch (error) {
       console.error('Error listing pending invites:', error);

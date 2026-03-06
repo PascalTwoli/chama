@@ -1,5 +1,5 @@
 import { AxiosError, AxiosResponse } from 'axios';
-import apiClient from '../../config/axios-config';
+import apiClient, { setAuthHeader } from '../../config/axios-config';
 import {
   SignupRequest,
   SignupResponse,
@@ -25,11 +25,16 @@ export class AuthService {
 
   static async signup(userData: SignupRequest): Promise<SignupResponse> {
     try {
-      const response: AxiosResponse<SignupResponse> = await apiClient.post(
-        '/auth/signup',
-        userData
-      );
-      // SecureTokenStorage handled by caller or manual login flow usually
+      const response: AxiosResponse<SignupResponse & { idToken?: string }> =
+        await apiClient.post('/auth/signup', userData);
+
+      // Store auth token if provided in response (backend returns idToken)
+      const authToken = response.data.idToken || response.data.token;
+      if (authToken) {
+        SecureTokenStorage.setAuthToken(authToken);
+        setAuthHeader(apiClient, authToken);
+      }
+
       console.log('Sign-up successful:', response.data);
       return response.data;
     } catch (error) {
@@ -97,17 +102,13 @@ export class AuthService {
   }
 
   static async getCurrentUser(): Promise<User> {
-    console.log('=== getCurrentUser called ===');
     const token = SecureTokenStorage.getAuthToken();
-    console.log('Auth token exists:', !!token);
 
     if (!token) {
-      console.error('No authentication token found in SecureTokenStorage');
       throw new Error('No authentication token found');
     }
 
     try {
-      console.log('Making GET request to /auth/me');
       // Backend returns UserResponseEntity, not User directly
       // Headers handled by interceptor, but explicit header doesn't hurt if we have token
       const response: AxiosResponse<{
@@ -127,12 +128,9 @@ export class AuthService {
           updatedAt?: string;
         };
       }> = await apiClient.get('/auth/me');
-      console.log('getCurrentUser raw response:', response.data);
 
       // Extract user data from the backend response structure
       const { firebaseUser, localUser } = response.data;
-      console.log('firebaseUser:', firebaseUser);
-      console.log('localUser:', localUser);
 
       //create a User object that matches the frontend interface
       //use firebaseUser.uid as the primary ID since that's what backend expects
@@ -149,8 +147,6 @@ export class AuthService {
         isEmailVerified: firebaseUser?.emailVerified || false,
       };
 
-      console.log('Mapped user object:', user);
-      console.log('User ID (Firebase UID):', user.id);
       return user;
     } catch (error) {
       console.error('getCurrentUser error:', error);

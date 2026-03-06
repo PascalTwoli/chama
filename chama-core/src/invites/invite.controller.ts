@@ -24,7 +24,11 @@ import {
 import { CurrentUser } from '../decorators/current-user.decorator';
 import { type CurrentUser as CurrentUserType } from '../decorators/current-user.decorator';
 import { AuthGuard } from '../guards/auth.guard';
-import { AcceptInviteDto, CreateInviteDto } from './dto/create-invite.dto';
+import {
+  AcceptInviteDto,
+  CreateInviteDto,
+  CreateInviteResponseDto,
+} from './dto/create-invite.dto';
 import { InviteService } from './invite.service';
 import { InviteEntity } from './entities/invite.entity';
 import { MembershipEntity } from './entities/membership.entity';
@@ -49,7 +53,7 @@ export class InviteController {
   @ApiResponse({
     status: 201,
     description: 'Invite created successfully',
-    type: InviteEntity,
+    type: CreateInviteResponseDto,
   })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -62,13 +66,19 @@ export class InviteController {
   async createInvite(
     @Body() createInviteDto: CreateInviteDto,
     @CurrentUser() currentUser: CurrentUserType,
-  ): Promise<InviteEntity> {
+  ): Promise<CreateInviteResponseDto> {
     try {
-      const invite = await this.inviteService.createInvite(
+      const result = await this.inviteService.createInvite(
         createInviteDto,
         currentUser.id,
       );
-      return new InviteEntity(invite.invite);
+      console.log('Invite service result:', JSON.stringify(result, null, 2));
+      const response = new CreateInviteResponseDto({
+        invite: new InviteEntity(result.invite),
+        inviteLink: result.inviteLink,
+      });
+      console.log('Controller response:', JSON.stringify(response, null, 2));
+      return response;
     } catch (error) {
       this.handleError(error, 'Failed to create invite');
     }
