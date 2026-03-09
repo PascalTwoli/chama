@@ -9,7 +9,6 @@ module.exports = {
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
-    'plugin:react/recommended',
     'plugin:react-hooks/recommended',
     'prettier',
   ],
@@ -21,9 +20,8 @@ module.exports = {
       jsx: true,
     },
   },
-  plugins: ['@typescript-eslint', 'react', 'react-hooks', 'prettier'],
+  plugins: ['@typescript-eslint', 'react-hooks', 'prettier'],
   rules: {
-    'prettier/prettier': 'error',
     'prettier/prettier': 'off',
     'react/react-in-jsx-scope': 'off',
     'react/prop-types': 'off',
