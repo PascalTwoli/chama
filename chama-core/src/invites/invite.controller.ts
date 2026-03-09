@@ -68,9 +68,12 @@ export class InviteController {
     @CurrentUser() currentUser: CurrentUserType,
   ): Promise<CreateInviteResponseDto> {
     try {
+      // Automatically send email if email address is provided
+      const shouldSendEmail = !!createInviteDto.email;
       const result = await this.inviteService.createInvite(
         createInviteDto,
         currentUser.id,
+        shouldSendEmail,
       );
       console.log('Invite service result:', JSON.stringify(result, null, 2));
       const response = new CreateInviteResponseDto({
