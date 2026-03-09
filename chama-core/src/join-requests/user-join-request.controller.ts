@@ -4,9 +4,6 @@ import {
   HttpException,
   InternalServerErrorException,
   UseGuards,
-  ClassSerializerInterceptor,
-  UseInterceptors,
-  SerializeOptions,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -22,11 +19,6 @@ import { JoinRequestResponseDto } from './dto/join-request-response.dto';
 
 @ApiTags('Join Requests')
 @Controller('users')
-@UseInterceptors(ClassSerializerInterceptor)
-@SerializeOptions({
-  strategy: 'excludeAll',
-  excludePrefixes: ['_'],
-})
 export class UserJoinRequestController {
   constructor(private readonly joinRequestService: JoinRequestService) {}
 
@@ -75,6 +67,7 @@ export class UserJoinRequestController {
             id: joinRequest.user_join_request_user_idTouser.id,
             name: joinRequest.user_join_request_user_idTouser.name,
             email: joinRequest.user_join_request_user_idTouser.email,
+            phoneNumber: joinRequest.user_join_request_user_idTouser.phone || null,
           }
         : undefined,
       chama: joinRequest.chama

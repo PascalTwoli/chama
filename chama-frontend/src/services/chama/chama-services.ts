@@ -111,9 +111,9 @@ export class ChamaService {
       }
 
       const response: AxiosResponse<JoinChamaResponse> = await apiClient.post(
-        `/chamas/${chamaId}/request`,
+        `/chamas/${chamaId}/requests`,
         {
-          termsAccepted,
+          message: 'I would like to join this chama',
         }
       );
       return response.data;
@@ -272,6 +272,142 @@ export class ChamaService {
       }
       const errorData = axiosError.response.data as ApiErrorData;
       throw new Error(errorData?.message || 'Failed to list pending invites.');
+    }
+  }
+
+  // ==================== JOIN REQUEST METHODS ====================
+
+  /**
+   * Get pending join requests for a chama (chairperson only)
+   */
+  static async getPendingJoinRequests(chamaId: string): Promise<
+    {
+      id: string;
+      chamaId: string;
+      userId: string;
+      status: string;
+      message?: string;
+      createdAt: string;
+      updatedAt?: string;
+      reviewedBy?: string;
+      reviewedAt?: string;
+      user?: { id: string; name: string; email: string };
+      chama?: { id: string; name: string; description?: string };
+    }[]
+  > {
+    try {
+      const response = await apiClient.get(`/chamas/${chamaId}/requests`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching pending join requests:', error);
+      const axiosError = error as AxiosError;
+      if (!axiosError.response) {
+        throw new Error(
+          'Could not connect to the server. Please check your internet connection and try again.'
+        );
+      }
+      const errorData = axiosError.response.data as ApiErrorData;
+      throw new Error(
+        errorData?.message || 'Failed to fetch pending join requests.'
+      );
+    }
+  }
+
+  /**
+   * Submit a join request for a chama
+   */
+  static async submitJoinRequest(
+    chamaId: string,
+    message?: string
+  ): Promise<{
+    id: string;
+    chamaId: string;
+    userId: string;
+    status: string;
+    message?: string;
+    createdAt: string;
+  }> {
+    try {
+      const response = await apiClient.post(`/chamas/${chamaId}/requests`, {
+        message,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error submitting join request:', error);
+      const axiosError = error as AxiosError;
+      if (!axiosError.response) {
+        throw new Error(
+          'Could not connect to the server. Please check your internet connection and try again.'
+        );
+      }
+      const errorData = axiosError.response.data as ApiErrorData;
+      throw new Error(errorData?.message || 'Failed to submit join request.');
+    }
+  }
+
+  /**
+   * Review (approve/reject) a join request
+   */
+  static async reviewJoinRequest(
+    chamaId: string,
+    requestId: string,
+    action: 'approve' | 'reject'
+  ): Promise<{
+    id: string;
+    chamaId: string;
+    userId: string;
+    status: string;
+    reviewedBy?: string;
+    reviewedAt?: string;
+  }> {
+    try {
+      const response = await apiClient.post(
+        `/chamas/${chamaId}/requests/${requestId}/review`,
+        { action }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error reviewing join request:', error);
+      const axiosError = error as AxiosError;
+      if (!axiosError.response) {
+        throw new Error(
+          'Could not connect to the server. Please check your internet connection and try again.'
+        );
+      }
+      const errorData = axiosError.response.data as ApiErrorData;
+      throw new Error(errorData?.message || 'Failed to review join request.');
+    }
+  }
+
+  /**
+   * Get current user's join requests
+   */
+  static async getUserJoinRequests(): Promise<
+    {
+      id: string;
+      chamaId: string;
+      userId: string;
+      status: string;
+      message?: string;
+      createdAt: string;
+      chama?: { id: string; name: string; description?: string };
+    }[]
+  > {
+    try {
+      const response = await apiClient.get('/users/me/join-requests');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching user join requests:', error);
+      const axiosError = error as AxiosError;
+      if (!axiosError.response) {
+        throw new Error(
+          'Could not connect to the server. Please check your internet connection and try again.'
+        );
+      }
+      const errorData = axiosError.response.data as ApiErrorData;
+      throw new Error(
+        errorData?.message || 'Failed to fetch your join requests.'
+      );
     }
   }
 }

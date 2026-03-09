@@ -17,6 +17,7 @@ import {
   Eye,
   Edit,
   Trash2,
+  UserCheck,
 } from 'lucide-react';
 import { cn } from '../utils/cn';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -138,15 +139,27 @@ export default function MembersPage() {
         title='Members'
         subtitle={`${mockMembers.length} total members`}
         action={
-          <Button
-            className='gap-2 bg-blue-600 hover:bg-blue-700 text-white'
-            onClick={() =>
-              navigate(`/admin/chamas/${chamaId}/members/invite-member`)
-            }
-          >
-            <UserPlus className='w-4 h-4' />
-            Add Member
-          </Button>
+          <div className='flex gap-2'>
+            <Button
+              variant='outline'
+              className='gap-2'
+              onClick={() =>
+                navigate(`/admin/chamas/${chamaId}/members/join-requests`)
+              }
+            >
+              <UserCheck className='w-4 h-4' />
+              Join Requests
+            </Button>
+            <Button
+              className='gap-2 bg-blue-600 hover:bg-blue-700 text-white'
+              onClick={() =>
+                navigate(`/admin/chamas/${chamaId}/members/invite-member`)
+              }
+            >
+              <UserPlus className='w-4 h-4' />
+              Add Member
+            </Button>
+          </div>
         }
         className='flex-shrink-0'
       />
