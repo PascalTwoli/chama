@@ -172,14 +172,18 @@ function JoinChama() {
   const handleLoginRedirect = () => {
     if (token) {
       sessionStorage.setItem('pendingInviteToken', token);
-      navigate('/auth/signin', { state: { returnUrl: `/join-chama/${token}` } });
+      navigate('/auth/signin', {
+        state: { returnUrl: `/join-chama/${token}` },
+      });
     }
   };
 
   const handleSignupRedirect = () => {
     if (token) {
       sessionStorage.setItem('pendingInviteToken', token);
-      navigate('/auth/signup', { state: { returnUrl: `/join-chama/${token}` } });
+      navigate('/auth/signup', {
+        state: { returnUrl: `/join-chama/${token}` },
+      });
     }
   };
 

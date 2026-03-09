@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import React, { useState } from 'react';
-import { Copy, QrCode, Mail, CheckCircle2 } from 'lucide-react';
+import { Copy, QrCode, Mail, CheckCircle2, X } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
@@ -10,6 +10,7 @@ import { useParams } from 'react-router-dom';
 import ChamaService from '../services/chama/chama-services';
 import { toast } from 'react-toastify';
 import { useEffect, useCallback } from 'react';
+import { QRCodeSVG } from 'qrcode.react';
 
 interface PendingInvite {
   id: string;
@@ -30,6 +31,7 @@ const InviteMembers = () => {
   const [inviteLink, setInviteLink] = useState('');
   const [loading, setLoading] = useState(false);
   const [invitesLoading, setInvitesLoading] = useState(true);
+  const [showQRModal, setShowQRModal] = useState(false);
 
   // Form State
   const [email, setEmail] = useState('');
@@ -124,6 +126,67 @@ const InviteMembers = () => {
     }
   };
 
+  const handleShareWhatsApp = async () => {
+    let linkToShare = inviteLink;
+
+    // Generate link if not available
+    if (!linkToShare && chamaId) {
+      try {
+        setLoading(true);
+        const response = await ChamaService.generateShareableLink(chamaId);
+        linkToShare = response.inviteLink;
+        if (linkToShare) {
+          setInviteLink(linkToShare);
+        }
+      } catch (error) {
+        console.error('Failed to generate link', error);
+        toast.error('Failed to generate invite link');
+        return;
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (!linkToShare) {
+      toast.error('No invite link available');
+      return;
+    }
+
+    // Create WhatsApp message
+    const message = encodeURIComponent(
+      `🎉 You're invited to join our Chama!\n\nClick this link to join:\n${linkToShare}\n\nLooking forward to having you!`
+    );
+
+    // Open WhatsApp with the message
+    // Using wa.me format which works on both mobile and desktop
+    window.open(`https://wa.me/?text=${message}`, '_blank');
+  };
+
+  const handleGenerateQRCode = async () => {
+    // Generate link if not available
+    if (!inviteLink && chamaId) {
+      try {
+        setLoading(true);
+        const response = await ChamaService.generateShareableLink(chamaId);
+        const link = response.inviteLink;
+        if (link) {
+          setInviteLink(link);
+        } else {
+          toast.error('No invite link returned from server');
+          return;
+        }
+      } catch (error) {
+        console.error('Failed to generate link', error);
+        toast.error('Failed to generate invite link');
+        return;
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    setShowQRModal(true);
+  };
+
   return (
     <div className='p-6 space-y-6 max-w-[1600px] mx-auto'>
       <PageHeader
@@ -170,11 +233,21 @@ const InviteMembers = () => {
               </div>
 
               <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                <Button variant='outline' className='justify-start gap-2 h-10'>
+                <Button
+                  variant='outline'
+                  className='justify-start gap-2 h-10'
+                  onClick={handleShareWhatsApp}
+                  disabled={loading}
+                >
                   <i className='bi bi-whatsapp text-green-600 text-lg'></i>
                   Share via WhatsApp
                 </Button>
-                <Button variant='outline' className='justify-start gap-2 h-10'>
+                <Button
+                  variant='outline'
+                  className='justify-start gap-2 h-10'
+                  onClick={handleGenerateQRCode}
+                  disabled={loading}
+                >
                   <QrCode className='w-4 h-4 text-blue-600' />
                   Generate QR Code
                 </Button>
@@ -362,6 +435,60 @@ const InviteMembers = () => {
           </Card>
         </div>
       </div>
+
+      {/* QR Code Modal */}
+      {showQRModal && (
+        <div className='fixed inset-0 bg-black/50 flex items-center justify-center z-50'>
+          <div className='bg-white rounded-lg p-6 max-w-sm w-full mx-4 relative'>
+            <button
+              onClick={() => setShowQRModal(false)}
+              className='absolute top-3 right-3 text-gray-400 hover:text-gray-600'
+            >
+              <X className='w-5 h-5' />
+            </button>
+
+            <div className='text-center'>
+              <h3 className='text-lg font-semibold mb-2'>Scan to Join Chama</h3>
+              <p className='text-sm text-muted-foreground mb-4'>
+                Scan this QR code to join the Chama
+              </p>
+
+              <div className='flex justify-center p-4 bg-white rounded-lg border'>
+                <QRCodeSVG
+                  value={inviteLink}
+                  size={200}
+                  level='H'
+                  includeMargin
+                />
+              </div>
+
+              <p className='text-xs text-muted-foreground mt-4 break-all'>
+                {inviteLink}
+              </p>
+
+              <div className='mt-4 flex gap-2 justify-center'>
+                <Button
+                  variant='outline'
+                  onClick={() => {
+                    navigator.clipboard.writeText(inviteLink);
+                    toast.success('Link copied!');
+                  }}
+                  className='gap-2'
+                >
+                  <Copy className='w-4 h-4' />
+                  Copy Link
+                </Button>
+                <Button
+                  onClick={() => setShowQRModal(false)}
+                  className='bg-blue-600 hover:bg-blue-700 text-white'
+                >
+                  Done
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
