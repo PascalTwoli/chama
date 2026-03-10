@@ -10,6 +10,7 @@ import { ChamaModule } from './chama/chama.module';
 import { InviteModule } from './invites/invite.module';
 import { JoinRequestModule } from './join-requests/join-request.module';
 import { TransactionModule } from './transaction/transaction.module';
+import { ChamaSettingsModule } from './chama-settings/chama-settings.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { TransactionModule } from './transaction/transaction.module';
     InviteModule,
     JoinRequestModule,
     TransactionModule,
+    ChamaSettingsModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthGuard],

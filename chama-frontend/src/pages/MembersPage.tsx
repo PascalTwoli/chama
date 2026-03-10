@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PageHeader } from '../components/PageHeader';
 import { StatsCard } from '../components/StatsCard';
 import { Badge } from '../components/ui/badge';
@@ -6,179 +6,166 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import {
   Users,
-  DollarSign,
-  TrendingUp,
   UserPlus,
   Search,
   Phone,
   Calendar,
-  Wallet,
   Mail,
   Eye,
   Edit,
   Trash2,
+  UserCheck,
+  Loader2,
 } from 'lucide-react';
 import { cn } from '../utils/cn';
 import { useNavigate, useParams } from 'react-router-dom';
+import ChamaService from '../services/chama/chama-services';
+import { toast } from 'react-toastify';
 
 interface Member {
   id: string;
+  userId: string;
   name: string;
-  initials: string;
-  color: string;
-  phone: string;
-  joinedDate: string;
-  status: 'Paid' | 'Pending';
-  savings: number;
+  email: string;
+  phone?: string;
+  joinedAt: string;
   role: string;
 }
 
-const mockMembers: Member[] = [
-  {
-    id: '1',
-    name: 'Mary Wanjiku',
-    initials: 'MW',
-    color: 'bg-blue-100 text-blue-600',
-    phone: '0712345678',
-    joinedDate: 'Jan 2024',
-    status: 'Paid',
-    savings: 75000,
-    role: 'Treasurer',
-  },
-  {
-    id: '2',
-    name: 'Peter Kamau',
-    initials: 'PK',
-    color: 'bg-indigo-100 text-indigo-600',
-    phone: '0723456789',
-    joinedDate: 'Feb 2024',
-    status: 'Paid',
-    savings: 120000,
-    role: 'Member',
-  },
-  {
-    id: '3',
-    name: 'Grace Achieng',
-    initials: 'GA',
-    color: 'bg-purple-100 text-purple-600',
-    phone: '0734567890',
-    joinedDate: 'Mar 2024',
-    status: 'Paid',
-    savings: 85000,
-    role: 'Secretary',
-  },
-  {
-    id: '4',
-    name: 'David Omondi',
-    initials: 'DO',
-    color: 'bg-orange-100 text-orange-600',
-    phone: '0745678901',
-    joinedDate: 'Jan 2024',
-    status: 'Pending',
-    savings: 95000,
-    role: 'Member',
-  },
-  {
-    id: '5',
-    name: 'Faith Njeri',
-    initials: 'FN',
-    color: 'bg-pink-100 text-pink-600',
-    phone: '0756789012',
-    joinedDate: 'Apr 2024',
-    status: 'Paid',
-    savings: 68000,
-    role: 'Member',
-  },
-  {
-    id: '6',
-    name: 'John Mwangi',
-    initials: 'JM',
-    color: 'bg-sky-100 text-sky-600',
-    phone: '0767890123',
-    joinedDate: 'Jan 2024',
-    status: 'Pending',
-    savings: 110000,
-    role: 'Chairperson',
-  },
-  {
-    id: '7',
-    name: 'Sarah Wambui',
-    initials: 'SW',
-    color: 'bg-teal-100 text-teal-600',
-    phone: '0778901234',
-    joinedDate: 'May 2024',
-    status: 'Paid',
-    savings: 45000,
-    role: 'Member',
-  },
-];
+// Helper to generate avatar colors based on name - returns { bg, text }
+const getAvatarColors = (name: string) => {
+  const colors = [
+    { bg: 'rgba(59, 130, 246, 0.15)', text: '#3b82f6' }, // blue
+    { bg: 'rgba(236, 72, 153, 0.15)', text: '#ec4899' }, // pink
+    { bg: 'rgba(249, 115, 22, 0.15)', text: '#f97316' }, // orange
+    { bg: 'rgba(34, 197, 94, 0.15)', text: '#22c55e' }, // green
+    { bg: 'rgba(139, 92, 246, 0.15)', text: '#8b5cf6' }, // purple
+    { bg: 'rgba(20, 184, 166, 0.15)', text: '#14b8a6' }, // teal
+    { bg: 'rgba(99, 102, 241, 0.15)', text: '#6366f1' }, // indigo
+    { bg: 'rgba(234, 179, 8, 0.15)', text: '#ca8a04' }, // yellow
+  ];
+  const index = name.charCodeAt(0) % colors.length;
+  return colors[index];
+};
+
+// Helper to get initials from name
+const getInitials = (name: string) => {
+  return name
+    .split(' ')
+    .filter(n => n.length > 0)
+    .map(n => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+};
+
+// Helper to format role
+const formatRole = (role: string) => {
+  return role.charAt(0).toUpperCase() + role.slice(1).toLowerCase();
+};
+
+// Helper to format date
+const formatJoinedDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+};
 
 export default function MembersPage() {
+  const [members, setMembers] = useState<Member[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'All' | 'Paid' | 'Pending'>(
-    'All'
-  );
 
-  const filteredMembers = mockMembers.filter(m => {
-    const matchesSearch = m.name
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === 'All' || m.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
-
-  const selectedMember = mockMembers.find(m => m.id === selectedMemberId);
   const { chamaId } = useParams<{ chamaId: string }>();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const loadMembers = async () => {
+      if (!chamaId) return;
+
+      try {
+        setIsLoading(true);
+        const membersData = await ChamaService.getChamaMembers(chamaId);
+
+        // Map to our Member interface
+        const mappedMembers: Member[] = membersData.map(m => ({
+          id: m.id,
+          userId: m.userId,
+          name: m.user.name || 'Unknown',
+          email: m.user.email || '',
+          phone: m.user.phone || undefined,
+          joinedAt: m.joinedAt,
+          role: m.role,
+        }));
+
+        setMembers(mappedMembers);
+      } catch (error) {
+        console.error('Error loading members:', error);
+        toast.error('Failed to load members');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadMembers();
+  }, [chamaId]);
+
+  const filteredMembers = members.filter(m => {
+    const matchesSearch =
+      m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      m.email.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesSearch;
+  });
+
+  const selectedMember = members.find(m => m.id === selectedMemberId);
+
+  if (isLoading) {
+    return (
+      <div className='p-6 flex items-center justify-center h-[calc(100vh-64px)]'>
+        <Loader2 className='w-8 h-8 animate-spin text-primary' />
+      </div>
+    );
+  }
 
   return (
     <div className='p-6 space-y-6 h-[calc(100vh-64px)] overflow-hidden flex flex-col'>
       <PageHeader
         title='Members'
-        subtitle={`${mockMembers.length} total members`}
+        subtitle={`${members.length} total members`}
         action={
-          <Button
-            className='gap-2 bg-blue-600 hover:bg-blue-700 text-white'
-            onClick={() =>
-              navigate(`/admin/chamas/${chamaId}/members/invite-member`)
-            }
-          >
-            <UserPlus className='w-4 h-4' />
-            Add Member
-          </Button>
+          <div className='flex gap-2'>
+            <Button
+              variant='outline'
+              className='gap-2'
+              onClick={() =>
+                navigate(`/admin/chamas/${chamaId}/members/join-requests`)
+              }
+            >
+              <UserCheck className='w-4 h-4' />
+              Join Requests
+            </Button>
+            <Button
+              className='gap-2 bg-blue-600 hover:bg-blue-700 text-white'
+              onClick={() =>
+                navigate(`/admin/chamas/${chamaId}/members/invite-member`)
+              }
+            >
+              <UserPlus className='w-4 h-4' />
+              Add Member
+            </Button>
+          </div>
         }
         className='flex-shrink-0'
       />
 
       {/* KPI Cards */}
-      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 flex-shrink-0'>
+      <div className='grid grid-cols-1 md:grid-cols-2 gap-4 flex-shrink-0'>
         <StatsCard
           title='Total Members'
-          value={mockMembers.length.toString()}
+          value={members.length.toString()}
           icon={Users}
           status='default'
           className='bg-card'
-        />
-        <StatsCard
-          title='Paid This Month'
-          value='5'
-          subtext='63% paid'
-          icon={DollarSign}
-          status='success'
-        />
-        <StatsCard
-          title='Pending'
-          value='3'
-          subtext='Need follow-up'
-          icon={TrendingUp}
-          status='warning'
-        />
-        <StatsCard
-          title='Total Savings'
-          value='KSh 696K'
-          icon={Wallet}
-          status='default'
         />
       </div>
 
@@ -204,23 +191,6 @@ export default function MembersPage() {
                 onChange={e => setSearchQuery(e.target.value)}
               />
             </div>
-            <div className='flex gap-1 rounded-lg p-1 bg-muted/20'>
-              {(['All', 'Paid', 'Pending'] as const).map(status => (
-                <Button
-                  key={status}
-                  variant={statusFilter === status ? 'default' : 'outline'}
-                  onClick={() => setStatusFilter(status)}
-                  className={cn(
-                    'px-4 h-9 text-xs font-medium rounded-md transition-colors ',
-                    statusFilter === status
-                      ? 'bg-primary text-primary-foreground shadow-sm'
-                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                  )}
-                >
-                  {status}
-                </Button>
-              ))}
-            </div>
           </div>
 
           {/* Scrollable List */}
@@ -238,35 +208,30 @@ export default function MembersPage() {
               >
                 <div className='flex items-center gap-3'>
                   <div
-                    className={cn(
-                      'w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm',
-                      member.color
-                    )}
+                    className='w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm'
+                    style={{
+                      backgroundColor: getAvatarColors(member.name).bg,
+                      color: getAvatarColors(member.name).text,
+                    }}
                   >
-                    {member.initials}
+                    {getInitials(member.name)}
                   </div>
                   <div className='space-y-0.5'>
-                    <p className='font-medium text-sm text-foreground'>
+                    <p className='font-medium text-sm text-foreground m-0'>
                       {member.name}
                     </p>
                     <div className='flex items-center gap-2 text-xs text-muted-foreground'>
                       <Phone className='w-3 h-3' />
-                      {member.phone}
+                      {member.phone || 'No phone'}
                       <span className='w-1 h-1 rounded-full bg-muted-foreground/30 mx-1' />
-                      Joined {member.joinedDate}
+                      Joined {formatJoinedDate(member.joinedAt)}
                     </div>
                   </div>
                 </div>
 
-                <div className='text-right space-y-1'>
-                  <p className='font-bold text-sm'>
-                    KSh {member.savings.toLocaleString()}
-                  </p>
-                  <Badge
-                    variant={member.status === 'Paid' ? 'success' : 'warning'}
-                    className='text-[10px] px-1.5 h-5'
-                  >
-                    {member.status}
+                <div className='text-right'>
+                  <Badge variant='outline' className='text-[10px] px-1.5 h-5'>
+                    {formatRole(member.role)}
                   </Badge>
                 </div>
               </div>
@@ -288,28 +253,21 @@ export default function MembersPage() {
               {/* Identity */}
               <div className='flex flex-col items-center text-center space-y-3 border-b border-border pb-4'>
                 <div
-                  className={cn(
-                    'w-24 h-24 rounded-full flex items-center justify-center text-3xl font-bold',
-                    selectedMember.color
-                  )}
+                  className='w-24 h-24 rounded-full flex items-center justify-center text-3xl font-bold'
+                  style={{
+                    backgroundColor: getAvatarColors(selectedMember.name).bg,
+                    color: getAvatarColors(selectedMember.name).text,
+                  }}
                 >
-                  {selectedMember.initials}
+                  {getInitials(selectedMember.name)}
                 </div>
                 <div className='space-y-1'>
                   <h2 className='text-xl font-bold m-0'>
                     {selectedMember.name}
                   </h2>
                   <div className='flex items-center gap-2'>
-                    <Badge variant='outline'>{selectedMember.role}</Badge>
-                    <Badge
-                      variant={
-                        selectedMember.status === 'Paid' ? 'success' : 'warning'
-                      }
-                      className='px-3 py-0.5 text-xs font-medium'
-                    >
-                      {selectedMember.status === 'Paid'
-                        ? 'Payment Complete'
-                        : 'Payment Pending'}
+                    <Badge variant='outline'>
+                      {formatRole(selectedMember.role)}
                     </Badge>
                   </div>
                 </div>
@@ -322,54 +280,41 @@ export default function MembersPage() {
                   <div className='flex items-center gap-3 text-muted-foreground'>
                     <Phone className='w-4 h-4' />
                     <span className='text-foreground'>
-                      {selectedMember.phone}
+                      {selectedMember.phone || 'No phone'}
                     </span>
                   </div>
                   <div className='flex items-center gap-3 text-muted-foreground'>
                     <Mail className='w-4 h-4' />
                     <span className='text-foreground'>
-                      {selectedMember.name.toLowerCase().replace(' ', '.')}
-                      @email.com
+                      {selectedMember.email}
                     </span>
                   </div>
                   <div className='flex items-center gap-3 text-muted-foreground'>
                     <Calendar className='w-4 h-4' />
                     <span className='text-foreground'>
-                      Joined {selectedMember.joinedDate}
+                      Joined {formatJoinedDate(selectedMember.joinedAt)}
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Financial Summary */}
+              {/* Member Info */}
               <div className='border-b border-border pb-3'>
                 <h4 className='font-semibold text-sm mb-1'>
-                  Financial Summary
+                  Membership Details
                 </h4>
                 <div className='bg-muted/30 rounded-lg py-1 space-y-3'>
                   <div className='flex justify-between items-center p-2 text-sm bg-background'>
-                    <span className='text-muted-foreground'>
-                      Total Contributions
-                    </span>
+                    <span className='text-muted-foreground'>Role</span>
                     <span className='font-bold'>
-                      KSh {selectedMember.savings.toLocaleString()}
+                      {formatRole(selectedMember.role)}
                     </span>
                   </div>
                   <div className='flex justify-between items-center p-2 text-sm bg-background'>
-                    <span className='text-muted-foreground'>
-                      Monthly Amount
+                    <span className='text-muted-foreground'>Member Since</span>
+                    <span className='font-bold'>
+                      {formatJoinedDate(selectedMember.joinedAt)}
                     </span>
-                    <span className='font-bold'>KSh 5,000</span>
-                  </div>
-                  <div className='flex justify-between items-center p-2 text-sm bg-background'>
-                    <span className='text-muted-foreground'>Last Payment</span>
-                    <span className='font-bold'>Dec 5, 2025</span>
-                  </div>
-                  <div className='flex justify-between items-center p-2 text-sm bg-background'>
-                    <span className='text-muted-foreground'>
-                      Attendance Rate
-                    </span>
-                    <span className='font-bold'>75%</span>
                   </div>
                 </div>
               </div>

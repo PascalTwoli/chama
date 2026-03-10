@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsNotEmpty,
   IsOptional,
   IsString,
   IsUUID,
@@ -9,12 +8,13 @@ import {
 
 export class CreateJoinRequestDto {
   @ApiProperty({
-    description: 'The UUID of the chama to request to join',
+    description: 'The UUID of the chama to request to join (optional, usually from URL param)',
     example: '123e4567-e89b-12d3-a456-426614174000',
+    required: false,
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsUUID()
-  chamaId!: string;
+  chamaId?: string;
 
   @ApiProperty({
     description: 'Optional message to the chama administrators',

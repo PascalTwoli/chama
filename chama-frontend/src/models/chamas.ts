@@ -35,6 +35,7 @@ export interface Chama {
   createdAt: string;
   updatedAt: string;
   createdBy: User | string;
+  adminName?: string; // Name of the chairperson/admin
 }
 
 export interface ChamaResponse {

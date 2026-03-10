@@ -8,6 +8,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { transaction_type, transaction_status } from '@prisma/client';
 import * as crypto from 'crypto';
+import { ChamaSettingsService } from '../chama-settings/chama-settings.service';
 
 // Define interface for transaction response that matches the controller's expected format
 export interface TransactionResponse {
@@ -25,28 +26,63 @@ export interface TransactionResponse {
 
 @Injectable()
 export class TransactionService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly chamaSettingsService: ChamaSettingsService,
+  ) {}
 
   /**
    * Creates a new financial transaction
    * @param createTransactionDto - Transaction data
-   * @param userId - ID of the user creating the transaction
+   * @param userId - ID of the user creating the transaction (authenticated user)
    * @returns The created transaction
    */
   async createTransaction(
     createTransactionDto: CreateTransactionDto,
     userId: string,
   ): Promise<TransactionResponse> {
-    // First, verify the user is a member of the chama
-    const membership = await this.prisma.membership.findFirst({
+    // Determine which user to record the transaction for
+    // If userId is provided in DTO (admin recording for member), use that
+    // Otherwise use the authenticated user
+    const targetUserId = createTransactionDto.userId || userId;
+
+    // First, verify the authenticated user is a member of the chama
+    const authenticatedMembership = await this.prisma.membership.findFirst({
       where: {
         chama_id: createTransactionDto.chamaId,
         user_id: userId,
       },
     });
 
-    if (!membership) {
+    if (!authenticatedMembership) {
       throw new ForbiddenException('You are not a member of this chama');
+    }
+
+    // If recording for a different user, check if authenticated user has admin/treasurer/chairperson role
+    if (createTransactionDto.userId && createTransactionDto.userId !== userId) {
+      if (
+        !['ADMIN', 'TREASURER', 'CHAIRPERSON'].includes(
+          authenticatedMembership.role,
+        )
+      ) {
+        throw new ForbiddenException(
+          'Only chairpersons, admins and treasurers can record transactions for other members',
+        );
+      }
+
+      // Verify the target user is also a member of the chama
+      const targetMembership = await this.prisma.membership.findFirst({
+        where: {
+          chama_id: createTransactionDto.chamaId,
+          user_id: createTransactionDto.userId,
+        },
+      });
+
+      if (!targetMembership) {
+        throw new ForbiddenException(
+          'Target user is not a member of this chama',
+        );
+      }
     }
 
     // Verify the chama exists
@@ -60,6 +96,24 @@ export class TransactionService {
       );
     }
 
+    // Validate contribution amount against chama settings if this is a CONTRIBUTION transaction
+    if (createTransactionDto.type === transaction_type.CONTRIBUTION) {
+      const settings = await this.chamaSettingsService.getSettingsByChamaId(
+        createTransactionDto.chamaId,
+      );
+
+      if (settings) {
+        const validation = this.chamaSettingsService.validateContributionAmount(
+          settings,
+          createTransactionDto.amount,
+        );
+
+        if (!validation.valid) {
+          throw new BadRequestException(validation.message);
+        }
+      }
+    }
+
     // Create the transaction
     try {
       const transaction = await this.prisma.$transaction(async prisma => {
@@ -69,7 +123,7 @@ export class TransactionService {
             type: createTransactionDto.type,
             amount: createTransactionDto.amount,
             chama_id: createTransactionDto.chamaId,
-            user_id: userId,
+            user_id: targetUserId,
             description: createTransactionDto.description,
             reference: createTransactionDto.reference,
             status: transaction_status.COMPLETED,

@@ -58,6 +58,20 @@ interface ChamaResponse {
   }>;
 }
 
+/**
+ * Interface for available chama response (for non-members)
+ */
+interface AvailableChamaResponse {
+  id: string;
+  name: string;
+  description: string | null;
+  membersCount: number;
+  country: country;
+  createdAt: Date;
+  updatedAt: Date;
+  adminName: string | null;
+}
+
 @ApiTags('Chama')
 @Controller('chama')
 export class ChamaController {
@@ -260,7 +274,7 @@ export class ChamaController {
   })
   async findAllAvailable(
     @CurrentUser() currentUser: CurrentUserType,
-  ): Promise<ChamaResponse[]> {
+  ): Promise<AvailableChamaResponse[]> {
     try {
       return await this.chamaService.findAllAvailable(currentUser.id);
     } catch (error: unknown) {
@@ -270,6 +284,58 @@ export class ChamaController {
       const message = error instanceof Error ? error.message : 'Unknown error';
       throw new InternalServerErrorException(
         `Failed to fetch available chamas: ${message}`,
+      );
+    }
+  }
+
+  /**
+   * Gets all members of a specific chama
+   */
+  @Get(':id/members')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get all members of a chama' })
+  @ApiParam({ name: 'id', description: 'Chama ID' })
+  @ApiOkResponse({
+    description: 'List of chama members',
+    schema: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', description: 'Membership ID' },
+          userId: { type: 'string', description: 'User ID' },
+          role: { type: 'string', description: 'Member role' },
+          joinedAt: { type: 'string', format: 'date-time' },
+          user: {
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              name: { type: 'string' },
+              email: { type: 'string' },
+              phone: { type: 'string' },
+            },
+          },
+        },
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiNotFoundResponse({ description: 'Chama not found' })
+  async getChamaMembers(
+    @Param('id') id: string,
+    @CurrentUser() currentUser: CurrentUserType,
+  ) {
+    try {
+      return await this.chamaService.getChamaMembers(id, currentUser.id);
+    } catch (error: unknown) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new InternalServerErrorException(
+        `Failed to fetch chama members: ${message}`,
       );
     }
   }

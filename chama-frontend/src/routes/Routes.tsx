@@ -18,6 +18,7 @@ import MemberDashboard from '../pages/MemberDashboard';
 import Membership from '../components/membership';
 import InviteLink from '../components/InviteLink';
 import InviteMembers from '../components/member-invitation';
+import JoinRequests from '../components/join-requests';
 import JoinChama from '../components/JoinChama';
 import ChamaChoice from '../pages/onboarding/ChamaChoice';
 import { ChamaMembershipProvider } from '../context/ChamaMembershipContext';
@@ -136,6 +137,7 @@ const AppRoutes = () => {
               element={<InviteLink chamaId='' chamaName='' />}
             />
             <Route path='members/invite-member' element={<InviteMembers />} />
+            <Route path='members/join-requests' element={<JoinRequests />} />
             <Route path='contributions' element={<ContributionsPage />} />
             <Route
               path='contributions/record-contribution'

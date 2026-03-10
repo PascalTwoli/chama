@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { PageHeader } from '../components/PageHeader';
 import { Card, CardContent } from '../components/ui/card';
 import { Input } from '../components/ui/input';
@@ -7,95 +7,146 @@ import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Calendar, CheckCircle2, Search, Loader2 } from 'lucide-react';
 import { cn } from '../utils/cn';
+import ChamaService from '../services/chama/chama-services';
+import TransactionService from '../services/transaction/transaction-services';
+import { toast } from 'react-toastify';
 
-// Mock Members Data (matching the screenshot)
-const mockMembers = [
-  {
-    id: '1',
-    name: 'Mary Wanjiku',
-    phone: '0712345678',
-    status: 'Paid This Month',
-    lastPaid: 'Jan 5, 2026',
-    initials: 'MW',
-    color: 'bg-blue-100 text-blue-600',
-  },
-  {
-    id: '2',
-    name: 'Peter Kamau',
-    phone: '0723456789',
-    status: 'Paid This Month',
-    lastPaid: 'Jan 5, 2026',
-    initials: 'PK',
-    color: 'bg-blue-100 text-blue-600',
-  },
-  {
-    id: '3',
-    name: 'Grace Achieng',
-    phone: '0734567890',
-    status: 'Paid This Month',
-    lastPaid: 'Jan 6, 2026',
-    initials: 'GA',
-    color: 'bg-blue-100 text-blue-600',
-  },
-  {
-    id: '4',
-    name: 'David Omondi',
-    phone: '0745678901',
-    status: 'Pending',
-    lastPaid: 'Dec 5, 2025',
-    initials: 'DO',
-    color: 'bg-blue-100 text-blue-600',
-  },
-  {
-    id: '5',
-    name: 'Faith Njeri',
-    phone: '0756789012',
-    status: 'Paid This Month',
-    lastPaid: 'Jan 5, 2026',
-    initials: 'FN',
-    color: 'bg-blue-100 text-blue-600',
-  },
-  {
-    id: '6',
-    name: 'John Mwangi',
-    phone: '0767890123',
-    status: 'Pending',
-    lastPaid: 'Dec 5, 2025',
-    initials: 'JM',
-    color: 'bg-blue-100 text-blue-600',
-  },
+// Avatar color helper - returns pastel bg and matching text color
+const avatarColors = [
+  { bg: 'rgba(59, 130, 246, 0.15)', text: '#2563eb' }, // blue
+  { bg: 'rgba(168, 85, 247, 0.15)', text: '#7c3aed' }, // purple
+  { bg: 'rgba(34, 197, 94, 0.15)', text: '#16a34a' }, // green
+  { bg: 'rgba(249, 115, 22, 0.15)', text: '#ea580c' }, // orange
+  { bg: 'rgba(239, 68, 68, 0.15)', text: '#dc2626' }, // red
+  { bg: 'rgba(99, 102, 241, 0.15)', text: '#4f46e5' }, // indigo
+  { bg: 'rgba(236, 72, 153, 0.15)', text: '#db2777' }, // pink
+  { bg: 'rgba(20, 184, 166, 0.15)', text: '#0d9488' }, // teal
 ];
+
+const getAvatarColors = (name: string) => {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return avatarColors[Math.abs(hash) % avatarColors.length];
+};
+
+const getInitials = (name: string) => {
+  return name
+    .split(' ')
+    .map(n => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+};
+
+interface ChamaMember {
+  id: string;
+  userId: string;
+  role: string;
+  joinedAt: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    phone?: string;
+  };
+}
 
 export default function RecordContribution() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { chamaId } = useParams<{ chamaId: string }>();
+
+  const [members, setMembers] = useState<ChamaMember[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form State
   const [amount, setAmount] = useState('5000');
-  const [reference, setReference] = useState('QBX7H2K9LM'); // Mock default from screenshot
-  const [date, setDate] = useState('2026-02-17'); // Mock default from screenshot
+  const [reference, setReference] = useState('');
+  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [notes, setNotes] = useState('');
 
-  const filteredMembers = mockMembers.filter(
+  // Fetch members on mount
+  useEffect(() => {
+    const fetchMembers = async () => {
+      if (!chamaId) return;
+
+      try {
+        setIsLoading(true);
+        const membersData = await ChamaService.getChamaMembers(chamaId);
+
+        // Deduplicate members by user.id (in case of any duplicates from backend)
+        const uniqueMembers = membersData.reduce(
+          (acc: typeof membersData, member) => {
+            if (!acc.find(m => m.user.id === member.user.id)) {
+              acc.push(member);
+            }
+            return acc;
+          },
+          []
+        );
+
+        setMembers(uniqueMembers as ChamaMember[]);
+
+        // Check if we have a pre-selected member from navigation state
+        const state = location.state as { memberName?: string } | null;
+        if (state?.memberName) {
+          const preselectedMember = uniqueMembers.find(
+            m => m.user.name.toLowerCase() === state.memberName?.toLowerCase()
+          );
+          if (preselectedMember) {
+            setSelectedMemberId(preselectedMember.user.id);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching members:', error);
+        toast.error('Failed to load members');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMembers();
+  }, [chamaId, location.state]);
+
+  const filteredMembers = members.filter(
     member =>
-      member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      member.phone.includes(searchQuery)
+      member.user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (member.user.phone && member.user.phone.includes(searchQuery)) ||
+      member.user.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const selectedMember = mockMembers.find(m => m.id === selectedMemberId);
+  const selectedMember = members.find(m => m.user.id === selectedMemberId);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedMemberId) return;
+    if (!selectedMemberId || !chamaId) return;
 
     setIsSubmitting(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setIsSubmitting(false);
-    navigate(`/admin/chamas/${chamaId}/contributions`);
+    try {
+      await TransactionService.createTransaction({
+        chamaId,
+        type: 'CONTRIBUTION',
+        amount: parseFloat(amount),
+        reference: reference || undefined,
+        description: notes || `Contribution recorded on ${date}`,
+        userId: selectedMemberId, // Record for selected member
+      });
+
+      toast.success('Contribution recorded successfully!');
+      navigate(`/admin/chamas/${chamaId}/contributions`);
+    } catch (error) {
+      console.error('Error recording contribution:', error);
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to record contribution'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -129,58 +180,70 @@ export default function RecordContribution() {
               </div>
 
               <div className='space-y-2 mt-4 max-h-[600px] overflow-y-auto'>
-                {filteredMembers.map(member => (
-                  <div
-                    key={member.id}
-                    onClick={() => setSelectedMemberId(member.id)}
-                    className={cn(
-                      'flex items-center justify-between p-3 rounded-lg border transition-all cursor-pointer hover:bg-muted/50',
-                      selectedMemberId === member.id
-                        ? 'border-blue-500 bg-blue-50/50 ring-1 ring-blue-500'
-                        : 'border-border'
-                    )}
-                  >
-                    <div className='flex items-center gap-3'>
+                {isLoading ? (
+                  <div className='flex items-center justify-center py-12'>
+                    <Loader2 className='w-6 h-6 animate-spin text-muted-foreground' />
+                    <span className='ml-2 text-muted-foreground'>
+                      Loading members...
+                    </span>
+                  </div>
+                ) : filteredMembers.length > 0 ? (
+                  filteredMembers.map(member => {
+                    const colors = getAvatarColors(member.user.name);
+                    return (
                       <div
+                        key={member.user.id}
+                        onClick={() => setSelectedMemberId(member.user.id)}
                         className={cn(
-                          'w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold',
-                          member.color
+                          'flex items-center justify-between p-3 rounded-lg border transition-all cursor-pointer hover:bg-muted/50',
+                          selectedMemberId === member.user.id
+                            ? 'border-blue-500 bg-blue-50/50 ring-1 ring-blue-500'
+                            : 'border-border'
                         )}
                       >
-                        {member.initials}
+                        <div className='flex items-center gap-3'>
+                          <div
+                            className='w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold'
+                            style={{
+                              backgroundColor: colors.bg,
+                              color: colors.text,
+                            }}
+                          >
+                            {getInitials(member.user.name)}
+                          </div>
+                          <div>
+                            <p className='font-semibold text-sm text-foreground m-0'>
+                              {member.user.name}
+                            </p>
+                            <p className='text-xs text-muted-foreground m-0'>
+                              {member.user.phone || member.user.email}
+                            </p>
+                          </div>
+                        </div>
+                        <div className='text-right'>
+                          <Badge
+                            variant='outline'
+                            className='font-normal capitalize'
+                          >
+                            {member.role.toLowerCase()}
+                          </Badge>
+                          <p className='text-[10px] text-muted-foreground m-0 mt-1'>
+                            Joined:{' '}
+                            {new Date(member.joinedAt).toLocaleDateString()}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className='font-semibold text-sm text-foreground m-0'>
-                          {member.name}
-                        </p>
-                        <p className='text-xs text-muted-foreground m-0'>
-                          {member.phone}
-                        </p>
-                      </div>
-                    </div>
-                    <div className='text-right'>
-                      <Badge
-                        variant={
-                          member.status === 'Paid This Month'
-                            ? 'success'
-                            : 'warning'
-                        }
-                        className='font-normal'
-                      >
-                        {member.status}
-                      </Badge>
-                      <p className='text-[10px] text-muted-foreground m-0'>
-                        Last: {member.lastPaid}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-
-                {filteredMembers.length === 0 && (
+                    );
+                  })
+                ) : (
                   <div className='text-center py-8 text-muted-foreground'>
-                    <div className='text-center py-8 text-muted-foreground'>
-                      No members found matching &quot;{searchQuery}&quot;
-                    </div>
+                    {searchQuery ? (
+                      <div>
+                        No members found matching &quot;{searchQuery}&quot;
+                      </div>
+                    ) : (
+                      <div>No members in this chama yet</div>
+                    )}
                   </div>
                 )}
               </div>
@@ -207,7 +270,7 @@ export default function RecordContribution() {
                       Recording for:
                     </p>
                     <p className='font-semibold text-blue-700'>
-                      {selectedMember.name}
+                      {selectedMember.user.name}
                     </p>
                   </div>
 
@@ -217,13 +280,15 @@ export default function RecordContribution() {
                     </label>
                     <div className='relative'>
                       <span className='absolute left-3 top-2.5 text-muted-foreground'>
-                        $
+                        KSh
                       </span>
                       <Input
+                        type='number'
                         value={amount}
                         onChange={e => setAmount(e.target.value)}
-                        className='pl-7 font-mono'
+                        className='pl-10 font-mono'
                         placeholder='0.00'
+                        min='1'
                         required
                       />
                     </div>
@@ -231,14 +296,13 @@ export default function RecordContribution() {
 
                   <div className='space-y-2'>
                     <label className='text-sm font-medium'>
-                      M-Pesa Reference *
+                      M-Pesa Reference
                     </label>
                     <Input
                       value={reference}
-                      onChange={e => setReference(e.target.value)}
+                      onChange={e => setReference(e.target.value.toUpperCase())}
                       placeholder='e.g. QBX7H2K9LM'
                       className='uppercase font-mono'
-                      required
                     />
                   </div>
 

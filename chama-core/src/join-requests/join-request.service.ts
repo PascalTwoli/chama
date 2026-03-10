@@ -26,6 +26,11 @@ export class JoinRequestService {
   ): Promise<join_request> {
     const { chamaId, message } = createDto;
 
+    // chamaId is required - it comes from URL param merged by controller
+    if (!chamaId) {
+      throw new NotFoundException('Chama ID is required');
+    }
+
     try {
       // Validate chama exists
       const chama = await this.prisma.chama.findUnique({
@@ -136,6 +141,7 @@ export class JoinRequestService {
             id: true,
             name: true,
             email: true,
+            phone: true,
           },
         },
       },
