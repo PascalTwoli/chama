@@ -209,9 +209,9 @@ export default function MembersPage() {
                 <div className='flex items-center gap-3'>
                   <div
                     className='w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm'
-                    style={{ 
+                    style={{
                       backgroundColor: getAvatarColors(member.name).bg,
-                      color: getAvatarColors(member.name).text 
+                      color: getAvatarColors(member.name).text,
                     }}
                   >
                     {getInitials(member.name)}
