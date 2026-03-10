@@ -148,10 +148,34 @@ export class ChamaService {
           },
         },
         include: {
-          membership: true,
+          membership: {
+            include: {
+              user: true,
+            },
+          },
+          user: true, // Include the creator
         },
       });
-      return chamas;
+
+      // Map to a more useful response format
+      return chamas.map((chama) => {
+        // Find the chairperson/admin
+        const chairperson = chama.membership.find(
+          (m) => m.role === 'CHAIRPERSON',
+        );
+        const adminName = chairperson?.user?.name || chama.user?.name || null;
+
+        return {
+          id: chama.id,
+          name: chama.name,
+          description: chama.description,
+          membersCount: chama.members_count,
+          country: chama.country,
+          createdAt: chama.createdAt,
+          updatedAt: chama.updatedAt,
+          adminName: adminName,
+        };
+      });
     } catch (error: unknown) {
       console.error('Error finding available chamas:', error);
       const message = error instanceof Error ? error.message : 'Unknown error';
@@ -185,6 +209,55 @@ export class ChamaService {
       if (error instanceof NotFoundException) throw error;
       const message = error instanceof Error ? error.message : 'Unknown error';
       throw new BadRequestException(`Failed to fetch chama: ${message}`);
+    }
+  }
+
+  async getChamaMembers(chamaId: string, userId: string) {
+    try {
+      // First verify the user is a member of this chama
+      const membership = await this.prisma.membership.findFirst({
+        where: {
+          chama_id: chamaId,
+          user_id: userId,
+        },
+      });
+
+      if (!membership) {
+        throw new NotFoundException(
+          `Chama with ID ${chamaId} not found or you don't have access`,
+        );
+      }
+
+      // Get all members with user details
+      const members = await this.prisma.membership.findMany({
+        where: {
+          chama_id: chamaId,
+        },
+        include: {
+          user: true,
+        },
+        orderBy: [{ role: 'asc' }, { joinedAt: 'asc' }],
+      });
+
+      // Map to a cleaner response format
+      return members.map((m) => ({
+        id: m.id,
+        userId: m.user_id,
+        role: m.role,
+        joinedAt: m.joinedAt,
+        createdAt: m.createdAt,
+        user: {
+          id: m.user.id,
+          name: m.user.name,
+          email: m.user.email,
+          phone: m.user.phone,
+        },
+      }));
+    } catch (error: unknown) {
+      console.error(`Error fetching members for chama ${chamaId}:`, error);
+      if (error instanceof NotFoundException) throw error;
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new BadRequestException(`Failed to fetch chama members: ${message}`);
     }
   }
 }

@@ -410,6 +410,39 @@ export class ChamaService {
       );
     }
   }
+
+  /**
+   * Get all members of a chama
+   */
+  static async getChamaMembers(chamaId: string): Promise<
+    {
+      id: string;
+      userId: string;
+      role: string;
+      joinedAt: string;
+      user: {
+        id: string;
+        name: string;
+        email: string;
+        phone?: string;
+      };
+    }[]
+  > {
+    try {
+      const response = await apiClient.get(`/chama/${chamaId}/members`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching chama members:', error);
+      const axiosError = error as AxiosError;
+      if (!axiosError.response) {
+        throw new Error(
+          'Could not connect to the server. Please check your internet connection and try again.'
+        );
+      }
+      const errorData = axiosError.response.data as ApiErrorData;
+      throw new Error(errorData?.message || 'Failed to fetch chama members.');
+    }
+  }
 }
 
 export default ChamaService;

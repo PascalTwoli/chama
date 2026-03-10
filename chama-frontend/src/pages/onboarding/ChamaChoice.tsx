@@ -8,7 +8,6 @@ import {
   Calendar,
   User,
   Loader2,
-  TrendingUp,
   Clock,
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
@@ -30,12 +29,9 @@ interface AvailableChama {
   name: string;
   description?: string;
   memberCount: number;
-  totalSavings: number;
-  location?: string;
-  meetingSchedule?: string;
-  contributionAmount?: number;
+  country?: string;
+  createdAt?: string;
   admin?: string;
-  status?: 'Fixed' | 'Flexible';
 }
 
 const ChamaChoice: React.FC = () => {
@@ -44,9 +40,6 @@ const ChamaChoice: React.FC = () => {
   const [availableChamas, setAvailableChamas] = useState<AvailableChama[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<
-    'All' | 'Fixed' | 'Flexible'
-  >('All');
   const [requestingChamaId, setRequestingChamaId] = useState<string | null>(
     null
   );
@@ -86,56 +79,17 @@ const ChamaChoice: React.FC = () => {
         setIsLoading(true);
         const chamasData = await ChamaService.fetchAllChamas();
 
-        // Mock data for demo - these fields should come from backend in production
-        const mockDetails = [
-          {
-            location: 'Nairobi, Kenya',
-            contributionAmount: 5000,
-            meetingSchedule: 'First Saturday of every month',
-            admin: 'Jane Wanjiku',
-            status: 'Fixed' as const,
-          },
-          {
-            location: 'Kisumu, Kenya',
-            contributionAmount: 3000,
-            meetingSchedule: 'Every 2nd and 4th Sunday',
-            admin: 'Peter Omondi',
-            status: 'Fixed' as const,
-          },
-          {
-            location: 'Mombasa, Kenya',
-            contributionAmount: 0,
-            meetingSchedule: 'Monthly meetings',
-            admin: 'Mary Njeri',
-            status: 'Flexible' as const,
-          },
-          {
-            location: 'Nakuru, Kenya',
-            contributionAmount: 4000,
-            meetingSchedule: 'Every Friday evening',
-            admin: 'Grace Akinyi',
-            status: 'Fixed' as const,
-          },
-        ];
-
-        // Map to AvailableChama format with mock details
-        const mapped: AvailableChama[] = chamasData.map((c, index) => {
-          const mock = mockDetails[index % mockDetails.length];
-          return {
-            id: c.id,
-            name: c.name,
-            description:
-              c.description || 'A savings group for members to grow together',
-            memberCount: c.memberCount ?? c.membersCount ?? 0,
-            totalSavings:
-              c.totalSavings ?? Math.floor(Math.random() * 2000000) + 500000,
-            location: c.location || mock.location,
-            contributionAmount: mock.contributionAmount,
-            meetingSchedule: mock.meetingSchedule,
-            admin: mock.admin,
-            status: mock.status,
-          };
-        });
+        // Map to AvailableChama format using actual backend data
+        const mapped: AvailableChama[] = chamasData.map(c => ({
+          id: c.id,
+          name: c.name,
+          description:
+            c.description || 'A savings group for members to grow together',
+          memberCount: c.membersCount ?? c.memberCount ?? 0,
+          country: c.country,
+          createdAt: c.createdAt,
+          admin: c.adminName || undefined,
+        }));
         setAvailableChamas(mapped);
       } catch (error) {
         console.error('Error loading chamas:', error);
@@ -176,10 +130,8 @@ const ChamaChoice: React.FC = () => {
     const matchesSearch =
       chama.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       chama.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      chama.location?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus =
-      statusFilter === 'All' || chama.status === statusFilter;
-    return matchesSearch && matchesStatus;
+      chama.country?.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesSearch;
   });
 
   const isPendingRequest = (chamaId: string) => {
@@ -277,36 +229,16 @@ const ChamaChoice: React.FC = () => {
           </div>
         )}
 
-        {/* Search and Filters */}
+        {/* Search */}
         <div className='mb-6'>
-          <div className='flex flex-col sm:flex-row gap-4 items-start sm:items-center'>
-            <div className='relative flex-1 w-full'>
-              <Search className='absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground' />
-              <Input
-                placeholder='Search Chamas by name, location, or description...'
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                className='pl-10'
-              />
-            </div>
-            {/* Filter Buttons */}
-            <div className='flex gap-1 rounded-lg p-1 bg-muted/30 border border-border'>
-              {(['All', 'Fixed', 'Flexible'] as const).map(status => (
-                <Button
-                  key={status}
-                  variant={statusFilter === status ? 'default' : 'ghost'}
-                  size='sm'
-                  onClick={() => setStatusFilter(status)}
-                  className={`px-4 h-9 text-sm font-medium rounded-md transition-colors ${
-                    statusFilter === status
-                      ? 'bg-primary text-primary-foreground shadow-sm'
-                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                  }`}
-                >
-                  {status}
-                </Button>
-              ))}
-            </div>
+          <div className='relative w-full'>
+            <Search className='absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground' />
+            <Input
+              placeholder='Search Chamas by name or description...'
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className='pl-10'
+            />
           </div>
         </div>
 
@@ -345,17 +277,6 @@ const ChamaChoice: React.FC = () => {
                             'A savings group for members to grow together'}
                         </CardDescription>
                       </div>
-                      {chama.status && (
-                        <span
-                          className={`text-xs px-3 py-1 rounded-full font-medium whitespace-nowrap ${
-                            chama.status === 'Fixed'
-                              ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-200 dark:border-blue-800'
-                              : 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300 border border-orange-200 dark:border-orange-800'
-                          }`}
-                        >
-                          {chama.status}
-                        </span>
-                      )}
                     </div>
                   </CardHeader>
                   <CardContent className='space-y-4'>
@@ -372,11 +293,11 @@ const ChamaChoice: React.FC = () => {
                       </div>
                       <div>
                         <p className='text-xs text-muted-foreground mb-1'>
-                          Total Savings
+                          Country
                         </p>
                         <p className='font-bold text-lg flex items-center gap-2'>
-                          <TrendingUp className='w-4 h-4 text-muted-foreground' />
-                          KSh {((chama.totalSavings || 0) / 1000).toFixed(0)}K
+                          <MapPin className='w-4 h-4 text-muted-foreground' />
+                          {chama.country || 'Kenya'}
                         </p>
                       </div>
                     </div>
@@ -386,25 +307,19 @@ const ChamaChoice: React.FC = () => {
 
                     {/* Details */}
                     <div className='space-y-2 text-sm text-muted-foreground'>
-                      {chama.location && (
-                        <div className='flex items-center gap-2'>
-                          <MapPin className='w-4 h-4 flex-shrink-0' />
-                          <span>{chama.location}</span>
-                        </div>
-                      )}
-                      {chama.contributionAmount && (
-                        <div className='flex items-center gap-2'>
-                          <TrendingUp className='w-4 h-4 flex-shrink-0' />
-                          <span>
-                            KSh {chama.contributionAmount.toLocaleString()} per
-                            month
-                          </span>
-                        </div>
-                      )}
-                      {chama.meetingSchedule && (
+                      {chama.createdAt && (
                         <div className='flex items-center gap-2'>
                           <Calendar className='w-4 h-4 flex-shrink-0' />
-                          <span>{chama.meetingSchedule}</span>
+                          <span>
+                            Created{' '}
+                            {new Date(chama.createdAt).toLocaleDateString(
+                              'en-US',
+                              {
+                                month: 'short',
+                                year: 'numeric',
+                              }
+                            )}
+                          </span>
                         </div>
                       )}
                       {chama.admin && (
