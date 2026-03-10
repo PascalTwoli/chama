@@ -81,6 +81,8 @@ model membership {
   updatedAt DateTime
   chama     chama     @relation(fields: [chama_id], references: [id])
   user      user      @relation(fields: [user_id], references: [id])
+
+  @@unique([user_id, chama_id])
 }
 
 model notification {

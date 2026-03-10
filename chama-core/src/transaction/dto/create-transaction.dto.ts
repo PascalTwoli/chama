@@ -59,4 +59,13 @@ export class CreateTransactionDto {
   @IsOptional()
   @IsString({ message: 'Reference must be a string' })
   reference?: string;
+
+  @ApiProperty({
+    description: 'User ID to record the transaction for (admin only). If not provided, uses authenticated user.',
+    example: 'HhYUVkHwQJT9bgbkMsquiVjyAxQ2',
+    required: false,
+  })
+  @IsOptional()
+  @IsString({ message: 'User ID must be a string' })
+  userId?: string;
 }

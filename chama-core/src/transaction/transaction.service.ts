@@ -30,23 +30,47 @@ export class TransactionService {
   /**
    * Creates a new financial transaction
    * @param createTransactionDto - Transaction data
-   * @param userId - ID of the user creating the transaction
+   * @param userId - ID of the user creating the transaction (authenticated user)
    * @returns The created transaction
    */
   async createTransaction(
     createTransactionDto: CreateTransactionDto,
     userId: string,
   ): Promise<TransactionResponse> {
-    // First, verify the user is a member of the chama
-    const membership = await this.prisma.membership.findFirst({
+    // Determine which user to record the transaction for
+    // If userId is provided in DTO (admin recording for member), use that
+    // Otherwise use the authenticated user
+    const targetUserId = createTransactionDto.userId || userId;
+
+    // First, verify the authenticated user is a member of the chama
+    const authenticatedMembership = await this.prisma.membership.findFirst({
       where: {
         chama_id: createTransactionDto.chamaId,
         user_id: userId,
       },
     });
 
-    if (!membership) {
+    if (!authenticatedMembership) {
       throw new ForbiddenException('You are not a member of this chama');
+    }
+
+    // If recording for a different user, check if authenticated user has admin/treasurer/chairperson role
+    if (createTransactionDto.userId && createTransactionDto.userId !== userId) {
+      if (!['ADMIN', 'TREASURER', 'CHAIRPERSON'].includes(authenticatedMembership.role)) {
+        throw new ForbiddenException('Only chairpersons, admins and treasurers can record transactions for other members');
+      }
+
+      // Verify the target user is also a member of the chama
+      const targetMembership = await this.prisma.membership.findFirst({
+        where: {
+          chama_id: createTransactionDto.chamaId,
+          user_id: createTransactionDto.userId,
+        },
+      });
+
+      if (!targetMembership) {
+        throw new ForbiddenException('Target user is not a member of this chama');
+      }
     }
 
     // Verify the chama exists
@@ -69,7 +93,7 @@ export class TransactionService {
             type: createTransactionDto.type,
             amount: createTransactionDto.amount,
             chama_id: createTransactionDto.chamaId,
-            user_id: userId,
+            user_id: targetUserId,
             description: createTransactionDto.description,
             reference: createTransactionDto.reference,
             status: transaction_status.COMPLETED,
