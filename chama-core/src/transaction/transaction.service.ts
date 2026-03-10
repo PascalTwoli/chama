@@ -8,6 +8,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { transaction_type, transaction_status } from '@prisma/client';
 import * as crypto from 'crypto';
+import { ChamaSettingsService } from '../chama-settings/chama-settings.service';
 
 // Define interface for transaction response that matches the controller's expected format
 export interface TransactionResponse {
@@ -25,7 +26,10 @@ export interface TransactionResponse {
 
 @Injectable()
 export class TransactionService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly chamaSettingsService: ChamaSettingsService,
+  ) {}
 
   /**
    * Creates a new financial transaction
@@ -90,6 +94,24 @@ export class TransactionService {
       throw new NotFoundException(
         `Chama with ID ${createTransactionDto.chamaId} not found`,
       );
+    }
+
+    // Validate contribution amount against chama settings if this is a CONTRIBUTION transaction
+    if (createTransactionDto.type === transaction_type.CONTRIBUTION) {
+      const settings = await this.chamaSettingsService.getSettingsByChamaId(
+        createTransactionDto.chamaId,
+      );
+
+      if (settings) {
+        const validation = this.chamaSettingsService.validateContributionAmount(
+          settings,
+          createTransactionDto.amount,
+        );
+
+        if (!validation.valid) {
+          throw new BadRequestException(validation.message);
+        }
+      }
     }
 
     // Create the transaction

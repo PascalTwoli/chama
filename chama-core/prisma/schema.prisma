@@ -8,22 +8,23 @@ datasource db {
 }
 
 model chama {
-  id                String         @id
+  id                String          @id
   name              String
   description       String?
   rules             String?
   created_by        String
-  createdAt         DateTime       @default(now())
+  createdAt         DateTime        @default(now())
   updatedAt         DateTime
   country           country
   members_count     Int
   organization_role user_role?
-  user              user           @relation(fields: [created_by], references: [id])
+  user              user            @relation(fields: [created_by], references: [id])
   contribution      contribution[]
   invite            invite[]
   join_request      join_request[]
   membership        membership[]
   transaction       transaction[]
+  chama_settings    chama_settings?
 }
 
 model contribution {
@@ -139,6 +140,25 @@ model ui_settings {
   theme             String? @default("default")
   last_seen_widgets Json?
   user              user    @relation(fields: [user_id], references: [id])
+}
+
+model chama_settings {
+  id                       String                @id @default(uuid())
+  chama_id                 String                @unique
+  contribution_model       ContributionModel
+  contribution_amount      Int?
+  frequency                ContributionFrequency?
+  due_day                  Int?
+  grace_period_days        Int?
+  late_payment_fee         Int?
+  minimum_contribution     Int?
+  contribution_guidelines  String?
+  require_meeting_attendance Boolean             @default(false)
+  enable_member_loans      Boolean               @default(false)
+  automatic_sms_reminders  Boolean               @default(false)
+  createdAt                DateTime              @default(now())
+  updatedAt                DateTime              @updatedAt
+  chama                    chama                 @relation(fields: [chama_id], references: [id], onDelete: Cascade)
 }
 
 model user {
@@ -415,4 +435,14 @@ enum user_role {
   MEMBER
   TREASURER
   SECRETARY
+}
+
+enum ContributionModel {
+  FIXED
+  FLEXIBLE
+}
+
+enum ContributionFrequency {
+  MONTHLY
+  WEEKLY
 }
