@@ -61,7 +61,8 @@ export class CreateTransactionDto {
   reference?: string;
 
   @ApiProperty({
-    description: 'User ID to record the transaction for (admin only). If not provided, uses authenticated user.',
+    description:
+      'User ID to record the transaction for (admin only). If not provided, uses authenticated user.',
     example: 'HhYUVkHwQJT9bgbkMsquiVjyAxQ2',
     required: false,
   })

@@ -56,8 +56,14 @@ export class TransactionService {
 
     // If recording for a different user, check if authenticated user has admin/treasurer/chairperson role
     if (createTransactionDto.userId && createTransactionDto.userId !== userId) {
-      if (!['ADMIN', 'TREASURER', 'CHAIRPERSON'].includes(authenticatedMembership.role)) {
-        throw new ForbiddenException('Only chairpersons, admins and treasurers can record transactions for other members');
+      if (
+        !['ADMIN', 'TREASURER', 'CHAIRPERSON'].includes(
+          authenticatedMembership.role,
+        )
+      ) {
+        throw new ForbiddenException(
+          'Only chairpersons, admins and treasurers can record transactions for other members',
+        );
       }
 
       // Verify the target user is also a member of the chama
@@ -69,7 +75,9 @@ export class TransactionService {
       });
 
       if (!targetMembership) {
-        throw new ForbiddenException('Target user is not a member of this chama');
+        throw new ForbiddenException(
+          'Target user is not a member of this chama',
+        );
       }
     }
 
