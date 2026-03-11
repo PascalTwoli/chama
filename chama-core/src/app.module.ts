@@ -12,6 +12,7 @@ import { JoinRequestModule } from './join-requests/join-request.module';
 import { TransactionModule } from './transaction/transaction.module';
 import { ChamaSettingsModule } from './chama-settings/chama-settings.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { RolesPermissionsModule } from './roles-permissions/roles-permissions.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
     TransactionModule,
     ChamaSettingsModule,
     DashboardModule,
+    RolesPermissionsModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthGuard],
