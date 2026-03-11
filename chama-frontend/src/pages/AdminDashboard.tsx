@@ -298,7 +298,7 @@ export default function AdminDashboard() {
                     data={data.contributionDistribution}
                     cx='50%'
                     cy='50%'
-                    labelLine={true}
+                    labelLine={false}
                     label={renderCustomLabel}
                     outerRadius={80}
                     dataKey='value'

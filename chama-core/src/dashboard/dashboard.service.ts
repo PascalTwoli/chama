@@ -41,19 +41,17 @@ export class DashboardService {
     chamaId: string,
     userId: string,
   ): Promise<DashboardResponse> {
-    // Verify chama exists
-    const chama = await this.prisma.chama.findUnique({
-      where: { id: chamaId },
-    });
+    // Verify chama exists and user is a member in parallel
+    const [chama, membershipCheck] = await Promise.all([
+      this.prisma.chama.findUnique({ where: { id: chamaId } }),
+      this.prisma.membership.findFirst({
+        where: { chama_id: chamaId, user_id: userId },
+      }),
+    ]);
     if (!chama) {
       throw new NotFoundException(`Chama with ID ${chamaId} not found`);
     }
-
-    // Verify user is a member
-    const membership = await this.prisma.membership.findFirst({
-      where: { chama_id: chamaId, user_id: userId },
-    });
-    if (!membership) {
+    if (!membershipCheck) {
       throw new ForbiddenException('You are not a member of this chama');
     }
 
@@ -231,7 +229,8 @@ export class DashboardService {
       'Dec',
     ];
 
-    for (let i = 5; i >= 0; i--) {
+    const monthQueries = Array.from({ length: 6 }, (_, idx) => {
+      const i = 5 - idx;
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const start = new Date(d.getFullYear(), d.getMonth(), 1);
       const end = new Date(
@@ -244,23 +243,23 @@ export class DashboardService {
         999,
       );
 
-      const result = await this.prisma.transaction.aggregate({
-        where: {
-          chama_id: chamaId,
-          type: transaction_type.CONTRIBUTION,
-          status: transaction_status.COMPLETED,
-          createdAt: { gte: start, lte: end },
-        },
-        _sum: { amount: true },
-      });
+      return this.prisma.transaction
+        .aggregate({
+          where: {
+            chama_id: chamaId,
+            type: transaction_type.CONTRIBUTION,
+            status: transaction_status.COMPLETED,
+            createdAt: { gte: start, lte: end },
+          },
+          _sum: { amount: true },
+        })
+        .then((result) => ({
+          month: monthNames[d.getMonth()],
+          amount: result._sum.amount?.toNumber() ?? 0,
+        }));
+    });
 
-      months.push({
-        month: monthNames[d.getMonth()],
-        amount: result._sum.amount?.toNumber() ?? 0,
-      });
-    }
-
-    return months;
+    return Promise.all(monthQueries);
   }
 
   private async getRecentContributions(
