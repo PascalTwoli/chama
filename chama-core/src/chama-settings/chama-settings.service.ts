@@ -253,10 +253,10 @@ export class ChamaSettingsService {
     amount: number,
   ): { valid: boolean; message?: string } {
     if (settings.contribution_model === ContributionModel.FIXED) {
-      if (settings.contribution_amount && amount !== settings.contribution_amount) {
+      if (amount <= 0) {
         return {
           valid: false,
-          message: `Contribution amount must be exactly ${settings.contribution_amount} for this chama`,
+          message: 'Contribution amount must be greater than 0',
         };
       }
     } else if (settings.contribution_model === ContributionModel.FLEXIBLE) {

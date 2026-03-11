@@ -10,6 +10,9 @@ import { cn } from '../utils/cn';
 import ChamaService from '../services/chama/chama-services';
 import TransactionService from '../services/transaction/transaction-services';
 import { toast } from 'react-toastify';
+import ChamaSettingsService, {
+  ChamaSettings,
+} from '../services/chama/chama-settings-service';
 
 // Avatar color helper - returns pastel bg and matching text color
 const avatarColors = [
@@ -64,11 +67,23 @@ export default function RecordContribution() {
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [settings, setSettings] = useState<ChamaSettings | null>(null);
+  const [memberContributionTxs, setMemberContributionTxs] = useState<
+    { amount: number; createdAt: string }[]
+  >([]);
+
   // Form State
   const [amount, setAmount] = useState('5000');
   const [reference, setReference] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [notes, setNotes] = useState('');
+
+  const isInCurrentMonth = (isoDate: string): boolean => {
+    const d = new Date(isoDate);
+    if (Number.isNaN(d.getTime())) return false;
+    const now = new Date();
+    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+  };
 
   // Fetch members on mount
   useEffect(() => {
@@ -113,6 +128,35 @@ export default function RecordContribution() {
     fetchMembers();
   }, [chamaId, location.state]);
 
+  useEffect(() => {
+    fetchSettings();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chamaId]);
+
+  useEffect(() => {
+    if (!selectedMemberId) {
+      setMemberContributionTxs([]);
+      return;
+    }
+    fetchMemberContributionsForCycle(selectedMemberId);
+    // Prefill behavior when payment form opens
+    setDate(new Date().toISOString().split('T')[0]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedMemberId]);
+
+  const expectedContribution = settings?.contributionAmount ?? 0;
+  const paidSoFar = memberContributionTxs.reduce((sum, tx) => sum + tx.amount, 0);
+  const remainingAmountRaw = expectedContribution - paidSoFar;
+  const remainingAmount = remainingAmountRaw > 0 ? remainingAmountRaw : 0;
+  const excessPayment = remainingAmountRaw < 0 ? Math.abs(remainingAmountRaw) : 0;
+
+  useEffect(() => {
+    if (!selectedMemberId) return;
+    // Update amount prefill after paid/expected changes
+    setAmount(remainingAmount > 0 ? remainingAmount.toString() : '0');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedMemberId, expectedContribution, paidSoFar]);
+
   const filteredMembers = members.filter(
     member =>
       member.user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -121,6 +165,49 @@ export default function RecordContribution() {
   );
 
   const selectedMember = members.find(m => m.user.id === selectedMemberId);
+
+  const fetchSettings = async () => {
+    if (!chamaId) return;
+    try {
+      const s = await ChamaSettingsService.getSettings(chamaId);
+      setSettings(s);
+    } catch (error) {
+      console.error('Error fetching chama settings:', error);
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to load chama settings'
+      );
+      setSettings(null);
+    }
+  };
+
+  const fetchMemberContributionsForCycle = async (memberId: string) => {
+    if (!chamaId) return;
+    try {
+      const txs = await TransactionService.getTransactionsByChama(chamaId, {
+        type: 'CONTRIBUTION',
+      });
+
+      const filtered = txs
+        .filter(t => t.type === 'CONTRIBUTION')
+        .filter(t => t.userId === memberId)
+        .filter(t => isInCurrentMonth(t.createdAt))
+        .map(t => ({
+          amount: typeof t.amount === 'number' ? t.amount : Number(t.amount),
+          createdAt: t.createdAt,
+        }))
+        .filter(t => Number.isFinite(t.amount));
+
+      setMemberContributionTxs(filtered);
+    } catch (error) {
+      console.error('Error fetching member contributions:', error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Failed to load member contribution history'
+      );
+      setMemberContributionTxs([]);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -136,6 +223,8 @@ export default function RecordContribution() {
         description: notes || `Contribution recorded on ${date}`,
         userId: selectedMemberId, // Record for selected member
       });
+
+      await fetchMemberContributionsForCycle(selectedMemberId);
 
       toast.success('Contribution recorded successfully!');
       navigate(`/admin/chamas/${chamaId}/contributions`);
@@ -272,6 +361,26 @@ export default function RecordContribution() {
                     <p className='font-semibold text-blue-700'>
                       {selectedMember.user.name}
                     </p>
+
+                    <div className='mt-3 space-y-1'>
+                      <p className='text-xs text-blue-600 mb-0.5'>
+                        Expected Contribution: KSh{' '}
+                        {expectedContribution.toLocaleString()}
+                      </p>
+                      <p className='text-xs text-blue-600 mb-0.5'>
+                        Paid So Far: KSh {paidSoFar.toLocaleString()}
+                      </p>
+                      {excessPayment > 0 ? (
+                        <p className='text-xs text-blue-600 mb-0.5'>
+                          Excess Payment: KSh {excessPayment.toLocaleString()}
+                        </p>
+                      ) : (
+                        <p className='text-xs text-blue-600 mb-0.5'>
+                          Remaining Balance: KSh{' '}
+                          {remainingAmount.toLocaleString()}
+                        </p>
+                      )}
+                    </div>
                   </div>
 
                   <div className='space-y-2'>
