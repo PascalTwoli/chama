@@ -107,9 +107,16 @@ export default function RolesAndPermissionsPage() {
       setStats(statsData);
       setAllPermissions(permissionsData);
 
-      // Map members to their organizational role using the legacy role field
+      // Map members to their organizational role — prefer RBAC orgRole, fall back to legacy
       const membersWithRoles: MemberWithRole[] = membersData.map(m => {
-        // Try to find the role that matches the member's legacy role field
+        if (m.orgRole) {
+          return {
+            ...m,
+            orgRoleName: m.orgRole.name,
+            orgRoleId: m.orgRole.id,
+          };
+        }
+        // Fallback: derive from legacy membership.role field
         const legacyRoleName = m.role === 'CHAIRPERSON' ? 'Chairperson'
           : m.role === 'TREASURER' ? 'Treasurer'
           : m.role === 'SECRETARY' ? 'Secretary'

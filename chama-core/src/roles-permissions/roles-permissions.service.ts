@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { system_role } from '@prisma/client';
+import { system_role, user_role } from '@prisma/client';
 import {
   DEFAULT_PERMISSIONS,
   DEFAULT_ROLES,
@@ -378,7 +378,7 @@ export class RolesPermissionsService {
       throw new NotFoundException('Role not found in this chama');
     }
 
-    return this.prisma.member_role.upsert({
+    const result = await this.prisma.member_role.upsert({
       where: {
         user_id_chama_id: { user_id: memberId, chama_id: chamaId },
       },
@@ -390,6 +390,20 @@ export class RolesPermissionsService {
       },
       include: { role: true },
     });
+
+    // Sync the legacy membership.role field
+    const legacyRoleMap: Record<string, user_role> = {
+      Chairperson: user_role.CHAIRPERSON,
+      Treasurer: user_role.TREASURER,
+      Secretary: user_role.SECRETARY,
+    };
+    const legacyRole = legacyRoleMap[role.name] || user_role.MEMBER;
+    await this.prisma.membership.updateMany({
+      where: { user_id: memberId, chama_id: chamaId },
+      data: { role: legacyRole },
+    });
+
+    return result;
   }
 
   // ─── System Role Assignment ──────────────────────────────────────

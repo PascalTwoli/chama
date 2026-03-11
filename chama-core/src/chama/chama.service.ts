@@ -261,31 +261,44 @@ export class ChamaService {
         );
       }
 
-      // Get all members with user details
-      const members = await this.prisma.membership.findMany({
-        where: {
-          chama_id: chamaId,
-        },
-        include: {
-          user: true,
-        },
-        orderBy: [{ role: 'asc' }, { joinedAt: 'asc' }],
-      });
+      // Get all members with user details and RBAC role
+      const [members, memberRoles] = await Promise.all([
+        this.prisma.membership.findMany({
+          where: { chama_id: chamaId },
+          include: { user: true },
+          orderBy: [{ role: 'asc' }, { joinedAt: 'asc' }],
+        }),
+        this.prisma.member_role.findMany({
+          where: { chama_id: chamaId },
+          include: { role: true },
+        }),
+      ]);
+
+      // Build a lookup: userId → RBAC role name
+      const rbacRoleMap = new Map(
+        memberRoles.map((mr) => [mr.user_id, mr.role]),
+      );
 
       // Map to a cleaner response format
-      return members.map((m) => ({
-        id: m.id,
-        userId: m.user_id,
-        role: m.role,
-        joinedAt: m.joinedAt,
-        createdAt: m.createdAt,
-        user: {
-          id: m.user.id,
-          name: m.user.name,
-          email: m.user.email,
-          phone: m.user.phone,
-        },
-      }));
+      return members.map((m) => {
+        const rbacRole = rbacRoleMap.get(m.user_id);
+        return {
+          id: m.id,
+          userId: m.user_id,
+          role: m.role,
+          orgRole: rbacRole
+            ? { id: rbacRole.id, name: rbacRole.name }
+            : null,
+          joinedAt: m.joinedAt,
+          createdAt: m.createdAt,
+          user: {
+            id: m.user.id,
+            name: m.user.name,
+            email: m.user.email,
+            phone: m.user.phone,
+          },
+        };
+      });
     } catch (error: unknown) {
       console.error(`Error fetching members for chama ${chamaId}:`, error);
       if (error instanceof NotFoundException) throw error;

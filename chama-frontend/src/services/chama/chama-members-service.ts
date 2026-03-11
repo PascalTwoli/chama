@@ -18,6 +18,7 @@ export interface ChamaMember {
   id: string;
   userId: string;
   role: string;
+  orgRole: { id: string; name: string } | null;
   joinedAt: string;
   user: ChamaMemberUser;
 }
