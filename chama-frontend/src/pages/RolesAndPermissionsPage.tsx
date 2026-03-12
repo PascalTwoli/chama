@@ -22,7 +22,15 @@ import {
   DialogDescription,
   DialogFooter,
 } from '../components/ui/dialog';
-import { Shield, Search, Edit2, CheckCircle2, XCircle, Plus, Loader2 } from 'lucide-react';
+import {
+  Shield,
+  Search,
+  Edit2,
+  CheckCircle2,
+  XCircle,
+  Plus,
+  Loader2,
+} from 'lucide-react';
 import { cn } from '../utils/cn';
 import { Card, CardContent } from '../components/ui/card';
 import { useChamaId } from '../hooks/useChamaId';
@@ -117,10 +125,14 @@ export default function RolesAndPermissionsPage() {
           };
         }
         // Fallback: derive from legacy membership.role field
-        const legacyRoleName = m.role === 'CHAIRPERSON' ? 'Chairperson'
-          : m.role === 'TREASURER' ? 'Treasurer'
-          : m.role === 'SECRETARY' ? 'Secretary'
-          : 'General Member';
+        const legacyRoleName =
+          m.role === 'CHAIRPERSON'
+            ? 'Chairperson'
+            : m.role === 'TREASURER'
+              ? 'Treasurer'
+              : m.role === 'SECRETARY'
+                ? 'Secretary'
+                : 'General Member';
         const matchedRole = rolesData.find(r => r.name === legacyRoleName);
         return {
           ...m,
@@ -247,19 +259,70 @@ export default function RolesAndPermissionsPage() {
 
   // ─── UI helpers ───────────────────────────────────────────────
 
+  // Color palette for custom roles
+  const badgeColors = [
+    { bg: 'bg-pink-100', text: 'text-pink-800', border: 'border-pink-200' },
+    {
+      bg: 'bg-yellow-100',
+      text: 'text-yellow-800',
+      border: 'border-yellow-200',
+    },
+    { bg: 'bg-teal-100', text: 'text-teal-800', border: 'border-teal-200' },
+    { bg: 'bg-red-100', text: 'text-red-800', border: 'border-red-200' },
+    {
+      bg: 'bg-indigo-100',
+      text: 'text-indigo-800',
+      border: 'border-indigo-200',
+    },
+    { bg: 'bg-lime-100', text: 'text-lime-800', border: 'border-lime-200' },
+    { bg: 'bg-cyan-100', text: 'text-cyan-800', border: 'border-cyan-200' },
+    {
+      bg: 'bg-fuchsia-100',
+      text: 'text-fuchsia-800',
+      border: 'border-fuchsia-200',
+    },
+    { bg: 'bg-amber-100', text: 'text-amber-800', border: 'border-amber-200' },
+    {
+      bg: 'bg-violet-100',
+      text: 'text-violet-800',
+      border: 'border-violet-200',
+    },
+    { bg: 'bg-sky-100', text: 'text-sky-800', border: 'border-sky-200' },
+    { bg: 'bg-rose-100', text: 'text-rose-800', border: 'border-rose-200' },
+    { bg: 'bg-gray-100', text: 'text-gray-800', border: 'border-gray-200' },
+  ];
+
+  // Predefined role colors
+  const predefinedStyles: Record<string, string> = {
+    Chairperson: 'bg-blue-100 text-blue-800 border-blue-200',
+    Treasurer: 'bg-green-100 text-green-800 border-green-200',
+    Secretary: 'bg-orange-100 text-orange-800 border-orange-200',
+    Auditor: 'bg-purple-100 text-purple-800 border-purple-200',
+    'General Member': 'bg-gray-100 text-gray-800 border-gray-200',
+  };
+
+  // Hash function to assign a color index for custom roles
+  function hashRole(role: string) {
+    let hash = 0;
+    for (let i = 0; i < role.length; i++) {
+      hash = role.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return Math.abs(hash) % badgeColors.length;
+  }
+
   const getRoleBadge = (role: string) => {
-    const styles: Record<string, string> = {
-      Chairperson: 'bg-blue-100 text-blue-800 border-blue-200',
-      Treasurer: 'bg-green-100 text-green-800 border-green-200',
-      Secretary: 'bg-orange-100 text-orange-800 border-orange-200',
-      Auditor: 'bg-purple-100 text-purple-800 border-purple-200',
-      'General Member': 'bg-gray-100 text-gray-800 border-gray-200',
-    };
+    let style;
+    if (predefinedStyles[role]) {
+      style = predefinedStyles[role];
+    } else {
+      const color = badgeColors[hashRole(role)];
+      style = `${color.bg} ${color.text} ${color.border}`;
+    }
     return (
       <span
         className={cn(
           'px-2.5 py-0.5 rounded-full text-xs font-medium border',
-          styles[role] || styles['General Member']
+          style
         )}
       >
         {role}
@@ -288,11 +351,7 @@ export default function RolesAndPermissionsPage() {
         title='Member Roles & Permissions'
         subtitle='Manage member access and responsibilities'
         action={
-          <Button
-            size='sm'
-            className='gap-2'
-            onClick={openCreateModal}
-          >
+          <Button size='sm' className='gap-2' onClick={openCreateModal}>
             <Plus className='w-4 h-4' />
             Create Role
           </Button>
@@ -363,7 +422,9 @@ export default function RolesAndPermissionsPage() {
                           .join('')}
                       </div>
                       <div>
-                        <p className='font-medium text-sm m-0'>{member.user?.name || 'Unknown'}</p>
+                        <p className='font-medium text-sm m-0'>
+                          {member.user?.name || 'Unknown'}
+                        </p>
                         <p className='text-xs text-muted-foreground m-0'>
                           {member.user?.email || ''}
                         </p>
@@ -378,7 +439,10 @@ export default function RolesAndPermissionsPage() {
                   </TableCell>
                   {/* eslint-disable-next-line prettier/prettier */}
                   <TableCell className='text-muted-foreground border-b border-border py-3'>
-                    {new Date(member.joinedAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                    {new Date(member.joinedAt).toLocaleDateString('en-US', {
+                      month: 'short',
+                      year: 'numeric',
+                    })}
                   </TableCell>
                   <TableCell className='text-right border-b border-border py-3'>
                     <Button
@@ -413,7 +477,10 @@ export default function RolesAndPermissionsPage() {
                 <TableRow className='hover:bg-transparent border-b border-border'>
                   <TableHead className='w-[300px]'>Permission</TableHead>
                   {matrix.roles.map(role => (
-                    <TableHead key={role.id} className='text-center min-w-[100px]'>
+                    <TableHead
+                      key={role.id}
+                      className='text-center min-w-[100px]'
+                    >
                       <button
                         type='button'
                         className='hover:underline cursor-pointer bg-transparent border-0 p-0 font-medium text-sm text-inherit'
@@ -423,7 +490,11 @@ export default function RolesAndPermissionsPage() {
                             openEditPermModal(fullRole);
                           }
                         }}
-                        title={!roles.find(r => r.id === role.id)?.is_default ? 'Click to edit permissions' : role.name}
+                        title={
+                          !roles.find(r => r.id === role.id)?.is_default
+                            ? 'Click to edit permissions'
+                            : role.name
+                        }
                       >
                         {role.name}
                       </button>
@@ -473,7 +544,8 @@ export default function RolesAndPermissionsPage() {
           <DialogHeader>
             <DialogTitle>Change Member Role</DialogTitle>
             <DialogDescription>
-              Update {editMember?.user?.name || 'member'}&apos;s role and permissions
+              Update {editMember?.user?.name || 'member'}&apos;s role and
+              permissions
             </DialogDescription>
           </DialogHeader>
 
@@ -486,7 +558,9 @@ export default function RolesAndPermissionsPage() {
                   .join('')}
               </div>
               <div>
-                <p className='font-medium text-sm m-0'>{editMember.user?.name}</p>
+                <p className='font-medium text-sm m-0'>
+                  {editMember.user?.name}
+                </p>
                 <p className='text-xs text-muted-foreground m-0'>
                   {editMember.user?.email}
                 </p>
@@ -530,7 +604,10 @@ export default function RolesAndPermissionsPage() {
             <Button variant='outline' onClick={() => setEditModalOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleSaveRole} disabled={savingRole || !selectedRoleId}>
+            <Button
+              onClick={handleSaveRole}
+              disabled={savingRole || !selectedRoleId}
+            >
               {savingRole && <Loader2 className='w-4 h-4 mr-2 animate-spin' />}
               Save Changes
             </Button>
@@ -598,7 +675,9 @@ export default function RolesAndPermissionsPage() {
               onClick={handleCreateRole}
               disabled={creatingRole || !newRoleName.trim()}
             >
-              {creatingRole && <Loader2 className='w-4 h-4 mr-2 animate-spin' />}
+              {creatingRole && (
+                <Loader2 className='w-4 h-4 mr-2 animate-spin' />
+              )}
               Create Role
             </Button>
           </DialogFooter>
@@ -656,7 +735,10 @@ export default function RolesAndPermissionsPage() {
           </div>
 
           <DialogFooter>
-            <Button variant='outline' onClick={() => setEditPermModalOpen(false)}>
+            <Button
+              variant='outline'
+              onClick={() => setEditPermModalOpen(false)}
+            >
               Cancel
             </Button>
             <Button onClick={handleSavePermissions} disabled={savingPerms}>

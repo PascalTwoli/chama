@@ -21,6 +21,7 @@ export interface ChamaMember {
   orgRole: { id: string; name: string } | null;
   joinedAt: string;
   user: ChamaMemberUser;
+  status?: string; // Optional status property for compatibility
 }
 
 class ChamaMembersService {

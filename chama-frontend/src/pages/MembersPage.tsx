@@ -19,18 +19,20 @@ import {
 } from 'lucide-react';
 import { cn } from '../utils/cn';
 import { useNavigate, useParams } from 'react-router-dom';
-import ChamaService from '../services/chama/chama-services';
+import ChamaMembersService, {
+  ChamaMember,
+} from '../services/chama/chama-members-service';
+import DashboardService, {
+  DashboardData,
+} from '../services/dashboard/dashboard-service';
 import { toast } from 'react-toastify';
 
-interface Member {
-  id: string;
-  userId: string;
+type Member = ChamaMember & {
   name: string;
   email: string;
   phone?: string;
-  joinedAt: string;
-  role: string;
-}
+  status?: string;
+};
 
 // Helper to generate avatar colors based on name - returns { bg, text }
 const getAvatarColors = (name: string) => {
@@ -75,6 +77,8 @@ export default function MembersPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [dashboard, setDashboard] = useState<DashboardData | null>(null);
+  // Removed statsLoading and setStatsLoading as they are not used.
 
   const { chamaId } = useParams<{ chamaId: string }>();
   const navigate = useNavigate();
@@ -82,22 +86,16 @@ export default function MembersPage() {
   useEffect(() => {
     const loadMembers = async () => {
       if (!chamaId) return;
-
       try {
         setIsLoading(true);
-        const membersData = await ChamaService.getChamaMembers(chamaId);
-
-        // Map to our Member interface
+        const membersData = await ChamaMembersService.getChamaMembers(chamaId);
         const mappedMembers: Member[] = membersData.map(m => ({
-          id: m.id,
-          userId: m.userId,
-          name: m.user.name || 'Unknown',
-          email: m.user.email || '',
-          phone: m.user.phone || undefined,
-          joinedAt: m.joinedAt,
-          role: m.role,
+          ...m,
+          name: m.user?.name || 'Unknown',
+          email: m.user?.email || '',
+          phone: m.user?.phone || undefined,
+          status: m.status || '',
         }));
-
         setMembers(mappedMembers);
       } catch (error) {
         console.error('Error loading members:', error);
@@ -106,8 +104,24 @@ export default function MembersPage() {
         setIsLoading(false);
       }
     };
-
     loadMembers();
+  }, [chamaId]);
+
+  useEffect(() => {
+    const loadStats = async () => {
+      if (!chamaId) return;
+      try {
+        setIsLoading(true);
+        const stats = await DashboardService.getDashboard(chamaId);
+        setDashboard(stats);
+      } catch (error) {
+        console.error('Error loading dashboard stats:', error);
+        toast.error('Failed to load stats');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadStats();
   }, [chamaId]);
 
   const filteredMembers = members.filter(m => {
@@ -131,7 +145,11 @@ export default function MembersPage() {
     <div className='p-6 space-y-6 h-[calc(100vh-64px)] overflow-hidden flex flex-col'>
       <PageHeader
         title='Members'
-        subtitle={`${members.length} total members`}
+        subtitle={
+          dashboard
+            ? `${dashboard.totalMembers} total members`
+            : `${members.length} total members`
+        }
         action={
           <div className='flex gap-2'>
             <Button
@@ -158,11 +176,65 @@ export default function MembersPage() {
         className='flex-shrink-0'
       />
 
-      {/* KPI Cards */}
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-4 flex-shrink-0'>
+      {/* Stats Cards */}
+      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 flex-shrink-0'>
         <StatsCard
           title='Total Members'
-          value={members.length.toString()}
+          value={dashboard ? dashboard.totalMembers : members.length}
+          icon={Users}
+          status='default'
+          className='bg-card'
+        />
+        <StatsCard
+          title='Paid This Month'
+          value={dashboard ? dashboard.thisMonthTotal : '-'}
+          icon={UserCheck}
+          status='success'
+          subtext={(() => {
+            if (
+              !dashboard ||
+              !dashboard.totalMembers ||
+              dashboard.totalMembers === 0
+            )
+              return '0% paid';
+            // Count unique member IDs in recentContributions for this month
+            const now = new Date();
+            const thisMonth = now.getMonth();
+            const thisYear = now.getFullYear();
+            const paidMemberIds = new Set(
+              dashboard.recentContributions
+                .filter(c => {
+                  const d = new Date(c.date);
+                  return (
+                    d.getMonth() === thisMonth && d.getFullYear() === thisYear
+                  );
+                })
+                .map(c => c.id)
+            );
+            const percent = Math.round(
+              (paidMemberIds.size / dashboard.totalMembers) * 100
+            );
+            return `${percent}% paid`;
+          })()}
+          className='bg-card'
+        />
+        <StatsCard
+          title='Pending'
+          value={dashboard ? dashboard.pendingPaymentsCount : '-'}
+          icon={Loader2}
+          status='warning'
+          subtext={
+            dashboard && dashboard.pendingPaymentsCount
+              ? 'Need follow-up'
+              : undefined
+          }
+          className='bg-card'
+        />
+        <StatsCard
+          title='Total Savings'
+          value={
+            dashboard ? `KSh ${dashboard.totalSavings.toLocaleString()}` : '-'
+          }
           icon={Users}
           status='default'
           className='bg-card'
@@ -229,10 +301,17 @@ export default function MembersPage() {
                   </div>
                 </div>
 
-                <div className='text-right'>
+                <div className='text-right flex flex-col items-end gap-1'>
                   <Badge variant='outline' className='text-[10px] px-1.5 h-5'>
-                    {formatRole(member.role)}
+                    {member.orgRole?.name
+                      ? formatRole(member.orgRole.name)
+                      : formatRole(member.role)}
                   </Badge>
+                  {member.status && (
+                    <span className='text-xs text-muted-foreground'>
+                      {member.status}
+                    </span>
+                  )}
                 </div>
               </div>
             ))}
@@ -267,8 +346,15 @@ export default function MembersPage() {
                   </h2>
                   <div className='flex items-center gap-2'>
                     <Badge variant='outline'>
-                      {formatRole(selectedMember.role)}
+                      {selectedMember.orgRole?.name
+                        ? formatRole(selectedMember.orgRole.name)
+                        : formatRole(selectedMember.role)}
                     </Badge>
+                    {selectedMember.status && (
+                      <span className='text-xs text-muted-foreground'>
+                        {selectedMember.status}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -298,22 +384,124 @@ export default function MembersPage() {
                 </div>
               </div>
 
-              {/* Member Info */}
+              {/* Financial Summary */}
               <div className='border-b border-border pb-3'>
                 <h4 className='font-semibold text-sm mb-1'>
-                  Membership Details
+                  Financial Summary
                 </h4>
                 <div className='bg-muted/30 rounded-lg py-1 space-y-3'>
+                  {/* Total Contributions */}
                   <div className='flex justify-between items-center p-2 text-sm bg-background'>
-                    <span className='text-muted-foreground'>Role</span>
+                    <span className='text-muted-foreground'>
+                      Total Contributions
+                    </span>
                     <span className='font-bold'>
-                      {formatRole(selectedMember.role)}
+                      {dashboard && selectedMember
+                        ? (() => {
+                            const memberOverview =
+                              dashboard.membersOverview.find(
+                                m => m.id === selectedMember.id
+                              );
+                            return memberOverview
+                              ? `KSh ${memberOverview.savings.toLocaleString()}`
+                              : '-';
+                          })()
+                        : '-'}
                     </span>
                   </div>
+                  {/* Monthly Amount (not available in backend, show placeholder) */}
                   <div className='flex justify-between items-center p-2 text-sm bg-background'>
-                    <span className='text-muted-foreground'>Member Since</span>
+                    <span className='text-muted-foreground'>
+                      Monthly Amount
+                    </span>
                     <span className='font-bold'>
-                      {formatJoinedDate(selectedMember.joinedAt)}
+                      {dashboard && selectedMember
+                        ? (() => {
+                            // Get all contributions for this member
+                            const memberContributions =
+                              dashboard.recentContributions.filter(
+                                c => c.id === selectedMember.id
+                              );
+                            if (memberContributions.length === 0) return '-';
+                            // Group by month-year
+                            const monthlyTotals: Record<string, number> = {};
+                            memberContributions.forEach(c => {
+                              const d = new Date(c.date);
+                              const key = `${d.getFullYear()}-${d.getMonth()}`;
+                              if (!monthlyTotals[key]) monthlyTotals[key] = 0;
+                              monthlyTotals[key] += c.amount;
+                            });
+                            const months = Object.keys(monthlyTotals).length;
+                            if (months === 0) return '-';
+                            const avg =
+                              (Object.values(monthlyTotals) as number[]).reduce(
+                                (a, b) => a + b,
+                                0
+                              ) / months;
+                            return `KSh ${Math.round(avg).toLocaleString()}`;
+                          })()
+                        : '-'}
+                    </span>
+                  </div>
+                  {/* Last Payment (from recentContributions) */}
+                  <div className='flex justify-between items-center p-2 text-sm bg-background'>
+                    <span className='text-muted-foreground'>Last Payment</span>
+                    <span className='font-bold'>
+                      {dashboard && selectedMember
+                        ? (() => {
+                            const lastPayment = dashboard.recentContributions
+                              .filter(c => c.id === selectedMember.id)
+                              .sort(
+                                (a, b) =>
+                                  new Date(b.date).getTime() -
+                                  new Date(a.date).getTime()
+                              )[0];
+                            return lastPayment
+                              ? new Date(lastPayment.date).toLocaleDateString(
+                                  'en-US',
+                                  {
+                                    year: 'numeric',
+                                    month: 'short',
+                                    day: 'numeric',
+                                  }
+                                )
+                              : '-';
+                          })()
+                        : '-'}
+                    </span>
+                  </div>
+                  {/* Attendance Rate (not available, show placeholder) */}
+                  <div className='flex justify-between items-center p-2 text-sm bg-background'>
+                    <span className='text-muted-foreground'>
+                      Payment Participation Rate
+                    </span>
+                    <span className='font-bold'>
+                      {dashboard && selectedMember
+                        ? (() => {
+                            // Get all contributions for this member
+                            const memberContributions =
+                              dashboard.recentContributions.filter(
+                                c => c.id === selectedMember.id
+                              );
+                            if (memberContributions.length === 0) return '0%';
+                            // Group by month-year
+                            const monthlyPaid: Record<string, boolean> = {};
+                            memberContributions.forEach(c => {
+                              const d = new Date(c.date);
+                              const key = `${d.getFullYear()}-${d.getMonth()}`;
+                              monthlyPaid[key] = true;
+                            });
+                            // Find total months tracked in dashboard.monthlyContributions
+                            const totalMonths =
+                              dashboard.monthlyContributions.length;
+                            if (totalMonths === 0) return '-';
+                            const paidMonths = Object.keys(monthlyPaid).length;
+                            const percent = Math.round(
+                              (paidMonths / totalMonths) * 100
+                            );
+                            return `${percent}%`;
+                          })()
+                        : '-'}
                     </span>
                   </div>
                 </div>
