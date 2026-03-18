@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import { PageHeader } from '../components/PageHeader';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { Input } from '../components/ui/input';
+import CustomCheckbox from '../components/CustomCheckbox';
 import { Label } from '../components/ui/label';
 import { Badge } from '../components/ui/badge';
 import { Save, CheckCircle2, Info, FileText, Copy } from 'lucide-react';
@@ -15,10 +16,15 @@ import ChamaSettingsService, {
   CreateChamaSettingsDto,
 } from '../services/chama/chama-settings-service';
 import { toast } from 'react-toastify';
+import isEqual from 'lodash.isequal'; // Add this import
 
 export default function SettingsPage() {
-  const { chamaId, chamaData, isLoading: isChamaLoading, error: chamaError } =
-    useChamaId();
+  const {
+    chamaId,
+    chamaData,
+    isLoading: isChamaLoading,
+    error: chamaError,
+  } = useChamaId();
 
   const defaultFormState = useMemo(
     () => ({
@@ -38,13 +44,13 @@ export default function SettingsPage() {
   );
 
   const [form, setForm] = useState(defaultFormState);
-  const [existingSettings, setExistingSettings] = useState<ChamaSettings | null>(
-    null
-  );
+  const [existingSettings, setExistingSettings] =
+    useState<ChamaSettings | null>(null);
   const [isSettingsLoading, setIsSettingsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  const contributionModelUi = form.contributionModel === 'FIXED' ? 'Fixed' : 'Flexible';
+  const contributionModelUi =
+    form.contributionModel === 'FIXED' ? 'Fixed' : 'Flexible';
 
   const parseIntOrNull = (value: string): number | null => {
     const trimmed = value.trim();
@@ -74,13 +80,14 @@ export default function SettingsPage() {
           automaticSmsReminders: settings.automaticSmsReminders,
         });
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Failed to load settings';
+        const message =
+          err instanceof Error ? err.message : 'Failed to load settings';
         const status =
           typeof err === 'object' &&
           err !== null &&
           'response' in err &&
-          typeof (err as { response?: { status?: unknown } }).response?.status ===
-            'number'
+          typeof (err as { response?: { status?: unknown } }).response
+            ?.status === 'number'
             ? (err as { response: { status: number } }).response.status
             : undefined;
         if (status === 404) {
@@ -126,11 +133,45 @@ export default function SettingsPage() {
       setExistingSettings(saved);
       toast.success('Settings saved');
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to save settings');
+      toast.error(
+        err instanceof Error ? err.message : 'Failed to save settings'
+      );
     } finally {
       setIsSaving(false);
     }
   };
+
+  // Helper to compare form with existing settings or default
+  // Helper to normalize settings for comparison
+  const normalizeSettings = useCallback(
+    (settings: Partial<ChamaSettings> | typeof form) => ({
+      contributionModel: settings.contributionModel ?? null,
+      contributionAmount: settings.contributionAmount ?? null,
+      frequency: settings.frequency ?? null,
+      dueDay: settings.dueDay ?? null,
+      gracePeriodDays: settings.gracePeriodDays ?? null,
+      latePaymentFee: settings.latePaymentFee ?? null,
+      minimumContribution: settings.minimumContribution ?? null,
+      contributionGuidelines: settings.contributionGuidelines ?? null,
+      requireMeetingAttendance: settings.requireMeetingAttendance ?? false,
+      enableMemberLoans: settings.enableMemberLoans ?? false,
+      automaticSmsReminders: settings.automaticSmsReminders ?? false,
+    }),
+    []
+  );
+
+  const isFormDirty = useMemo(() => {
+    if (existingSettings) {
+      return !isEqual(
+        normalizeSettings(existingSettings),
+        normalizeSettings(form)
+      );
+    }
+    return !isEqual(
+      normalizeSettings(form),
+      normalizeSettings(defaultFormState)
+    );
+  }, [form, existingSettings, defaultFormState, normalizeSettings]);
 
   return (
     <div className='p-6 space-y-6'>
@@ -146,8 +187,8 @@ export default function SettingsPage() {
           <Card>
             <CardContent className='p-0'>
               <div className='p-6 pb-4 border-b border-border'>
-                <h3 className='font-semibold text-lg'>Basic Information</h3>
-                <p className='text-sm text-muted-foreground'>
+                <h3 className='font-semibold text-lg m-0'>Basic Information</h3>
+                <p className='text-sm text-muted-foreground m-0'>
                   General Chama details
                 </p>
               </div>
@@ -179,8 +220,10 @@ export default function SettingsPage() {
           <Card>
             <CardContent className='p-6 space-y-6'>
               <div>
-                <h3 className='font-semibold text-lg'>Contribution Model</h3>
-                <p className='text-sm text-muted-foreground'>
+                <h3 className='font-semibold text-lg m-0'>
+                  Contribution Model
+                </h3>
+                <p className='text-sm text-muted-foreground m-0'>
                   Choose how members contribute to your Chama
                 </p>
               </div>
@@ -208,7 +251,7 @@ export default function SettingsPage() {
                     )}
                   </div>
                   <div>
-                    <p className='font-medium'>Fixed Contributions</p>
+                    <p className='font-medium m-0'>Fixed Contributions</p>
                     <p className='text-xs text-muted-foreground'>
                       Members contribute the same amount at regular intervals
                       (e.g., KSh 5,000 monthly)
@@ -223,7 +266,10 @@ export default function SettingsPage() {
                       : 'hover:border-primary/50'
                   )}
                   onClick={() =>
-                    setForm(prev => ({ ...prev, contributionModel: 'FLEXIBLE' }))
+                    setForm(prev => ({
+                      ...prev,
+                      contributionModel: 'FLEXIBLE',
+                    }))
                   }
                 >
                   <div
@@ -274,8 +320,7 @@ export default function SettingsPage() {
                           setForm(prev => ({
                             ...prev,
                             frequency:
-                              (e.target.value as ContributionFrequency) ||
-                              null,
+                              (e.target.value as ContributionFrequency) || null,
                           }))
                         }
                         className='flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
@@ -337,7 +382,9 @@ export default function SettingsPage() {
 
                   <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                     <div className='space-y-2 md:col-span-2'>
-                      <Label>Minimum Contribution per Transaction (KSh) - optional</Label>
+                      <Label>
+                        Minimum Contribution per Transaction (KSh) - optional
+                      </Label>
                       <Input
                         value={form.minimumContribution ?? ''}
                         onChange={e =>
@@ -388,17 +435,15 @@ export default function SettingsPage() {
 
               <div className='space-y-4'>
                 <div className='flex items-start gap-3'>
-                  <input
-                    type='checkbox'
+                  <CustomCheckbox
                     id='attendance'
                     checked={form.requireMeetingAttendance}
-                    onChange={e =>
+                    onChange={(checked: boolean) =>
                       setForm(prev => ({
                         ...prev,
-                        requireMeetingAttendance: e.target.checked,
+                        requireMeetingAttendance: checked,
                       }))
                     }
-                    className='h-4 w-4 mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-600'
                   />
                   <div className='space-y-1'>
                     <Label htmlFor='attendance' className='font-medium'>
@@ -410,17 +455,15 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <div className='flex items-start gap-3'>
-                  <input
-                    type='checkbox'
+                  <CustomCheckbox
                     id='loans'
                     checked={form.enableMemberLoans}
-                    onChange={e =>
+                    onChange={(checked: boolean) =>
                       setForm(prev => ({
                         ...prev,
-                        enableMemberLoans: e.target.checked,
+                        enableMemberLoans: checked,
                       }))
                     }
-                    className='h-4 w-4 mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-600'
                   />
                   <div className='space-y-1'>
                     <Label htmlFor='loans' className='font-medium'>
@@ -432,17 +475,15 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <div className='flex items-start gap-3'>
-                  <input
-                    type='checkbox'
+                  <CustomCheckbox
                     id='sms'
                     checked={form.automaticSmsReminders}
-                    onChange={e =>
+                    onChange={(checked: boolean) =>
                       setForm(prev => ({
                         ...prev,
-                        automaticSmsReminders: e.target.checked,
+                        automaticSmsReminders: checked,
                       }))
                     }
-                    className='h-4 w-4 mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-600'
                   />
                   <div className='space-y-1'>
                     <Label htmlFor='sms' className='font-medium'>
@@ -518,27 +559,29 @@ export default function SettingsPage() {
 
               <div className='space-y-3'>
                 <div>
-                  <p className='text-xs text-muted-foreground'>Chama Name</p>
-                  <p className='font-medium text-sm'>
+                  <p className='text-xs text-muted-foreground m-0 mt-2'>
+                    Chama Name
+                  </p>
+                  <p className='font-medium text-sm my-1'>
                     {chamaData?.name || '-'}
                   </p>
                 </div>
                 <div>
-                  <p className='text-xs text-muted-foreground'>
+                  <p className='text-xs text-muted-foreground m-0 mt-2'>
                     Contribution Model
                   </p>
-                  <Badge variant='secondary' className='mt-1 text-xs'>
+                  <Badge variant='secondary' className='text-xs my-1'>
                     {contributionModelUi === 'Fixed'
                       ? 'Fixed Contributions'
                       : 'Flexible Contributions'}
                   </Badge>
                 </div>
                 <div>
-                  <p className='text-xs text-muted-foreground'>
+                  <p className='text-xs text-muted-foreground m-0 mt-2'>
                     Amount & Frequency
                   </p>
                   {contributionModelUi === 'Fixed' ? (
-                    <p className='font-medium text-sm'>
+                    <p className='font-medium text-sm my-1'>
                       {`KSh ${form.contributionAmount ?? '-'} / ${form.frequency ? form.frequency.toLowerCase() : '-'}`}
                     </p>
                   ) : (
@@ -546,9 +589,11 @@ export default function SettingsPage() {
                   )}
                 </div>
                 <div>
-                  <p className='text-xs text-muted-foreground'>Due Day</p>
+                  <p className='text-xs text-muted-foreground m-0 mt-2'>
+                    Due Day
+                  </p>
                   {contributionModelUi === 'Fixed' ? (
-                    <p className='font-medium text-sm'>
+                    <p className='font-medium text-sm my-1'>
                       {form.dueDay ? `Day ${form.dueDay}` : '-'}
                     </p>
                   ) : (
@@ -568,7 +613,7 @@ export default function SettingsPage() {
                 <div className='flex gap-2 items-start'>
                   <CheckCircle2 className='w-4 h-4 text-blue-600 shrink-0' />
                   <div className='space-y-0.5'>
-                    <p className='text-xs font-medium'>Choose Your Model</p>
+                    <p className='text-xs font-medium m-0'>Choose Your Model</p>
                     <p className='text-[10px] text-muted-foreground'>
                       Select based on how your Chama operates
                     </p>
@@ -577,7 +622,9 @@ export default function SettingsPage() {
                 <div className='flex gap-2 items-start'>
                   <CheckCircle2 className='w-4 h-4 text-blue-600 shrink-0' />
                   <div className='space-y-0.5'>
-                    <p className='text-xs font-medium'>Fixed is Structured</p>
+                    <p className='text-xs font-medium m-0'>
+                      Fixed is Structured
+                    </p>
                     <p className='text-[10px] text-muted-foreground'>
                       Good for traditional table banking
                     </p>
@@ -586,7 +633,7 @@ export default function SettingsPage() {
                 <div className='flex gap-2 items-start'>
                   <CheckCircle2 className='w-4 h-4 text-blue-600 shrink-0' />
                   <div className='space-y-0.5'>
-                    <p className='text-xs font-medium'>Flexible is Open</p>
+                    <p className='text-xs font-medium m-0'>Flexible is Open</p>
                     <p className='text-[10px] text-muted-foreground'>
                       Perfect for savings groups with varying incomes
                     </p>
@@ -597,9 +644,14 @@ export default function SettingsPage() {
           </Card>
 
           <Button
-            className='w-full gap-2 bg-blue-600 hover:bg-blue-700 text-white'
+            className={cn(
+              'w-full gap-2 bg-blue-600 hover:bg-blue-700 text-white',
+              !isFormDirty &&
+                'opacity-50 cursor-not-allowed pointer-events-none'
+            )}
             onClick={onSave}
             disabled={
+              !isFormDirty ||
               isSaving ||
               isSettingsLoading ||
               isChamaLoading ||

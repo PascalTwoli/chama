@@ -1,16 +1,23 @@
 import {
   Injectable,
+  Inject,
+  forwardRef,
   BadRequestException,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateChamaDto } from './dto/create-chama.dto';
-import { user_role, country } from '@prisma/client';
+import { user_role, country, system_role } from '@prisma/client';
 import * as crypto from 'crypto';
+import { RolesPermissionsService } from '../roles-permissions/roles-permissions.service';
 
 @Injectable()
 export class ChamaService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Inject(forwardRef(() => RolesPermissionsService))
+    private rolesPermissionsService: RolesPermissionsService,
+  ) {}
 
   async create(createChamaDto: CreateChamaDto, userId: string) {
     try {
@@ -54,6 +61,32 @@ export class ChamaService {
           membership: true,
         },
       });
+
+      // Seed global permissions (idempotent) and create default roles for this chama
+      await this.rolesPermissionsService.seedPermissions();
+      await this.rolesPermissionsService.createDefaultRolesForChama(chamaId);
+
+      // Set creator's system_role to OWNER
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: { system_role: system_role.OWNER },
+      });
+
+      // Assign creator the "Chairperson" organizational role
+      const chairpersonRole = await this.prisma.role.findUnique({
+        where: {
+          chama_id_name: { chama_id: chamaId, name: 'Chairperson' },
+        },
+      });
+      if (chairpersonRole) {
+        await this.prisma.member_role.create({
+          data: {
+            user_id: user.id,
+            chama_id: chamaId,
+            role_id: chairpersonRole.id,
+          },
+        });
+      }
 
       return chama;
     } catch (error: unknown) {
@@ -228,31 +261,44 @@ export class ChamaService {
         );
       }
 
-      // Get all members with user details
-      const members = await this.prisma.membership.findMany({
-        where: {
-          chama_id: chamaId,
-        },
-        include: {
-          user: true,
-        },
-        orderBy: [{ role: 'asc' }, { joinedAt: 'asc' }],
-      });
+      // Get all members with user details and RBAC role
+      const [members, memberRoles] = await Promise.all([
+        this.prisma.membership.findMany({
+          where: { chama_id: chamaId },
+          include: { user: true },
+          orderBy: [{ role: 'asc' }, { joinedAt: 'asc' }],
+        }),
+        this.prisma.member_role.findMany({
+          where: { chama_id: chamaId },
+          include: { role: true },
+        }),
+      ]);
+
+      // Build a lookup: userId → RBAC role name
+      const rbacRoleMap = new Map(
+        memberRoles.map((mr) => [mr.user_id, mr.role]),
+      );
 
       // Map to a cleaner response format
-      return members.map((m) => ({
-        id: m.id,
-        userId: m.user_id,
-        role: m.role,
-        joinedAt: m.joinedAt,
-        createdAt: m.createdAt,
-        user: {
-          id: m.user.id,
-          name: m.user.name,
-          email: m.user.email,
-          phone: m.user.phone,
-        },
-      }));
+      return members.map((m) => {
+        const rbacRole = rbacRoleMap.get(m.user_id);
+        return {
+          id: m.id,
+          userId: m.user_id,
+          role: m.role,
+          orgRole: rbacRole
+            ? { id: rbacRole.id, name: rbacRole.name }
+            : null,
+          joinedAt: m.joinedAt,
+          createdAt: m.createdAt,
+          user: {
+            id: m.user.id,
+            name: m.user.name,
+            email: m.user.email,
+            phone: m.user.phone,
+          },
+        };
+      });
     } catch (error: unknown) {
       console.error(`Error fetching members for chama ${chamaId}:`, error);
       if (error instanceof NotFoundException) throw error;

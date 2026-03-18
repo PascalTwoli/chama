@@ -1,5 +1,9 @@
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import DashboardService, {
+  DashboardData,
+} from '../services/dashboard/dashboard-service';
 import {
   Wallet,
   Users,
@@ -33,100 +37,20 @@ import {
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 
-// Monthly contribution data matching Figma
-const monthlyData = [
-  { month: 'Aug', amount: 80000 },
-  { month: 'Sep', amount: 120000 },
-  { month: 'Oct', amount: 140000 },
-  { month: 'Nov', amount: 100000 },
-  { month: 'Dec', amount: 160000 },
-  { month: 'Jan', amount: 180000 },
-];
-
-// Pie chart data matching Figma exactly
-const contributionDistribution = [
-  { name: 'Paid on Time', value: 83, color: '#22c55e' },
-  { name: 'Pending', value: 4, color: '#f59e0b' },
-  { name: 'Paid Late', value: 13, color: '#dc2626' },
-];
-
-// Recent contributions matching Figma
-const recentContributions = [
-  {
-    id: 1,
-    name: 'Mary Wanjiku',
-    date: 'Jan 15, 2026',
-    amount: 5000,
-    status: 'Paid',
-  },
-  {
-    id: 2,
-    name: 'Peter Kamau',
-    date: 'Jan 12, 2026',
-    amount: 7500,
-    status: 'Paid',
-  },
-  {
-    id: 3,
-    name: 'Grace Achieng',
-    date: 'Jan 11, 2026',
-    amount: 5000,
-    status: 'Paid',
-  },
-  {
-    id: 4,
-    name: 'David Omondi',
-    date: 'Jan 10, 2026',
-    amount: 5000,
-    status: 'Paid',
-  },
-  {
-    id: 5,
-    name: 'Faith Njeri',
-    date: 'Jan 10, 2026',
-    amount: 5000,
-    status: 'Paid',
-  },
-];
-
-// Members overview matching Figma
-const membersOverview = [
-  {
-    id: 1,
-    name: 'Mary Wanjiku',
-    phone: '0712345678',
-    savings: 75000,
-    status: 'Paid',
-  },
-  {
-    id: 2,
-    name: 'Peter Kamau',
-    phone: '0723456789',
-    savings: 120000,
-    status: 'Paid',
-  },
-  {
-    id: 3,
-    name: 'Grace Achieng',
-    phone: '0734567890',
-    savings: 85000,
-    status: 'Paid',
-  },
-  {
-    id: 4,
-    name: 'David Omondi',
-    phone: '0745678901',
-    savings: 95000,
-    status: 'Pending',
-  },
-  {
-    id: 5,
-    name: 'Faith Njeri',
-    phone: '0756789012',
-    savings: 68000,
-    status: 'Paid',
-  },
-];
+const defaultDashboard: DashboardData = {
+  totalSavings: 0,
+  totalMembers: 0,
+  thisMonthTotal: 0,
+  pendingPaymentsCount: 0,
+  monthlyContributions: [],
+  contributionDistribution: [
+    { name: 'Paid on Time', value: 0, color: '#22c55e' },
+    { name: 'Pending', value: 0, color: '#f59e0b' },
+    { name: 'Paid Late', value: 0, color: '#dc2626' },
+  ],
+  recentContributions: [],
+  membersOverview: [],
+};
 
 interface StatCardProps {
   title: string;
@@ -214,6 +138,29 @@ const renderCustomLabel = ({
 export default function AdminDashboard() {
   const { chamaId } = useParams<{ chamaId: string }>();
   const navigate = useNavigate();
+  const [data, setData] = useState<DashboardData>(defaultDashboard);
+
+  const loadDashboard = useCallback(async () => {
+    if (!chamaId) return;
+    try {
+      const result = await DashboardService.getDashboard(chamaId);
+      setData(result);
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : 'Failed to load dashboard'
+      );
+    }
+  }, [chamaId]);
+
+  useEffect(() => {
+    loadDashboard();
+  }, [loadDashboard]);
+
+  useEffect(() => {
+    const onFocus = () => loadDashboard();
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [loadDashboard]);
 
   const getInitials = (name: string) => {
     return name
@@ -252,29 +199,29 @@ export default function AdminDashboard() {
       <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
         <StatCard
           title='Total Savings'
-          value='KSh 2,450,000'
-          change='+12.5%'
+          value={`KSh ${data.totalSavings.toLocaleString()}`}
+          change=''
           trend='up'
           icon={<Wallet className='w-5 h-5' />}
         />
         <StatCard
           title='Total Members'
-          value='24'
-          change='+2'
+          value={data.totalMembers.toString()}
+          change=''
           trend='up'
           icon={<Users className='w-5 h-5' />}
         />
         <StatCard
           title='This Month'
-          value='KSh 180,000'
-          change='+8.5%'
+          value={`KSh ${data.thisMonthTotal.toLocaleString()}`}
+          change=''
           trend='up'
           icon={<TrendingUp className='w-5 h-5' />}
         />
         <StatCard
           title='Pending Payments'
-          value='3'
-          change='-2'
+          value={data.pendingPaymentsCount.toString()}
+          change=''
           trend='down'
           icon={<Clock className='w-5 h-5' />}
         />
@@ -296,7 +243,7 @@ export default function AdminDashboard() {
             <div className='h-[250px]'>
               <ResponsiveContainer width='100%' height='100%'>
                 <BarChart
-                  data={monthlyData}
+                  data={data.monthlyContributions}
                   margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
                 >
                   <CartesianGrid
@@ -348,15 +295,15 @@ export default function AdminDashboard() {
               <ResponsiveContainer width='100%' height='100%'>
                 <PieChart>
                   <Pie
-                    data={contributionDistribution}
+                    data={data.contributionDistribution}
                     cx='50%'
                     cy='50%'
-                    labelLine={true}
+                    labelLine={false}
                     label={renderCustomLabel}
                     outerRadius={80}
                     dataKey='value'
                   >
-                    {contributionDistribution.map((entry, index) => (
+                    {data.contributionDistribution.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
@@ -397,7 +344,7 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className='space-y-3'>
-              {recentContributions.map(contribution => (
+              {data.recentContributions.map(contribution => (
                 <div
                   key={contribution.id}
                   className='flex items-center justify-between p-3 border border-border rounded-lg bg-card hover:bg-muted/50 transition-colors'
@@ -493,7 +440,7 @@ export default function AdminDashboard() {
               Members Overview
             </CardTitle>
             <p className='text-sm text-muted-foreground m-0'>
-              24 active members
+              {data.totalMembers} active members
             </p>
           </div>
           {/* Onclick redirect to members page */}
@@ -528,7 +475,7 @@ export default function AdminDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {membersOverview.map(member => (
+                {data.membersOverview.map(member => (
                   <tr
                     key={member.id}
                     className='border-b border-border last:border-0'

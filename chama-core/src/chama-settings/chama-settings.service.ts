@@ -13,6 +13,7 @@ import {
   ContributionFrequency,
   chama_settings,
 } from '@prisma/client';
+import { NotificationsService } from '../notifications/notifications.service';
 
 export interface ChamaSettingsResponse {
   id: string;
@@ -34,7 +35,10 @@ export interface ChamaSettingsResponse {
 
 @Injectable()
 export class ChamaSettingsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationsService: NotificationsService,
+  ) {}
 
   private mapToResponse(settings: chama_settings): ChamaSettingsResponse {
     return {
@@ -239,6 +243,34 @@ export class ChamaSettingsService {
       },
     });
 
+    // Notify all members about settings update
+    try {
+      const changes: string[] = [];
+      if (updateDto.contributionModel) changes.push('contribution model');
+      if (updateDto.contributionAmount !== undefined) changes.push('contribution amount');
+      if (updateDto.frequency) changes.push('payment frequency');
+      if (updateDto.dueDay !== undefined) changes.push('due day');
+      if (updateDto.gracePeriodDays !== undefined) changes.push('grace period');
+      if (updateDto.latePaymentFee !== undefined) changes.push('late payment fee');
+      if (updateDto.enableMemberLoans !== undefined) changes.push('loan settings');
+
+      if (changes.length > 0) {
+        await this.notificationsService.notify('chama.settings.updated', {
+          chamaId,
+          title: 'Chama Settings Updated',
+          body: `The following settings have been updated: ${changes.join(', ')}`,
+          entityType: 'chama_settings',
+          entityId: settings.id,
+          // Uses default_audience (BOTH) - notifies all members
+        });
+      }
+    } catch (notifError) {
+      // Log but don't fail the update if notification fails
+      console.warn(
+        `Failed to send settings update notification: ${notifError instanceof Error ? notifError.message : 'Unknown error'}`,
+      );
+    }
+
     return this.mapToResponse(settings);
   }
 
@@ -253,10 +285,10 @@ export class ChamaSettingsService {
     amount: number,
   ): { valid: boolean; message?: string } {
     if (settings.contribution_model === ContributionModel.FIXED) {
-      if (settings.contribution_amount && amount !== settings.contribution_amount) {
+      if (amount <= 0) {
         return {
           valid: false,
-          message: `Contribution amount must be exactly ${settings.contribution_amount} for this chama`,
+          message: 'Contribution amount must be greater than 0',
         };
       }
     } else if (settings.contribution_model === ContributionModel.FLEXIBLE) {

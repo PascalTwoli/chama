@@ -582,7 +582,7 @@ const JoinRequests = () => {
                         className='font-medium italic m-0'
                         style={{ color: 'var(--foreground)' }}
                       >
-                        "{reviewModalRequest.message}"
+                        &ldquo;{reviewModalRequest.message}&rdquo;
                       </p>
                     </div>
                   </div>

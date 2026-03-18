@@ -9,12 +9,16 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateJoinRequestDto } from './dto/create-join-request.dto';
 import { join_request, join_request_status, user_role } from '@prisma/client';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class JoinRequestService {
   private readonly logger = new Logger(JoinRequestService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationsService: NotificationsService,
+  ) {}
 
   /**
    * Create a new join request
@@ -99,6 +103,23 @@ export class JoinRequestService {
       this.logger.log(
         `User ${userId} created join request for chama ${chamaId}`,
       );
+
+      // Notify admins about new join request
+      try {
+        await this.notificationsService.notify('join_request.new', {
+          chamaId,
+          title: 'New Join Request',
+          body: `${joinRequest.user_join_request_user_idTouser.name || 'A user'} wants to join ${joinRequest.chama.name}`,
+          entityType: 'join_request',
+          entityId: joinRequest.id,
+          permissionKey: 'member.approve', // Notify users with member approval permission
+        });
+      } catch (notifError) {
+        // Log but don't fail the request if notification fails
+        this.logger.warn(
+          `Failed to send notification for join request ${joinRequest.id}: ${notifError instanceof Error ? notifError.message : 'Unknown error'}`,
+        );
+      }
 
       return joinRequest;
     } catch (error) {
@@ -270,6 +291,34 @@ export class JoinRequestService {
         `Reviewer ${reviewerId} approved join request ${requestId} for chama ${chamaId}`,
       );
 
+      // Send notifications
+      try {
+        // Notify the user their request was approved
+        await this.notificationsService.notify('join_request.approved', {
+          chamaId,
+          title: 'Join Request Approved',
+          body: `Your request to join ${result.joinRequest.chama.name} has been approved. Welcome!`,
+          entityType: 'join_request',
+          entityId: requestId,
+          targetUserIds: [result.joinRequest.user_id],
+        });
+
+        // Notify admins that a new member joined
+        await this.notificationsService.notify('member.joined', {
+          chamaId,
+          title: 'New Member Joined',
+          body: `${result.joinRequest.user_join_request_user_idTouser.name || 'A new member'} has joined the chama`,
+          entityType: 'member',
+          entityId: result.joinRequest.user_id,
+          permissionKey: 'member.view', // Notify users who can view members
+        });
+      } catch (notifError) {
+        // Log but don't fail the approval if notification fails
+        this.logger.warn(
+          `Failed to send notifications for approved join request ${requestId}: ${notifError instanceof Error ? notifError.message : 'Unknown error'}`,
+        );
+      }
+
       return result;
     } catch (error) {
       // Pass through known error types
@@ -351,6 +400,23 @@ export class JoinRequestService {
       this.logger.log(
         `Reviewer ${reviewerId} rejected join request ${requestId} for chama ${chamaId}`,
       );
+
+      // Notify the user their request was rejected
+      try {
+        await this.notificationsService.notify('join_request.rejected', {
+          chamaId,
+          title: 'Join Request Declined',
+          body: `Your request to join ${updatedRequest.chama.name} has been declined`,
+          entityType: 'join_request',
+          entityId: requestId,
+          targetUserIds: [updatedRequest.user_id],
+        });
+      } catch (notifError) {
+        // Log but don't fail the rejection if notification fails
+        this.logger.warn(
+          `Failed to send notification for rejected join request ${requestId}: ${notifError instanceof Error ? notifError.message : 'Unknown error'}`,
+        );
+      }
 
       return updatedRequest;
     } catch (error) {

@@ -9,6 +9,7 @@ import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { transaction_type, transaction_status } from '@prisma/client';
 import * as crypto from 'crypto';
 import { ChamaSettingsService } from '../chama-settings/chama-settings.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 // Define interface for transaction response that matches the controller's expected format
 export interface TransactionResponse {
@@ -29,6 +30,7 @@ export class TransactionService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly chamaSettingsService: ChamaSettingsService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   /**
@@ -131,6 +133,41 @@ export class TransactionService {
           },
         });
       });
+
+      // Send notification for contribution payments
+      if (createTransactionDto.type === transaction_type.CONTRIBUTION) {
+        try {
+          // Get user details for notification
+          const user = await this.prisma.user.findUnique({
+            where: { id: targetUserId },
+          });
+
+          // Notify the member that their contribution was received
+          await this.notificationsService.notify('contribution.received', {
+            chamaId: createTransactionDto.chamaId,
+            title: 'Contribution Received',
+            body: `Your contribution of KSh ${Number(transaction.amount).toLocaleString()} has been received. Thank you!`,
+            entityType: 'contribution',
+            entityId: transaction.id,
+            targetUserIds: [targetUserId],
+          });
+
+          // Notify admins about the contribution (for record keeping)
+          await this.notificationsService.notify('contribution.received', {
+            chamaId: createTransactionDto.chamaId,
+            title: 'Contribution Recorded',
+            body: `${user?.name || 'A member'} contributed KSh ${Number(transaction.amount).toLocaleString()}`,
+            entityType: 'contribution',
+            entityId: transaction.id,
+            permissionKey: 'finance.view', // Notify users with finance view permission
+          });
+        } catch (notifError) {
+          // Log but don't fail the transaction if notification fails
+          console.warn(
+            `Failed to send contribution notification: ${notifError instanceof Error ? notifError.message : 'Unknown error'}`,
+          );
+        }
+      }
 
       // Convert Decimal amount to number and null to undefined for response
       // Map snake_case database fields to camelCase for API response

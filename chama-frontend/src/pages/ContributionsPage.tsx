@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { PageHeader } from '../components/PageHeader';
 import { StatsCard } from '../components/StatsCard';
 import {
@@ -37,8 +37,13 @@ import TransactionService, {
   Transaction,
 } from '../services/transaction/transaction-services';
 import { toast } from 'react-toastify';
+import ChamaSettingsService, {
+  ChamaSettings,
+} from '../services/chama/chama-settings-service';
+import ChamaMembersService, {
+  ChamaMember,
+} from '../services/chama/chama-members-service';
 
-// Mock Data
 type ContributionStatus = 'Completed' | 'Pending' | 'Late';
 
 interface Contribution {
@@ -85,123 +90,70 @@ const getInitials = (name: string) => {
     .slice(0, 2);
 };
 
-const mockContributions: Contribution[] = [
-  {
-    id: '1',
-    member: {
-      name: 'John Kamau',
-      initials: 'JK',
-      color: 'bg-blue-100 text-blue-600',
-    },
-    amount: 5000,
-    date: '15 Jan 2026',
-    method: 'M-Pesa',
-    status: 'Completed',
-    phone: '+254 712 345 678',
-    reference: 'QJK7H9M2XP',
-  },
-  {
-    id: '2',
-    member: {
-      name: 'Mary Wanjiku',
-      initials: 'MW',
-      color: 'bg-purple-100 text-purple-600',
-    },
-    amount: 5000,
-    date: '14 Jan 2026',
-    method: 'M-Pesa',
-    status: 'Completed',
-    phone: '+254 723 456 789',
-    reference: 'RMN4K6L8WQ',
-  },
-  {
-    id: '3',
-    member: {
-      name: 'Peter Ochieng',
-      initials: 'PO',
-      color: 'bg-green-100 text-green-600',
-    },
-    amount: 3500,
-    date: '16 Jan 2026',
-    method: 'Cash',
-    status: 'Completed',
-    phone: '+254 734 567 890',
-    reference: 'CASH-001',
-  },
-  {
-    id: '4',
-    member: {
-      name: 'Grace Akinyi',
-      initials: 'GA',
-      color: 'bg-orange-100 text-orange-600',
-    },
-    amount: 5000,
-    date: '10 Jan 2026',
-    method: 'Bank Transfer',
-    status: 'Completed',
-    phone: '+254 745 678 901',
-    reference: 'BNK-TXN-78523',
-  },
-  {
-    id: '5',
-    member: {
-      name: 'David Mwangi',
-      initials: 'DM',
-      color: 'bg-red-100 text-red-600',
-    },
-    amount: 5000,
-    date: '17 Jan 2026',
-    method: 'M-Pesa',
-    status: 'Pending',
-    phone: '+254 756 789 012',
-    reference: 'PLT5N3B7YS',
-  },
-  {
-    id: '6',
-    member: {
-      name: 'Sarah Njeri',
-      initials: 'SN',
-      color: 'bg-indigo-100 text-indigo-600',
-    },
-    amount: 5000,
-    date: '3 Jan 2026',
-    method: 'M-Pesa',
-    status: 'Late',
-    phone: '+254 767 890 123',
-    reference: 'ZXC8V2M4KJ',
-  },
-  {
-    id: '7',
-    member: {
-      name: 'John Kamau',
-      initials: 'JK',
-      color: 'bg-blue-100 text-blue-600',
-    },
-    amount: 5000,
-    date: '14 Dec 2025',
-    method: 'M-Pesa',
-    status: 'Completed',
-    phone: '+254 712 345 678',
-    reference: 'FGH3J5K9LP',
-  },
-  {
-    id: '8',
-    member: {
-      name: 'Mary Wanjiku',
-      initials: 'MW',
-      color: 'bg-purple-100 text-purple-600',
-    },
-    amount: 5000,
-    date: '15 Dec 2025',
-    method: 'M-Pesa',
-    status: 'Completed',
-    phone: '+254 723 456 789',
-    reference: 'WER6T8Y1UI',
-  },
+const avatarTailwindColors = [
+  'bg-blue-100 text-blue-600',
+  'bg-purple-100 text-purple-600',
+  'bg-green-100 text-green-600',
+  'bg-orange-100 text-orange-600',
+  'bg-red-100 text-red-600',
+  'bg-indigo-100 text-indigo-600',
+  'bg-pink-100 text-pink-600',
+  'bg-teal-100 text-teal-600',
 ];
+
+const getAvatarTailwindColor = (name: string) => {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return avatarTailwindColors[Math.abs(hash) % avatarTailwindColors.length];
+};
+
+const formatDisplayDate = (isoDate: string): string => {
+  const date = new Date(isoDate);
+  if (Number.isNaN(date.getTime())) return isoDate;
+  return date.toLocaleDateString(undefined, {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
+};
+
+const isInCurrentMonth = (isoDate: string): boolean => {
+  const date = new Date(isoDate);
+  if (Number.isNaN(date.getTime())) return false;
+  const now = new Date();
+  return (
+    date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth()
+  );
+};
+
+const getContributionStatusForCycle = (params: {
+  totalPaid: number;
+  expectedContribution: number;
+  dueDay: number | null;
+  gracePeriodDays: number | null;
+  today: Date;
+}): ContributionStatus => {
+  const { totalPaid, expectedContribution, dueDay, gracePeriodDays, today } =
+    params;
+
+  if (expectedContribution > 0 && totalPaid >= expectedContribution) {
+    return 'Completed';
+  }
+
+  const due = dueDay ?? 0;
+  const grace = gracePeriodDays ?? 0;
+  const deadline = due + grace;
+  const dayOfMonth = today.getDate();
+
+  if (deadline > 0 && dayOfMonth > deadline) return 'Late';
+  return 'Pending';
+};
 
 export default function ContributionsPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { chamaId } = useParams<{ chamaId: string }>();
 
   const [filterStatus, setFilterStatus] = useState<ContributionStatus | 'All'>(
@@ -211,6 +163,10 @@ export default function ContributionsPage() {
   const [selectedContribution, setSelectedContribution] =
     useState<Contribution | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [settings, setSettings] = useState<ChamaSettings | null>(null);
+  const [members, setMembers] = useState<ChamaMember[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
 
   const handleViewContribution = (contribution: Contribution) => {
     setSelectedContribution(contribution);
@@ -230,7 +186,153 @@ export default function ContributionsPage() {
     navigate(`/admin/chamas/${chamaId}/contributions/record-contribution`);
   };
 
-  const filteredContributions = mockContributions.filter(c => {
+  const loadData = useCallback(async () => {
+    if (!chamaId) return;
+    try {
+      const [settingsRes, membersRes, txRes] = await Promise.all([
+        ChamaSettingsService.getSettings(chamaId),
+        ChamaMembersService.getChamaMembers(chamaId),
+        TransactionService.getTransactionsByChama(chamaId, {
+          type: 'CONTRIBUTION',
+        }),
+      ]);
+
+      setSettings(settingsRes);
+      setMembers(membersRes);
+      setTransactions(txRes);
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : 'Failed to load contribution data'
+      );
+    }
+  }, [chamaId]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  useEffect(() => {
+    const onFocus = () => {
+      loadData();
+    };
+    window.addEventListener('focus', onFocus);
+    return () => {
+      window.removeEventListener('focus', onFocus);
+    };
+  }, [loadData]);
+
+  useEffect(() => {
+    loadData();
+  }, [location.key, loadData]);
+
+  const currentCycleTransactions = useMemo(() => {
+    return transactions.filter(
+      t => t.type === 'CONTRIBUTION' && isInCurrentMonth(t.createdAt)
+    );
+  }, [transactions]);
+
+  const byMember = useMemo(() => {
+    const map = new Map<
+      string,
+      {
+        totalPaid: number;
+        lastPaymentAt: string | null;
+        lastReference: string | null;
+      }
+    >();
+
+    for (const tx of currentCycleTransactions) {
+      const existing = map.get(tx.userId) || {
+        totalPaid: 0,
+        lastPaymentAt: null,
+        lastReference: null,
+      };
+
+      const amount = typeof tx.amount === 'number' ? tx.amount : Number(tx.amount);
+      const nextTotal = existing.totalPaid + (Number.isFinite(amount) ? amount : 0);
+      const isNewer =
+        !existing.lastPaymentAt ||
+        new Date(tx.createdAt).getTime() > new Date(existing.lastPaymentAt).getTime();
+
+      map.set(tx.userId, {
+        totalPaid: nextTotal,
+        lastPaymentAt: isNewer ? tx.createdAt : existing.lastPaymentAt,
+        lastReference:
+          isNewer && tx.reference ? tx.reference : existing.lastReference,
+      });
+    }
+
+    return map;
+  }, [currentCycleTransactions]);
+
+  const expectedContribution = settings?.contributionAmount ?? 0;
+  const dueDay = settings?.dueDay ?? null;
+  const gracePeriodDays = settings?.gracePeriodDays ?? 0;
+
+  const contributions: Contribution[] = useMemo(() => {
+    const today = new Date();
+
+    return members.map(m => {
+      const name = m.user?.name || 'Unknown Member';
+      const initials = getInitials(name);
+      const memberTx = byMember.get(m.userId);
+
+      const paidAmount = memberTx?.totalPaid ?? 0;
+      const status = getContributionStatusForCycle({
+        totalPaid: paidAmount,
+        expectedContribution,
+        dueDay,
+        gracePeriodDays,
+        today,
+      });
+
+      return {
+        id: m.userId,
+        member: {
+          name,
+          initials,
+          color: getAvatarTailwindColor(name),
+        },
+        amount: paidAmount,
+        date: memberTx?.lastPaymentAt
+          ? formatDisplayDate(memberTx.lastPaymentAt)
+          : '-',
+        method: 'M-Pesa',
+        status,
+        phone: m.user?.phone || undefined,
+        reference: memberTx?.lastReference || undefined,
+      };
+    });
+  }, [members, byMember, dueDay, gracePeriodDays, expectedContribution]);
+
+  const kpis = useMemo(() => {
+    const totalCollected = currentCycleTransactions.reduce((sum, t) => {
+      const amount = typeof t.amount === 'number' ? t.amount : Number(t.amount);
+      return sum + (Number.isFinite(amount) ? amount : 0);
+    }, 0);
+
+    const totalExpected = members.length * expectedContribution;
+
+    let completedMembers = 0;
+    let pendingMembers = 0;
+    let lateMembers = 0;
+
+    for (const c of contributions) {
+      if (c.status === 'Completed') completedMembers += 1;
+      else if (c.status === 'Late') lateMembers += 1;
+      else pendingMembers += 1;
+    }
+
+    return {
+      totalExpected,
+      totalCollected,
+      completedMembers,
+      pendingMembers,
+      lateMembers,
+    };
+  }, [contributions, currentCycleTransactions, expectedContribution, members.length]);
+
+  const filteredContributions = contributions.filter(c => {
     const matchesStatus = filterStatus === 'All' || c.status === filterStatus;
     const matchesSearch = c.member.name
       .toLowerCase()
@@ -290,21 +392,26 @@ export default function ContributionsPage() {
       <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
         <StatsCard
           title='Total Collected'
-          value='KSh 28,500'
+          value={`KSh ${kpis.totalCollected.toLocaleString()}`}
           icon={Wallet}
           status='success'
           className='bg-card'
         />
         <StatsCard
           title='Completed'
-          value='6'
+          value={kpis.completedMembers.toString()}
           icon={CheckCircle2}
           status='success'
         />
-        <StatsCard title='Pending' value='1' icon={Clock} status='warning' />
+        <StatsCard
+          title='Pending'
+          value={kpis.pendingMembers.toString()}
+          icon={Clock}
+          status='warning'
+        />
         <StatsCard
           title='Late'
-          value='1'
+          value={kpis.lateMembers.toString()}
           icon={AlertCircle}
           status='destructive'
         />
