@@ -6,6 +6,8 @@ import LogoutModal from '../logoutModal';
 import { useTheme } from '../../context/ThemeContext';
 import { useChamaMembership } from '../../context/ChamaMembershipContext';
 import { Button } from '../ui/button';
+import NotificationsService from '../../services/notifications/notifications-service';
+import { onNotificationUpdate } from '../../utils/notification-events';
 
 import { User } from '../../models/user';
 import Logo3 from '../../logos/Logo3';
@@ -15,6 +17,7 @@ const Navbar = () => {
   const [, setUserName] = useState<string | null>(null);
   const [, setDisplayProfileMenu] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [unreadCount, setUnreadCount] = useState<number>(0);
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const { chamaId } = useParams<{ chamaId: string }>();
@@ -40,6 +43,43 @@ const Navbar = () => {
       });
   }, []);
 
+  // Fetch unread notification count
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      // Use chamaId from URL params or activeChama from context
+      const targetChamaId = chamaId || activeChama?.chamaId;
+      
+      if (!targetChamaId) {
+        console.log('[Navbar] No chamaId available, skipping notification fetch');
+        return;
+      }
+
+      try {
+        console.log('[Navbar] Fetching notification stats for chamaId:', targetChamaId);
+        // Don't pass audience parameter - get all notifications like NotificationsPage does
+        const stats = await NotificationsService.getStats(targetChamaId);
+        console.log('[Navbar] Notification stats received:', stats);
+        setUnreadCount(stats.unread);
+      } catch (error) {
+        console.error('[Navbar] Error fetching notification stats:', error);
+        // Don't show error to user, just keep count at 0
+      }
+    };
+
+    fetchUnreadCount();
+
+    // Poll for updates every 30 seconds
+    const interval = setInterval(fetchUnreadCount, 30000);
+
+    // Listen for manual updates (when user marks as read)
+    const cleanup = onNotificationUpdate(fetchUnreadCount);
+
+    return () => {
+      clearInterval(interval);
+      cleanup();
+    };
+  }, [chamaId, activeChama?.chamaId, dashboardContext]);
+
   // Handle dashboard switch
   const handleDashboardSwitch = () => {
     const targetChamaId = chamaId || activeChama?.chamaId;
@@ -57,10 +97,13 @@ const Navbar = () => {
   };
 
   const handleNotificationClick = () => {
+    const targetChamaId = chamaId || activeChama?.chamaId;
+    if (!targetChamaId) return;
+
     if (dashboardContext === 'admin') {
-      navigate(`/admin/chamas/${chamaId}/notifications`);
+      navigate(`/admin/chamas/${targetChamaId}/notifications`);
     } else {
-      navigate(`/member/chamas/${chamaId}/notifications`);
+      navigate(`/member/chamas/${targetChamaId}/notifications`);
     }
   };
 
@@ -120,11 +163,14 @@ const Navbar = () => {
             size='sm'
             className='relative text-muted-foreground hover:text-foreground'
             onClick={handleNotificationClick}
+            title={`${unreadCount} unread notification${unreadCount !== 1 ? 's' : ''}`}
           >
             <Bell className='w-4 h-4' />
-            <span className='absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground rounded-full text-xs flex items-center justify-center'>
-              3
-            </span>
+            {unreadCount > 0 && (
+              <span className='absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground rounded-full text-xs flex items-center justify-center'>
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            )}
           </Button>
 
           {/* This should not be deleted for now, i'll delete it myself when i'm sure it's not needed */}

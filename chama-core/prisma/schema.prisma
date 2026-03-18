@@ -88,23 +88,33 @@ model membership {
 }
 
 model notification {
-  id                String            @id
-  user_id           String
-  type_id           Int
-  title             String
-  body              String
-  read_at           DateTime?
-  sent_at           DateTime?
-  createdAt         DateTime          @default(now())
+  id             String             @id @default(uuid())
+  user_id        String
+  chama_id       String
+  type_id        String
+  audience       NotificationAudience
+  title          String
+  body           String
+  entity_type    String?
+  entity_id      String?
+  action_required Boolean           @default(false)
+  read_at        DateTime?
+  createdAt      DateTime          @default(now())
   notification_type notification_type @relation(fields: [type_id], references: [id])
-  user              user              @relation(fields: [user_id], references: [id])
+  user           user              @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id, chama_id])
+  @@index([read_at])
+  @@index([user_id, chama_id, read_at])
 }
 
 model notification_type {
-  id               Int            @id @default(autoincrement())
-  name             String         @unique
+  id               String               @id @default(uuid())
+  key              String               @unique
   description      String?
-  default_delivery DeliveryMethod
+  default_audience NotificationAudience @default(MEMBER)
+  action_required  Boolean              @default(false)
+  createdAt        DateTime             @default(now())
   notification     notification[]
 }
 
@@ -224,6 +234,12 @@ model member_role {
 
   @@id([user_id, chama_id])
   @@index([chama_id])
+}
+
+enum NotificationAudience {
+  MEMBER
+  ADMIN
+  BOTH
 }
 
 enum ContributionStatus {

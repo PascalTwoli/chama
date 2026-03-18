@@ -182,6 +182,31 @@ export class AuthController {
   }
 
   /**
+   * Logout user (client-side token cleanup)
+   */
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Logout user',
+    description: 'Endpoint for client to signal logout (tokens are managed client-side)',
+  })
+  @ApiOkResponse({
+    description: 'Logout successful',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: 'Logout successful' },
+      },
+    },
+  })
+  async logout(): Promise<{ message: string }> {
+    // Since tokens are managed client-side (cookies/localStorage),
+    // this endpoint just acknowledges the logout request
+    // The client is responsible for clearing tokens
+    return { message: 'Logout successful' };
+  }
+
+  /**
    * Get current logged in user information
    */
   @Get('me')

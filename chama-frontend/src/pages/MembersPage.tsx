@@ -78,17 +78,21 @@ export default function MembersPage() {
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
-  // Removed statsLoading and setStatsLoading as they are not used.
 
   const { chamaId } = useParams<{ chamaId: string }>();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const loadMembers = async () => {
+    const loadData = async () => {
       if (!chamaId) return;
       try {
         setIsLoading(true);
-        const membersData = await ChamaMembersService.getChamaMembers(chamaId);
+        // Load both members and dashboard data in parallel
+        const [membersData, statsData] = await Promise.all([
+          ChamaMembersService.getChamaMembers(chamaId),
+          DashboardService.getDashboard(chamaId),
+        ]);
+
         const mappedMembers: Member[] = membersData.map(m => ({
           ...m,
           name: m.user?.name || 'Unknown',
@@ -97,31 +101,15 @@ export default function MembersPage() {
           status: m.status || '',
         }));
         setMembers(mappedMembers);
+        setDashboard(statsData);
       } catch (error) {
-        console.error('Error loading members:', error);
-        toast.error('Failed to load members');
+        console.error('Error loading data:', error);
+        toast.error('Failed to load members data');
       } finally {
         setIsLoading(false);
       }
     };
-    loadMembers();
-  }, [chamaId]);
-
-  useEffect(() => {
-    const loadStats = async () => {
-      if (!chamaId) return;
-      try {
-        setIsLoading(true);
-        const stats = await DashboardService.getDashboard(chamaId);
-        setDashboard(stats);
-      } catch (error) {
-        console.error('Error loading dashboard stats:', error);
-        toast.error('Failed to load stats');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    loadStats();
+    loadData();
   }, [chamaId]);
 
   const filteredMembers = members.filter(m => {
@@ -197,22 +185,12 @@ export default function MembersPage() {
               dashboard.totalMembers === 0
             )
               return '0% paid';
-            // Count unique member IDs in recentContributions for this month
-            const now = new Date();
-            const thisMonth = now.getMonth();
-            const thisYear = now.getFullYear();
-            const paidMemberIds = new Set(
-              dashboard.recentContributions
-                .filter(c => {
-                  const d = new Date(c.date);
-                  return (
-                    d.getMonth() === thisMonth && d.getFullYear() === thisYear
-                  );
-                })
-                .map(c => c.id)
-            );
+            // Count unique user IDs who paid this month from membersOverview
+            const paidMembers = dashboard.membersOverview.filter(
+              m => m.status === 'Paid'
+            ).length;
             const percent = Math.round(
-              (paidMemberIds.size / dashboard.totalMembers) * 100
+              (paidMembers / dashboard.totalMembers) * 100
             );
             return `${percent}% paid`;
           })()}
@@ -400,7 +378,7 @@ export default function MembersPage() {
                         ? (() => {
                             const memberOverview =
                               dashboard.membersOverview.find(
-                                m => m.id === selectedMember.id
+                                m => m.id === selectedMember.userId
                               );
                             return memberOverview
                               ? `KSh ${memberOverview.savings.toLocaleString()}`
@@ -409,97 +387,56 @@ export default function MembersPage() {
                         : '-'}
                     </span>
                   </div>
-                  {/* Monthly Amount (not available in backend, show placeholder) */}
+                  {/* Monthly Amount */}
                   <div className='flex justify-between items-center p-2 text-sm bg-background'>
                     <span className='text-muted-foreground'>
-                      Monthly Amount
+                      Average Monthly
                     </span>
                     <span className='font-bold'>
                       {dashboard && selectedMember
                         ? (() => {
-                            // Get all contributions for this member
-                            const memberContributions =
-                              dashboard.recentContributions.filter(
-                                c => c.id === selectedMember.id
+                            const memberOverview =
+                              dashboard.membersOverview.find(
+                                m => m.id === selectedMember.userId
                               );
-                            if (memberContributions.length === 0) return '-';
-                            // Group by month-year
-                            const monthlyTotals: Record<string, number> = {};
-                            memberContributions.forEach(c => {
-                              const d = new Date(c.date);
-                              const key = `${d.getFullYear()}-${d.getMonth()}`;
-                              if (!monthlyTotals[key]) monthlyTotals[key] = 0;
-                              monthlyTotals[key] += c.amount;
-                            });
-                            const months = Object.keys(monthlyTotals).length;
-                            if (months === 0) return '-';
-                            const avg =
-                              (Object.values(monthlyTotals) as number[]).reduce(
-                                (a, b) => a + b,
-                                0
-                              ) / months;
-                            return `KSh ${Math.round(avg).toLocaleString()}`;
-                          })()
-                        : '-'}
-                    </span>
-                  </div>
-                  {/* Last Payment (from recentContributions) */}
-                  <div className='flex justify-between items-center p-2 text-sm bg-background'>
-                    <span className='text-muted-foreground'>Last Payment</span>
-                    <span className='font-bold'>
-                      {dashboard && selectedMember
-                        ? (() => {
-                            const lastPayment = dashboard.recentContributions
-                              .filter(c => c.id === selectedMember.id)
-                              .sort(
-                                (a, b) =>
-                                  new Date(b.date).getTime() -
-                                  new Date(a.date).getTime()
-                              )[0];
-                            return lastPayment
-                              ? new Date(lastPayment.date).toLocaleDateString(
-                                  'en-US',
-                                  {
-                                    year: 'numeric',
-                                    month: 'short',
-                                    day: 'numeric',
-                                  }
-                                )
+                            return memberOverview && memberOverview.averageMonthly > 0
+                              ? `KSh ${memberOverview.averageMonthly.toLocaleString()}`
                               : '-';
                           })()
                         : '-'}
                     </span>
                   </div>
-                  {/* Attendance Rate (not available, show placeholder) */}
+                  {/* Last Payment */}
+                  <div className='flex justify-between items-center p-2 text-sm bg-background'>
+                    <span className='text-muted-foreground'>Last Payment</span>
+                    <span className='font-bold'>
+                      {dashboard && selectedMember
+                        ? (() => {
+                            const memberOverview =
+                              dashboard.membersOverview.find(
+                                m => m.id === selectedMember.userId
+                              );
+                            if (memberOverview?.lastPaymentDate) {
+                              return `${memberOverview.lastPaymentDate} (KSh ${memberOverview.lastPaymentAmount?.toLocaleString() || 0})`;
+                            }
+                            return '-';
+                          })()
+                        : '-'}
+                    </span>
+                  </div>
+                  {/* Payment Status */}
                   <div className='flex justify-between items-center p-2 text-sm bg-background'>
                     <span className='text-muted-foreground'>
-                      Payment Participation Rate
+                      Current Status
                     </span>
                     <span className='font-bold'>
                       {dashboard && selectedMember
                         ? (() => {
-                            // Get all contributions for this member
-                            const memberContributions =
-                              dashboard.recentContributions.filter(
-                                c => c.id === selectedMember.id
+                            const memberOverview =
+                              dashboard.membersOverview.find(
+                                m => m.id === selectedMember.userId
                               );
-                            if (memberContributions.length === 0) return '0%';
-                            // Group by month-year
-                            const monthlyPaid: Record<string, boolean> = {};
-                            memberContributions.forEach(c => {
-                              const d = new Date(c.date);
-                              const key = `${d.getFullYear()}-${d.getMonth()}`;
-                              monthlyPaid[key] = true;
-                            });
-                            // Find total months tracked in dashboard.monthlyContributions
-                            const totalMonths =
-                              dashboard.monthlyContributions.length;
-                            if (totalMonths === 0) return '-';
-                            const paidMonths = Object.keys(monthlyPaid).length;
-                            const percent = Math.round(
-                              (paidMonths / totalMonths) * 100
-                            );
-                            return `${percent}%`;
+                            return memberOverview?.status || '-';
                           })()
                         : '-'}
                     </span>

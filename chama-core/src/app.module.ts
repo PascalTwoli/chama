@@ -13,6 +13,7 @@ import { TransactionModule } from './transaction/transaction.module';
 import { ChamaSettingsModule } from './chama-settings/chama-settings.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { RolesPermissionsModule } from './roles-permissions/roles-permissions.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { RolesPermissionsModule } from './roles-permissions/roles-permissions.mo
     ChamaSettingsModule,
     DashboardModule,
     RolesPermissionsModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthGuard],

@@ -16,6 +16,7 @@ export interface DashboardData {
   contributionDistribution: { name: string; value: number; color: string }[];
   recentContributions: {
     id: string;
+    userId: string;
     name: string;
     date: string;
     amount: number;
@@ -27,6 +28,10 @@ export interface DashboardData {
     phone: string;
     savings: number;
     status: string;
+    lastPaymentDate: string | null;
+    lastPaymentAmount: number | null;
+    averageMonthly: number;
+    totalTransactions: number;
   }[];
 }
 

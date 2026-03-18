@@ -16,6 +16,7 @@ export interface DashboardResponse {
   contributionDistribution: { name: string; value: number; color: string }[];
   recentContributions: {
     id: string;
+    userId: string;
     name: string;
     date: string;
     amount: number;
@@ -27,6 +28,10 @@ export interface DashboardResponse {
     phone: string;
     savings: number;
     status: string;
+    lastPaymentDate: string | null;
+    lastPaymentAmount: number | null;
+    averageMonthly: number;
+    totalTransactions: number;
   }[];
 }
 
@@ -91,25 +96,63 @@ export class DashboardService {
     let lateCount = 0;
 
     const membersOverview = membersWithTx.map((m) => {
+      // Filter completed contribution transactions
+      const completedContributions = m.transactions.filter(
+        (tx) =>
+          tx.type === transaction_type.CONTRIBUTION &&
+          tx.status === transaction_status.COMPLETED,
+      );
+
       // Sum CONTRIBUTION transactions for this member in the current month
-      const thisMonthPaid = m.transactions
+      const thisMonthPaid = completedContributions
         .filter(
           (tx) =>
-            tx.type === transaction_type.CONTRIBUTION &&
-            tx.status === transaction_status.COMPLETED &&
             tx.createdAt.getMonth() === currentMonth &&
             tx.createdAt.getFullYear() === currentYear,
         )
         .reduce((sum, tx) => sum + tx.amount.toNumber(), 0);
 
       // All-time contribution savings
-      const allTimeSavings = m.transactions
-        .filter(
-          (tx) =>
-            tx.type === transaction_type.CONTRIBUTION &&
-            tx.status === transaction_status.COMPLETED,
-        )
-        .reduce((sum, tx) => sum + tx.amount.toNumber(), 0);
+      const allTimeSavings = completedContributions.reduce(
+        (sum, tx) => sum + tx.amount.toNumber(),
+        0,
+      );
+
+      // Last payment details
+      const sortedContributions = [...completedContributions].sort(
+        (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
+      );
+      const lastPayment = sortedContributions[0];
+      const lastPaymentDate = lastPayment
+        ? lastPayment.createdAt.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+          })
+        : null;
+      const lastPaymentAmount = lastPayment
+        ? lastPayment.amount.toNumber()
+        : null;
+
+      // Calculate average monthly contribution
+      let averageMonthly = 0;
+      if (completedContributions.length > 0) {
+        // Group by month-year
+        const monthlyTotals = new Map<string, number>();
+        completedContributions.forEach((tx) => {
+          const key = `${tx.createdAt.getFullYear()}-${tx.createdAt.getMonth()}`;
+          const current = monthlyTotals.get(key) || 0;
+          monthlyTotals.set(key, current + tx.amount.toNumber());
+        });
+        const totalMonths = monthlyTotals.size;
+        if (totalMonths > 0) {
+          const totalAmount = Array.from(monthlyTotals.values()).reduce(
+            (sum, amt) => sum + amt,
+            0,
+          );
+          averageMonthly = Math.round(totalAmount / totalMonths);
+        }
+      }
 
       let status: string;
       if (expectedContribution > 0 && thisMonthPaid >= expectedContribution) {
@@ -131,6 +174,10 @@ export class DashboardService {
         phone: m.userPhone || '',
         savings: allTimeSavings,
         status,
+        lastPaymentDate,
+        lastPaymentAmount,
+        averageMonthly,
+        totalTransactions: completedContributions.length,
       };
     });
 
@@ -265,7 +312,7 @@ export class DashboardService {
   private async getRecentContributions(
     chamaId: string,
   ): Promise<
-    { id: string; name: string; date: string; amount: number; status: string }[]
+    { id: string; userId: string; name: string; date: string; amount: number; status: string }[]
   > {
     const transactions = await this.prisma.transaction.findMany({
       where: {
@@ -279,6 +326,7 @@ export class DashboardService {
 
     return transactions.map((tx) => ({
       id: tx.id,
+      userId: tx.user_id,
       name: tx.user?.name || 'Unknown',
       date: tx.createdAt.toLocaleDateString('en-US', {
         month: 'short',
