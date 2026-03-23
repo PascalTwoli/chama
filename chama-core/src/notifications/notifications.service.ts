@@ -33,7 +33,7 @@ export class NotificationsService {
 
   constructor(
     private readonly repository: NotificationsRepository,
-    private readonly prisma: PrismaService
+    private readonly prisma: PrismaService,
   ) {}
 
   /**
@@ -42,7 +42,8 @@ export class NotificationsService {
   async notify(typeKey: string, payload: NotifyPayload): Promise<void> {
     try {
       // Find the notification type
-      const notificationType = await this.repository.findNotificationType(typeKey);
+      const notificationType =
+        await this.repository.findNotificationType(typeKey);
       if (!notificationType) {
         throw new NotFoundException(`Notification type '${typeKey}' not found`);
       }
@@ -57,37 +58,37 @@ export class NotificationsService {
         // Try to resolve users by permission
         targetUserIds = await this.resolveUsersByPermission(
           payload.chamaId,
-          payload.permissionKey
+          payload.permissionKey,
         );
-        
-        // FALLBACK: If no users found via permission (RBAC not set up), 
+
+        // FALLBACK: If no users found via permission (RBAC not set up),
         // fall back to default audience
         if (targetUserIds.length === 0) {
           this.logger.warn(
-            `No users found with permission '${payload.permissionKey}' in chama ${payload.chamaId}, falling back to default audience`
+            `No users found with permission '${payload.permissionKey}' in chama ${payload.chamaId}, falling back to default audience`,
           );
           targetUserIds = await this.resolveUsersByAudience(
             payload.chamaId,
-            notificationType.default_audience
+            notificationType.default_audience,
           );
         }
       } else {
         // Resolve users by audience
         targetUserIds = await this.resolveUsersByAudience(
           payload.chamaId,
-          notificationType.default_audience
+          notificationType.default_audience,
         );
       }
 
       if (targetUserIds.length === 0) {
         this.logger.warn(
-          `No target users found for notification type '${typeKey}' in chama ${payload.chamaId}`
+          `No target users found for notification type '${typeKey}' in chama ${payload.chamaId}`,
         );
         return;
       }
 
       // Create notifications for all target users
-      const notifications = targetUserIds.map((userId) => ({
+      const notifications = targetUserIds.map(userId => ({
         userId,
         chamaId: payload.chamaId,
         typeId: notificationType.id,
@@ -102,13 +103,16 @@ export class NotificationsService {
       await this.repository.createMany(notifications);
 
       this.logger.log(
-        `Created ${notifications.length} notifications of type '${typeKey}' for chama ${payload.chamaId}`
+        `Created ${notifications.length} notifications of type '${typeKey}' for chama ${payload.chamaId}`,
       );
     } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       this.logger.error(
-        `Failed to create notifications: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        error instanceof Error ? error.stack : undefined
+        `Failed to create notifications for type '${typeKey}' in chama ${payload.chamaId}: ${errorMessage}`,
+        error instanceof Error ? error.stack : undefined,
       );
+      // Re-throw to allow proper error handling at the call site
       throw error;
     }
   }
@@ -118,7 +122,7 @@ export class NotificationsService {
    */
   private async resolveUsersByPermission(
     chamaId: string,
-    permissionKey: string
+    permissionKey: string,
   ): Promise<string[]> {
     // Find the permission
     const permission = await this.prisma.permission.findUnique({
@@ -143,7 +147,7 @@ export class NotificationsService {
       },
     });
 
-    const roleIds = rolePermissions.map((rp) => rp.role_id);
+    const roleIds = rolePermissions.map(rp => rp.role_id);
 
     if (roleIds.length === 0) {
       return [];
@@ -160,7 +164,7 @@ export class NotificationsService {
       },
     });
 
-    return [...new Set(memberRoles.map((mr) => mr.user_id))];
+    return [...new Set(memberRoles.map(mr => mr.user_id))];
   }
 
   /**
@@ -168,7 +172,7 @@ export class NotificationsService {
    */
   private async resolveUsersByAudience(
     chamaId: string,
-    audience: NotificationAudience
+    audience: NotificationAudience,
   ): Promise<string[]> {
     if (audience === NotificationAudience.MEMBER) {
       // All members
@@ -176,22 +180,41 @@ export class NotificationsService {
         where: { chama_id: chamaId },
         select: { user_id: true },
       });
-      return memberships.map((m) => m.user_id);
+      return memberships.map(m => m.user_id);
     } else if (audience === NotificationAudience.ADMIN) {
-      // Users with admin permissions (chairperson, treasurer, secretary, etc.)
-      // We look for users with ANY admin-level permission
+      // Users with admin-level permissions - resolves by RBAC system
+      // This uses explicit permission keys instead of pattern matching to ensure
+      // only appropriate admins are notified. The keys correspond to admin capabilities
+      // defined in roles-permissions.constants.ts (Chairperson, Treasurer, Secretary, Auditor roles)
+      //
+      // Note: This approach requires permissions to be seeded in the database.
+      // Fallback to legacy membership.role system if RBAC not configured.
+      const ADMIN_PERMISSION_KEYS = [
+        'manage_members',
+        'change_member_roles',
+        'modify_chama_settings',
+        'record_contributions',
+        'record_expenses',
+        'issue_loans',
+        'audit_financial_records',
+        'view_financial_reports',
+        'schedule_meetings',
+        'generate_reports',
+      ];
+
       const adminPermissions = await this.prisma.permission.findMany({
         where: {
-          OR: [
-            { key: { startsWith: 'chama.' } },
-            { key: { startsWith: 'member.' } },
-            { key: { startsWith: 'finance.' } },
-            { key: { startsWith: 'loan.' } },
-          ],
+          key: { in: ADMIN_PERMISSION_KEYS },
         },
       });
 
-      const permissionIds = adminPermissions.map((p) => p.id);
+      const permissionIds = adminPermissions.map(p => p.id);
+
+      if (permissionIds.length === 0) {
+        this.logger.warn(
+          `No admin permissions found. Using fallback for ADMIN audience in chama ${chamaId}`,
+        );
+      }
 
       const rolePermissions = await this.prisma.role_permission.findMany({
         where: {
@@ -205,12 +228,12 @@ export class NotificationsService {
         },
       });
 
-      const roleIds = [...new Set(rolePermissions.map((rp) => rp.role_id))];
+      const roleIds = [...new Set(rolePermissions.map(rp => rp.role_id))];
 
       if (roleIds.length === 0) {
         // FALLBACK: If no RBAC roles found, use legacy user_role from membership
         this.logger.warn(
-          `No RBAC roles found for ADMIN audience in chama ${chamaId}, falling back to legacy user_role`
+          `No admin roles found via RBAC in chama ${chamaId}, using legacy role-based fallback`,
         );
         const adminMemberships = await this.prisma.membership.findMany({
           where: {
@@ -221,7 +244,7 @@ export class NotificationsService {
           },
           select: { user_id: true },
         });
-        return adminMemberships.map((m) => m.user_id);
+        return adminMemberships.map(m => m.user_id);
       }
 
       const memberRoles = await this.prisma.member_role.findMany({
@@ -234,14 +257,14 @@ export class NotificationsService {
         },
       });
 
-      return [...new Set(memberRoles.map((mr) => mr.user_id))];
+      return [...new Set(memberRoles.map(mr => mr.user_id))];
     } else if (audience === NotificationAudience.BOTH) {
       // All members
       const memberships = await this.prisma.membership.findMany({
         where: { chama_id: chamaId },
         select: { user_id: true },
       });
-      return memberships.map((m) => m.user_id);
+      return memberships.map(m => m.user_id);
     }
 
     return [];
@@ -253,7 +276,7 @@ export class NotificationsService {
   async getNotifications(
     userId: string,
     chamaId: string,
-    query: GetNotificationsDto
+    query: GetNotificationsDto,
   ): Promise<PaginatedNotificationsDto> {
     const { notifications, total } = await this.repository.findMany({
       userId,
@@ -264,7 +287,7 @@ export class NotificationsService {
       limit: query.limit || 20,
     });
 
-    const data = notifications.map((n) => this.mapToResponseDto(n));
+    const data = notifications.map(n => this.mapToResponseDto(n));
 
     return {
       data,
@@ -281,7 +304,7 @@ export class NotificationsService {
   async markAsRead(
     id: string,
     userId: string,
-    chamaId: string
+    chamaId: string,
   ): Promise<NotificationResponseDto> {
     const notification = await this.repository.findById(id, userId, chamaId);
     if (!notification) {
@@ -306,7 +329,10 @@ export class NotificationsService {
   /**
    * Mark all notifications as read
    */
-  async markAllAsRead(userId: string, chamaId: string): Promise<{ count: number }> {
+  async markAllAsRead(
+    userId: string,
+    chamaId: string,
+  ): Promise<{ count: number }> {
     const result = await this.repository.markAllAsRead(userId, chamaId);
     return { count: result.count };
   }
@@ -317,7 +343,7 @@ export class NotificationsService {
   async getStats(
     userId: string,
     chamaId: string,
-    audience?: NotificationAudience
+    audience?: NotificationAudience,
   ): Promise<NotificationStatsDto> {
     return this.repository.getStats(userId, chamaId, audience);
   }
