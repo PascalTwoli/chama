@@ -83,7 +83,8 @@ export class GoogleAuthService {
             if (methods.includes('password')) {
               // Prompt user to provide their password to link accounts
               const password = prompt(
-                `You already have an account with ${email}. Please enter your password to link your Google account:`
+                `You already have an account with ${email}. Please enter your password to link your Google account:\n\n` +
+                `Note: After linking, you'll be able to sign in with either Google or your email/password.`
               );
 
               if (password) {
@@ -97,6 +98,29 @@ export class GoogleAuthService {
                   userCredential.user,
                   pendingCredential
                 );
+
+                // SUCCESS: Log provider linking
+                console.log(
+                  `[AUTH] Successfully linked Google to account: ${email}`,
+                );
+                console.log(
+                  `[AUTH] Account now has providers: ${linkResult.user.providerData
+                    .map((p) => p.providerId)
+                    .join(', ')}`,
+                );
+
+                // Store both providers for reference
+                const providers = linkResult.user.providerData.map(
+                  (p) => p.providerId
+                );
+                if (providers.length > 1) {
+                  toast.info(
+                    `Account linked successfully! You can now sign in with: ${providers.join(
+                      ', '
+                    )}`,
+                  );
+                }
+
 
                 // Success! Return the linked result
                 const idToken = await linkResult.user.getIdToken();

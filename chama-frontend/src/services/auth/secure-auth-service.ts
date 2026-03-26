@@ -78,6 +78,16 @@ export class SecureAuthService {
       const errorMessageRaw = this.extractErrorMessage(errorResponse);
       const errorMessageLower = errorMessageRaw.toLowerCase();
 
+      // Handle linked provider error first (before other patterns)
+      if (
+        errorMessageLower.includes('linked to') ||
+        (errorMessageLower.includes('account') &&
+          errorMessageLower.includes('sign in using'))
+      ) {
+        // Display our custom provider linking message as-is
+        throw new Error(`linked-providers: ${errorMessageRaw}`);
+      }
+
       // Handle specific error types
       if (
         statusCode === 404 ||

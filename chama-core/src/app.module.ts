@@ -14,6 +14,8 @@ import { ChamaSettingsModule } from './chama-settings/chama-settings.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { RolesPermissionsModule } from './roles-permissions/roles-permissions.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { ExpensesModule } from './expenses/expenses.module';
+import { TreasuryModule } from './treasury/treasury.module';
 
 @Module({
   imports: [
@@ -29,6 +31,8 @@ import { NotificationsModule } from './notifications/notifications.module';
     DashboardModule,
     RolesPermissionsModule,
     NotificationsModule,
+    ExpensesModule,
+    TreasuryModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthGuard],

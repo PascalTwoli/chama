@@ -1,0 +1,53 @@
+-- Direct SQL to clean all user data
+BEGIN;
+
+-- Disable foreign key constraints temporarily
+ALTER TABLE notification DISABLE TRIGGER ALL;
+ALTER TABLE payment DISABLE TRIGGER ALL;
+ALTER TABLE contribution DISABLE TRIGGER ALL;
+ALTER TABLE transaction DISABLE TRIGGER ALL;
+ALTER TABLE join_request DISABLE TRIGGER ALL;
+ALTER TABLE expense DISABLE TRIGGER ALL;
+ALTER TABLE membership DISABLE TRIGGER ALL;
+ALTER TABLE invite DISABLE TRIGGER ALL;
+ALTER TABLE chama DISABLE TRIGGER ALL;
+
+-- Truncate tables (deletes all data but keeps structure)
+TRUNCATE TABLE notification CASCADE;
+TRUNCATE TABLE payment CASCADE;
+TRUNCATE TABLE contribution CASCADE;
+TRUNCATE TABLE "transaction" CASCADE;
+TRUNCATE TABLE join_request CASCADE;
+TRUNCATE TABLE expense_approval_workflow CASCADE;
+TRUNCATE TABLE expense CASCADE;
+TRUNCATE TABLE expense_category CASCADE;
+TRUNCATE TABLE chama_settings CASCADE;
+TRUNCATE TABLE invite CASCADE;
+TRUNCATE TABLE membership CASCADE;
+TRUNCATE TABLE role_permission CASCADE;
+TRUNCATE TABLE "role" CASCADE;
+TRUNCATE TABLE chama CASCADE;
+TRUNCATE TABLE "user" CASCADE;
+TRUNCATE TABLE notification_type CASCADE;
+TRUNCATE TABLE ui_settings CASCADE;
+
+-- Re-enable triggers
+ALTER TABLE notification ENABLE TRIGGER ALL;
+ALTER TABLE payment ENABLE TRIGGER ALL;
+ALTER TABLE contribution ENABLE TRIGGER ALL;
+ALTER TABLE transaction ENABLE TRIGGER ALL;
+ALTER TABLE join_request ENABLE TRIGGER ALL;
+ALTER TABLE expense ENABLE TRIGGER ALL;
+ALTER TABLE membership ENABLE TRIGGER ALL;
+ALTER TABLE invite ENABLE TRIGGER ALL;
+ALTER TABLE chama ENABLE TRIGGER ALL;
+
+COMMIT;
+
+-- Verify the tables are empty
+SELECT 'user' as table_name, COUNT(*) as row_count FROM "user"
+UNION ALL
+SELECT 'chama', COUNT(*) FROM chama
+UNION ALL
+SELECT 'membership', COUNT(*) FROM membership
+ORDER BY table_name;

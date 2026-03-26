@@ -22,6 +22,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import * as firebaseAdmin from 'firebase-admin';
 import { LoginDto } from '../user/dto/login.dto';
 import { RegisterUserDto } from '../user/dto/register-user.dto';
 import { LoginResponse } from '../user/user.service';
@@ -188,7 +189,8 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Logout user',
-    description: 'Endpoint for client to signal logout (tokens are managed client-side)',
+    description:
+      'Endpoint for client to signal logout (tokens are managed client-side)',
   })
   @ApiOkResponse({
     description: 'Logout successful',
@@ -204,6 +206,160 @@ export class AuthController {
     // this endpoint just acknowledges the logout request
     // The client is responsible for clearing tokens
     return { message: 'Logout successful' };
+  }
+
+  /**
+   * Verify and handle Google authentication
+   * Detects existing email/password accounts and prevents Firebase UID mismatches
+   */
+  @Post('verify-google')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Verify Google authentication and check for existing accounts',
+    description:
+      'Verifies Google ID token and detects if an email/password account exists. ' +
+      'Returns information needed for proper account linking or new user creation.',
+  })
+  @ApiBody({
+    type: String,
+    description: 'Firebase ID token from Google sign-in',
+  })
+  @ApiOkResponse({
+    description: 'Google token verified',
+    schema: {
+      type: 'object',
+      properties: {
+        uid: { type: 'string', description: 'Firebase UID from Google token' },
+        email: { type: 'string', description: 'Email from Google token' },
+        name: { type: 'string', description: 'Display name from Google token' },
+        passwordAccountExists: {
+          type: 'boolean',
+          description:
+            'Whether a password-based account exists with this email',
+        },
+        accountLinkingNeeded: {
+          type: 'boolean',
+          description:
+            'Whether the accounts need to be linked (different Firebase UIDs)',
+        },
+        existingUid: {
+          type: 'string',
+          description:
+            'Firebase UID of existing account if different from Google UID',
+        },
+      },
+    },
+  })
+  async verifyGoogle(@Body() body: { infoToken: string }): Promise<any> {
+    try {
+      // Verify the Google ID token
+      const decodedToken = await firebaseAdmin
+        .auth()
+        .verifyIdToken(body.infoToken);
+
+      // Extract user info from token
+      const { uid, email, name } = decodedToken;
+
+      // Email should be present in Google token, but check just in case
+      if (!email) {
+        throw new BadRequestException(
+          'Google account does not have email information',
+        );
+      }
+
+      // Check if a local user exists with this email
+      const existingUser = await this.userService.getUserByEmail(email);
+
+      // Return verification result
+      return {
+        uid,
+        email,
+        name,
+        passwordAccountExists: !!existingUser,
+        accountLinkingNeeded: existingUser && existingUser.id !== uid,
+        existingUid: existingUser?.id,
+        message: existingUser
+          ? 'Account with this email already exists'
+          : 'New account will be created',
+      };
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new BadRequestException(`Google verification failed: ${message}`);
+    }
+  }
+
+  /**
+   * Check account provider status
+   * Helps diagnose why password auth is failing (e.g., due to linked providers)
+   */
+  @Post('check-providers')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Check authentication providers for an email',
+    description:
+      'Returns which authentication providers (password, Google, etc.) are available for a given email. ' +
+      'Useful for diagnosing why certain sign-in methods are failing.',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        email: { type: 'string', example: 'user@example.com' },
+      },
+    },
+  })
+  @ApiOkResponse({
+    description: 'Provider information retrieved',
+    schema: {
+      type: 'object',
+      properties: {
+        email: { type: 'string' },
+        hasPassword: {
+          type: 'boolean',
+          description: 'Whether email/password auth is available',
+        },
+        hasGoogle: {
+          type: 'boolean',
+          description: 'Whether Google OAuth is linked',
+        },
+        hasOtherProviders: {
+          type: 'boolean',
+          description: 'Whether other providers are linked',
+        },
+        availableProviders: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'List of all available auth providers',
+        },
+        message: { type: 'string' },
+      },
+    },
+  })
+  async checkProviders(
+    @Body() body: { email: string },
+  ): Promise<{
+    email: string;
+    hasPassword: boolean;
+    hasGoogle: boolean;
+    hasOtherProviders: boolean;
+    availableProviders: string[];
+    message: string;
+  }> {
+    try {
+      if (!body.email || typeof body.email !== 'string') {
+        throw new BadRequestException('Valid email is required');
+      }
+
+      // Use the user service to check providers
+      // Note: We'll need to expose this method from userService for this to work
+      const result = await this.userService.checkAuthProvidersForEmail(
+        body.email,
+      );
+      return result;
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new BadRequestException(`Providers check failed: ${message}`);
+    }
   }
 
   /**

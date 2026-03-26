@@ -242,12 +242,71 @@ export class UserService {
         },
       };
     } catch (error: any) {
-      if (error.message.includes('EMAIL_NOT_FOUND')) {
+      // Handle specific Firebase error messages
+      const errorMessage = error.message || '';
+
+      // Log full error for debugging
+      console.error(`[AUTH LOGIN ERROR] Email: ${email}`);
+      console.error(`[AUTH LOGIN ERROR] Message: ${errorMessage}`);
+
+      // Firebase REST API returns various error codes for authentication failures
+      // USER_NOT_FOUND, EMAIL_NOT_FOUND, INVALID_PASSWORD, INVALID_LOGIN_CREDENTIALS
+      if (
+        errorMessage.includes('USER_NOT_FOUND') ||
+        errorMessage.includes('EMAIL_NOT_FOUND')
+      ) {
         throw new Error('User not found.');
-      } else if (error.message.includes('INVALID_PASSWORD')) {
+      }
+      // Handle both INVALID_PASSWORD and INVALID_LOGIN_CREDENTIALS
+      // (Firebase may return either code depending on the scenario)
+      else if (
+        errorMessage.includes('INVALID_PASSWORD') ||
+        errorMessage.includes('INVALID_LOGIN_CREDENTIALS')
+      ) {
+        // Password auth failed - check if this user has linked providers (e.g., Google)
+        console.log(
+          `[AUTH] Invalid credentials detected. Checking for linked providers for ${email}...`,
+        );
+        const linkedProvidersInfo = await this.checkLinkedProviders(email);
+
+        console.log(
+          `[AUTH] Linked providers check result:`,
+          linkedProvidersInfo,
+        );
+
+        if (linkedProvidersInfo.hasLinkedProviders) {
+          const providers = linkedProvidersInfo.providers.join(', ');
+          const message = `Your account is linked to: ${providers}. Please sign in using one of those methods instead.`;
+          console.log(`[AUTH] Returning linked provider message: ${message}`);
+          throw new Error(message);
+        }
         throw new Error('Invalid password.');
+      } else if (
+        errorMessage.includes('USER_DISABLED') ||
+        errorMessage.includes('disabled')
+      ) {
+        throw new Error(
+          'This account has been disabled. Please contact support.',
+        );
+      } else if (
+        errorMessage.includes('account-exists-with-different-credential')
+      ) {
+        throw new Error(
+          'An account with this email already exists with different sign-in credentials. Please sign in using the provider you originally used.',
+        );
       } else {
-        throw new Error(`Authentication failed: ${error.message}`);
+        // For any other error, try to check providers as a fallback
+        console.log(`[AUTH] Unknown login error: ${errorMessage}`);
+        const linkedProvidersInfo = await this.checkLinkedProviders(email);
+        if (linkedProvidersInfo.hasLinkedProviders) {
+          const providers = linkedProvidersInfo.providers.join(', ');
+          const message = `Your account is linked to: ${providers}. Please sign in using one of those methods instead.`;
+          console.log(`[AUTH] Returning linked provider message: ${message}`);
+          throw new Error(message);
+        }
+
+        // Don't double-wrap the error message
+        throw error;
       }
     }
   }
@@ -266,6 +325,126 @@ export class UserService {
     });
   }
 
+  /**
+   * Check what authentication providers are linked to an account
+   * This helps diagnose why password auth might be failing
+   * @param email The email address to check
+   * @returns Object with hasLinkedProviders flag and list of providers
+   */
+  private async checkLinkedProviders(
+    email: string,
+  ): Promise<{ hasLinkedProviders: boolean; providers: string[] }> {
+    try {
+      // Use Firebase Admin SDK to get the user record and check linked providers
+      console.log(
+        `[PROVIDER_CHECK] Fetching user from Firebase for email: ${email}`,
+      );
+
+      const userRecord = await firebaseAdmin.auth().getUserByEmail(email);
+
+      console.log(`[PROVIDER_CHECK] User found in Firebase`);
+      console.log(
+        `[PROVIDER_CHECK] Provider data:`,
+        JSON.stringify(userRecord.providerData, null, 2),
+      );
+
+      // Extract provider IDs from providerData
+      // providerData is an array like: [
+      //   { uid: '...', displayName: '...', email: '...', providerId: 'password' },
+      //   { uid: '...', displayName: '...', email: '...', providerId: 'google.com' }
+      // ]
+      const providers = userRecord.providerData.map(p => p.providerId);
+
+      const hasPassword = providers.includes('password');
+      const hasGoogle = providers.includes('google.com');
+      const hasOther = providers.some(
+        (p: string) => p !== 'password' && p !== 'email',
+      );
+
+      console.log(`[PROVIDER_CHECK] Parsed values:`);
+      console.log(`  - providers array: [${providers.join(', ')}]`);
+      console.log(`  - hasPassword: ${hasPassword}`);
+      console.log(`  - hasGoogle: ${hasGoogle}`);
+      console.log(`  - hasOther: ${hasOther}`);
+
+      // Linked providers exist if we have OAuth providers AND no password provider
+      // This means password was disabled by Firebase when OAuth was linked
+      const linkedProvidersExists = (hasGoogle || hasOther) && !hasPassword;
+      console.log(
+        `[PROVIDER_CHECK] Logic: (${hasGoogle} || ${hasOther}) && !${hasPassword} = ${linkedProvidersExists}`,
+      );
+
+      return {
+        hasLinkedProviders: linkedProvidersExists,
+        providers: providers.filter(
+          (p: string) => p !== 'password' && p !== 'email',
+        ),
+      };
+    } catch (error: any) {
+      console.error(
+        '[PROVIDER_CHECK] Error checking linked providers:',
+        error.message,
+      );
+      // User doesn't exist in Firebase - password invalid
+      return { hasLinkedProviders: false, providers: [] };
+    }
+  }
+
+  /**
+   * Public method to check authentication providers for an email
+   * Used by the API endpoint to diagnose authentication issues
+   */
+  async checkAuthProvidersForEmail(email: string): Promise<{
+    email: string;
+    hasPassword: boolean;
+    hasGoogle: boolean;
+    hasOtherProviders: boolean;
+    availableProviders: string[];
+    message: string;
+  }> {
+    try {
+      const url = `https://identitytoolkit.googleapis.com/v1/accounts:createAuthUri?key=${process.env.FIREBASE_API_KEY}`;
+      const response = await this.sendPostRequest(url, {
+        identifier: email,
+        continueUri: 'http://localhost',
+      });
+
+      const providers = response.signinMethods || [];
+      const hasPassword = providers.includes('password');
+      const hasGoogle = providers.includes('google.com');
+      const otherProviders = providers.filter(
+        (p: string) => p !== 'password' && p !== 'email',
+      );
+      const hasOtherProviders = otherProviders.length > 0;
+
+      // Generate helpful message
+      let message = '';
+      if (!hasPassword && hasGoogle) {
+        message =
+          'This account is linked to Google. Use Google sign-in instead of password.';
+      } else if (!hasPassword && hasOtherProviders) {
+        message = `This account is linked to: ${otherProviders.join(', ')}. Use one of those methods to sign in.`;
+      } else if (hasPassword && (hasGoogle || hasOtherProviders)) {
+        message = `This account can be signed in with: ${providers.join(', ')}`;
+      } else if (hasPassword) {
+        message = 'Email/password authentication is available.';
+      } else {
+        message = 'No authentication method found for this email.';
+      }
+
+      return {
+        email,
+        hasPassword,
+        hasGoogle,
+        hasOtherProviders,
+        availableProviders: providers,
+        message,
+      };
+    } catch (error: any) {
+      throw new Error(`Failed to check providers: ${error.message}`);
+    }
+  }
+
   private async sendPostRequest(url: string, data: any) {
     try {
       const response = await axios.post(url, data, {
@@ -275,10 +454,15 @@ export class UserService {
     } catch (error: any) {
       console.error('API request failed:', error.message);
       if (error.response) {
+        console.error('Response status:', error.response.status);
         console.error('Response data:', error.response.data);
-        throw new Error(
-          error.response.data?.error?.message || 'API request failed',
-        );
+
+        // Firebase returns error as { error: { code: 400, message: "ERROR_CODE" } }
+        const firebaseErrorMessage =
+          error.response.data?.error?.message || 'API request failed';
+        console.error('Firebase error message:', firebaseErrorMessage);
+
+        throw new Error(firebaseErrorMessage);
       }
       throw error;
     }
@@ -467,6 +651,41 @@ export class UserService {
       console.error(`Error fetching user with ID ${uid}:`, error);
       const message = error instanceof Error ? error.message : 'Unknown error';
       throw new BadRequestException(`Failed to fetch user: ${message}`);
+    }
+  }
+
+  /**
+   * Find a user by email address
+   * @param email The email to search for
+   * @returns User if found, null otherwise
+   */
+  async getUserByEmail(email: string): Promise<UserEntity | null> {
+    try {
+      const user = await this.databaseService.user.findUnique({
+        where: { email },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+          password_hash: true,
+          role: true,
+          createdAt: true,
+          updatedAt: true,
+          active_user_type: true,
+        },
+      });
+
+      return (user as UserEntity) || null;
+    } catch (error: unknown) {
+      // If user not found, return null (not an error for this method)
+      if ((error as any).code === 'P2025') {
+        return null;
+      }
+
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      console.error(`Error getting user by email ${email}:`, message);
+      return null;
     }
   }
 

@@ -270,10 +270,14 @@ export default function AdminDashboard() {
                       borderRadius: '8px',
                       color: 'var(--foreground)',
                     }}
-                    formatter={(value: number | undefined) => [
-                      `KSh ${(value ?? 0).toLocaleString()}`,
-                      'Amount',
-                    ]}
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    formatter={
+                      ((value: any) => [
+                        `KSh ${(value ?? 0).toLocaleString()}`,
+                        'Amount',
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      ]) as any
+                    }
                   />
                   <Bar dataKey='amount' fill='#3b82f6' radius={[4, 4, 0, 0]} />
                 </BarChart>
@@ -308,10 +312,14 @@ export default function AdminDashboard() {
                     ))}
                   </Pie>
                   <Tooltip
-                    formatter={(value: number | undefined) => [
-                      `${value ?? 0}%`,
-                      '',
-                    ]}
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    formatter={
+                      ((value: any) => [
+                        `${value ?? 0}%`,
+                        '',
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      ]) as any
+                    }
                     contentStyle={{
                       backgroundColor: 'var(--card)',
                       border: '1px solid var(--border)',
