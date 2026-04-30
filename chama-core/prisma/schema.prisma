@@ -28,6 +28,7 @@ model chama {
   role_table        role[]
   expenses          expense[]
   expense_categories expense_category[]
+  loans             loan[]
 }
 
 model contribution {
@@ -197,6 +198,11 @@ model user {
   expenses                                    expense[]
   expense_approvals                           expense[]     @relation("expense_approver")
   expense_rejections                          expense[]     @relation("expense_rejector")
+  loans_borrowed                              loan[]        @relation("loan_borrower")
+  loans_approved                              loan[]        @relation("loan_approver")
+  loans_reviewed                              loan[]        @relation("loan_reviewer")
+  loans_disbursed                             loan[]        @relation("loan_disburser")
+  loan_repayments_recorded                   loan_repayment[]
 }
 
 model role {
@@ -287,6 +293,67 @@ model expense {
   @@index([expenseDate])
 }
 
+model loan {
+  id               String     @id @default(uuid())
+  referenceCode    String     @unique
+  chamaId          String
+  borrowerId       String
+  requestedAmount  Decimal    @db.Decimal(10, 2)
+  approvedAmount   Decimal?   @db.Decimal(10, 2)
+  interestRate     Decimal?   @db.Decimal(5, 2)
+  durationMonths   Int
+  purpose          String?
+  status           LoanStatus @default(REQUESTED)
+  requestedAt      DateTime   @default(now())
+  reviewedAt       DateTime?
+  approvedAt       DateTime?
+  disbursedAt      DateTime?
+  completedAt      DateTime?
+  defaultedAt      DateTime?
+  rejectedAt       DateTime?
+  cancelledAt      DateTime?
+  approvedBy       String?
+  reviewedBy       String?
+  disbursedBy      String?
+  startDate        DateTime?
+  dueDate          DateTime?
+  principalAmount  Decimal?   @db.Decimal(10, 2)
+  interestAmount   Decimal?   @db.Decimal(10, 2)
+  totalPayable     Decimal?   @db.Decimal(10, 2)
+  outstandingBalance Decimal? @db.Decimal(10, 2)
+  notes            String?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  chama            chama      @relation(fields: [chamaId], references: [id], onDelete: Cascade)
+  borrower         user       @relation("loan_borrower", fields: [borrowerId], references: [id])
+  approver         user?      @relation("loan_approver", fields: [approvedBy], references: [id])
+  reviewer         user?      @relation("loan_reviewer", fields: [reviewedBy], references: [id])
+  disburser        user?      @relation("loan_disburser", fields: [disbursedBy], references: [id])
+  repayments       loan_repayment[]
+
+  @@index([chamaId])
+  @@index([borrowerId])
+  @@index([status])
+  @@index([chamaId, status])
+  @@index([dueDate])
+}
+
+model loan_repayment {
+  id          String        @id @default(uuid())
+  loanId      String
+  amount      Decimal       @db.Decimal(10, 2)
+  paymentDate DateTime      @default(now())
+  method      PaymentMethod
+  reference   String?
+  notes       String?
+  recordedBy  String
+  createdAt   DateTime      @default(now())
+  loan        loan          @relation(fields: [loanId], references: [id], onDelete: Cascade)
+  recorder    user          @relation(fields: [recordedBy], references: [id])
+
+  @@index([loanId])
+}
+
 enum NotificationAudience {
   MEMBER
   ADMIN
@@ -309,6 +376,19 @@ enum ExpenseStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+enum LoanStatus {
+  REQUESTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  DISBURSED
+  ACTIVE
+  OVERDUE
+  COMPLETED
+  DEFAULTED
+  CANCELLED
 }
 
 enum PaymentMethod {

@@ -1,253 +1,544 @@
-import { useState } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { PageHeader } from '../components/PageHeader';
-import { StatsCard } from '../components/StatsCard';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '../components/ui/table';
-import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
+import { Plus, Search } from 'lucide-react';
+import ChamaMembershipContext from '../context/ChamaMembershipContext';
+import { toast } from 'react-toastify';
+
 import {
-  Plus,
-  Banknote,
-  Users,
-  TrendingUp,
-  AlertTriangle,
-  Eye,
-  Search,
-} from 'lucide-react';
-import { cn } from '../utils/cn';
+  Loan,
+  LoanStatus,
+  LoanFilterOptions,
+  PaymentMethod,
+} from '../models/loans';
+import LoansService from '../services/loans/loans-service';
+import ChamaMembersService from '../services/chama/chama-members-service';
+import TreasuryService, {
+  TreasurySummary,
+} from '../services/treasury/treasury-service';
 
-interface Loan {
-  id: string;
-  member: {
-    name: string;
-    initials: string;
-    color: string;
-  };
-  principal: number;
-  interest: number;
-  balance: number;
-  dueDate: string;
-  status: 'Active' | 'Defaulted' | 'Completed' | 'Pending';
-}
+// Components
+import { LoanStatsCards } from '../components/loans/LoanStatsCards';
+import { TreasurySummaryCards } from '../components/loans/TreasurySummaryCards';
+import { LoansTable } from '../components/loans/LoansTable';
+import { LoanDetailsModal } from '../components/loans/LoanDetailsModal';
+import { ApproveLoanModal } from '../components/loans/ApproveLoanModal';
+import { RejectLoanModal } from '../components/loans/RejectLoanModal';
+import { DisburseLoanModal } from '../components/loans/DisburseLoanModal';
+import { RepaymentModal } from '../components/loans/RepaymentModal';
+import { DefaultLoanModal } from '../components/loans/DefaultLoanModal';
+import {
+  CreateLoanModal,
+  CreateLoanData,
+} from '../components/loans/CreateLoanModal';
 
-const mockLoans: Loan[] = [
-  {
-    id: '1',
-    member: {
-      name: 'Peter Ochieng',
-      initials: 'PO',
-      color: 'bg-green-100 text-green-600',
-    },
-    principal: 50000,
-    interest: 5000,
-    balance: 55000,
-    dueDate: '15 Feb 2026',
-    status: 'Active',
-  },
-  {
-    id: '2',
-    member: {
-      name: 'Grace Akinyi',
-      initials: 'GA',
-      color: 'bg-orange-100 text-orange-600',
-    },
-    principal: 20000,
-    interest: 2000,
-    balance: 22000,
-    dueDate: '10 Feb 2026',
-    status: 'Active',
-  },
-  {
-    id: '3',
-    member: {
-      name: 'David Mwangi',
-      initials: 'DM',
-      color: 'bg-red-100 text-red-600',
-    },
-    principal: 100000,
-    interest: 10000,
-    balance: 0,
-    dueDate: '12 Dec 2025',
-    status: 'Completed',
-  },
-  {
-    id: '4',
-    member: {
-      name: 'Sarah Njeri',
-      initials: 'SN',
-      color: 'bg-indigo-100 text-indigo-600',
-    },
-    principal: 30000,
-    interest: 3000,
-    balance: 33000,
-    dueDate: '1 Jan 2026',
-    status: 'Defaulted',
-  },
+const STATUS_FILTERS: Array<{ label: string; value: LoanStatus | 'ALL' }> = [
+  { label: 'All', value: 'ALL' },
+  { label: 'Requested', value: 'REQUESTED' },
+  { label: 'Approved', value: 'APPROVED' },
+  { label: 'Active', value: 'ACTIVE' },
+  { label: 'Overdue', value: 'OVERDUE' },
+  { label: 'Completed', value: 'COMPLETED' },
+  { label: 'Defaulted', value: 'DEFAULTED' },
 ];
 
 export default function LoansPage() {
-  const [searchQuery, setSearchQuery] = useState('');
+  const context = useContext(ChamaMembershipContext);
+  const chamaId = context?.activeChama?.chamaId;
 
-  const filteredLoans = mockLoans.filter(l =>
-    l.member.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Data fetching
+  const [stats, setStats] = useState<any>(null);
+  const [loans, setLoans] = useState<Loan[]>([]);
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [loansLoading, setLoansLoading] = useState(true);
+  const [borrowersLoading, setBorrowersLoading] = useState(false);
+  const [treasuryLoading, setTreasuryLoading] = useState(true);
+  const [borrowers, setBorrowers] = useState<
+    Array<{ id: string; name: string; email: string }>
+  >([]);
+  const [treasurySummary, setTreasurySummary] =
+    useState<TreasurySummary | null>(null);
 
-  const getStatusBadge = (status: Loan['status']) => {
-    switch (status) {
-      case 'Active':
-        return (
-          <Badge
-            variant='default'
-            className='bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 hover:bg-blue-200'
-          >
-            Active
-          </Badge>
+  // Filters & Pagination
+  const [filters, setFilters] = useState<LoanFilterOptions>({
+    status: 'ALL',
+    search: '',
+    page: 1,
+  });
+  const [totalPages, setTotalPages] = useState(1);
+
+  // Modals & Selection
+  const [selectedLoan, setSelectedLoan] = useState<Loan | null>(null);
+  const [activeModal, setActiveModal] = useState<
+    | 'details'
+    | 'approve'
+    | 'reject'
+    | 'disburse'
+    | 'repayment'
+    | 'default'
+    | 'create'
+    | null
+  >(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Load stats
+  useEffect(() => {
+    if (!chamaId) return;
+
+    const loadStats = async () => {
+      try {
+        setStatsLoading(true);
+        const data = await LoansService.getStats(chamaId);
+        setStats(data);
+      } catch (error) {
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : 'Failed to load loan statistics'
         );
-      case 'Completed':
-        return <Badge variant='success'>Completed</Badge>;
-      case 'Defaulted':
-        return <Badge variant='destructive'>Defaulted</Badge>;
-      case 'Pending':
-        return <Badge variant='warning'>Pending</Badge>;
-      default:
-        return <Badge>{status}</Badge>;
+      } finally {
+        setStatsLoading(false);
+      }
+    };
+
+    loadStats();
+  }, [chamaId]);
+
+  // Load loans
+  useEffect(() => {
+    if (!chamaId) return;
+
+    const loadLoans = async () => {
+      try {
+        setLoansLoading(true);
+        const data = await LoansService.getLoans(chamaId, {
+          page: filters.page,
+          limit: 20,
+          status: filters.status === 'ALL' ? undefined : filters.status,
+          ...(filters.search ? { search: filters.search } : {}),
+        });
+        setLoans(data.loans);
+        setTotalPages(data.totalPages);
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : 'Failed to load loans'
+        );
+      } finally {
+        setLoansLoading(false);
+      }
+    };
+
+    // Debounce search
+    const timeout = setTimeout(loadLoans, 400);
+    return () => clearTimeout(timeout);
+  }, [chamaId, filters.status, filters.search, filters.page]);
+
+  // Load treasury summary
+  useEffect(() => {
+    if (!chamaId) return;
+
+    const loadTreasurySummary = async () => {
+      try {
+        setTreasuryLoading(true);
+        const summary = await TreasuryService.getTreasurySummary(chamaId);
+        setTreasurySummary(summary);
+      } catch (error) {
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : 'Failed to load treasury summary'
+        );
+        setTreasurySummary(null);
+      } finally {
+        setTreasuryLoading(false);
+      }
+    };
+
+    loadTreasurySummary();
+  }, [chamaId]);
+
+  // Load borrowers for create loan dropdown
+  useEffect(() => {
+    if (!chamaId) return;
+
+    const loadBorrowers = async () => {
+      try {
+        setBorrowersLoading(true);
+        const members = await ChamaMembersService.getChamaMembers(chamaId);
+
+        const uniqueBorrowers = new Map<
+          string,
+          { id: string; name: string; email: string }
+        >();
+
+        members.forEach(member => {
+          const userId = member.user?.id;
+          if (!userId || uniqueBorrowers.has(userId)) return;
+
+          const name =
+            member.user.name?.trim() ||
+            member.user.email?.trim() ||
+            member.user.phone?.trim() ||
+            'Unnamed member';
+          const email = member.user.email?.trim() || '';
+
+          uniqueBorrowers.set(userId, { id: userId, name, email });
+        });
+
+        const sortedBorrowers = Array.from(uniqueBorrowers.values()).sort(
+          (a, b) => a.name.localeCompare(b.name)
+        );
+
+        setBorrowers(sortedBorrowers);
+      } catch (error) {
+        console.error('Error fetching borrowers:', error);
+        toast.error(
+          error instanceof Error ? error.message : 'Failed to load members'
+        );
+        setBorrowers([]);
+      } finally {
+        setBorrowersLoading(false);
+      }
+    };
+
+    loadBorrowers();
+  }, [chamaId]);
+
+  // Modal handlers
+  const openModal = (modal: typeof activeModal, loan: Loan) => {
+    setSelectedLoan(loan);
+    setActiveModal(modal);
+  };
+
+  const closeModal = () => {
+    setActiveModal(null);
+    setSelectedLoan(null);
+  };
+
+  // Reload helper
+  const reloadLoans = async () => {
+    if (!chamaId) return;
+    try {
+      const updated = await LoansService.getLoans(chamaId, {
+        page: filters.page,
+        limit: 20,
+        status: filters.status === 'ALL' ? undefined : filters.status,
+      });
+      setLoans(updated.loans);
+      const newStats = await LoansService.getStats(chamaId);
+      setStats(newStats);
+      const newTreasurySummary = await TreasuryService.getTreasurySummary(
+        chamaId
+      );
+      setTreasurySummary(newTreasurySummary);
+    } catch (error) {
+      console.error('Error reloading loans:', error);
     }
   };
+
+  // Action handlers
+  const handleApprove = async (
+    loanId: string,
+    data: {
+      approvedAmount: number;
+      interestRate?: number;
+      durationMonths?: number;
+      notes?: string;
+    }
+  ) => {
+    if (!chamaId) return;
+    setIsSubmitting(true);
+    try {
+      await LoansService.approveLoan(
+        loanId,
+        chamaId,
+        data.approvedAmount,
+        data.interestRate,
+        data.notes
+      );
+      toast.success('Loan approved successfully');
+      closeModal();
+      await reloadLoans();
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to approve loan'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleReject = async (loanId: string, reason?: string) => {
+    if (!chamaId) return;
+    setIsSubmitting(true);
+    try {
+      await LoansService.rejectLoan(loanId, chamaId, reason);
+      toast.success('Loan rejected successfully');
+      closeModal();
+      await reloadLoans();
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to reject loan'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDisburse = async (
+    loanId: string,
+    data: { startDate: string }
+  ) => {
+    if (!chamaId) return;
+    setIsSubmitting(true);
+    try {
+      await LoansService.disburseLoan(loanId, data.startDate);
+      toast.success('Loan disbursed successfully');
+      closeModal();
+      await reloadLoans();
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to disburse loan'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleRecordRepayment = async (
+    loanId: string,
+    data: {
+      amount: number;
+      paymentDate?: string;
+      method: PaymentMethod;
+      reference?: string;
+      notes?: string;
+    }
+  ) => {
+    if (!chamaId) return;
+    setIsSubmitting(true);
+    try {
+      await LoansService.recordRepayment(loanId, data);
+      toast.success('Repayment recorded successfully');
+      closeModal();
+      await reloadLoans();
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to record repayment'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleMarkDefaulted = async (loanId: string, notes?: string) => {
+    if (!chamaId) return;
+    setIsSubmitting(true);
+    try {
+      await LoansService.markDefaulted(loanId, { chamaId, notes } as any);
+      toast.success('Loan marked as defaulted');
+      closeModal();
+      await reloadLoans();
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Failed to mark loan as defaulted'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCreate = async (data: CreateLoanData) => {
+    if (!chamaId) return;
+    setIsSubmitting(true);
+    try {
+      await LoansService.createLoan({
+        chamaId,
+        borrowerId: data.borrowerId,
+        amount: data.amount,
+        interestRate: data.interestRate,
+        durationMonths: data.durationMonths,
+        purpose: data.purpose,
+        notes: data.notes,
+        status: data.status,
+        startDate: data.startDate,
+      });
+      toast.success('Loan created successfully');
+      closeModal();
+      await reloadLoans();
+    } catch (error) {
+      throw error instanceof Error ? error : new Error('Failed to create loan');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (!chamaId) {
+    return <div className='p-6'>Please select a chama first</div>;
+  }
 
   return (
     <div className='p-6 space-y-6'>
       <PageHeader
         title='Loans'
-        subtitle='Manage member loans'
+        subtitle='Manage member loans and disbursements'
         action={
-          <Button className='gap-2 bg-blue-600 hover:bg-blue-700 text-white'>
+          <Button
+            onClick={() => setActiveModal('create')}
+            className='gap-2 bg-blue-600 hover:bg-blue-700 text-white'
+          >
             <Plus className='w-4 h-4' />
-            Record Loan
+            New Loan
           </Button>
         }
       />
 
       {/* KPI Cards */}
-      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
-        <StatsCard
-          title='Total Disbursed'
-          value='KSh 200,000'
-          icon={Banknote}
-          status='default'
-          className='bg-card'
-        />
-        <StatsCard
-          title='Active Loans'
-          value='2'
-          icon={Users}
-          status='warning' // Active implies focus needed? Or standard. Let's use warning for visibility or default. Warning matches "Pending" color often.
-        />
-        <StatsCard
-          title='Interest Earned'
-          value='KSh 20,000'
-          icon={TrendingUp}
-          status='success'
-        />
-        <StatsCard
-          title='Defaulted'
-          value='1'
-          icon={AlertTriangle}
-          status='destructive'
-        />
-      </div>
+      <LoanStatsCards stats={stats} isLoading={statsLoading} />
+
+      <TreasurySummaryCards
+        summary={treasurySummary ?? undefined}
+        isLoading={treasuryLoading}
+      />
 
       {/* Main Content */}
       <div className='bg-card rounded-lg border border-border shadow-sm pb-4'>
-        {/* Toolbar & Header */}
-        <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center p-6 pb-4 border-b border-border gap-4'>
-          <div className='relative w-full sm:w-96'>
+        {/* Toolbar & Filters */}
+        <div className='p-6 pb-4 border-b border-border space-y-4'>
+          <div className='relative'>
             <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
             <Input
-              placeholder='Search loans by member...'
+              placeholder='Search by borrower name or email...'
               className='pl-9'
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
+              value={filters.search}
+              onChange={e =>
+                setFilters({ ...filters, search: e.target.value, page: 1 })
+              }
             />
           </div>
-          <div className='flex gap-2 w-full sm:w-auto overflow-x-auto'>
-            <Button variant='outline' size='sm'>
-              All Loans
-            </Button>
-            <Button variant='outline' size='sm'>
-              Active
-            </Button>
-            <Button variant='outline' size='sm'>
-              Defaulted
-            </Button>
+
+          <div className='flex gap-2 overflow-x-auto pb-2'>
+            {STATUS_FILTERS.map(status => (
+              <Button
+                key={status.value}
+                variant={
+                  filters.status === status.value ? 'default' : 'outline'
+                }
+                size='sm'
+                onClick={() =>
+                  setFilters({ ...filters, status: status.value, page: 1 })
+                }
+              >
+                {status.label}
+              </Button>
+            ))}
           </div>
         </div>
 
+        {/* Table */}
         <div className='px-6'>
-          <Table className='border-collapse'>
-            <TableHeader className='bg-muted/50'>
-              <TableRow className='hover:bg-transparent border-b border-border'>
-                <TableHead>Member</TableHead>
-                <TableHead>Principal</TableHead>
-                <TableHead>Interest</TableHead>
-                <TableHead>Balance</TableHead>
-                <TableHead>Due Date</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className='text-right'>Action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredLoans.map(loan => (
-                <TableRow
-                  key={loan.id}
-                  className='hover:bg-muted/50 transition-colors border-0'
-                >
-                  <TableCell className='border-b border-border py-3'>
-                    <div className='flex items-center gap-3'>
-                      <div
-                        className={cn(
-                          'w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium',
-                          loan.member.color
-                        )}
-                      >
-                        {loan.member.initials}
-                      </div>
-                      <span className='font-medium'>{loan.member.name}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className='border-b border-border py-3'>
-                    KSh {loan.principal.toLocaleString()}
-                  </TableCell>
-                  <TableCell className='text-green-600 border-b border-border py-3'>
-                    + KSh {loan.interest.toLocaleString()}
-                  </TableCell>
-                  <TableCell className='font-bold border-b border-border py-3'>
-                    KSh {loan.balance.toLocaleString()}
-                  </TableCell>
-                  <TableCell className='text-muted-foreground border-b border-border py-3'>
-                    {loan.dueDate}
-                  </TableCell>
-                  <TableCell className='border-b border-border py-3'>
-                    {getStatusBadge(loan.status)}
-                  </TableCell>
-                  <TableCell className='text-right border-b border-border py-3'>
-                    <Button variant='ghost' size='sm' className='gap-2 h-8'>
-                      <Eye className='w-4 h-4' />
-                      View
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <LoansTable
+            loans={loans}
+            isLoading={loansLoading}
+            onView={loan => openModal('details', loan)}
+            onApprove={loan => openModal('approve', loan)}
+            onReject={loan => openModal('reject', loan)}
+            onDisburse={loan => openModal('disburse', loan)}
+            onRepayment={loan => openModal('repayment', loan)}
+            onDefault={loan => openModal('default', loan)}
+          />
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className='px-6 py-4 border-t border-border flex justify-between items-center'>
+            <p className='text-sm text-muted-foreground'>
+              Page {filters.page} of {totalPages}
+            </p>
+            <div className='flex gap-2'>
+              <Button
+                variant='outline'
+                size='sm'
+                disabled={filters.page === 1 || loansLoading}
+                onClick={() =>
+                  setFilters({ ...filters, page: filters.page - 1 })
+                }
+              >
+                Previous
+              </Button>
+              <Button
+                variant='outline'
+                size='sm'
+                disabled={filters.page === totalPages || loansLoading}
+                onClick={() =>
+                  setFilters({ ...filters, page: filters.page + 1 })
+                }
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Modals */}
+      <LoanDetailsModal
+        loan={selectedLoan}
+        isOpen={activeModal === 'details'}
+        onClose={closeModal}
+      />
+
+      <ApproveLoanModal
+        loan={selectedLoan}
+        isOpen={activeModal === 'approve'}
+        isLoading={isSubmitting}
+        onClose={closeModal}
+        onApprove={handleApprove}
+      />
+
+      <RejectLoanModal
+        loan={selectedLoan}
+        isOpen={activeModal === 'reject'}
+        isLoading={isSubmitting}
+        onClose={closeModal}
+        onReject={handleReject}
+      />
+
+      <DisburseLoanModal
+        loan={selectedLoan}
+        isOpen={activeModal === 'disburse'}
+        isLoading={isSubmitting}
+        onClose={closeModal}
+        onDisburse={handleDisburse}
+      />
+
+      <RepaymentModal
+        loan={selectedLoan}
+        isOpen={activeModal === 'repayment'}
+        isLoading={isSubmitting}
+        onClose={closeModal}
+        onRecord={handleRecordRepayment}
+      />
+
+      <DefaultLoanModal
+        loan={selectedLoan}
+        isOpen={activeModal === 'default'}
+        isLoading={isSubmitting}
+        onClose={closeModal}
+        onDefault={handleMarkDefaulted}
+      />
+
+      <CreateLoanModal
+        isOpen={activeModal === 'create'}
+        onClose={closeModal}
+        isLoading={isSubmitting}
+        onSubmit={handleCreate}
+        borrowers={borrowers}
+        isBorrowersLoading={borrowersLoading}
+      />
     </div>
   );
 }

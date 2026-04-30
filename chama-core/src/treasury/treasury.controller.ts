@@ -27,7 +27,7 @@ export class TreasuryController {
   @ApiOperation({
     summary: 'Get treasury summary',
     description:
-      'Get a summary of the chama treasury balance, including total contributions and approved expenses. Treasury Balance = Total Contributions - Total Approved Expenses',
+      'Get a summary of the chama treasury balance, including contributions, expenses, and loan flows. Treasury Balance = Contributions - Expenses - Loans Disbursed + Loan Repayments',
   })
   @ApiQuery({
     name: 'chamaId',

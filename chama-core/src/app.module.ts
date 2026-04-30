@@ -16,6 +16,7 @@ import { RolesPermissionsModule } from './roles-permissions/roles-permissions.mo
 import { NotificationsModule } from './notifications/notifications.module';
 import { ExpensesModule } from './expenses/expenses.module';
 import { TreasuryModule } from './treasury/treasury.module';
+import { LoansModule } from './loans/loans.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { TreasuryModule } from './treasury/treasury.module';
     NotificationsModule,
     ExpensesModule,
     TreasuryModule,
+    LoansModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthGuard],

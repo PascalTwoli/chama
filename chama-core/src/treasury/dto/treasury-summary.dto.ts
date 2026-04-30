@@ -3,8 +3,8 @@ import { ApiProperty } from '@nestjs/swagger';
 export class TreasurySummaryDto {
   @ApiProperty({
     description:
-      'Treasury balance calculated as: Total Contributions - Total Approved Expenses',
-    example: 150000.0,
+      'Treasury balance calculated as: Contributions - Expenses - Loans Disbursed + Loan Repayments',
+    example: 125000.0,
     type: Number,
   })
   treasuryBalance!: number;
@@ -22,4 +22,25 @@ export class TreasurySummaryDto {
     type: Number,
   })
   totalExpenses!: number;
+
+  @ApiProperty({
+    description: 'Total sum of all disbursed loans (treasury outflow)',
+    example: 60000.0,
+    type: Number,
+  })
+  totalLoansDisbursed!: number;
+
+  @ApiProperty({
+    description: 'Total sum of loan repayments (treasury inflow)',
+    example: 30000.0,
+    type: Number,
+  })
+  totalLoanRepayments!: number;
+
+  @ApiProperty({
+    description: 'Total interest earned from completed loans',
+    example: 5000.0,
+    type: Number,
+  })
+  totalInterestEarned!: number;
 }

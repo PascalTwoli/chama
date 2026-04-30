@@ -19,6 +19,46 @@ export const DEFAULT_PERMISSIONS = [
     description: 'Issue loans to members',
   },
   {
+    key: 'loan.view',
+    description: 'View loans and loan details',
+  },
+  {
+    key: 'loan.create',
+    description: 'Create loans directly (admin)',
+  },
+  {
+    key: 'loan.request',
+    description: 'Request a loan as a member',
+  },
+  {
+    key: 'loan.review',
+    description: 'Move loan to under review',
+  },
+  {
+    key: 'loan.approve',
+    description: 'Approve a loan request',
+  },
+  {
+    key: 'loan.reject',
+    description: 'Reject a loan request',
+  },
+  {
+    key: 'loan.disburse',
+    description: 'Disburse an approved loan',
+  },
+  {
+    key: 'loan.repayment.record',
+    description: 'Record a loan repayment',
+  },
+  {
+    key: 'loan.mark.defaulted',
+    description: 'Mark a loan as defaulted',
+  },
+  {
+    key: 'loan.stats.view',
+    description: 'View loan statistics',
+  },
+  {
     key: 'manage_members',
     description: 'Add, remove, or manage chama members',
   },
@@ -76,6 +116,15 @@ export const DEFAULT_ROLES: {
       'audit_financial_records',
       'view_activity_log',
       'generate_reports',
+      'loan.view',
+      'loan.create',
+      'loan.review',
+      'loan.approve',
+      'loan.reject',
+      'loan.disburse',
+      'loan.repayment.record',
+      'loan.mark.defaulted',
+      'loan.stats.view',
     ],
   },
   {
@@ -88,6 +137,15 @@ export const DEFAULT_ROLES: {
       'issue_loans',
       'view_activity_log',
       'generate_reports',
+      'loan.view',
+      'loan.create',
+      'loan.review',
+      'loan.approve',
+      'loan.reject',
+      'loan.disburse',
+      'loan.repayment.record',
+      'loan.mark.defaulted',
+      'loan.stats.view',
     ],
   },
   {

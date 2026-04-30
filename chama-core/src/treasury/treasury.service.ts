@@ -6,7 +6,12 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { TreasurySummaryDto } from './dto/treasury-summary.dto';
-import { ExpenseStatus } from '@prisma/client';
+import {
+  ExpenseStatus,
+  LoanStatus,
+  transaction_status,
+  transaction_type,
+} from '@prisma/client';
 
 interface CurrentUserType {
   id: string;
@@ -52,8 +57,8 @@ export class TreasuryService {
   }
 
   /**
-   * Get treasury summary with balance, total contributions, and total expenses
-   * Treasury Balance = Total Contributions - Total Approved Expenses
+   * Get treasury summary with balance, total contributions, expenses, and loan flows.
+   * Treasury Balance = Contributions - Expenses - Loans Disbursed + Loan Repayments
    */
   async getTreasurySummary(
     currentUser: CurrentUserType,
@@ -92,13 +97,58 @@ export class TreasuryService {
         ? parseFloat(expenseResult._sum.amount.toString())
         : 0;
 
+      // Loan transaction aggregates (completed only)
+      const [loanDisbursedResult, loanRepaymentResult, interestResult] =
+        await Promise.all([
+          this.prisma.transaction.aggregate({
+            where: {
+              chama_id: chamaId,
+              type: transaction_type.LOAN,
+              status: transaction_status.COMPLETED,
+            },
+            _sum: { amount: true },
+          }),
+          this.prisma.transaction.aggregate({
+            where: {
+              chama_id: chamaId,
+              type: transaction_type.LOAN_REPAYMENT,
+              status: transaction_status.COMPLETED,
+            },
+            _sum: { amount: true },
+          }),
+          this.prisma.loan.aggregate({
+            where: {
+              chamaId,
+              status: LoanStatus.COMPLETED,
+            },
+            _sum: { interestAmount: true },
+          }),
+        ]);
+
+      const totalLoansDisbursed = loanDisbursedResult._sum?.amount
+        ? parseFloat(loanDisbursedResult._sum.amount.toString())
+        : 0;
+      const totalLoanRepayments = loanRepaymentResult._sum?.amount
+        ? parseFloat(loanRepaymentResult._sum.amount.toString())
+        : 0;
+      const totalInterestEarned = interestResult._sum?.interestAmount
+        ? parseFloat(interestResult._sum.interestAmount.toString())
+        : 0;
+
       // Calculate treasury balance
-      const treasuryBalance = totalContributions - totalExpenses;
+      const treasuryBalance =
+        totalContributions -
+        totalExpenses -
+        totalLoansDisbursed +
+        totalLoanRepayments;
 
       return {
         treasuryBalance,
         totalContributions,
         totalExpenses,
+        totalLoansDisbursed,
+        totalLoanRepayments,
+        totalInterestEarned,
       };
     } catch (error) {
       this.logger.error(

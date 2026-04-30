@@ -47,6 +47,24 @@ async function seedNotificationTypes() {
       action_required: true,
     },
     {
+      key: 'loan.disbursed',
+      description: 'Loan has been disbursed to borrower',
+      default_audience: NotificationAudience.MEMBER,
+      action_required: false,
+    },
+    {
+      key: 'loan.repayment.recorded',
+      description: 'Loan repayment recorded',
+      default_audience: NotificationAudience.MEMBER,
+      action_required: false,
+    },
+    {
+      key: 'loan.defaulted',
+      description: 'Loan marked as defaulted',
+      default_audience: NotificationAudience.BOTH,
+      action_required: false,
+    },
+    {
       key: 'meeting.scheduled',
       description: 'New meeting scheduled',
       default_audience: NotificationAudience.BOTH,
