@@ -2,12 +2,15 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
+  ForbiddenException,
   Get,
   HttpCode,
   HttpStatus,
   InternalServerErrorException,
   NotFoundException,
   Param,
+  Patch,
   Post,
   UseGuards,
   ValidationPipe,
@@ -423,6 +426,46 @@ export class ChamaController {
       throw new InternalServerErrorException(
         `Failed to fetch chama: ${message}`,
       );
+    }
+  }
+
+  @Patch(':id')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Update chama name or description (owner only)' })
+  @ApiParam({ name: 'id', description: 'Chama ID', type: 'string' })
+  @ApiOkResponse({ description: 'Chama updated successfully' })
+  async updateChama(
+    @Param('id') id: string,
+    @Body() body: { name?: string; description?: string },
+    @CurrentUser() currentUser: CurrentUserType,
+  ) {
+    try {
+      return await this.chamaService.updateChama(id, currentUser.id, body);
+    } catch (error: unknown) {
+      if (error instanceof NotFoundException || error instanceof ForbiddenException) throw error;
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new BadRequestException(`Failed to update chama: ${message}`);
+    }
+  }
+
+  @Delete(':id')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete a chama and all its data (owner only)' })
+  @ApiParam({ name: 'id', description: 'Chama ID', type: 'string' })
+  async deleteChama(
+    @Param('id') id: string,
+    @CurrentUser() currentUser: CurrentUserType,
+  ): Promise<void> {
+    try {
+      await this.chamaService.deleteChama(id, currentUser.id);
+    } catch (error: unknown) {
+      if (error instanceof NotFoundException || error instanceof ForbiddenException) throw error;
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new InternalServerErrorException(`Failed to delete chama: ${message}`);
     }
   }
 }

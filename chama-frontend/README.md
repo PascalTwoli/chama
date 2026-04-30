@@ -1,253 +1,211 @@
-# ChamaPlus Frontend
+# chama-frontend — ChamaPlus Web App
 
-A modern React-based web application for ChamaPlus - a savings group (Chama) management platform built for Kenyan savings groups with M-Pesa integration.
+React 19 web application for ChamaPlus — a savings group management platform.
 
-## 📋 Table of Contents
+## Stack
 
-- [Prerequisites](#prerequisites)
-- [Quick Start](#quick-start)
-- [Environment Configuration](#environment-configuration)
-- [Running the Application](#running-the-application)
-- [Project Structure](#project-structure)
-- [Key Features](#key-features)
-- [Troubleshooting](#troubleshooting)
+| Technology | Version | Purpose |
+|-----------|---------|---------|
+| React | ^19.0.0 | UI framework |
+| TypeScript | ^4.9.5 | Type safety |
+| React Router DOM | ^7.4.0 | Client-side routing |
+| TanStack Query | ^5.69.0 | Server state caching |
+| Firebase SDK | ^12.9.0 | Client-side auth |
+| Axios | ^1.9.0 | HTTP client |
+| React Hook Form | ^7.72.0 | Form management |
+| Radix UI | latest | Accessible UI primitives |
+| Tailwind CSS | ^3.4.x | Styling |
+| Recharts | ^3.7.0 | Charts |
+| react-day-picker | ^9.14.0 | Date range calendar |
+| date-fns | ^4.1.0 | Date formatting |
+| Lucide React | ^0.522.0 | Icons |
+| react-hot-toast | ^2.6.0 | Toast notifications |
+| CRACO | ^7.1.0 | CRA config override |
 
 ## Prerequisites
 
-Before you begin, ensure you have the following:
+- Node.js 18+
+- pnpm
+- Backend API running (see [chama-core](../chama-core/README.md))
+- Firebase project (Email/Password + Google auth enabled)
 
-| Tool            | Version | Installation                                     |
-| --------------- | ------- | ------------------------------------------------ |
-| **Node.js**     | v18+    | [Download](https://nodejs.org/)                  |
-| **npm**         | v9+     | Comes with Node.js                               |
-| **Backend API** | Running | See [chama-core README](../chama-core/README.md) |
-
-## Quick Start
+## Setup
 
 ```bash
-# 1. Navigate to frontend directory
-cd chama/chama-frontend
+# 1. Install dependencies
+pnpm install
 
-# 2. Install dependencies
-npm install
+# 2. Create .env
+cp .env.example .env   # fill in Firebase config and API URL
 
-# 3. Configure environment variables (see Environment Configuration)
+# 3. Ensure backend is running on port 5500
 
-# 4. Ensure backend is running on port 5500
-
-# 5. Start the development server
-npm start
+# 4. Start dev server
+pnpm start
 ```
 
-The app will be available at `http://localhost:3000`
+App runs at `http://localhost:3000`
 
-## Environment Configuration
-
-Create a `.env` file in the `chama-frontend` directory:
+## Environment Variables
 
 ```env
-# ==================== API Configuration ====================
 REACT_APP_API_URL=http://localhost:5500/api/v1
 
-# ==================== Firebase (for client-side auth) ====================
-REACT_APP_FIREBASE_API_KEY=your_firebase_api_key
-REACT_APP_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
-REACT_APP_FIREBASE_PROJECT_ID=your_project_id
+# Firebase project settings
+REACT_APP_FIREBASE_API_KEY=...
+REACT_APP_FIREBASE_AUTH_DOMAIN=...
+REACT_APP_FIREBASE_PROJECT_ID=...
+REACT_APP_FIREBASE_STORAGE_BUCKET=...
+REACT_APP_FIREBASE_MESSAGING_SENDER_ID=...
+REACT_APP_FIREBASE_APP_ID=...
 ```
 
-> **Note:** Environment variables in React must be prefixed with `REACT_APP_`
-
-## Running the Application
-
-### Development Mode
-
-```bash
-npm start
-```
-
-Opens `http://localhost:3000` with hot-reload enabled.
-
-### Production Build
-
-```bash
-# Build for production
-npm run build
-
-# Serve the build locally (optional)
-npx serve -s build
-```
-
-### Running Tests
-
-```bash
-npm test
-```
+All environment variables must be prefixed with `REACT_APP_`.
 
 ## Project Structure
 
 ```
-chama-frontend/
-├── public/                 # Static assets
-├── src/
-│   ├── components/         # Reusable UI components
-│   │   ├── guards/         # Route guards (Auth, Dashboard, Onboarding)
-│   │   ├── ui/             # UI primitives (Button, Card, Input, etc.)
-│   │   └── navbars/        # Navigation components
-│   ├── config/             # Configuration (axios, etc.)
-│   ├── context/            # React Context providers
-│   ├── hooks/              # Custom React hooks
-│   ├── layout/             # Layout components (Admin, Member)
-│   ├── models/             # TypeScript interfaces
-│   ├── pages/              # Page components
-│   │   ├── onboarding/     # Onboarding pages
-│   │   └── ...             # Other pages
-│   ├── routes/             # Route configuration
-│   ├── services/           # API services
-│   │   ├── auth/           # Authentication services
-│   │   └── chama/          # Chama services
-│   ├── styles/             # Global styles and theme
-│   └── utils/              # Utility functions
-└── package.json
+src/
+├── components/
+│   ├── ui/                 # Design system primitives (Button, Card, Input, Select…)
+│   ├── guards/             # Route guards (AuthGuard, OnboardingGuard, DashboardGuard)
+│   ├── navbars/            # Sidebar + top navbar
+│   └── settings/           # Account + chama settings sub-components
+├── config/                 # Axios config, Firebase config
+├── context/                # React contexts (Auth, Chama, ChamaMembership, Theme)
+├── hooks/                  # useChamaId, useOnboardingRedirect
+├── layout/                 # AdminLayout, MemberLayout, NavbarOnlyLayout
+├── models/                 # TypeScript interfaces for API responses
+├── pages/                  # Page-level components (one per route)
+│   └── onboarding/         # ChamaChoice page
+├── routes/                 # Routes.tsx — main router
+├── services/               # API service layer
+│   ├── auth/               # Google, signin, signup, logout
+│   ├── chama/              # ChamaService, ChamaMembersService, ChamaSettingsService
+│   ├── dashboard/          # DashboardService
+│   ├── notifications/      # NotificationsService
+│   ├── roles-permissions/  # RolesPermissionsService
+│   └── transaction/        # TransactionService
+└── utils/                  # cn(), toast helpers, notification events
 ```
 
-## Key Features
+## Routing
 
-### Authentication Flow
+```
+/                               → Landing (public)
+/auth/signin                   → Sign in
+/auth/signup                   → Sign up
+/onboarding/chama-choice       → First-time user flow
+/onboarding/create-chama       → Create chama wizard
+/join-chama/:token             → Accept invite by token
 
-- **Sign Up** → Creates account → Redirects to Chama Choice
-- **Sign In** → Authenticates → Redirects based on chama membership
+/admin/chamas/:chamaId/        → Admin area (requires ADMIN role)
+  (index)                      → Dashboard with KPIs + charts
+  membership                   → Membership management
+  contributions                → Contribution list
+  contributions/record-contribution
+  expenses                     → Expense tracking + approvals
+  loans                        → Loans (stub)
+  members                      → Members + role assignment
+  roles                        → RBAC role management
+  meetings                     → Meetings (stub)
+  meetings/schedule            → Schedule meeting (stub)
+  notifications                → Notification list
+  reports                      → Reports (stub)
+  activity-log                 → Activity log (stub)
+  communication                → Communication (stub)
+  settings                     → Chama settings + danger zone
+  account-settings             → User account settings
 
-### Route Structure
+/member/chamas/:chamaId/       → Member area (requires MEMBER role)
+  (index)                      → Member dashboard
+  notifications                → Notifications
+  chama_settings               → Settings (view-only)
+  account_settings             → Account settings
+```
 
-| Route                      | Access | Description              |
-| -------------------------- | ------ | ------------------------ |
-| `/`                        | Public | Landing page             |
-| `/auth/signin`             | Public | Sign in page             |
-| `/auth/signup`             | Public | Sign up page             |
-| `/onboarding/chama-choice` | Auth   | Choose/create/join chama |
-| `/onboarding/create-chama` | Auth   | Create new chama         |
-| `/admin/chamas/:id/*`      | Admin  | Admin dashboard routes   |
-| `/member/chamas/:id/*`     | Member | Member dashboard routes  |
+## Route Guards
 
-### Route Guards
+| Guard | Behaviour |
+|-------|-----------|
+| `AuthGuard` | Redirects to `/auth/signin` if not authenticated |
+| `OnboardingGuard` | For authenticated users without a chama — shows chama-choice |
+| `DashboardGuard` | Verifies the required role (ADMIN/MEMBER) for the specific chama |
 
-| Guard             | Purpose                                |
-| ----------------- | -------------------------------------- |
-| `AuthGuard`       | Requires authentication                |
-| `OnboardingGuard` | Requires auth + handles chama redirect |
-| `DashboardGuard`  | Requires auth + chama + correct role   |
+## Context Providers
 
-## Connecting to Backend
+| Context | Hook | Provides |
+|---------|------|----------|
+| `AuthContext` | `useAuth()` | `user`, `loading`, `isAuthenticated` |
+| `ChamaContext` | `useChama()` | `chamaData`, `chamaId`, loading state |
+| `ChamaMembershipContext` | `useChamaMembership()` | User's role in the active chama |
+| `ThemeContext` | `useTheme()` | `isDark`, `toggleTheme` |
 
-Ensure the backend is running before starting the frontend:
+## Page Status
+
+| Page | Status |
+|------|--------|
+| Landing | Complete |
+| SignIn / SignUp | Complete |
+| ChamaChoice | Complete |
+| AdminDashboard | Complete — KPI cards, treasury chart |
+| MemberDashboard | Complete |
+| ContributionsPage | Complete |
+| ExpensesPage | Complete — search, category filter, date range, approve/reject |
+| MembersPage | Complete — role assignment |
+| RolesAndPermissionsPage | Complete |
+| NotificationsPage | Complete |
+| SettingsPage | Complete — edit chama info, configure settings, danger zone |
+| AccountSettings | Complete |
+| LoansPage | Stub |
+| ReportsPage | Stub |
+| MeetingsPage | Stub |
+| CommunicationPage | Stub |
+| ActivityLogPage | Stub |
+
+## UI Component System
+
+Custom design system in `src/components/ui/` built on Radix UI + Tailwind CSS + CVA:
+
+- `Button` — variant-based (default, destructive, outline, ghost)
+- `Card`, `CardHeader`, `CardContent`, `CardFooter`
+- `Input`, `Label`
+- `Select` — Radix Select with custom styling
+- `Dialog` — Radix Dialog for modals
+- `Tabs` — Radix Tabs
+- `Badge`, `Avatar`, `Table`, `Checkbox`
+
+## Authentication
+
+- **Email+Password**: Firebase Email/Password provider
+- **Google OAuth**: Firebase Google provider
+- **Token**: Firebase ID token attached as `Bearer` header on every Axios request via interceptor in `config/axios-config.ts`
+- **Storage**: httpOnly cookie (set by backend) + localStorage fallback
+
+## Scripts
 
 ```bash
-# Terminal 1: Start backend (in chama-core directory)
-cd chama-core
-npm run start:dev
-
-# Terminal 2: Start frontend (in chama-frontend directory)
-cd chama-frontend
-npm start
+pnpm start          # Dev server with hot reload
+pnpm build          # Production build
+pnpm test           # Jest tests
+npx tsc --noEmit    # Type check without building
 ```
-
-The frontend expects the backend API at `http://localhost:5500/api/v1`
 
 ## Troubleshooting
 
-### Common Issues
-
-#### 1. API Connection Error
-
-```
-Error: Network Error / CORS Error
-```
-
-**Solutions:**
-
-- Ensure backend is running on port 5500
+**API connection error / CORS**
+- Confirm backend is running on port 5500
 - Check `REACT_APP_API_URL` in `.env`
-- Verify CORS is enabled on backend
+- Confirm `CORS_ORIGINS` on the backend includes `http://localhost:3000`
 
-#### 2. Authentication Issues
+**401 Unauthorized**
+- Clear localStorage and sign in again: `localStorage.clear()`
+- Confirm the Firebase project matches the service account key on the backend
 
-```
-401 Unauthorized on API calls
-```
+**Blank page after login**
+- Open DevTools → Application → Clear Storage, then reload
 
-**Solutions:**
-
-- Clear localStorage: `localStorage.clear()`
-- Sign in again
-- Check if authToken is being saved correctly
-
-#### 3. Blank Page After Login
-
-```
-User stuck on login page after successful login
-```
-
-**Solution:** Clear localStorage and try again
-
-```javascript
-// In browser console
-localStorage.clear();
-```
-
-#### 4. Port Already in Use
-
-```
-Error: Something is already running on port 3000
-```
-
-**Solution:** Kill the process or use different port
-
+**Port already in use**
 ```bash
-# Kill process on port 3000
 lsof -ti:3000 | xargs kill -9
-
-# Or use different port
-PORT=3001 npm start
 ```
-
-#### 5. Module Not Found Errors
-
-```
-Module not found: Can't resolve '...'
-```
-
-**Solution:** Reinstall dependencies
-
-```bash
-rm -rf node_modules package-lock.json
-npm install
-```
-
-## Scripts Reference
-
-| Script  | Command         | Description      |
-| ------- | --------------- | ---------------- |
-| `start` | `npm start`     | Start dev server |
-| `build` | `npm run build` | Production build |
-| `test`  | `npm test`      | Run tests        |
-| `eject` | `npm run eject` | Eject CRA config |
-
-## Tech Stack
-
-- **React** 18.x with TypeScript
-- **React Router** v6 for routing
-- **Axios** for API calls
-- **TailwindCSS** (via custom theme) for styling
-- **Lucide React** for icons
-- **React Hot Toast** for notifications
-
-## Development Tips
-
-1. **State Management:** Use `ChamaMembershipContext` for user/chama state
-2. **API Calls:** Use services in `src/services/` for API interactions
-3. **Styling:** Use theme CSS variables defined in `src/styles/theme.css`
-4. **Components:** Prefer using UI components from `src/components/ui/`
-
-## License
-
-MIT License - see [LICENSE](LICENSE) for details.

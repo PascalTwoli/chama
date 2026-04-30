@@ -1,288 +1,223 @@
-# ChamaPlus Backend (chama-core)
+# chama-core — ChamaPlus Backend API
 
-A modern NestJS-based backend API for ChamaPlus - a savings group (Chama) management platform built for Kenyan savings groups with M-Pesa integration.
+NestJS REST API powering the ChamaPlus savings group management platform.
 
-## 📋 Table of Contents
+## Stack
 
-- [Prerequisites](#prerequisites)
-- [Quick Start](#quick-start)
-- [Database Setup](#database-setup)
-- [Environment Configuration](#environment-configuration)
-- [Running the Application](#running-the-application)
-- [API Documentation](#api-documentation)
-- [Project Structure](#project-structure)
-- [Troubleshooting](#troubleshooting)
+| Technology | Version | Purpose |
+|-----------|---------|---------|
+| NestJS | ^10.0.0 | Web framework |
+| Prisma | ^6.9.0 | ORM |
+| PostgreSQL | any | Database |
+| Firebase Admin | ^13.4.0 | Token verification |
+| Swagger | ^11.2.0 | API docs at `/api/docs` |
+| class-validator | ^0.14.2 | DTO validation |
+| Nodemailer + Brevo | latest | Email delivery |
+| React Email | ^1.0.8 | Email templates |
 
 ## Prerequisites
 
-Before you begin, ensure you have the following installed:
+- Node.js 18+
+- pnpm
+- PostgreSQL (local or cloud)
+- Firebase project with a service account key JSON
 
-| Tool                 | Version | Installation                                             |
-| -------------------- | ------- | -------------------------------------------------------- |
-| **Node.js**          | v18+    | [Download](https://nodejs.org/)                          |
-| **npm**              | v9+     | Comes with Node.js                                       |
-| **PostgreSQL**       | v14+    | `brew install postgresql@14` (macOS)                     |
-| **Firebase Account** | -       | [Firebase Console](https://console.firebase.google.com/) |
-
-## Quick Start
+## Setup
 
 ```bash
-# 1. Clone the repository (if not already done)
-cd chama/chama-core
+# 1. Install dependencies
+pnpm install
 
-# 2. Install dependencies
-npm install
+# 2. Create .env
+cp .env.example .env   # fill in the values below
 
-# 3. Set up PostgreSQL database (see Database Setup section)
-
-# 4. Configure environment variables (see Environment Configuration)
-
-# 5. Run database migrations
+# 3. Run database migrations
 npx prisma migrate dev
 
-# 6. Start the development server
-npm run start:dev
+# 4. Seed notification types and default expense categories
+npx prisma db seed
+
+# 5. Start dev server
+pnpm start:dev
 ```
 
-The API will be available at `http://localhost:5500/api/v1`
+- API: `http://localhost:5500/api/v1`
+- Swagger: `http://localhost:5500/api/docs`
 
-## Database Setup
-
-### Option 1: Local PostgreSQL (Recommended for Development)
-
-#### macOS (using Homebrew)
-
-```bash
-# Install PostgreSQL
-brew install postgresql@14
-
-# Start PostgreSQL service
-brew services start postgresql@14
-
-# Create a PostgreSQL user
-createuser -s your_username
-
-# Set password for the user
-psql postgres -c "ALTER USER your_username WITH PASSWORD 'your_password';"
-
-# Create the database
-createdb chama_db -O your_username
-```
-
-#### Linux (Ubuntu/Debian)
-
-```bash
-# Install PostgreSQL
-sudo apt update
-sudo apt install postgresql postgresql-contrib
-
-# Start PostgreSQL service
-sudo systemctl start postgresql
-sudo systemctl enable postgresql
-
-# Switch to postgres user and create database
-sudo -u postgres psql
-```
-
-```sql
--- In PostgreSQL shell
-CREATE USER your_username WITH PASSWORD 'your_password';
-CREATE DATABASE chama_db OWNER your_username;
-GRANT ALL PRIVILEGES ON DATABASE chama_db TO your_username;
-\q
-```
-
-### Option 2: Docker (Alternative)
-
-```bash
-# Start PostgreSQL with Docker
-docker run --name chama_postgres \
-  -e POSTGRES_USER=your_username \
-  -e POSTGRES_PASSWORD=your_password \
-  -e POSTGRES_DB=chama_db \
-  -p 5432:5432 \
-  -d postgres:14
-```
-
-### Verify Database Connection
-
-```bash
-psql -h localhost -U your_username -d chama_db -c "SELECT 1"
-```
-
-## Environment Configuration
-
-Create a `.env` file in the `chama-core` directory:
-
-```bash
-# Copy the example (or create new)
-cp .env.example .env
-```
-
-### Required Environment Variables
+## Environment Variables
 
 ```env
-# ==================== DATABASE ====================
-DATABASE_URL="postgresql://your_username:your_password@localhost:5432/chama_db?schema=public"
+# Required
+DATABASE_URL=postgresql://user:password@localhost:5432/chamaplus
+FIREBASE_KEY_PATH=./chama-b57f4-firebase-adminsdk-fbsvc-a743d47717.json
 
-# ==================== SERVER ====================
+# Optional
 PORT=5500
+CORS_ORIGINS=http://localhost:3000,https://yourdomain.com
 
-# ==================== FIREBASE (Authentication) ====================
-FIREBASE_API_KEY="your_firebase_api_key"
-FIREBASE_KEY_PATH=./chama-b57f4-firebase-adminsdk-fbsvc-xxxxxxxx.json
-
-# ==================== EMAIL (Brevo/Sendinblue) ====================
-BREVO_API_KEY=your_brevo_api_key
-EMAIL_SENDER_ADDRESS=your_email@example.com
-EMAIL_SENDER_NAME=ChamaPlus
-
-# ==================== FRONTEND ====================
-FRONTEND_URL=http://localhost:3000
+# Email (Brevo / Nodemailer)
+SMTP_HOST=smtp-relay.brevo.com
+SMTP_PORT=587
+SMTP_USER=your@email.com
+SMTP_PASS=your-brevo-api-key
+EMAIL_FROM=noreply@chamaplus.com
 ```
-
-### Firebase Setup
-
-1. Go to [Firebase Console](https://console.firebase.google.com/)
-2. Create a new project or select existing
-3. Go to **Project Settings** > **Service Accounts**
-4. Click **Generate new private key**
-5. Save the JSON file to `chama-core/` directory
-6. Update `FIREBASE_KEY_PATH` in `.env` with the filename
-
-## Running the Application
-
-### Development Mode (with hot-reload)
-
-```bash
-npm run start:dev
-```
-
-### Production Mode
-
-```bash
-# Build the application
-npm run build
-
-# Start production server
-npm run start:prod
-```
-
-### Database Migrations
-
-```bash
-# Apply pending migrations
-npx prisma migrate dev
-
-# Generate Prisma Client
-npx prisma generate
-
-# View database in Prisma Studio
-npx prisma studio
-```
-
-## API Documentation
-
-Once the server is running, access the Swagger API documentation at:
-
-**`http://localhost:5500/api`**
-
-### Main API Endpoints
-
-| Endpoint                  | Method   | Description             |
-| ------------------------- | -------- | ----------------------- |
-| `/api/v1/auth/signup`     | POST     | Register new user       |
-| `/api/v1/auth/login`      | POST     | User login              |
-| `/api/v1/auth/me`         | GET      | Get current user        |
-| `/api/v1/chama`           | GET      | Get user's chamas       |
-| `/api/v1/chama`           | POST     | Create new chama        |
-| `/api/v1/chama/available` | GET      | Browse available chamas |
-| `/api/v1/invites`         | POST     | Create invite           |
-| `/api/v1/invites/accept`  | POST     | Accept invite           |
-| `/api/v1/transactions`    | GET/POST | Manage transactions     |
 
 ## Project Structure
 
 ```
-chama-core/
-├── src/
-│   ├── auth/           # Authentication module
-│   ├── chama/          # Chama management module
-│   ├── user/           # User management module
-│   ├── invite/         # Invitation system
-│   ├── transaction/    # Financial transactions
-│   ├── email/          # Email service (Brevo)
-│   └── prisma/         # Prisma database service
-├── prisma/
-│   ├── schema.prisma   # Database schema
-│   └── migrations/     # Database migrations
-├── test/               # Test files
-└── .env                # Environment variables
+src/
+├── auth/                   # Google OAuth endpoint
+├── chama/                  # Chama CRUD + member listing
+├── chama-settings/         # Contribution rules configuration
+├── dashboard/              # KPI stats endpoint
+├── decorators/             # @CurrentUser() decorator
+├── email/                  # Email service (Nodemailer + templates)
+├── expenses/               # Expense CRUD + approve/reject workflow
+│   ├── expenses.controller.ts
+│   ├── expenses.service.ts
+│   ├── expenses.repository.ts  # All Prisma calls
+│   └── file-upload.service.ts
+├── guards/                 # AuthGuard, PermissionGuard
+├── invites/                # Token-based invite links
+├── join-requests/          # Join request submit + review
+├── notifications/          # Notification CRUD + type seeding
+├── prisma/                 # PrismaService singleton
+├── roles-permissions/      # RBAC roles + permissions
+├── transaction/            # Transaction ledger records
+├── treasury/               # Treasury summary
+├── user/                   # User profile CRUD
+└── utils/                  # Firebase UID validator
 ```
 
-## Troubleshooting
+## Authentication
 
-### Common Issues
+Every protected route uses `AuthGuard`, which:
 
-#### 1. Database Connection Error
+1. Extracts the Bearer token from the `Authorization` header
+2. Calls `firebase-admin.verifyIdToken(token)`
+3. Looks up the user in PostgreSQL by Firebase UID
+4. Auto-creates the user record if this is their first request
+5. Attaches `{ id, email, name }` to `request.user`
 
-```
-Error: Can't reach database server at `localhost:5432`
-```
+The `@CurrentUser()` decorator retrieves this object in controller handlers.
 
-**Solution:** Start PostgreSQL service
+## API Reference
+
+All routes prefixed `/api/v1/`.
+
+### Auth
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| POST | `/auth/google` | No | Exchange Google ID token |
+| POST | `/auth/signout` | No | Clear session cookie |
+
+### User
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/users/me` | Yes | Get current user profile |
+| PATCH | `/users/me` | Yes | Update profile |
+| GET | `/users/me/join-requests` | Yes | Get user's join requests |
+
+### Chama
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| POST | `/chama` | Yes | Create chama |
+| GET | `/chama` | Yes | Get user's chamas |
+| GET | `/chama/available` | Yes | Get joinable chamas |
+| GET | `/chama/:id` | Yes | Get chama by ID |
+| PATCH | `/chama/:id` | Yes | Update name/description (owner only) |
+| DELETE | `/chama/:id` | Yes | Delete chama + all data (owner only) |
+| GET | `/chama/:id/members` | Yes | List chama members |
+
+### Chama Settings
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| POST | `/chama-settings` | Yes | Create settings |
+| GET | `/chama-settings/:chamaId` | Yes | Get settings |
+| PATCH | `/chama-settings/:chamaId` | Yes | Update settings |
+
+### Invites
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| POST | `/invites` | Yes | Create invite (with or without email) |
+| GET | `/invites/validate/:token` | No | Validate invite token |
+| POST | `/invites/accept` | Yes | Accept invite |
+| GET | `/invites/chama/:chamaId` | Yes | List pending invites |
+
+### Join Requests
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| POST | `/chamas/:chamaId/requests` | Yes | Submit join request |
+| GET | `/chamas/:chamaId/requests` | Yes | Get pending requests (admin) |
+| POST | `/chamas/:chamaId/requests/:id/review` | Yes | Approve or reject |
+
+### Expenses
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| POST | `/expenses` | Yes | Create expense |
+| GET | `/expenses/chama/:chamaId` | Yes | List expenses (up to 100) |
+| GET | `/expenses/:id` | Yes | Get expense by ID |
+| PATCH | `/expenses/:id` | Yes | Update expense (creator, PENDING only) |
+| DELETE | `/expenses/:id` | Yes | Delete expense (creator, PENDING only) |
+| POST | `/expenses/:id/approve` | Yes | Approve (admin) |
+| POST | `/expenses/:id/reject` | Yes | Reject (admin) |
+| GET | `/expenses/categories` | Yes | List all categories |
+| GET | `/expenses/categories/chama/:chamaId` | Yes | List chama categories |
+| POST | `/expenses/categories` | Yes | Create custom category |
+
+### Dashboard & Treasury
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/dashboard/:chamaId` | Yes | KPI stats |
+| GET | `/treasury/:chamaId` | Yes | Treasury summary |
+
+### Notifications
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/notifications` | Yes | Get user's notifications |
+| POST | `/notifications/mark-read` | Yes | Mark specific as read |
+| POST | `/notifications/mark-all-read` | Yes | Mark all as read |
+
+### Roles & Permissions
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| POST | `/roles` | Yes | Create RBAC role |
+| GET | `/roles/:chamaId` | Yes | Get roles for chama |
+| PATCH | `/roles/:id` | Yes | Update role |
+| DELETE | `/roles/:id` | Yes | Delete role |
+| POST | `/roles/:id/permissions` | Yes | Assign permissions to role |
+| POST | `/roles/members/assign` | Yes | Assign RBAC role to member |
+| POST | `/roles/members/governance` | Yes | Assign governance role |
+
+## Role System
+
+**Governance roles** (`membership.role` enum): `CHAIRPERSON` / `TREASURER` / `SECRETARY` / `MEMBER` — stored on the membership record; used for hierarchical access decisions.
+
+**RBAC roles** (`role` + `permission` + `member_role` tables): Custom named roles per chama with fine-grained permission keys (e.g., `expense.approve`). One RBAC role per user per chama via the `member_role` composite PK.
+
+## Key Implementation Patterns
+
+- **Repository pattern**: `.repository.ts` owns all Prisma calls; `.service.ts` owns business logic.
+- **Prisma transactions**: `$transaction(async tx => { ... })` callback pattern for multi-step writes.
+- **Error handling**: `error instanceof Error ? error.message : 'Unknown error'` in all catch blocks.
+- **Atomic status changes**: `WHERE id = ? AND status = 'PENDING'` in repository prevents duplicate approvals.
+- **Cascade delete ordering**: `membership` / `contribution` / `notification` / `invite` / `payment` must be deleted manually before deleting `chama`; remaining relations cascade via Prisma schema.
+
+## Prisma
 
 ```bash
-# macOS
-brew services start postgresql@14
-
-# Linux
-sudo systemctl start postgresql
+npx prisma migrate dev --name <name>   # Apply new migration
+npx prisma generate                     # Regenerate client after schema change
+npx prisma studio                       # Open database browser
+npx prisma migrate reset               # Reset DB (dev only — destroys data)
 ```
 
-#### 2. Prisma Client Not Generated
-
-```
-Error: @prisma/client did not initialize yet
-```
-
-**Solution:** Generate Prisma client
+## Scripts
 
 ```bash
-npx prisma generate
+pnpm start:dev    # Development with hot reload
+pnpm start:prod   # Production
+pnpm build        # Compile TypeScript
+pnpm lint         # ESLint
 ```
-
-#### 3. Firebase Initialization Error
-
-```
-Error: Firebase initialization failed
-```
-
-**Solution:** Verify `FIREBASE_KEY_PATH` points to valid service account JSON file
-
-#### 4. Port Already in Use
-
-```
-Error: listen EADDRINUSE: address already in use :::5500
-```
-
-**Solution:** Kill the process using the port
-
-```bash
-lsof -ti:5500 | xargs kill -9
-```
-
-## Scripts Reference
-
-| Script      | Command             | Description             |
-| ----------- | ------------------- | ----------------------- |
-| `start`     | `npm run start`     | Start production server |
-| `start:dev` | `npm run start:dev` | Start with hot-reload   |
-| `build`     | `npm run build`     | Build for production    |
-| `test`      | `npm run test`      | Run unit tests          |
-| `lint`      | `npm run lint`      | Run ESLint              |
-| `format`    | `npm run format`    | Format with Prettier    |
-
-## License
-
-MIT License - see [LICENSE](LICENSE) for details.

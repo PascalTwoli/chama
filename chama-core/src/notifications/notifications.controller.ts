@@ -24,6 +24,7 @@ import {
 } from './dto/notification-response.dto';
 import { CurrentUser } from '../decorators/current-user.decorator';
 import { AuthGuard } from '../guards/auth.guard';
+import { NotificationAudience } from '@prisma/client';
 
 // Define a simple type for the current user
 type CurrentUserType = {
@@ -47,12 +48,12 @@ export class NotificationsController {
   })
   async getNotifications(
     @CurrentUser() currentUser: CurrentUserType,
-    @Query() query: GetNotificationsDto
+    @Query() query: GetNotificationsDto,
   ): Promise<PaginatedNotificationsDto> {
     return this.notificationsService.getNotifications(
       currentUser.id,
       query.chamaId,
-      query
+      query,
     );
   }
 
@@ -73,12 +74,12 @@ export class NotificationsController {
   async getStats(
     @CurrentUser() currentUser: CurrentUserType,
     @Query('chamaId') chamaId: string,
-    @Query('audience') audience?: 'ADMIN' | 'MEMBER'
+    @Query('audience') audience?: NotificationAudience,
   ): Promise<NotificationStatsDto> {
     return this.notificationsService.getStats(
       currentUser.id,
       chamaId,
-      audience as any
+      audience,
     );
   }
 
@@ -95,7 +96,7 @@ export class NotificationsController {
   async markAsRead(
     @Param('id') id: string,
     @Query('chamaId') chamaId: string,
-    @CurrentUser() currentUser: CurrentUserType
+    @CurrentUser() currentUser: CurrentUserType,
   ): Promise<NotificationResponseDto> {
     return this.notificationsService.markAsRead(id, currentUser.id, chamaId);
   }
@@ -110,13 +111,16 @@ export class NotificationsController {
     schema: {
       type: 'object',
       properties: {
-        count: { type: 'number', description: 'Number of notifications marked as read' },
+        count: {
+          type: 'number',
+          description: 'Number of notifications marked as read',
+        },
       },
     },
   })
   async markAllAsRead(
     @Query('chamaId') chamaId: string,
-    @CurrentUser() currentUser: CurrentUserType
+    @CurrentUser() currentUser: CurrentUserType,
   ): Promise<{ count: number }> {
     return this.notificationsService.markAllAsRead(currentUser.id, chamaId);
   }

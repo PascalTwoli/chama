@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { PageHeader } from '../components/PageHeader';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
@@ -6,7 +7,7 @@ import { Input } from '../components/ui/input';
 import CustomCheckbox from '../components/CustomCheckbox';
 import { Label } from '../components/ui/label';
 import { Badge } from '../components/ui/badge';
-import { Save, CheckCircle2, Info, FileText, Copy } from 'lucide-react';
+import { Save, CheckCircle2, Info, FileText, Copy, Pencil, X, Trash2, AlertTriangle } from 'lucide-react';
 import { cn } from '../utils/cn';
 import { useChamaId } from '../hooks/useChamaId';
 import ChamaSettingsService, {
@@ -15,10 +16,14 @@ import ChamaSettingsService, {
   ContributionModel,
   CreateChamaSettingsDto,
 } from '../services/chama/chama-settings-service';
+import ChamaService from '../services/chama/chama-services';
+import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
-import isEqual from 'lodash.isequal'; // Add this import
+import isEqual from 'lodash.isequal';
 
 export default function SettingsPage() {
+  const navigate = useNavigate();
+  const { user: authUser } = useAuth();
   const {
     chamaId,
     chamaData,
@@ -48,6 +53,18 @@ export default function SettingsPage() {
     useState<ChamaSettings | null>(null);
   const [isSettingsLoading, setIsSettingsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Basic info edit state
+  const [isEditingBasicInfo, setIsEditingBasicInfo] = useState(false);
+  const [basicInfoForm, setBasicInfoForm] = useState({ name: '', description: '' });
+  const [localName, setLocalName] = useState<string | null>(null);
+  const [localDescription, setLocalDescription] = useState<string | null>(null);
+  const [isSavingBasicInfo, setIsSavingBasicInfo] = useState(false);
+
+  // Delete chama state
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [isDeletingChama, setIsDeletingChama] = useState(false);
 
   const contributionModelUi =
     form.contributionModel === 'FIXED' ? 'Fixed' : 'Flexible';
@@ -173,6 +190,57 @@ export default function SettingsPage() {
     );
   }, [form, existingSettings, defaultFormState, normalizeSettings]);
 
+  const chamaDisplayName = localName ?? chamaData?.name ?? '';
+  // localDescription starts as null (no local override yet); only use it after a save
+  const chamaDisplayDescription = localDescription !== null
+    ? localDescription
+    : (chamaData?.description ?? '');
+
+  const handleEditBasicInfo = () => {
+    setBasicInfoForm({ name: chamaDisplayName, description: chamaDisplayDescription });
+    setIsEditingBasicInfo(true);
+  };
+
+  const handleSaveBasicInfo = async () => {
+    if (!chamaId || !basicInfoForm.name.trim()) return;
+    setIsSavingBasicInfo(true);
+    try {
+      const updated = await ChamaService.updateChama(chamaId, {
+        name: basicInfoForm.name.trim(),
+        description: basicInfoForm.description.trim(),
+      });
+      setLocalName(updated.name);
+      setLocalDescription(updated.description ?? '');
+      setIsEditingBasicInfo(false);
+      toast.success('Chama info updated');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to update chama info');
+    } finally {
+      setIsSavingBasicInfo(false);
+    }
+  };
+
+  const handleDeleteChama = async () => {
+    if (!chamaId) return;
+    setIsDeletingChama(true);
+    try {
+      await ChamaService.deleteChama(chamaId);
+      toast.success('Chama deleted successfully');
+      navigate('/onboarding/chama-choice');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to delete chama');
+      setIsDeletingChama(false);
+    }
+  };
+
+  // chamaData.created_by is the DB user ID; authUser.id is the Firebase UID = DB user PK
+  const isOwner =
+    !!authUser &&
+    !!chamaData &&
+    (chamaData.created_by === authUser.id ||
+      chamaData.isOwner === true ||
+      chamaData.role === 'OWNER');
+
   return (
     <div className='p-6 space-y-6'>
       <PageHeader
@@ -186,19 +254,34 @@ export default function SettingsPage() {
           {/* Basic Information */}
           <Card>
             <CardContent className='p-0'>
-              <div className='p-6 pb-4 border-b border-border'>
-                <h3 className='font-semibold text-lg m-0'>Basic Information</h3>
-                <p className='text-sm text-muted-foreground m-0'>
-                  General Chama details
-                </p>
+              <div className='p-6 pb-4 border-b border-border flex items-center justify-between'>
+                <div>
+                  <h3 className='font-semibold text-lg m-0'>Basic Information</h3>
+                  <p className='text-sm text-muted-foreground m-0'>
+                    General Chama details
+                  </p>
+                </div>
+                {isOwner && !isEditingBasicInfo && (
+                  <Button
+                    size='sm'
+                    variant='ghost'
+                    className='gap-1.5 text-muted-foreground hover:text-foreground'
+                    onClick={handleEditBasicInfo}
+                    disabled={isChamaLoading}
+                  >
+                    <Pencil className='w-3.5 h-3.5' />
+                    Edit
+                  </Button>
+                )}
               </div>
               <div className='p-6 space-y-4'>
                 <div className='space-y-2'>
                   <Label htmlFor='chamaName'>Chama Name *</Label>
                   <Input
                     id='chamaName'
-                    value={chamaData?.name || ''}
-                    disabled
+                    value={isEditingBasicInfo ? basicInfoForm.name : chamaDisplayName}
+                    disabled={!isEditingBasicInfo}
+                    onChange={e => setBasicInfoForm(prev => ({ ...prev, name: e.target.value }))}
                   />
                 </div>
 
@@ -208,10 +291,34 @@ export default function SettingsPage() {
                     id='description'
                     className='flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
                     placeholder="Tell members about your Chama's purpose and goals..."
-                    value={chamaData?.description || ''}
-                    disabled
+                    value={isEditingBasicInfo ? basicInfoForm.description : chamaDisplayDescription}
+                    disabled={!isEditingBasicInfo}
+                    onChange={e => setBasicInfoForm(prev => ({ ...prev, description: e.target.value }))}
                   />
                 </div>
+
+                {isEditingBasicInfo && (
+                  <div className='flex gap-2 justify-end pt-2'>
+                    <Button
+                      size='sm'
+                      variant='ghost'
+                      onClick={() => setIsEditingBasicInfo(false)}
+                      disabled={isSavingBasicInfo}
+                    >
+                      <X className='w-4 h-4 mr-1' />
+                      Cancel
+                    </Button>
+                    <Button
+                      size='sm'
+                      className='bg-blue-600 hover:bg-blue-700 text-white gap-1.5'
+                      onClick={handleSaveBasicInfo}
+                      disabled={isSavingBasicInfo || !basicInfoForm.name.trim()}
+                    >
+                      <Save className='w-4 h-4' />
+                      {isSavingBasicInfo ? 'Saving...' : 'Save Changes'}
+                    </Button>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -513,18 +620,21 @@ export default function SettingsPage() {
                   {
                     title: 'Welcome Message',
                     icon: FileText,
-                    content:
-                      "Welcome to Tumaini Chama! We're excited to have you...",
+                    content: `Welcome to ${chamaDisplayName || 'our Chama'}! We're excited to have you as a member. Please review the chama rules and contribution guidelines.`,
                   },
                   {
                     title: 'Chama Rules',
                     icon: FileText,
-                    content: '1. Members contribute KSh 5000 every monthly...',
+                    content: form.contributionModel === 'FIXED'
+                      ? `1. Members contribute KSh ${form.contributionAmount ?? '—'} every ${form.frequency ? form.frequency.toLowerCase() : '—'}.\n2. Contributions are due by day ${form.dueDay ?? '—'} of each period.\n3. Late payment fee: KSh ${form.latePaymentFee ?? '0'}.`
+                      : `1. Members contribute flexibly — minimum KSh ${form.minimumContribution ?? 'any amount'}.\n2. ${form.contributionGuidelines || 'Contribute as often as you can.'}`,
                   },
                   {
                     title: 'Contribution Guidelines',
                     icon: FileText,
-                    content: 'How to Contribute: Amount: KSh 5000...',
+                    content: form.contributionModel === 'FIXED'
+                      ? `How to Contribute: Amount: KSh ${form.contributionAmount ?? '—'} | Frequency: ${form.frequency ? form.frequency.toLowerCase() : '—'} | Due: Day ${form.dueDay ?? '—'}.`
+                      : `How to Contribute: Flexible amount — contribute whenever you can. ${form.minimumContribution ? `Minimum: KSh ${form.minimumContribution}.` : 'No minimum amount.'}`,
                   },
                 ].map((template, i) => (
                   <div
@@ -548,6 +658,39 @@ export default function SettingsPage() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Danger Zone — owner only, always last */}
+          {isOwner && (
+            <Card className='border-red-200 dark:border-red-900'>
+              <CardContent className='p-0'>
+                <div className='p-6 pb-4 border-b border-red-200 dark:border-red-900'>
+                  <h3 className='font-semibold text-lg text-red-600 dark:text-red-400 m-0'>Danger Zone</h3>
+                  <p className='text-sm text-muted-foreground m-0'>
+                    Irreversible actions — proceed with caution
+                  </p>
+                </div>
+                <div className='p-6'>
+                  <div className='flex items-start justify-between gap-4'>
+                    <div>
+                      <p className='font-medium text-sm'>Delete this Chama</p>
+                      <p className='text-xs text-muted-foreground mt-0.5'>
+                        Permanently deletes all members, expenses, contributions, and settings. This cannot be undone.
+                      </p>
+                    </div>
+                    <Button
+                      size='sm'
+                      variant='ghost'
+                      className='shrink-0 text-red-600 border border-red-300 hover:bg-red-50 hover:text-red-700 dark:border-red-800 dark:hover:bg-red-900/20'
+                      onClick={() => { setDeleteConfirmText(''); setShowDeleteModal(true); }}
+                    >
+                      <Trash2 className='w-4 h-4 mr-1.5' />
+                      Delete Chama
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Sidebar */}
@@ -664,6 +807,69 @@ export default function SettingsPage() {
           </Button>
         </div>
       </div>
+
+      {/* Delete Chama Confirmation Modal */}
+      {showDeleteModal && (
+        <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4'>
+          <div className='bg-background rounded-xl shadow-xl w-full max-w-md border border-border'>
+            <div className='flex items-center justify-between p-6 border-b border-border'>
+              <div className='flex items-center gap-3'>
+                <div className='w-9 h-9 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center'>
+                  <AlertTriangle className='w-5 h-5 text-red-600 dark:text-red-400' />
+                </div>
+                <h2 className='font-semibold text-lg'>Delete Chama</h2>
+              </div>
+              <button
+                className='text-muted-foreground hover:text-foreground rounded-md p-1'
+                onClick={() => setShowDeleteModal(false)}
+                disabled={isDeletingChama}
+              >
+                <X className='w-5 h-5' />
+              </button>
+            </div>
+
+            <div className='p-6 space-y-4'>
+              <p className='text-sm text-muted-foreground'>
+                This will permanently delete <span className='font-semibold text-foreground'>{chamaDisplayName}</span> and all associated data including members, expenses, contributions, and settings.
+              </p>
+              <div className='p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg'>
+                <p className='text-xs text-red-700 dark:text-red-400 font-medium'>This action cannot be undone.</p>
+              </div>
+
+              <div className='space-y-2'>
+                <Label className='text-sm'>
+                  Type <span className='font-mono font-semibold'>{chamaDisplayName}</span> to confirm
+                </Label>
+                <Input
+                  value={deleteConfirmText}
+                  onChange={e => setDeleteConfirmText(e.target.value)}
+                  placeholder='Enter chama name'
+                  disabled={isDeletingChama}
+                  autoFocus
+                />
+              </div>
+            </div>
+
+            <div className='flex gap-3 p-6 pt-2 justify-end'>
+              <Button
+                variant='ghost'
+                onClick={() => setShowDeleteModal(false)}
+                disabled={isDeletingChama}
+              >
+                Cancel
+              </Button>
+              <Button
+                className='bg-red-600 hover:bg-red-700 text-white gap-2'
+                onClick={handleDeleteChama}
+                disabled={deleteConfirmText !== chamaDisplayName || isDeletingChama}
+              >
+                <Trash2 className='w-4 h-4' />
+                {isDeletingChama ? 'Deleting...' : 'Delete Chama'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

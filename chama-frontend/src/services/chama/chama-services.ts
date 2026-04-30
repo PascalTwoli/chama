@@ -443,6 +443,36 @@ export class ChamaService {
       throw new Error(errorData?.message || 'Failed to fetch chama members.');
     }
   }
+
+  static async updateChama(
+    chamaId: string,
+    data: { name?: string; description?: string }
+  ): Promise<{ id: string; name: string; description: string | null }> {
+    try {
+      const response = await apiClient.patch(`/chama/${chamaId}`, data);
+      return response.data;
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (!axiosError.response) {
+        throw new Error('Could not connect to the server. Please check your internet connection and try again.');
+      }
+      const errorData = axiosError.response.data as ApiErrorData;
+      throw new Error(errorData?.message || 'Failed to update chama.');
+    }
+  }
+
+  static async deleteChama(chamaId: string): Promise<void> {
+    try {
+      await apiClient.delete(`/chama/${chamaId}`);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      if (!axiosError.response) {
+        throw new Error('Could not connect to the server. Please check your internet connection and try again.');
+      }
+      const errorData = axiosError.response.data as ApiErrorData;
+      throw new Error(errorData?.message || 'Failed to delete chama.');
+    }
+  }
 }
 
 export default ChamaService;

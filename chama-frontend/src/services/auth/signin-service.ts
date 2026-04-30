@@ -109,6 +109,16 @@ export class AuthService {
       // Normalize message for pattern matching
       const errorMessageLower = errorMessageRaw.toLowerCase();
 
+      // Handle linked provider error first (before other patterns)
+      if (
+        errorMessageLower.includes('linked to') ||
+        (errorMessageLower.includes('account') &&
+          errorMessageLower.includes('sign in using'))
+      ) {
+        // Display our custom provider linking message as-is
+        throw new Error(`linked-providers: ${errorMessageRaw}`);
+      }
+
       // Handle specific error types based on status code and message content
       if (
         statusCode === 404 ||

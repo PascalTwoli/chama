@@ -68,18 +68,20 @@ function StatCard({ title, value, change, trend, icon }: StatCardProps) {
           <div>
             <p className='text-sm text-muted-foreground m-0'>{title}</p>
             <p className='text-2xl font-bold text-foreground m-0'>{value}</p>
-            <div className='flex items-center gap-1 mt-0'>
-              {trend === 'up' ? (
-                <ArrowUpRight className='w-4 h-4 text-green-600' />
-              ) : (
-                <ArrowDownRight className='w-4 h-4 text-red-600' />
-              )}
-              <span
-                className={`text-sm font-medium ${trend === 'up' ? 'text-green-600' : 'text-red-600'}`}
-              >
-                {change}
-              </span>
-            </div>
+            {change && (
+              <div className='flex items-center gap-1 mt-0'>
+                {trend === 'up' ? (
+                  <ArrowUpRight className='w-4 h-4 text-green-600' />
+                ) : (
+                  <ArrowDownRight className='w-4 h-4 text-red-600' />
+                )}
+                <span
+                  className={`text-sm font-medium ${trend === 'up' ? 'text-green-600' : 'text-red-600'}`}
+                >
+                  {change}
+                </span>
+              </div>
+            )}
           </div>
           <div className='p-2 bg-muted rounded-lg text-muted-foreground'>
             {icon}
@@ -270,10 +272,14 @@ export default function AdminDashboard() {
                       borderRadius: '8px',
                       color: 'var(--foreground)',
                     }}
-                    formatter={(value: number | undefined) => [
-                      `KSh ${(value ?? 0).toLocaleString()}`,
-                      'Amount',
-                    ]}
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    formatter={
+                      ((value: any) => [
+                        `KSh ${(value ?? 0).toLocaleString()}`,
+                        'Amount',
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      ]) as any
+                    }
                   />
                   <Bar dataKey='amount' fill='#3b82f6' radius={[4, 4, 0, 0]} />
                 </BarChart>
@@ -308,10 +314,14 @@ export default function AdminDashboard() {
                     ))}
                   </Pie>
                   <Tooltip
-                    formatter={(value: number | undefined) => [
-                      `${value ?? 0}%`,
-                      '',
-                    ]}
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    formatter={
+                      ((value: any) => [
+                        `${value ?? 0}%`,
+                        '',
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      ]) as any
+                    }
                     contentStyle={{
                       backgroundColor: 'var(--card)',
                       border: '1px solid var(--border)',

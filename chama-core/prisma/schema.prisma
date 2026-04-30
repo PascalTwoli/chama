@@ -26,6 +26,8 @@ model chama {
   transaction       transaction[]
   chama_settings    chama_settings?
   role_table        role[]
+  expenses          expense[]
+  expense_categories expense_category[]
 }
 
 model contribution {
@@ -192,6 +194,9 @@ model user {
   transaction                                 transaction[]
   ui_settings                                 ui_settings?
   member_roles                                member_role[]
+  expenses                                    expense[]
+  expense_approvals                           expense[]     @relation("expense_approver")
+  expense_rejections                          expense[]     @relation("expense_rejector")
 }
 
 model role {
@@ -236,6 +241,52 @@ model member_role {
   @@index([chama_id])
 }
 
+model expense_category {
+  id        String    @id @default(uuid())
+  name      String
+  chama_id  String?   // nullable so defaults can exist globally
+  createdAt DateTime  @default(now())
+  expenses  expense[]
+  chama     chama?    @relation(fields: [chama_id], references: [id], onDelete: Cascade)
+
+  @@unique([chama_id, name])
+  @@index([chama_id])
+}
+
+model expense {
+  id               String        @id @default(uuid())
+  referenceCode    String        @unique // EXP-2026-001 format
+  chamaId          String
+  description      String
+  amount           Decimal       @db.Decimal(10, 2)
+  categoryId       String
+  paidTo           String
+  paymentMethod    PaymentMethod
+  referenceNumber  String?
+  expenseDate      DateTime
+  notes            String?
+  attachmentUrl    String?
+  status           ExpenseStatus @default(PENDING)
+  createdBy        String
+  approvedBy       String?
+  approvedAt       DateTime?
+  rejectedBy       String?
+  rejectedAt       DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  chama            chama         @relation(fields: [chamaId], references: [id], onDelete: Cascade)
+  category         expense_category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  creator          user          @relation(fields: [createdBy], references: [id])
+  approver         user?         @relation("expense_approver", fields: [approvedBy], references: [id])
+  rejector         user?         @relation("expense_rejector", fields: [rejectedBy], references: [id])
+
+  @@index([chamaId])
+  @@index([categoryId])
+  @@index([createdBy])
+  @@index([status])
+  @@index([expenseDate])
+}
+
 enum NotificationAudience {
   MEMBER
   ADMIN
@@ -254,10 +305,17 @@ enum DeliveryMethod {
   SMS
 }
 
+enum ExpenseStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 enum PaymentMethod {
   MPESA
   BANK_TRANSFER
   CASH
+  OTHER
 }
 
 enum PaymentStatus {

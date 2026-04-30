@@ -4,6 +4,7 @@ import {
   forwardRef,
   BadRequestException,
   NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateChamaDto } from './dto/create-chama.dto';
@@ -305,5 +306,51 @@ export class ChamaService {
       const message = error instanceof Error ? error.message : 'Unknown error';
       throw new BadRequestException(`Failed to fetch chama members: ${message}`);
     }
+  }
+
+  async updateChama(
+    chamaId: string,
+    userId: string,
+    data: { name?: string; description?: string },
+  ) {
+    const chama = await this.prisma.chama.findUnique({ where: { id: chamaId } });
+    if (!chama) throw new NotFoundException('Chama not found');
+    if (chama.created_by !== userId) {
+      throw new ForbiddenException('Only the chama owner can update basic information');
+    }
+
+    return this.prisma.chama.update({
+      where: { id: chamaId },
+      data: {
+        ...(data.name !== undefined ? { name: data.name.trim() } : {}),
+        ...(data.description !== undefined ? { description: data.description.trim() || null } : {}),
+        updatedAt: new Date(),
+      },
+    });
+  }
+
+  async deleteChama(chamaId: string, userId: string): Promise<void> {
+    const chama = await this.prisma.chama.findUnique({ where: { id: chamaId } });
+    if (!chama) throw new NotFoundException('Chama not found');
+    if (chama.created_by !== userId) {
+      throw new ForbiddenException('Only the chama owner can delete the chama');
+    }
+
+    // Delete in dependency order. Models with onDelete:Cascade on chama are handled
+    // automatically when chama is deleted; models without cascade must be deleted first.
+    await this.prisma.$transaction(async (tx) => {
+      // Delete payments before contributions (no chama relation, depends on contribution)
+      const contributions = await tx.contribution.findMany({ where: { chama_id: chamaId }, select: { id: true } });
+      if (contributions.length > 0) {
+        await tx.payment.deleteMany({ where: { contribution_id: { in: contributions.map(c => c.id) } } });
+      }
+      await tx.notification.deleteMany({ where: { chama_id: chamaId } });
+      await tx.invite.deleteMany({ where: { chama_id: chamaId } });
+      await tx.contribution.deleteMany({ where: { chama_id: chamaId } });
+      await tx.membership.deleteMany({ where: { chama_id: chamaId } });
+      // Chama delete cascades: join_request, chama_settings, role (→ role_permission, member_role),
+      // expense_category (Postgres resolves expense→category RESTRICT ordering), expense
+      await tx.chama.delete({ where: { id: chamaId } });
+    });
   }
 }

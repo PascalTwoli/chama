@@ -82,6 +82,14 @@ const SignIn = () => {
 
       if (
         error instanceof Error &&
+        error.message.includes('linked-providers')
+      ) {
+        // Extract the message after the "linked-providers: " prefix
+        const message = error.message.replace('linked-providers: ', '');
+        toast.error(message);
+        toast.warning('Please use one of the linked sign-in methods.');
+      } else if (
+        error instanceof Error &&
         error.message.includes('unregistered email')
       ) {
         setError({
