@@ -94,10 +94,6 @@ export class ExpensesController {
       throw new BadRequestException('chamaId must be a valid UUID');
     }
 
-    console.log('[EXPENSE_CREATE] Request received');
-    console.log('[EXPENSE_CREATE] Query chamaId:', chamaId);
-    console.log('[EXPENSE_CREATE] DTO body:', createExpenseDto);
-
     // Validate amount is within acceptable range
     const amount = parseFloat(createExpenseDto.amount);
     if (isNaN(amount) || amount <= 0.01 || amount > 999999.99) {
@@ -106,9 +102,7 @@ export class ExpensesController {
       );
     }
 
-    // Merge chamaId from query parameter into the DTO
     const expenseData: CreateExpenseDto = { ...createExpenseDto, chamaId };
-    console.log('[EXPENSE_CREATE] Final DTO with chamaId:', expenseData);
     return this.expensesService.createExpense(expenseData, currentUser);
   }
 

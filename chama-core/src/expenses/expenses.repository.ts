@@ -5,6 +5,7 @@ import {
   expense_category,
   PaymentMethod,
   ExpenseStatus,
+  Prisma,
 } from '@prisma/client';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
@@ -102,30 +103,25 @@ export class ExpensesRepository {
   ) {
     const skip = (page - 1) * limit;
 
-    const where: any = {
-      chamaId,
-    };
+    const where: Prisma.expenseWhereInput = { chamaId };
 
     if (filters?.categoryId) {
       where.categoryId = filters.categoryId;
     }
 
     if (filters?.dateFrom || filters?.dateTo) {
-      where.expenseDate = {};
-      if (filters.dateFrom) {
-        where.expenseDate.gte = new Date(filters.dateFrom);
-      }
-      if (filters.dateTo) {
-        where.expenseDate.lte = new Date(filters.dateTo);
-      }
+      where.expenseDate = {
+        ...(filters.dateFrom ? { gte: new Date(filters.dateFrom) } : {}),
+        ...(filters.dateTo ? { lte: new Date(filters.dateTo) } : {}),
+      };
     }
 
     if (filters?.paymentMethod) {
-      where.paymentMethod = filters.paymentMethod;
+      where.paymentMethod = filters.paymentMethod as PaymentMethod;
     }
 
     if (filters?.status) {
-      where.status = filters.status;
+      where.status = filters.status as ExpenseStatus;
     }
 
     const [expenses, total] = await Promise.all([
@@ -231,12 +227,12 @@ export class ExpensesRepository {
       }
     }
 
-    const updateData: any = {};
+    const updateData: Prisma.expenseUpdateInput = {};
     if (data.description) updateData.description = data.description;
     if (data.amount) updateData.amount = parseFloat(data.amount);
-    if (data.categoryId) updateData.categoryId = data.categoryId;
+    if (data.categoryId) updateData.category = { connect: { id: data.categoryId } };
     if (data.paidTo) updateData.paidTo = data.paidTo;
-    if (data.paymentMethod) updateData.paymentMethod = data.paymentMethod;
+    if (data.paymentMethod) updateData.paymentMethod = data.paymentMethod as PaymentMethod;
     if (data.referenceNumber !== undefined)
       updateData.referenceNumber = data.referenceNumber;
     if (data.expenseDate) updateData.expenseDate = new Date(data.expenseDate);
@@ -338,9 +334,9 @@ export class ExpensesRepository {
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
-    const where: any = {
+    const where: Prisma.expenseWhereInput = {
       chamaId,
-      status: ExpenseStatus.APPROVED, // Only count approved expenses
+      status: ExpenseStatus.APPROVED,
     };
 
     // Use Prisma aggregate for total approved expenses
@@ -420,7 +416,7 @@ export class ExpensesRepository {
     approvedById: string,
   ): Promise<ExpenseWithCategory> {
     return this.prisma.expense.update({
-      where: { id },
+      where: { id, status: 'PENDING' },
       data: {
         status: 'APPROVED',
         approvedBy: approvedById,
@@ -458,7 +454,7 @@ export class ExpensesRepository {
    */
   async reject(id: string, chamaId: string, rejectedById: string): Promise<ExpenseWithCategory> {
     return this.prisma.expense.update({
-      where: { id },
+      where: { id, status: 'PENDING' },
       data: {
         status: 'REJECTED',
         rejectedBy: rejectedById,

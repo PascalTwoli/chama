@@ -59,6 +59,21 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
     );
     const selectedLabel = selectedOption?.label || 'Select an option';
 
+    // Ensure hidden select value stays in sync
+    useEffect(() => {
+      if (hiddenSelectRef.current && value !== undefined) {
+        const stringValue = String(value || '');
+        if (hiddenSelectRef.current.value !== stringValue) {
+          console.log('[Select] Syncing hidden select value:', { 
+            current: hiddenSelectRef.current.value, 
+            target: stringValue,
+            allOptionsCount: allOptions.length 
+          });
+          hiddenSelectRef.current.value = stringValue;
+        }
+      }
+    }, [value, allOptions]);
+
     // Ensure ref is set correctly
     useEffect(() => {
       if (ref) {
@@ -91,6 +106,9 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
     }, [isOpen]);
 
     const handleSelect = (optionValue: string) => {
+      console.log('[Select] handleSelect called with:', optionValue);
+      console.log('[Select] allOptions:', allOptions);
+      
       // Update hidden select
       if (hiddenSelectRef.current) {
         hiddenSelectRef.current.value = optionValue;
@@ -104,6 +122,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
         const syntheticEvent = {
           target: { value: optionValue },
         } as React.ChangeEvent<HTMLSelectElement>;
+        console.log('[Select] calling onChange with:', syntheticEvent);
         onChange(syntheticEvent);
       }
 
@@ -130,7 +149,11 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           className='hidden'
           {...props}
         >
-          {children}
+          {children || allOptions.map(opt => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
         </select>
 
         {/* Custom dropdown button */}

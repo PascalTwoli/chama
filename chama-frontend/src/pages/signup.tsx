@@ -113,7 +113,20 @@ const SignUp = () => {
 
       if (
         error instanceof Error &&
+        error.message.toLowerCase().includes('phone') &&
+        error.message.toLowerCase().includes('already')
+      ) {
+        setErrors({
+          ...errors,
+          phoneNumber: 'Phone number is already registered.',
+        });
+        toast.error(
+          'That phone number is already linked to an account. Please use a different number.'
+        );
+      } else if (
+        error instanceof Error &&
         (error.message.includes('Email is already registered') ||
+          error.message.includes('Email address is already') ||
           (error.message.toLowerCase().includes('email') &&
             (error.message.toLowerCase().includes('exist') ||
               error.message.toLowerCase().includes('taken') ||

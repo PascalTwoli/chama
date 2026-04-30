@@ -10,7 +10,7 @@ import * as firebaseAdmin from 'firebase-admin';
 import { LoginDto } from './dto/login.dto';
 import axios from 'axios';
 import { PrismaService } from '../prisma/prisma.service';
-import { UserType } from '@prisma/client';
+import { UserType, Prisma } from '@prisma/client';
 import {
   UserEntity,
   FirebaseUserEntity,
@@ -91,7 +91,7 @@ export class UserService {
   }
 
   async registerUser(registerUser: RegisterUserDto): Promise<LoginResponse> {
-    console.log(registerUser);
+    let firebaseUid: string | null = null;
     try {
       // First create the Firebase user
       const userRecord = await firebaseAdmin.auth().createUser({
@@ -100,34 +100,28 @@ export class UserService {
         password: registerUser.password,
         phoneNumber: registerUser.phoneNumber,
       });
-      console.log('Firebase User Record:', userRecord);
+      firebaseUid = userRecord.uid;
 
       // Then create the local user with transaction to ensure atomicity
       const localUser = await this.databaseService.$transaction(
         async (prisma: any) => {
-          // Create local user with all available fields
           const user = await prisma.user.create({
             data: {
-              id: userRecord.uid, // Use Firebase UID as reference
+              id: userRecord.uid,
               email: registerUser.email,
               name: `${registerUser.firstName} ${registerUser.lastName}`,
-              phone: registerUser.phoneNumber || '',
+              phone: registerUser.phoneNumber || null,
               updatedAt: new Date(),
-              // activeUserType: registerUser.activeUserType ?? UserType.MEMBER,
             },
           });
-
           return user;
         },
       );
 
-      console.log('Local User Record:', localUser);
-
-      // After successful registration, automatically generate auth tokens (same as login)
+      // After successful registration, generate auth tokens
       const { email, password } = registerUser;
       const response = await this.signInWithEmailAndPassword(email, password);
 
-      // Ensure response contains the expected properties before destructuring
       if (!response || !response.idToken) {
         throw new Error(
           'Authentication failed after registration: Invalid response from Firebase',
@@ -136,49 +130,47 @@ export class UserService {
 
       const { idToken, refreshToken, expiresIn } = response;
 
-      // Return authentication tokens and user details (LoginResponse format)
       return {
         idToken,
         refreshToken,
         expiresIn,
-        user: {
-          localUser: localUser,
-        },
+        user: { localUser },
       };
     } catch (error: unknown) {
       console.error('Error creating user:', error);
 
-      // Type check for error with code property
       const errorWithCode = error as any;
 
-      // If Firebase user was created but local user creation failed,
-      // attempt to delete the Firebase user to maintain consistency
-      if (
-        errorWithCode.code !== 'auth/email-already-exists' &&
-        errorWithCode.firebaseUid
-      ) {
+      // Roll back Firebase user if it was created but DB creation failed
+      if (firebaseUid && !errorWithCode.code?.startsWith('auth/')) {
         try {
-          await firebaseAdmin.auth().deleteUser(errorWithCode.firebaseUid);
-          console.log(
-            `Rolled back Firebase user creation for UID: ${errorWithCode.firebaseUid}`,
-          );
+          await firebaseAdmin.auth().deleteUser(firebaseUid);
         } catch (deleteError) {
-          console.error(
-            'Error rolling back Firebase user creation:',
-            deleteError,
-          );
+          console.error('Error rolling back Firebase user:', deleteError);
         }
       }
 
-      // Provide more specific error messages based on error type
+      // Firebase auth errors
       if (errorWithCode.code === 'auth/email-already-exists') {
-        throw new BadRequestException('Email address is already in use');
-      } else if (errorWithCode.code === 'auth/invalid-phone-number') {
-        throw new BadRequestException('The phone number is invalid');
-      } else if (errorWithCode.code?.includes('prisma')) {
-        const message =
-          error instanceof Error ? error.message : 'Database error';
-        throw new BadRequestException(`Database error: ${message}`);
+        throw new BadRequestException('Email address is already registered');
+      }
+      if (errorWithCode.code === 'auth/phone-number-already-exists') {
+        throw new BadRequestException('Phone number is already registered');
+      }
+      if (errorWithCode.code === 'auth/invalid-phone-number') {
+        throw new BadRequestException('The phone number format is invalid');
+      }
+
+      // Prisma unique constraint errors
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        const fields = (error.meta?.target as string[]) ?? [];
+        if (fields.includes('phone')) {
+          throw new BadRequestException('Phone number is already registered');
+        }
+        if (fields.includes('email')) {
+          throw new BadRequestException('Email address is already registered');
+        }
+        throw new BadRequestException('An account with these details already exists');
       }
 
       const message = error instanceof Error ? error.message : 'Unknown error';

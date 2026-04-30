@@ -1,5 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
+import { DayPicker, type DateRange } from 'react-day-picker';
+import 'react-day-picker/style.css';
+import { format } from 'date-fns';
 import { PageHeader } from '../components/PageHeader';
 import { StatsCard } from '../components/StatsCard';
 import { RecordExpenseModal } from '../components/RecordExpenseModal';
@@ -25,6 +28,8 @@ import {
   Search,
   Loader,
   AlertCircle,
+  CalendarRange,
+  X,
 } from 'lucide-react';
 import { cn } from '../utils/cn';
 import { ExpensesService } from '../services/expenses';
@@ -46,6 +51,7 @@ export default function ExpensesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
 
   const [isLoading, setIsLoading] = useState(true);
   const [isStatsLoading, setIsStatsLoading] = useState(true);
@@ -95,7 +101,7 @@ export default function ExpensesPage() {
       }
     };
 
-    Promise.all([loadExpenses(), loadStats(), loadCategories()]);
+    void Promise.all([loadExpenses(), loadStats(), loadCategories()]);
   }, [chamaId]);
 
   const handleRecordSuccess = useCallback(() => {
@@ -143,10 +149,33 @@ export default function ExpensesPage() {
     }
   }, [chamaId]);
 
-  // Filter expenses by category, status, and search (ALL client-side)
+  const [datePopoverOpen, setDatePopoverOpen] = useState(false);
+  const datePopoverRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (datePopoverRef.current && !datePopoverRef.current.contains(e.target as Node)) {
+        setDatePopoverOpen(false);
+      }
+    };
+    if (datePopoverOpen) document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [datePopoverOpen]);
+
+  const hasDateFilter = !!dateRange?.from;
+
+  const dateBadgeLabel = (() => {
+    if (dateRange?.from && dateRange?.to) {
+      return `${format(dateRange.from, 'MMM d')} – ${format(dateRange.to, 'MMM d')}`;
+    }
+    if (dateRange?.from) return format(dateRange.from, 'MMM d, yyyy');
+    return null;
+  })();
+
+  // Filter expenses by category, status, date range, and search (ALL client-side)
   const filteredExpenses = expenses.filter(e => {
-    // Filter by category - match category ID
-    if (selectedCategory && e.category.id !== selectedCategory) {
+    // Filter by category name (not ID — global vs chama-specific categories have different IDs but same name)
+    if (selectedCategory && e.category.name !== selectedCategory) {
       return false;
     }
 
@@ -155,13 +184,25 @@ export default function ExpensesPage() {
       return false;
     }
 
-    // Filter by search query
-    if (
-      searchQuery &&
-      !e.description.toLowerCase().includes(searchQuery.toLowerCase()) &&
-      !e.referenceCode.toLowerCase().includes(searchQuery.toLowerCase())
-    ) {
-      return false;
+    // Filter by date range
+    if (dateRange?.from) {
+      const expenseDate = new Date(e.expenseDate);
+      if (expenseDate < dateRange.from) return false;
+      if (dateRange.to) {
+        const toEnd = new Date(dateRange.to);
+        toEnd.setHours(23, 59, 59, 999);
+        if (expenseDate > toEnd) return false;
+      }
+    }
+
+    // Filter by search query — description, reference code, or amount
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      const matches =
+        e.description.toLowerCase().includes(q) ||
+        e.referenceCode.toLowerCase().includes(q) ||
+        e.amount.toString().includes(q);
+      if (!matches) return false;
     }
 
     return true;
@@ -304,14 +345,11 @@ export default function ExpensesPage() {
             {/* Categories Dropdown */}
             <Select
               value={selectedCategory || ''}
-              onChange={e => {
-                const newValue = e.target.value;
-                setSelectedCategory(newValue);
-              }}
+              onChange={e => setSelectedCategory(e.target.value)}
               options={[
                 { value: '', label: 'All Categories' },
                 ...categories.map(cat => ({
-                  value: cat.id,
+                  value: cat.name,
                   label: cat.name,
                 })),
               ]}
@@ -320,10 +358,7 @@ export default function ExpensesPage() {
             {/* Status Filter */}
             <Select
               value={selectedStatus || ''}
-              onChange={e => {
-                const newValue = e.target.value;
-                setSelectedStatus(newValue);
-              }}
+              onChange={e => setSelectedStatus(e.target.value)}
               options={[
                 { value: '', label: 'All' },
                 { value: 'PENDING', label: 'Pending' },
@@ -331,6 +366,64 @@ export default function ExpensesPage() {
                 { value: 'REJECTED', label: 'Rejected' },
               ]}
             />
+
+            {/* Date filter popover */}
+            <div className='relative' ref={datePopoverRef}>
+              <button
+                onClick={() => setDatePopoverOpen(prev => !prev)}
+                className={cn(
+                  'flex items-center gap-1.5 h-10 px-3 rounded-md border text-sm transition-colors whitespace-nowrap',
+                  hasDateFilter
+                    ? 'border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-700'
+                    : 'border-input bg-background text-muted-foreground hover:text-foreground hover:border-input/80'
+                )}
+              >
+                <CalendarRange className='w-4 h-4 shrink-0' />
+                {dateBadgeLabel ?? 'Date'}
+                {hasDateFilter && (
+                  <span
+                    role='button'
+                    onClick={e => { e.stopPropagation(); setDateRange(undefined); }}
+                    className='ml-1 hover:text-red-500'
+                  >
+                    <X className='w-3 h-3' />
+                  </span>
+                )}
+              </button>
+
+              {datePopoverOpen && (
+                <div className='absolute right-0 top-11 z-50 bg-background border border-border rounded-lg shadow-lg p-3'>
+                  <p className='text-xs text-muted-foreground mb-2 px-1'>
+                    {dateRange?.from && !dateRange?.to
+                      ? 'Click another date to set a range, or click Done'
+                      : 'Click a date or drag to select a range'}
+                  </p>
+                  <DayPicker
+                    mode='range'
+                    selected={dateRange}
+                    onSelect={setDateRange}
+                    numberOfMonths={1}
+                  />
+                  <div className='flex justify-between items-center pt-2 border-t border-border mt-1 px-1'>
+                    {hasDateFilter ? (
+                      <button
+                        onClick={() => { setDateRange(undefined); }}
+                        className='text-xs text-muted-foreground hover:text-foreground flex items-center gap-1'
+                      >
+                        <X className='w-3 h-3' />
+                        Clear
+                      </button>
+                    ) : <span />}
+                    <button
+                      onClick={() => setDatePopoverOpen(false)}
+                      className='text-xs font-medium text-blue-600 hover:text-blue-700'
+                    >
+                      Done
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

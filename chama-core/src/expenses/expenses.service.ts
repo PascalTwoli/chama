@@ -5,6 +5,7 @@ import {
   ForbiddenException,
   BadRequestException,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { ExpensesRepository } from './expenses.repository';
 import { CreateExpenseDto } from './dto/create-expense.dto';
@@ -15,12 +16,21 @@ import {
   ExpenseStatsDto,
   ExpenseCategoryDto,
 } from './dto/expense-response.dto';
-import { user_role, system_role } from '@prisma/client';
+import { system_role, expense, expense_category, user, role, member_role } from '@prisma/client';
 
 interface CurrentUserType {
   id: string;
   email: string;
 }
+
+type MemberRoleWithRole = member_role & { role: role };
+type UserWithMemberRoles = user & { member_roles: MemberRoleWithRole[] };
+
+type ExpenseWithRelations = expense & {
+  category: expense_category;
+  approver?: UserWithMemberRoles | null;
+  rejector?: UserWithMemberRoles | null;
+};
 
 @Injectable()
 export class ExpensesService {
@@ -357,7 +367,7 @@ export class ExpensesService {
   /**
    * Map expense entity to DTO
    */
-  private mapExpenseToDto(expense: any): ExpenseResponseDto {
+  private mapExpenseToDto(expense: ExpenseWithRelations): ExpenseResponseDto {
     return {
       id: expense.id,
       referenceCode: expense.referenceCode,
@@ -382,7 +392,7 @@ export class ExpensesService {
       approver: expense.approver
         ? {
             id: expense.approver.id,
-            name: expense.approver.full_name || expense.approver.name,
+            name: expense.approver.name ?? expense.approver.email ?? 'Unknown',
             role: expense.approver.member_roles?.[0]?.role?.name || 'Member',
           }
         : null,
@@ -391,7 +401,7 @@ export class ExpensesService {
       rejector: expense.rejector
         ? {
             id: expense.rejector.id,
-            name: expense.rejector.full_name || expense.rejector.name,
+            name: expense.rejector.name ?? expense.rejector.email ?? 'Unknown',
             role: expense.rejector.member_roles?.[0]?.role?.name || 'Member',
           }
         : null,
@@ -452,6 +462,12 @@ export class ExpensesService {
       throw new NotFoundException('Expense not found');
     }
 
+    if (expense.status !== 'PENDING') {
+      throw new BadRequestException(
+        `Expense is already ${expense.status.toLowerCase()}`,
+      );
+    }
+
     // Treasurer cannot approve their own expense
     if (
       memberRole?.role.name === 'TREASURER' &&
@@ -469,15 +485,20 @@ export class ExpensesService {
         currentUser.id,
       );
 
-      // Log activity
       this.logger.log(
         `[EXPENSE] Approved: ${updatedExpense.referenceCode} in chama ${chamaId} by ${currentUser.id}`,
       );
 
       return this.mapExpenseToDto(updatedExpense);
     } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new BadRequestException('Expense is no longer pending');
+      }
       this.logger.error(
-        `[EXPENSE] Error approving ${expenseId}: ${error.message}`,
+        `[EXPENSE] Error approving ${expenseId}: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
       throw error;
     }
@@ -534,6 +555,12 @@ export class ExpensesService {
       throw new NotFoundException('Expense not found');
     }
 
+    if (expense.status !== 'PENDING') {
+      throw new BadRequestException(
+        `Expense is already ${expense.status.toLowerCase()}`,
+      );
+    }
+
     try {
       const updatedExpense = await this.repository.reject(
         expenseId,
@@ -541,15 +568,20 @@ export class ExpensesService {
         currentUser.id,
       );
 
-      // Log activity
       this.logger.log(
         `[EXPENSE] Rejected: ${updatedExpense.referenceCode} in chama ${chamaId} by ${currentUser.id}`,
       );
 
       return this.mapExpenseToDto(updatedExpense);
     } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new BadRequestException('Expense is no longer pending');
+      }
       this.logger.error(
-        `[EXPENSE] Error rejecting ${expenseId}: ${error.message}`,
+        `[EXPENSE] Error rejecting ${expenseId}: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
       throw error;
     }

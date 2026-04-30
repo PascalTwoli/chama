@@ -2,10 +2,13 @@ import {
   createParamDecorator,
   ExecutionContext,
   UnauthorizedException,
+  Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserType } from '@prisma/client';
 import { validateFirebaseUid } from '../utils/firebase-uid.validator';
+
+const logger = new Logger('CurrentUser');
 
 export interface CurrentUser {
   id: string; // Database user ID
@@ -55,14 +58,12 @@ export const CurrentUser = createParamDecorator(
       // If found by email but has different ID, we have a mismatch
       // This indicates an old account created with a different ID system
       if (user && user.id !== decodedToken.uid) {
-        console.warn(
-          `[AUTH WARNING] User ${decodedToken.email} has mismatched ID:` +
-          ` Database ID="${user.id}" but Firebase UID="${decodedToken.uid}". ` +
-          `This usually means an account was created before Firebase UID enforcement. ` +
-          `The user will be authenticated but this should be resolved.`,
+        // Backward compatibility: account created before Firebase UID enforcement.
+        // TODO: Migrate old accounts so their DB id matches their Firebase UID.
+        logger.warn(
+          `User ${decodedToken.email} has mismatched ID: DB="${user.id}" Firebase="${decodedToken.uid}". ` +
+          `Authenticated with existing record — migration needed.`,
         );
-        // Note: We still use this user to maintain backward compatibility
-        // But ideally, accounts should be migrated to use Firebase UID as the ID
       }
     }
 
@@ -79,9 +80,7 @@ export const CurrentUser = createParamDecorator(
         },
       });
 
-      console.log(
-        `[AUTH] Created new user with Firebase UID: ${decodedToken.uid.substring(0, 10)}... for ${decodedToken.email}`,
-      );
+      logger.log(`New user provisioned: ${decodedToken.email}`);
     }
 
     return {

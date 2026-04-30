@@ -94,7 +94,6 @@ export class ExpensesService {
     data: CreateExpenseDto
   ): Promise<ExpenseResponseDto> {
     try {
-      console.log('[ExpensesService] Creating expense with data:', data);
       const response: AxiosResponse<ExpenseResponseDto> = await apiClient.post(
         `/expenses?chamaId=${chamaId}`,
         data,
@@ -111,27 +110,15 @@ export class ExpensesService {
           'Could not connect to the server. Please check your internet connection.'
         );
       }
-      const errorData = axiosError.response.data as any;
-      console.error(
-        '[ExpensesService] Backend error response:',
-        axiosError.response.data
-      );
+      const errorData = axiosError.response.data as ApiErrorData & { message?: string | string[] };
 
       // Handle validation errors (Array format from NestJS)
       if (Array.isArray(errorData?.message)) {
-        const validationErrors = errorData.message
-          .map((err: any) =>
-            typeof err === 'string' ? err : err.message || JSON.stringify(err)
-          )
-          .join(', ');
-        console.error(
-          '[ExpensesService] Validation errors detail:',
-          validationErrors
-        );
+        const validationErrors = (errorData.message as string[]).join(', ');
         throw new Error(`Validation error: ${validationErrors}`);
       }
 
-      throw new Error(errorData?.message || 'Failed to create expense.');
+      throw new Error(errorData?.message as string || 'Failed to create expense.');
     }
   }
 

@@ -35,15 +35,20 @@ async function bootstrap() {
   );
 
   // Enable CORS for frontend requests
+  const defaultOrigins = [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
+    'http://localhost:5500',
+    'http://127.0.0.1:5500',
+  ];
+  const allowedOrigins = process.env.CORS_ORIGINS
+    ? [...process.env.CORS_ORIGINS.split(',').map(o => o.trim()), ...defaultOrigins]
+    : defaultOrigins;
+
   app.enableCors({
-    origin: [
-      'http://localhost:3000',
-      'http://localhost:3001',
-      'http://127.0.0.1:3000',
-      'http://127.0.0.1:3001',
-      'http://localhost:5500',
-      'http://127.0.0.1:5500',
-    ],
+    origin: allowedOrigins,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
@@ -80,8 +85,6 @@ async function bootstrap() {
         projectRoot,
         'chama-b57f4-firebase-adminsdk-fbsvc-a743d47717.json',
       );
-  console.log('Firebase key file path:', firebaseKeyFilePath);
-
   try {
     // Check if file exists first
     if (!fs.existsSync(firebaseKeyFilePath)) {
