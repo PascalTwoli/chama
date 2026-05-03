@@ -12,6 +12,10 @@ export interface DashboardData {
   totalMembers: number;
   thisMonthTotal: number;
   pendingPaymentsCount: number;
+  treasuryBalance: number;
+  outstandingLoans: number;
+  defaultedLoansCount: number;
+  thisMonthExpenses: number;
   monthlyContributions: { month: string; amount: number }[];
   contributionDistribution: { name: string; value: number; color: string }[];
   recentContributions: {
@@ -35,13 +39,36 @@ export interface DashboardData {
   }[];
 }
 
+interface FinanceSummaryResponse {
+  treasuryBalance: number;
+  outstandingLoans: number;
+  defaultedLoansCount: number;
+}
+
+interface ExpenseStatsResponse {
+  thisMonthExpenses: number;
+}
+
 class DashboardService {
   static async getDashboard(chamaId: string): Promise<DashboardData> {
     try {
-      const response = await secureApiClient.get(
-        `/dashboard/chama/${chamaId}`
-      );
-      return response.data;
+      const [dashboardResponse, financeResponse, expenseStatsResponse] =
+        await Promise.all([
+          secureApiClient.get(`/dashboard/chama/${chamaId}`),
+          secureApiClient.get(`/finance/summary?chamaId=${chamaId}`),
+          secureApiClient.get(`/expenses/stats?chamaId=${chamaId}`),
+        ]);
+
+      const financeSummary = financeResponse.data as FinanceSummaryResponse;
+      const expenseStats = expenseStatsResponse.data as ExpenseStatsResponse;
+
+      return {
+        ...(dashboardResponse.data as DashboardData),
+        treasuryBalance: financeSummary.treasuryBalance ?? 0,
+        outstandingLoans: financeSummary.outstandingLoans ?? 0,
+        defaultedLoansCount: financeSummary.defaultedLoansCount ?? 0,
+        thisMonthExpenses: expenseStats.thisMonthExpenses ?? 0,
+      };
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       const axiosError = error as AxiosError;
@@ -51,9 +78,7 @@ class DashboardService {
         );
       }
       const errorData = axiosError.response.data as ApiErrorData;
-      throw new Error(
-        errorData?.message || 'Failed to fetch dashboard data.'
-      );
+      throw new Error(errorData?.message || 'Failed to fetch dashboard data.');
     }
   }
 }

@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsEnum,
   IsNotEmpty,
@@ -8,7 +8,11 @@ import {
   IsUUID,
   Min,
 } from 'class-validator';
-import { transaction_type } from '@prisma/client';
+import {
+  Prisma,
+  transaction_direction,
+  transaction_type,
+} from '@prisma/client';
 
 /**
  * Using transaction_type from Prisma for consistency
@@ -59,6 +63,30 @@ export class CreateTransactionDto {
   @IsOptional()
   @IsString({ message: 'Reference must be a string' })
   reference?: string;
+
+  @ApiPropertyOptional({
+    description: 'Reference type for deduplication and categorization',
+    example: 'loan',
+  })
+  @IsOptional()
+  @IsString({ message: 'Reference type must be a string' })
+  referenceType?: string;
+
+  @ApiPropertyOptional({
+    description: 'Transaction direction (derived from type if omitted)',
+    enum: transaction_direction,
+    example: transaction_direction.CREDIT,
+  })
+  @IsOptional()
+  @IsEnum(transaction_direction, { message: 'Invalid transaction direction' })
+  direction?: transaction_direction;
+
+  @ApiPropertyOptional({
+    description: 'Additional metadata for the transaction',
+    type: Object,
+  })
+  @IsOptional()
+  meta?: Prisma.InputJsonValue;
 
   @ApiProperty({
     description:

@@ -34,7 +34,6 @@ export const getStatusBadgeVariant = (status: LoanStatus) => {
         color:
           'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
       };
-    case 'REPAID':
     case 'COMPLETED':
       return {
         variant: 'success',
@@ -77,8 +76,6 @@ export const getStatusLabel = (status: LoanStatus): string => {
       return 'Active';
     case 'OVERDUE':
       return 'Overdue';
-    case 'REPAID':
-      return 'Repaid';
     case 'COMPLETED':
       return 'Completed';
     case 'DEFAULTED':
@@ -106,7 +103,6 @@ export const getAvailableActions = (status: LoanStatus): string[] => {
       return ['repayment', 'default', 'view'];
     case 'COMPLETED':
     case 'DEFAULTED':
-    case 'REPAID':
     case 'REJECTED':
     case 'CANCELLED':
       return ['view'];
@@ -192,7 +188,6 @@ export const calculateLoanSummary = (
   interestRate: number,
   durationMonths: number
 ) => {
-  const monthlyRate = interestRate / 100 / 12;
   const interestAmount =
     (principal * interestRate * (durationMonths / 12)) / 100;
   const totalPayable = principal + interestAmount;

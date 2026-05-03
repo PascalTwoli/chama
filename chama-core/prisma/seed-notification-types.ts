@@ -124,6 +124,30 @@ async function seedNotificationTypes() {
       default_audience: NotificationAudience.ADMIN,
       action_required: false,
     },
+    {
+      key: 'contribution.period.opened',
+      description: 'New contribution period has been opened',
+      default_audience: NotificationAudience.BOTH,
+      action_required: true,
+    },
+    {
+      key: 'contribution.period.closed',
+      description: 'Contribution period has been closed',
+      default_audience: NotificationAudience.ADMIN,
+      action_required: false,
+    },
+    {
+      key: 'contribution.completed',
+      description: 'Member has fully paid their contribution for the period',
+      default_audience: NotificationAudience.MEMBER,
+      action_required: false,
+    },
+    {
+      key: 'contribution.overdue',
+      description: 'Member contribution is overdue',
+      default_audience: NotificationAudience.MEMBER,
+      action_required: true,
+    },
   ];
 
   console.log('Seeding notification types...');

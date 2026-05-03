@@ -6,20 +6,28 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { transaction_type, transaction_status } from '@prisma/client';
-import * as crypto from 'crypto';
+import {
+  Prisma,
+  transaction_type,
+  transaction_status,
+  transaction_direction,
+} from '@prisma/client';
 import { ChamaSettingsService } from '../chama-settings/chama-settings.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { FinanceService } from '../finance/finance.service';
 
 // Define interface for transaction response that matches the controller's expected format
 export interface TransactionResponse {
   id: string;
   type: transaction_type;
+  direction: transaction_direction;
   amount: number;
   chamaId: string;
   userId: string;
   description?: string;
   reference?: string;
+  referenceType?: string;
+  meta?: Prisma.JsonValue | null;
   status: transaction_status;
   createdAt: Date;
   updatedAt: Date;
@@ -31,6 +39,7 @@ export class TransactionService {
     private readonly prisma: PrismaService,
     private readonly chamaSettingsService: ChamaSettingsService,
     private readonly notificationsService: NotificationsService,
+    private readonly financeService: FinanceService,
   ) {}
 
   /**
@@ -118,20 +127,22 @@ export class TransactionService {
 
     // Create the transaction
     try {
-      const transaction = await this.prisma.$transaction(async prisma => {
-        return await prisma.transaction.create({
-          data: {
-            id: crypto.randomUUID(),
+      const transaction = await this.prisma.$transaction(async tx => {
+        return await this.financeService.recordTransaction(
+          {
             type: createTransactionDto.type,
             amount: createTransactionDto.amount,
-            chama_id: createTransactionDto.chamaId,
-            user_id: targetUserId,
+            chamaId: createTransactionDto.chamaId,
+            userId: targetUserId,
             description: createTransactionDto.description,
             reference: createTransactionDto.reference,
+            referenceType: createTransactionDto.referenceType,
+            direction: createTransactionDto.direction,
+            meta: createTransactionDto.meta,
             status: transaction_status.COMPLETED,
-            updatedAt: new Date(),
           },
-        });
+          { tx },
+        );
       });
 
       // Send notification for contribution payments
@@ -174,11 +185,14 @@ export class TransactionService {
       return {
         id: transaction.id,
         type: transaction.type,
+        direction: transaction.direction,
         amount: Number(transaction.amount),
         chamaId: transaction.chama_id,
         userId: transaction.user_id,
         description: transaction.description || undefined,
         reference: transaction.reference || undefined,
+        referenceType: transaction.reference_type || undefined,
+        meta: transaction.meta ?? undefined,
         status: transaction.status,
         createdAt: transaction.createdAt,
         updatedAt: transaction.updatedAt,
@@ -266,11 +280,14 @@ export class TransactionService {
     return transactions.map(transaction => ({
       id: transaction.id,
       type: transaction.type,
+      direction: transaction.direction,
       amount: Number(transaction.amount),
       chamaId: transaction.chama_id,
       userId: transaction.user_id,
       description: transaction.description || undefined,
       reference: transaction.reference || undefined,
+      referenceType: transaction.reference_type || undefined,
+      meta: transaction.meta ?? undefined,
       status: transaction.status,
       createdAt: transaction.createdAt,
       updatedAt: transaction.updatedAt,
@@ -320,11 +337,14 @@ export class TransactionService {
     return {
       id: transactionData.id,
       type: transactionData.type,
+      direction: transactionData.direction,
       amount: Number(transactionData.amount),
       chamaId: transactionData.chama_id,
       userId: transactionData.user_id,
       description: transactionData.description || undefined,
       reference: transactionData.reference || undefined,
+      referenceType: transactionData.reference_type || undefined,
+      meta: transactionData.meta ?? undefined,
       status: transactionData.status,
       createdAt: transactionData.createdAt,
       updatedAt: transactionData.updatedAt,
@@ -357,7 +377,6 @@ export class TransactionService {
       });
     });
 
-    // Calculate totals
     let totalContributions = 0;
     let totalWithdrawals = 0;
     let totalLoans = 0;
@@ -367,14 +386,20 @@ export class TransactionService {
     const chamaStatMap = new Map();
 
     transactions.forEach(transaction => {
-      // Update overall totals
-      if (transaction.type === transaction_type.CONTRIBUTION) {
+      const normalizedType = this.financeService.normalizeType(
+        transaction.type,
+      );
+
+      if (normalizedType === transaction_type.CONTRIBUTION) {
         totalContributions += transaction.amount.toNumber();
-      } else if (transaction.type === transaction_type.WITHDRAWAL) {
+      } else if (normalizedType === transaction_type.WITHDRAWAL) {
         totalWithdrawals += transaction.amount.toNumber();
-      } else if (transaction.type === transaction_type.LOAN) {
+      } else if (normalizedType === transaction_type.LOAN_DISBURSEMENT) {
         totalLoans += transaction.amount.toNumber();
-      } else if (transaction.type === transaction_type.LOAN_REPAYMENT) {
+      } else if (
+        normalizedType === transaction_type.LOAN_REPAYMENT_PRINCIPAL ||
+        normalizedType === transaction_type.LOAN_INTEREST
+      ) {
         totalRepayments += transaction.amount.toNumber();
       }
 
@@ -394,13 +419,16 @@ export class TransactionService {
       }
 
       const chamaStat = chamaStatMap.get(transaction.chama_id);
-      if (transaction.type === transaction_type.CONTRIBUTION) {
+      if (normalizedType === transaction_type.CONTRIBUTION) {
         chamaStat.contributions += transaction.amount.toNumber();
-      } else if (transaction.type === transaction_type.WITHDRAWAL) {
+      } else if (normalizedType === transaction_type.WITHDRAWAL) {
         chamaStat.withdrawals += transaction.amount.toNumber();
-      } else if (transaction.type === transaction_type.LOAN) {
+      } else if (normalizedType === transaction_type.LOAN_DISBURSEMENT) {
         chamaStat.loans += transaction.amount.toNumber();
-      } else if (transaction.type === transaction_type.LOAN_REPAYMENT) {
+      } else if (
+        normalizedType === transaction_type.LOAN_REPAYMENT_PRINCIPAL ||
+        normalizedType === transaction_type.LOAN_INTEREST
+      ) {
         chamaStat.repayments += transaction.amount.toNumber();
       }
     });

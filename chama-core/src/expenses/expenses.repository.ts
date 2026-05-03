@@ -230,9 +230,11 @@ export class ExpensesRepository {
     const updateData: Prisma.expenseUpdateInput = {};
     if (data.description) updateData.description = data.description;
     if (data.amount) updateData.amount = parseFloat(data.amount);
-    if (data.categoryId) updateData.category = { connect: { id: data.categoryId } };
+    if (data.categoryId)
+      updateData.category = { connect: { id: data.categoryId } };
     if (data.paidTo) updateData.paidTo = data.paidTo;
-    if (data.paymentMethod) updateData.paymentMethod = data.paymentMethod as PaymentMethod;
+    if (data.paymentMethod)
+      updateData.paymentMethod = data.paymentMethod as PaymentMethod;
     if (data.referenceNumber !== undefined)
       updateData.referenceNumber = data.referenceNumber;
     if (data.expenseDate) updateData.expenseDate = new Date(data.expenseDate);
@@ -414,8 +416,10 @@ export class ExpensesRepository {
     id: string,
     chamaId: string,
     approvedById: string,
+    tx?: Prisma.TransactionClient,
   ): Promise<ExpenseWithCategory> {
-    return this.prisma.expense.update({
+    const client = tx ?? this.prisma;
+    return client.expense.update({
       where: { id, status: 'PENDING' },
       data: {
         status: 'APPROVED',
@@ -452,7 +456,11 @@ export class ExpensesRepository {
   /**
    * Reject an expense
    */
-  async reject(id: string, chamaId: string, rejectedById: string): Promise<ExpenseWithCategory> {
+  async reject(
+    id: string,
+    chamaId: string,
+    rejectedById: string,
+  ): Promise<ExpenseWithCategory> {
     return this.prisma.expense.update({
       where: { id, status: 'PENDING' },
       data: {

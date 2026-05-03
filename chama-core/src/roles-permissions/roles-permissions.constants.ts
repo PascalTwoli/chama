@@ -59,6 +59,22 @@ export const DEFAULT_PERMISSIONS = [
     description: 'View loan statistics',
   },
   {
+    key: 'contribution.view',
+    description: 'View contribution periods, board, and history',
+  },
+  {
+    key: 'contribution.record',
+    description: 'Record member contribution payments',
+  },
+  {
+    key: 'contribution.export',
+    description: 'Export contribution data to CSV',
+  },
+  {
+    key: 'contribution.manage_periods',
+    description: 'Open and close contribution periods',
+  },
+  {
     key: 'manage_members',
     description: 'Add, remove, or manage chama members',
   },
@@ -125,6 +141,10 @@ export const DEFAULT_ROLES: {
       'loan.repayment.record',
       'loan.mark.defaulted',
       'loan.stats.view',
+      'contribution.view',
+      'contribution.record',
+      'contribution.export',
+      'contribution.manage_periods',
     ],
   },
   {
@@ -146,6 +166,10 @@ export const DEFAULT_ROLES: {
       'loan.repayment.record',
       'loan.mark.defaulted',
       'loan.stats.view',
+      'contribution.view',
+      'contribution.record',
+      'contribution.export',
+      'contribution.manage_periods',
     ],
   },
   {

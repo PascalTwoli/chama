@@ -3,13 +3,12 @@ export type LoanStatus =
   | 'REQUESTED'
   | 'UNDER_REVIEW'
   | 'APPROVED'
+  | 'REJECTED'
   | 'DISBURSED'
   | 'ACTIVE'
   | 'OVERDUE'
-  | 'REPAID'
   | 'COMPLETED'
   | 'DEFAULTED'
-  | 'REJECTED'
   | 'CANCELLED';
 
 export type PaymentMethod = 'MPESA' | 'BANK_TRANSFER' | 'CASH' | 'OTHER';

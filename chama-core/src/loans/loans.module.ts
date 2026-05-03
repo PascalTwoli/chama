@@ -5,9 +5,10 @@ import { LoansRepository } from './loans.repository';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { UserModule } from '../user/user.module';
+import { FinanceModule } from '../finance/finance.module';
 
 @Module({
-  imports: [NotificationsModule, UserModule],
+  imports: [NotificationsModule, UserModule, FinanceModule],
   controllers: [LoansController],
   providers: [LoansService, LoansRepository, PrismaService],
   exports: [LoansService],

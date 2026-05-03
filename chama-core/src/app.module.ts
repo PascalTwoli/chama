@@ -17,6 +17,8 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { ExpensesModule } from './expenses/expenses.module';
 import { TreasuryModule } from './treasury/treasury.module';
 import { LoansModule } from './loans/loans.module';
+import { FinanceModule } from './finance/finance.module';
+import { ContributionsModule } from './contributions/contributions.module';
 
 @Module({
   imports: [
@@ -35,6 +37,8 @@ import { LoansModule } from './loans/loans.module';
     ExpensesModule,
     TreasuryModule,
     LoansModule,
+    FinanceModule,
+    ContributionsModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthGuard],

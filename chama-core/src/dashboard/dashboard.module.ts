@@ -3,10 +3,10 @@ import { DashboardController } from './dashboard.controller';
 import { DashboardService } from './dashboard.service';
 import { PrismaModule } from '../prisma/prisma.module';
 import { UserModule } from '../user/user.module';
-import { ChamaSettingsModule } from '../chama-settings/chama-settings.module';
+import { FinanceModule } from '../finance/finance.module';
 
 @Module({
-  imports: [PrismaModule, UserModule, ChamaSettingsModule],
+  imports: [PrismaModule, UserModule, FinanceModule],
   controllers: [DashboardController],
   providers: [DashboardService],
 })

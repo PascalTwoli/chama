@@ -43,4 +43,11 @@ export class TreasurySummaryDto {
     type: Number,
   })
   totalInterestEarned!: number;
+
+  @ApiProperty({
+    description: 'Net worth: treasury balance + outstanding active loan principal',
+    example: 167000.0,
+    type: Number,
+  })
+  netWorth!: number;
 }

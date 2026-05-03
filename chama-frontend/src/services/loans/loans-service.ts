@@ -50,6 +50,7 @@ class LoansService {
       page?: number;
       limit?: number;
       status?: string;
+      search?: string;
       borrowerId?: string;
     }
   ): Promise<PaginatedLoans> {
@@ -59,6 +60,7 @@ class LoansService {
       if (options?.page) params.append('page', options.page.toString());
       if (options?.limit) params.append('limit', options.limit.toString());
       if (options?.status) params.append('status', options.status);
+      if (options?.search) params.append('search', options.search);
       if (options?.borrowerId) params.append('borrowerId', options.borrowerId);
 
       const response = await secureApiClient.get('/loans', {
@@ -131,6 +133,26 @@ class LoansService {
   }
 
   /**
+   * Move a loan from REQUESTED to UNDER_REVIEW
+   */
+  static async reviewLoan(loanId: string): Promise<Loan> {
+    try {
+      const response = await secureApiClient.patch(`/loans/${loanId}/review`);
+      return response.data;
+    } catch (error) {
+      console.error('Error reviewing loan:', error);
+      const axiosError = error as AxiosError;
+      if (!axiosError.response) {
+        throw new Error(
+          'Could not connect to the server. Please check your internet connection and try again.'
+        );
+      }
+      const errorData = axiosError.response.data as ApiErrorData;
+      throw new Error(errorData?.message || 'Failed to move loan to review.');
+    }
+  }
+
+  /**
    * Approve a loan
    */
   static async approveLoan(
@@ -191,10 +213,7 @@ class LoansService {
   /**
    * Disburse an approved loan
    */
-  static async disburseLoan(
-    loanId: string,
-    startDate: string
-  ): Promise<Loan> {
+  static async disburseLoan(loanId: string, startDate: string): Promise<Loan> {
     try {
       const response = await secureApiClient.patch(
         `/loans/${loanId}/disburse`,

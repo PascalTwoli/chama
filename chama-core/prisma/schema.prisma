@@ -29,6 +29,9 @@ model chama {
   expenses          expense[]
   expense_categories expense_category[]
   loans             loan[]
+  contribution_periods     contribution_period[]
+  contribution_obligations contribution_obligation[]
+  contribution_payments    contribution_payment[]
 }
 
 model contribution {
@@ -133,19 +136,97 @@ model payment {
   contribution    contribution  @relation(fields: [contribution_id], references: [id])
 }
 
+model contribution_period {
+  id              String                   @id @default(uuid())
+  chama_id        String
+  label           String
+  start_date      DateTime
+  end_date        DateTime
+  due_date        DateTime
+  required_amount Decimal                  @db.Decimal(14, 2)
+  frequency       String
+  status          ContributionPeriodStatus @default(OPEN)
+  created_by      String
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
+
+  chama       chama                    @relation(fields: [chama_id], references: [id], onDelete: Cascade)
+  obligations contribution_obligation[]
+
+  @@index([chama_id])
+  @@index([chama_id, status])
+}
+
+model contribution_obligation {
+  id                   String                    @id @default(uuid())
+  period_id            String
+  user_id              String
+  chama_id             String
+  required_amount      Decimal                   @db.Decimal(14, 2)
+  paid_amount          Decimal                   @db.Decimal(14, 2) @default(0)
+  carry_forward_credit Decimal                   @db.Decimal(14, 2) @default(0)
+  carry_forward_debt   Decimal                   @db.Decimal(14, 2) @default(0)
+  outstanding_balance  Decimal                   @db.Decimal(14, 2) @default(0)
+  status               ContributionPaymentStatus @default(PENDING)
+  timeliness           ContributionTimeliness?
+  createdAt            DateTime                  @default(now())
+  updatedAt            DateTime                  @updatedAt
+
+  user     user                  @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  chama    chama                 @relation(fields: [chama_id], references: [id], onDelete: Cascade)
+  period   contribution_period   @relation(fields: [period_id], references: [id], onDelete: Cascade)
+  payments contribution_payment[]
+
+  @@unique([period_id, user_id])
+  @@index([chama_id])
+  @@index([chama_id, period_id])
+}
+
+model contribution_payment {
+  id             String        @id @default(uuid())
+  obligation_id  String
+  chama_id       String
+  user_id        String
+  amount         Decimal       @db.Decimal(14, 2)
+  method         PaymentMethod @default(CASH)
+  reference      String?
+  notes          String?
+  paid_at        DateTime      @default(now())
+  transaction_id String?
+  recorded_by    String
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  obligation contribution_obligation @relation(fields: [obligation_id], references: [id], onDelete: Cascade)
+  chama      chama                   @relation(fields: [chama_id], references: [id], onDelete: Cascade)
+  user       user                    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([chama_id])
+  @@index([obligation_id])
+  @@index([chama_id, user_id])
+  @@index([chama_id, paid_at])
+}
+
 model transaction {
   id          String             @id
   type        transaction_type
+  direction   transaction_direction @default(CREDIT)
   amount      Decimal            @db.Decimal(10, 2)
   chama_id    String
   user_id     String
   description String?
   reference   String?
+  reference_type String?
+  meta        Json?
   status      transaction_status @default(COMPLETED)
   createdAt   DateTime           @default(now())
   updatedAt   DateTime
   chama       chama              @relation(fields: [chama_id], references: [id])
   user        user               @relation(fields: [user_id], references: [id])
+
+  @@index([chama_id, type])
+  @@index([chama_id, createdAt])
+  @@index([chama_id, status])
 }
 
 model ui_settings {
@@ -202,7 +283,9 @@ model user {
   loans_approved                              loan[]        @relation("loan_approver")
   loans_reviewed                              loan[]        @relation("loan_reviewer")
   loans_disbursed                             loan[]        @relation("loan_disburser")
-  loan_repayments_recorded                   loan_repayment[]
+  loan_repayments_recorded                    loan_repayment[]
+  contribution_obligations                    contribution_obligation[]
+  contribution_payments                       contribution_payment[]
 }
 
 model role {
@@ -364,6 +447,23 @@ enum ContributionStatus {
   PENDING
   COMPLETED
   FAILED
+}
+
+enum ContributionPeriodStatus {
+  OPEN
+  CLOSED
+}
+
+enum ContributionPaymentStatus {
+  PENDING
+  PARTIAL
+  COMPLETED
+}
+
+enum ContributionTimeliness {
+  ON_TIME
+  LATE
+  OVERDUE
 }
 
 enum DeliveryMethod {
@@ -621,12 +721,26 @@ enum transaction_status {
 
 enum transaction_type {
   CONTRIBUTION
+  EXPENSE
+  LOAN_DISBURSEMENT
+  LOAN_REPAYMENT_PRINCIPAL
+  LOAN_INTEREST
+  INVESTMENT_OUT
+  INVESTMENT_RETURN
   WITHDRAWAL
+  ADJUSTMENT
+  FEE
+  REFUND
+  // Legacy values (kept for backward compatibility)
   LOAN
   LOAN_REPAYMENT
   INVESTMENT
   RETURN
-  EXPENSE
+}
+
+enum transaction_direction {
+  CREDIT
+  DEBIT
 }
 
 enum user_role {

@@ -15,6 +15,9 @@ import {
   Calendar,
   UserPlus,
   Plus,
+  Landmark,
+  HandCoins,
+  AlertTriangle,
 } from 'lucide-react';
 import {
   BarChart,
@@ -42,6 +45,10 @@ const defaultDashboard: DashboardData = {
   totalMembers: 0,
   thisMonthTotal: 0,
   pendingPaymentsCount: 0,
+  treasuryBalance: 0,
+  outstandingLoans: 0,
+  defaultedLoansCount: 0,
+  thisMonthExpenses: 0,
   monthlyContributions: [],
   contributionDistribution: [
     { name: 'Paid on Time', value: 0, color: '#22c55e' },
@@ -200,11 +207,32 @@ export default function AdminDashboard() {
       {/* Stats Cards */}
       <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
         <StatCard
-          title='Total Savings'
+          title='Treasury Balance'
+          value={`KSh ${data.treasuryBalance.toLocaleString()}`}
+          change=''
+          trend='up'
+          icon={<Landmark className='w-5 h-5' />}
+        />
+        <StatCard
+          title='Total Contributions'
           value={`KSh ${data.totalSavings.toLocaleString()}`}
           change=''
           trend='up'
           icon={<Wallet className='w-5 h-5' />}
+        />
+        <StatCard
+          title='Outstanding Loans'
+          value={`KSh ${data.outstandingLoans.toLocaleString()}`}
+          change=''
+          trend='down'
+          icon={<HandCoins className='w-5 h-5' />}
+        />
+        <StatCard
+          title='Expenses This Month'
+          value={`KSh ${data.thisMonthExpenses.toLocaleString()}`}
+          change=''
+          trend='down'
+          icon={<FileText className='w-5 h-5' />}
         />
         <StatCard
           title='Total Members'
@@ -212,6 +240,13 @@ export default function AdminDashboard() {
           change=''
           trend='up'
           icon={<Users className='w-5 h-5' />}
+        />
+        <StatCard
+          title='Defaulted Loans'
+          value={data.defaultedLoansCount.toString()}
+          change={data.defaultedLoansCount > 0 ? 'Warning' : ''}
+          trend='down'
+          icon={<AlertTriangle className='w-5 h-5' />}
         />
         <StatCard
           title='This Month'

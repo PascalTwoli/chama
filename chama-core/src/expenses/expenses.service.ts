@@ -16,7 +16,16 @@ import {
   ExpenseStatsDto,
   ExpenseCategoryDto,
 } from './dto/expense-response.dto';
-import { system_role, expense, expense_category, user, role, member_role } from '@prisma/client';
+import {
+  system_role,
+  expense,
+  expense_category,
+  user,
+  role,
+  member_role,
+  transaction_type,
+} from '@prisma/client';
+import { FinanceService } from '../finance/finance.service';
 
 interface CurrentUserType {
   id: string;
@@ -39,6 +48,7 @@ export class ExpensesService {
   constructor(
     private readonly repository: ExpensesRepository,
     private readonly prisma: PrismaService,
+    private readonly financeService: FinanceService,
   ) {}
 
   /**
@@ -354,8 +364,7 @@ export class ExpensesService {
     await this.verifyMembership(currentUser.id, chamaId);
 
     try {
-      const stats = await this.repository.getStats(chamaId);
-      return stats;
+      return await this.financeService.getExpenseStats(chamaId, currentUser.id);
     } catch (error) {
       this.logger.error(
         `Failed to fetch stats: ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -479,11 +488,34 @@ export class ExpensesService {
     }
 
     try {
-      const updatedExpense = await this.repository.approve(
-        expenseId,
-        chamaId,
-        currentUser.id,
-      );
+      const updatedExpense = await this.prisma.$transaction(async tx => {
+        const approved = await this.repository.approve(
+          expenseId,
+          chamaId,
+          currentUser.id,
+          tx,
+        );
+
+        await this.financeService.recordTransaction(
+          {
+            type: transaction_type.EXPENSE,
+            amount: Number(approved.amount),
+            chamaId,
+            userId: approved.createdBy,
+            description: `Expense approved: ${approved.referenceCode}`,
+            reference: approved.id,
+            referenceType: 'expense',
+            meta: {
+              expenseId: approved.id,
+              referenceCode: approved.referenceCode,
+              approvedBy: currentUser.id,
+            },
+          },
+          { tx },
+        );
+
+        return approved;
+      });
 
       this.logger.log(
         `[EXPENSE] Approved: ${updatedExpense.referenceCode} in chama ${chamaId} by ${currentUser.id}`,

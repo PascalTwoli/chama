@@ -8,7 +8,7 @@ import {
 } from '../ui/table';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { Eye, CheckCircle, XCircle, Send, AlertTriangle } from 'lucide-react';
+import { Eye, CheckCircle, XCircle, Send, AlertTriangle, ClipboardList } from 'lucide-react';
 import { Loan, LoanStatus } from '../../models/loans';
 import {
   formatCurrency,
@@ -24,6 +24,7 @@ interface LoansTableProps {
   loans: Loan[];
   isLoading: boolean;
   onView: (loan: Loan) => void;
+  onReview: (loan: Loan) => void;
   onApprove: (loan: Loan) => void;
   onReject: (loan: Loan) => void;
   onDisburse: (loan: Loan) => void;
@@ -35,6 +36,7 @@ const getActionButtons = (
   status: LoanStatus,
   loan: Loan,
   onView: (loan: Loan) => void,
+  onReview: (loan: Loan) => void,
   onApprove: (loan: Loan) => void,
   onReject: (loan: Loan) => void,
   onDisburse: (loan: Loan) => void,
@@ -59,6 +61,40 @@ const getActionButtons = (
   // Status-specific buttons
   switch (status) {
     case 'REQUESTED':
+      buttons.push(
+        <Button
+          key='review'
+          variant='outline'
+          size='sm'
+          onClick={() => onReview(loan)}
+          className='h-8'
+        >
+          <ClipboardList className='w-4 h-4 mr-1' />
+          Review
+        </Button>,
+        <Button
+          key='approve'
+          variant='outline'
+          size='sm'
+          onClick={() => onApprove(loan)}
+          className='h-8'
+        >
+          <CheckCircle className='w-4 h-4 mr-1' />
+          Approve
+        </Button>,
+        <Button
+          key='reject'
+          variant='outline'
+          size='sm'
+          onClick={() => onReject(loan)}
+          className='h-8 text-destructive hover:text-destructive'
+        >
+          <XCircle className='w-4 h-4 mr-1' />
+          Reject
+        </Button>
+      );
+      break;
+
     case 'UNDER_REVIEW':
       buttons.push(
         <Button
@@ -111,22 +147,18 @@ const getActionButtons = (
           className='h-8'
         >
           Record Repayment
+        </Button>,
+        <Button
+          key='default'
+          variant='outline'
+          size='sm'
+          onClick={() => onDefault(loan)}
+          className='h-8 text-destructive hover:text-destructive'
+        >
+          <AlertTriangle className='w-4 h-4 mr-1' />
+          Mark Defaulted
         </Button>
       );
-      if (status !== 'OVERDUE') {
-        buttons.push(
-          <Button
-            key='default'
-            variant='outline'
-            size='sm'
-            onClick={() => onDefault(loan)}
-            className='h-8 text-destructive hover:text-destructive'
-          >
-            <AlertTriangle className='w-4 h-4 mr-1' />
-            Mark Defaulted
-          </Button>
-        );
-      }
       break;
   }
 
@@ -137,6 +169,7 @@ export function LoansTable({
   loans,
   isLoading,
   onView,
+  onReview,
   onApprove,
   onReject,
   onDisburse,
@@ -216,7 +249,11 @@ export function LoansTable({
                 {formatCurrency(loan.principalAmount || loan.requestedAmount)}
               </TableCell>
               <TableCell className='border-b border-border py-3 text-green-600 font-medium'>
-                {formatCurrency(loan.interestAmount || loan.interestRate)}
+                {loan.interestAmount != null
+                  ? formatCurrency(loan.interestAmount)
+                  : loan.interestRate != null
+                    ? `${loan.interestRate}%`
+                    : '—'}
               </TableCell>
               <TableCell className='border-b border-border py-3 font-bold'>
                 {formatCurrency(loan.outstandingBalance || 0)}
@@ -238,6 +275,7 @@ export function LoansTable({
                     loan.status,
                     loan,
                     onView,
+                    onReview,
                     onApprove,
                     onReject,
                     onDisburse,

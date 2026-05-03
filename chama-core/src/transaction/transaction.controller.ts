@@ -33,7 +33,7 @@ import { CurrentUser } from '../decorators/current-user.decorator';
 import { type CurrentUser as CurrentUserType } from '../decorators/current-user.decorator';
 import { AuthGuard } from '../guards/auth.guard';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { transaction_type } from '@prisma/client';
+import { Prisma, transaction_type } from '@prisma/client';
 import { TransactionService } from './transaction.service';
 
 /**
@@ -42,11 +42,14 @@ import { TransactionService } from './transaction.service';
 interface TransactionResponse {
   id: string;
   type: transaction_type; // Using Prisma's transaction_type
+  direction: string;
   amount: number;
   chamaId: string;
   userId: string;
   description?: string;
   reference?: string;
+  referenceType?: string;
+  meta?: Prisma.JsonValue | null;
   status: string;
   createdAt: Date;
   updatedAt: Date;
@@ -80,6 +83,10 @@ export class TransactionController {
           enum: Object.values(transaction_type),
           description: 'Transaction type',
         },
+        direction: {
+          type: 'string',
+          description: 'Transaction direction (credit or debit)',
+        },
         amount: { type: 'number', description: 'Transaction amount' },
         chamaId: { type: 'string', description: 'ID of the chama' },
         userId: {
@@ -88,6 +95,8 @@ export class TransactionController {
         },
         description: { type: 'string', description: 'Transaction description' },
         reference: { type: 'string', description: 'External reference number' },
+        referenceType: { type: 'string', description: 'Reference type' },
+        meta: { type: 'object', description: 'Transaction metadata' },
         status: { type: 'string', description: 'Transaction status' },
         createdAt: {
           type: 'string',
@@ -181,6 +190,10 @@ export class TransactionController {
             enum: Object.values(transaction_type),
             description: 'Transaction type',
           },
+          direction: {
+            type: 'string',
+            description: 'Transaction direction (credit or debit)',
+          },
           amount: { type: 'number', description: 'Transaction amount' },
           chamaId: { type: 'string', description: 'ID of the chama' },
           userId: {
@@ -195,6 +208,11 @@ export class TransactionController {
             type: 'string',
             description: 'External reference number',
           },
+          referenceType: {
+            type: 'string',
+            description: 'Reference type',
+          },
+          meta: { type: 'object', description: 'Transaction metadata' },
           status: { type: 'string', description: 'Transaction status' },
           createdAt: {
             type: 'string',
@@ -270,6 +288,10 @@ export class TransactionController {
           enum: Object.values(transaction_type),
           description: 'Transaction type',
         },
+        direction: {
+          type: 'string',
+          description: 'Transaction direction (credit or debit)',
+        },
         amount: { type: 'number', description: 'Transaction amount' },
         chamaId: { type: 'string', description: 'ID of the chama' },
         userId: {
@@ -278,6 +300,8 @@ export class TransactionController {
         },
         description: { type: 'string', description: 'Transaction description' },
         reference: { type: 'string', description: 'External reference number' },
+        referenceType: { type: 'string', description: 'Reference type' },
+        meta: { type: 'object', description: 'Transaction metadata' },
         status: { type: 'string', description: 'Transaction status' },
         createdAt: {
           type: 'string',
@@ -311,11 +335,14 @@ export class TransactionController {
       const response: TransactionResponse = {
         id: transaction.id,
         type: transaction.type,
+        direction: transaction.direction,
         amount: Number(transaction.amount),
         chamaId: transaction.chamaId,
         userId: transaction.userId,
         description: transaction.description || undefined,
         reference: transaction.reference || undefined,
+        referenceType: transaction.referenceType || undefined,
+        meta: transaction.meta ?? undefined,
         status: transaction.status,
         createdAt: transaction.createdAt,
         updatedAt: transaction.updatedAt,

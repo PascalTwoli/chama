@@ -14,13 +14,9 @@ import {
 } from '../models/loans';
 import LoansService from '../services/loans/loans-service';
 import ChamaMembersService from '../services/chama/chama-members-service';
-import TreasuryService, {
-  TreasurySummary,
-} from '../services/treasury/treasury-service';
 
 // Components
 import { LoanStatsCards } from '../components/loans/LoanStatsCards';
-import { TreasurySummaryCards } from '../components/loans/TreasurySummaryCards';
 import { LoansTable } from '../components/loans/LoansTable';
 import { LoanDetailsModal } from '../components/loans/LoanDetailsModal';
 import { ApproveLoanModal } from '../components/loans/ApproveLoanModal';
@@ -53,12 +49,9 @@ export default function LoansPage() {
   const [statsLoading, setStatsLoading] = useState(true);
   const [loansLoading, setLoansLoading] = useState(true);
   const [borrowersLoading, setBorrowersLoading] = useState(false);
-  const [treasuryLoading, setTreasuryLoading] = useState(true);
   const [borrowers, setBorrowers] = useState<
     Array<{ id: string; name: string; email: string }>
   >([]);
-  const [treasurySummary, setTreasurySummary] =
-    useState<TreasurySummary | null>(null);
 
   // Filters & Pagination
   const [filters, setFilters] = useState<LoanFilterOptions>({
@@ -134,30 +127,6 @@ export default function LoansPage() {
     return () => clearTimeout(timeout);
   }, [chamaId, filters.status, filters.search, filters.page]);
 
-  // Load treasury summary
-  useEffect(() => {
-    if (!chamaId) return;
-
-    const loadTreasurySummary = async () => {
-      try {
-        setTreasuryLoading(true);
-        const summary = await TreasuryService.getTreasurySummary(chamaId);
-        setTreasurySummary(summary);
-      } catch (error) {
-        toast.error(
-          error instanceof Error
-            ? error.message
-            : 'Failed to load treasury summary'
-        );
-        setTreasurySummary(null);
-      } finally {
-        setTreasuryLoading(false);
-      }
-    };
-
-    loadTreasurySummary();
-  }, [chamaId]);
-
   // Load borrowers for create loan dropdown
   useEffect(() => {
     if (!chamaId) return;
@@ -228,16 +197,27 @@ export default function LoansPage() {
       setLoans(updated.loans);
       const newStats = await LoansService.getStats(chamaId);
       setStats(newStats);
-      const newTreasurySummary = await TreasuryService.getTreasurySummary(
-        chamaId
-      );
-      setTreasurySummary(newTreasurySummary);
     } catch (error) {
       console.error('Error reloading loans:', error);
     }
   };
 
   // Action handlers
+  const handleReview = async (loanId: string) => {
+    setIsSubmitting(true);
+    try {
+      await LoansService.reviewLoan(loanId);
+      toast.success('Loan moved to under review');
+      await reloadLoans();
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to review loan'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleApprove = async (
     loanId: string,
     data: {
@@ -399,11 +379,6 @@ export default function LoansPage() {
       {/* KPI Cards */}
       <LoanStatsCards stats={stats} isLoading={statsLoading} />
 
-      <TreasurySummaryCards
-        summary={treasurySummary ?? undefined}
-        isLoading={treasuryLoading}
-      />
-
       {/* Main Content */}
       <div className='bg-card rounded-lg border border-border shadow-sm pb-4'>
         {/* Toolbar & Filters */}
@@ -444,6 +419,7 @@ export default function LoansPage() {
             loans={loans}
             isLoading={loansLoading}
             onView={loan => openModal('details', loan)}
+            onReview={loan => handleReview(loan.id)}
             onApprove={loan => openModal('approve', loan)}
             onReject={loan => openModal('reject', loan)}
             onDisburse={loan => openModal('disburse', loan)}
